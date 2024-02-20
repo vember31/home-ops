@@ -124,7 +124,8 @@ spec:
         globalMounts:
           - path: /scripts/blocky-disable-5m.sh
             subPath: blocky-disable-5m.sh
-            readOnly: false #allow to chmod +x 
+            readOnly: false
+            defaultMode: 0777
       
     #   kubeconfig:
     #     enabled:  true
