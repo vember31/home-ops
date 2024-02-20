@@ -5,9 +5,9 @@ configMapGenerator:
   - name: olivetin-config
     files:
       - ./config/config.yaml
-  # - name: blocky-disable-5m
-  #   files:
-  #     - ./scripts/blocky-disable-5m.sh
+  - name: blocky-disable-5m
+    files:
+      - ./scripts/blocky-disable-5m.sh
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
