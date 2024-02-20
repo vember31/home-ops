@@ -11,18 +11,18 @@ logLevel: "INFO"
 
 # Actions (buttons) to show up on the WebUI:
 actions:
-  - title: Check disk space
-    icon: disk
-    shell: df -h /media
-    popupOnStart: "execution-dialog-stdout-only"
+  # - title: Check disk space
+  #   icon: disk
+  #   shell: df -h /
+  #   #popupOnStart: "execution-dialog-stdout-only"
 
-  - title: check dmesg logs
-    shell: dmesg | tail
-    icon: logs
-    popupOnStart: "execution-dialog"
+  # - title: check dmesg logs
+  #   shell: dmesg | tail
+  #   icon: logs
+  #   #popupOnStart: "execution-dialog"
 
   - title: date
     shell: date
     timeout: 6
     icon: clock
-    popupOnStart: "execution-button"
+    # popupOnStart: "execution-button"
