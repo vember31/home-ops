@@ -57,12 +57,12 @@ spec:
         replicas: 1
 
         # Controller-specific overrides for `defaultPodOptions` keys
-        pod:
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-            fsGroup: 1000
-            fsGroupChangePolicy: "OnRootMismatch"
+        # pod:
+        #   securityContext:
+        #     runAsUser: 1000
+        #     runAsGroup: 1000
+        #     fsGroup: 1000
+        #     fsGroupChangePolicy: "OnRootMismatch"
 
         containers:
           main:
@@ -112,18 +112,18 @@ spec:
           - path: /config/config.yaml
             subPath: config.yaml
 
-      blocky-disable-script:
-        enabled: true
-        type: configMap
-        name: blocky-disable-5m
-        globalMounts:
-          - path: /scripts/blocky-disable-5m.sh
-            subPath: blocky-disable-5m.sh
+    #   blocky-disable-script:
+    #     enabled: true
+    #     type: configMap
+    #     name: blocky-disable-5m
+    #     globalMounts:
+    #       - path: /scripts/blocky-disable-5m.sh
+    #         subPath: blocky-disable-5m.sh
       
-      kubeconfig:
-        enabled:  true
-        type: secret
-        name: olivetin-secret
-        globalMounts:
-          - path: /home/olivetin/.kube/config
-            subPath: config
+    #   kubeconfig:
+    #     enabled:  true
+    #     type: secret
+    #     name: olivetin-secret
+    #     globalMounts:
+    #       - path: /home/olivetin/.kube/config
+    #         subPath: config

@@ -9,3 +9,4 @@ resources:
   # Post Flux-Kustomizations
   - ./hajimari/externalsecret.yaml
   - ./hajimari/ks.yaml
+  - ./olivetin/ks.yaml

@@ -4,14 +4,15 @@ kind: Kustomization
 configMapGenerator:
   - name: olivetin-config
     files:
-      - ./resources/config.yaml
-  - name: blocky-disable-5m
-    files:
-      - ./resources/blocky-disable-5m.sh
+      - ./config/config.yaml
+  # - name: blocky-disable-5m
+  #   files:
+  #     - ./scripts/blocky-disable-5m.sh
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
     kustomize.toolkit.fluxcd.io/substitute: enabled
 resources:
+  - ./externalsecret.yaml
   - ./helmrelease.yaml
   - ../../../../templates/gatus/internal
