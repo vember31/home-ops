@@ -59,7 +59,7 @@ spec:
         # Controller-specific overrides for `defaultPodOptions` keys
         pod:
           securityContext:
-            runAsUser: olivetin
+            runAsUser: "olivetin"
             runAsGroup: 1000
             fsGroup: 1000
             runAsNonRoot: true
