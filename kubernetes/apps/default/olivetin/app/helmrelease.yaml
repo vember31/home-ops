@@ -57,12 +57,12 @@ spec:
         replicas: 1
 
         # Controller-specific overrides for `defaultPodOptions` keys
-        # pod:
-        #   securityContext:
-        #     runAsUser: 1000
-        #     runAsGroup: 1000
-        #     fsGroup: 1000
-        #     fsGroupChangePolicy: "OnRootMismatch"
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: "OnRootMismatch"
 
         containers:
           main:
@@ -122,6 +122,7 @@ spec:
         globalMounts:
           - path: /scripts/blocky-disable-5m.sh
             subPath: blocky-disable-5m.sh
+            readOnly: false #allow to chmod +x 
       
     #   kubeconfig:
     #     enabled:  true
