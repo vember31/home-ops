@@ -115,13 +115,13 @@ spec:
           - path: /config/config.yaml
             subPath: config.yaml
 
-    #   blocky-disable-script:
-    #     enabled: true
-    #     type: configMap
-    #     name: blocky-disable-5m
-    #     globalMounts:
-    #       - path: /scripts/blocky-disable-5m.sh
-    #         subPath: blocky-disable-5m.sh
+      blocky-disable-script:
+        enabled: true
+        type: configMap
+        name: blocky-disable-5m
+        globalMounts:
+          - path: /scripts/blocky-disable-5m.sh
+            subPath: blocky-disable-5m.sh
       
     #   kubeconfig:
     #     enabled:  true

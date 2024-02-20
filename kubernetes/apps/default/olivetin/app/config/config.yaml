@@ -11,15 +11,9 @@ logLevel: "INFO"
 
 # Actions (buttons) to show up on the WebUI:
 actions:
-  # - title: Check disk space
-  #   icon: disk
-  #   shell: df -h /
-  #   #popupOnStart: "execution-dialog-stdout-only"
-
-  # - title: check dmesg logs
-  #   shell: dmesg | tail
-  #   icon: logs
-  #   #popupOnStart: "execution-dialog"
+  - title: Disable Blocky for 5 minutes
+    icon: "&#128737;"
+    shell: /scripts/blocky-disable-5m.sh
 
   - title: date
     shell: date

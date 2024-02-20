@@ -6,21 +6,20 @@ BLOCKY_GROUPS=default #could turn this to variable later, but i only have 'defau
 NAMESPACE=networking
 PAUSE_SECONDS=3s
 KUBECTL_LOCATION="/home/olivetin/kubectl"
+KUBECTL_DIRECTORY="/home/olivetin"
+BLOCKY_PODS=$(kubectl get pods -n $NAMESPACE -o=jsonpath="{range .items[*]}{.metadata.name} " -l app.kubernetes.io/name=blocky)
 
 # First check to see if kubectl exists
-echo "Checking for existence of kubectl"
+echo "Checking for existence of kubectl..."
 
 if [ -e "$KUBECTL_LOCATION" ]; then
-    echo "Kubectl exists."
+    echo "Kubectl exists. Proceeding to Blocky script."
 else
     echo "Kubectl does not exist - downloading."
-    
+    curl -LO --output-dir "${KUBECTL_DIRECTORY}" https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl
+    chmod +x ${KUBECTL_LOCATION}
+    echo "Kubectl downloaded & executable."
 fi
-
-
-
-
-BLOCKY_PODS=$(kubectl get pods -n $NAMESPACE -o=jsonpath="{range .items[*]}{.metadata.name} " -l app.kubernetes.io/name=blocky)
 
 echo "Starting Blocky Script in ${PAUSE_SECONDS}..."
 
@@ -29,16 +28,16 @@ sleep ${PAUSE_SECONDS}
 for pod in $BLOCKY_PODS; do
     case "${ACTION}" in
         status)
-            kubectl exec -n $NAMESPACE "${pod}" -- /app/blocky blocking status;
+            ${KUBECTL_LOCATION} exec -n $NAMESPACE "${pod}" -- /app/blocky blocking status;
         ;;
         enable)
-            kubectl exec -n $NAMESPACE "${pod}" -- /app/blocky blocking enable;
+            ${KUBECTL_LOCATION} exec -n $NAMESPACE "${pod}" -- /app/blocky blocking enable;
         ;;
         disable)
             if [ -z "${DURATION}" ]; then
-                kubectl exec -n $NAMESPACE "${pod}" -- /app/blocky blocking disable --groups "${BLOCKY_GROUPS}"
+                ${KUBECTL_LOCATION} exec -n $NAMESPACE "${pod}" -- /app/blocky blocking disable --groups "${BLOCKY_GROUPS}"
             else
-                kubectl exec -n $NAMESPACE "${pod}" -- /app/blocky blocking disable --duration "${DURATION}" --groups "${BLOCKY_GROUPS}";
+                ${KUBECTL_LOCATION} exec -n $NAMESPACE "${pod}" -- /app/blocky blocking disable --duration "${DURATION}" --groups "${BLOCKY_GROUPS}";
             fi
         ;;
     esac
