@@ -14,5 +14,6 @@ generatorOptions:
     kustomize.toolkit.fluxcd.io/substitute: enabled
 resources:
   - ./externalsecret.yaml
+  - ./rbac.yaml
   - ./helmrelease.yaml
   - ../../../../templates/gatus/internal
