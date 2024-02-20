@@ -23,7 +23,7 @@ fi
 echo "Starting Blocky Script in $PAUSE_SECONDS ..."
 BLOCKY_PODS=$(${KUBECTL_LOCATION} get pods -n $NAMESPACE -o=jsonpath="{range .items[*]}{.metadata.name} " -l app.kubernetes.io/name=blocky)
 
-echo $BLOCKY_PODS #this is debugging only
+echo "${BLOCKY_PODS}" #this is debugging only
 
 sleep "$PAUSE_SECONDS"
 
