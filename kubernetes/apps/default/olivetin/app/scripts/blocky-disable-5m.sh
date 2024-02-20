@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
-ACTION=$1
-DURATION=$2
+ACTION=disable
+DURATION=5m
 BLOCKY_GROUPS=default #could turn this to variable later, but i only have 'default' group present. comma-delimited
 NAMESPACE=networking
 PAUSE_SECONDS=3s
-KUBECTL_LOCATION="/home/olivetin/kubectl"
-KUBECTL_DIRECTORY="/home/olivetin"
-BLOCKY_PODS=$(kubectl get pods -n $NAMESPACE -o=jsonpath="{range .items[*]}{.metadata.name} " -l app.kubernetes.io/name=blocky)
+KUBECTL_LOCATION=/home/olivetin/kubectl
+KUBECTL_DIRECTORY=/home/olivetin
 
 # First check to see if kubectl exists
 echo "Checking for existence of kubectl..."
@@ -16,12 +15,13 @@ if [ -e "$KUBECTL_LOCATION" ]; then
     echo "Kubectl exists. Proceeding to Blocky script."
 else
     echo "Kubectl does not exist - downloading."
-    curl -LO --output-dir "${KUBECTL_DIRECTORY}" https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl
-    chmod +x ${KUBECTL_LOCATION}
+    curl -LO --output-dir "$KUBECTL_DIRECTORY" https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl
+    chmod +x $KUBECTL_LOCATION
     echo "Kubectl downloaded & executable."
 fi
 
 echo "Starting Blocky Script in ${PAUSE_SECONDS}..."
+BLOCKY_PODS=$(kubectl get pods -n $NAMESPACE -o=jsonpath="{range .items[*]}{.metadata.name} " -l app.kubernetes.io/name=blocky)
 
 sleep ${PAUSE_SECONDS}
 
