@@ -121,11 +121,12 @@ spec:
         enabled: true
         type: configMap
         name: blocky-disable-5m
+        defaultMode: 0777
         globalMounts:
           - path: /scripts/blocky-disable-5m.sh
             subPath: blocky-disable-5m.sh
             readOnly: false
-            defaultMode: 0777
+            
       
     #   kubeconfig:
     #     enabled:  true
