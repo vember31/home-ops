@@ -102,6 +102,9 @@ spec:
            hosts:
              - *host
 
+    serviceAccount:
+      name: olivetin
+
     persistence:
 
       config:
