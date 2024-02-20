@@ -1,0 +1,21 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: traefik
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`traefik.local.${SECRET_DOMAIN}`)
+      services:
+        - kind: TraefikService
+          name: api@internal
+          #port: 9000
+      # middlewares:
+      #   - name: security-header
+      #     namespace: networking
+  tls:
+    secretName: traefik-tls-production

@@ -1,0 +1,33 @@
+# k3s additional control plane
+server: https://k3s.${SECRET_DOMAIN}:6443
+token: ${NODE_TOKEN}
+tls-san:
+  - 192.168.2.8
+  - k3s.${SECRET_DOMAIN}
+disable:
+  - traefik
+  - servicelb
+etcd-expose-metrics: true
+kube-controller-manager-arg:
+  - "bind-address=0.0.0.0"
+kube-proxy-arg:
+  - "metrics-bind-address=0.0.0.0"
+kube-scheduler-arg:
+  - "bind-address=0.0.0.0"
+
+---
+# k3s cluster init
+cluster-init: true
+tls-san:
+  - 192.168.2.8
+  - k3s.${SECRET_DOMAIN}
+disable:
+  - traefik
+  - servicelb
+etcd-expose-metrics: true
+kube-controller-manager-arg:
+  - "bind-address=0.0.0.0"
+kube-proxy-arg:
+  - "metrics-bind-address=0.0.0.0"
+kube-scheduler-arg:
+  - "bind-address=0.0.0.0"

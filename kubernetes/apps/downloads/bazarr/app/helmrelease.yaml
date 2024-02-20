@@ -1,0 +1,144 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &name bazarr
+  namespace: downloads
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      main:
+        enabled: true
+        type: deployment
+        annotations: {}
+        labels: {}
+        replicas: 1
+
+        # Controller-specific overrides for `defaultPodOptions` keys
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: "OnRootMismatch"
+
+        containers:
+          main:
+            nameOverride: *name
+            image:
+              repository: ghcr.io/onedr0p/bazarr
+              tag: 1.4.2@sha256:8d4a560d7307d6554bac85c566a49a23f6b47239a031772823cd294acecca72d
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+
+            resources:
+              {}
+
+    service:
+      main:
+        ports:
+          http:
+            port: 6767
+
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          hajimari.io/icon: mdi:subtitles-outline
+          hajimari.io/info: Subtitle Management
+        hosts:
+          - host: &host bazarr.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+
+        tls: 
+         - secretName: bazarr-tls-production
+           hosts:
+             - *host
+
+    persistence:
+
+      config:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 128Mi
+        retain: true
+        globalMounts: []
+
+      media:
+        enabled: true
+        type: nfs
+        server: ${OMV_IP}
+        path: /export/media
+        retain: true
+        globalMounts:
+          - path: /media/
+
+      tv2:
+        enabled: true
+        type: nfs
+        server: ${OMV2_IP}
+        path: /export/tv
+        retain: true
+        globalMounts:
+          - path: /media2/tv
+
+      movies2:
+        enabled: true
+        type: nfs
+        server: ${OMV2_IP}
+        path: /export/movies
+        retain: true
+        globalMounts:
+          - path: /media2/movies
+      

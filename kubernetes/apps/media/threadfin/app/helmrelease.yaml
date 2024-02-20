@@ -1,0 +1,132 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &name threadfin
+  namespace: media
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      main:
+        enabled: true
+        type: deployment
+        annotations: {}
+        labels: {}
+        replicas: 1
+
+        # # Controller-specific overrides for `defaultPodOptions` keys
+        # pod:
+        #   securityContext:
+        #     runAsUser: 1000
+        #     runAsGroup: 1000
+        #     fsGroup: 1000
+        #     fsGroupChangePolicy: "OnRootMismatch"
+
+        containers:
+          main:
+            nameOverride: *name
+            image:
+              repository: fyb3roptik/threadfin
+              tag: 1.0.24@sha256:c7008756e2334aa409781f43ac42f1d4185b3a3827b43b3e9ff79b164fe62611
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              THREADFIN_BRANCH: main
+              THREADFIN_DEBUG: 0
+              THREADFIN_PORT: &port 34400
+
+            resources:
+              {}
+              ## We usually recommend not to specify default resources and to leave this as a conscious
+              ## choice for the user. This also increases chances charts run on environments with little
+              ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+              ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+              # limits:
+              #   cpu: 100m
+              #   memory: 128Mi
+              # requests:
+              #   cpu: 100m
+              #   memory: 128Mi
+
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          hajimari.io/icon: arcticons:iptv-smarters
+          hajimari.io/info: Plex IPTV Playlist Management
+          hajimari.io/url: https://threadfin.local.${SECRET_DOMAIN}/web/
+        hosts:
+          - host: &host threadfin.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+
+        tls: 
+         - secretName: threafin-tls-production
+           hosts:
+             - *host
+
+    persistence:
+
+      config:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        retain: false
+        globalMounts: 
+          - path: /home/threadfin/conf
+      

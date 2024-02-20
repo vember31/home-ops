@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: flux-system
+  name: cluster-settings
+data:
+  # general variables
+  CLUSTER_NAME: "home-ops"
+  GITHUB_HOMEOPS_REPO: "https://github.com/vember31/home-ops"
+  TIMEZONE: "America/Chicago"
+
+  # k3s-based IPs
+  TRAEFIK_IP: "192.168.2.20"
+  BLOCKY_IP: "192.168.2.22"
+  K3S_LB_IP: "192.168.2.8"
+  PLEX_IP: "192.168.2.21"
+
+  # external service IPs
+  GATEWAY_IP: "192.168.2.1"
+  PRIMARY_DNS_IP: "192.168.2.4"
+  OMV_IP: "192.168.2.9"
+  OMV2_IP: "192.168.2.19"
+  PVE_1: "192.168.2.3"
+  PVE_2: "192.168.2.10"
+  PVE_3: "192.168.2.2"
+
+  # network CIDRs
+  SECURE_CIDR: "192.168.2.0/24"
+  GUEST_CIDR: "192.168.3.0/24"
+  IOT_CIDR: "192.168.4.0/24"
+  CLUSTER_CIDR: "10.42.0.0/16"
+  SERVICE_CIDR: "10.43.0.0/16"

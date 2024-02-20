@@ -1,0 +1,36 @@
+---
+web:
+  port: 8080
+storage:
+  type: sqlite
+  path: data.db
+  caching: true
+metrics: true
+debug: false
+ui:
+  title: Status | Gatus
+  header: Status
+alerting:
+  discord:
+    webhook-url: ${GATUS_DISCORD_WEBHOOK}
+    title: ":helmet_with_white_cross: Gatus"
+    default-alert:
+      description: health-check failed
+      send-on-resolved: true
+      failure-threshold: 5
+      success-threshold: 2
+connectivity:
+  checker:
+    target: 1.1.1.1:53
+    interval: 1m
+endpoints:
+  - name: status
+    group: external
+    url: https://status.${SECRET_DOMAIN}
+    interval: 1m
+    client:
+      dns-resolver: tcp://1.1.1.1:53
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: discord

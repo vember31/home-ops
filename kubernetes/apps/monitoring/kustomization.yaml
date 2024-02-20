@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+
+  # Pre Flux-Kustomizations
+  - ./namespace.yaml
+
+  # Exporters Directory
+  - ./exporters
+
+  # Flux-Kustomizations
+  - ./botkube/ks.yaml
+  - ./gatus/ks.yaml
+  - ./gatus/externalsecret.yaml
+  - ./goldilocks/ks.yaml
+  - ./goldilocks/externalsecret.yaml
+  - ./grafana/ks.yaml
+  - ./kube-prometheus-stack/ks.yaml
+#  - ./pialert/ks.yaml
+  - ./unpoller/ks.yaml
+  - ./vpa/ks.yaml

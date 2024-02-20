@@ -1,0 +1,127 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &name tauticord
+  namespace: media
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      main:
+        enabled: true
+        type: deployment
+        annotations: {}
+        labels: {}
+        replicas: 1
+
+        # Controller-specific overrides for `defaultPodOptions` keys
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: "OnRootMismatch"
+
+        containers:
+          main:
+            nameOverride: *name
+            image:
+              repository: nwithan8/tauticord
+              tag: 3.17.0@sha256:f0e1cfda8924a3ad1076736d6897817f1b043e0f2205c78f9d1325ec3c2fc6d3
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              TC_TAUTULLI_URL: http://tautulli:8181
+              TC_SERVER_NAME: "plex-k3s"
+              TC_DISCORD_CHANNEL_NAME: "server-notifications"
+              TC_VC_STATS_CATEGORY_NAME: "Tautulli Stats"
+              TC_VC_STREAM_COUNT: "True"
+              TC_VC_TRANSCODE_COUNT: "True"
+              TC_VC_BANDWIDTH: "True"
+              TC_VC_LOCAL_BANDWIDTH: "True"
+              TC_VC_REMOTE_BANDWIDTH: "True"
+              TC_VC_PLEX_STATUS: "True"
+              TC_VC_LIBRARIES_CATEGORY_NAME: "Tautulli Libraries"
+              TC_VC_LIBRARY_STATS: "True"
+              TC_VC_LIBRARY_NAMES: "Movies,TV Shows"
+              TC_VC_LIBRARY_USE_EMOJIS: "True"
+              TC_VC_TV_SERIES_COUNT: "True"
+              TC_VC_TV_EPISODE_COUNT: "True"
+              TC_ALLOW_ANALYTICS: "False"
+              TC_VC_MUSIC_ARTIST_COUNT: "False"
+              TC_VC_MUSIC_TRACK_COUNT: "False"
+              
+            # TC_DISCORD_BOT_TOKEN, TC_DISCORD_SERVER_ID, TC_TAUTULLI_KEY
+            # TC_DISCORD_ADMIN_IDS
+            envFrom:
+              - secretRef:
+                  name: tauticord-secret
+
+
+            resources:
+              {}
+              ## We usually recommend not to specify default resources and to leave this as a conscious
+              ## choice for the user. This also increases chances charts run on environments with little
+              ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+              ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+              # limits:
+              #   cpu: 100m
+              #   memory: 128Mi
+              # requests:
+              #   cpu: 100m
+              #   memory: 128Mi
+
+    service:
+      main:
+        # -- Enables or disables the service
+        enabled: false
+
+    persistence:
+
+      logs:
+        enabled: true
+        type: emptyDir
+      

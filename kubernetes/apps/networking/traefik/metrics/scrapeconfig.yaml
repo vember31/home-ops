@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: traefik
+  namespace: networking
+spec:
+  scrapeInterval: 1m
+  scrapeTimeout: 10s
+  honorTimestamps: true
+  staticConfigs:
+    - labels:
+        job: traefik
+      targets:
+        - traefik.networking.svc.cluster.local:9100

@@ -1,0 +1,159 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: radarr
+  namespace: downloads
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  #valuesFrom:
+    #- targetPath: 
+    #  kind: Secret
+    #  name: kured-secret
+    #  valuesKey: kured-discord-webhook-url-shoutrr
+
+  values:
+
+    controllers:
+      main:
+        enabled: true
+        type: deployment
+        annotations: {}
+        labels: {}
+        replicas: 1
+
+        # Controller-specific overrides for `defaultPodOptions` keys
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: "OnRootMismatch"
+
+        containers:
+          main:
+            nameOverride: radarr
+            image:
+              repository: ghcr.io/onedr0p/radarr-develop
+              tag: 5.3.6.8612@sha256:ef3154aaecf3ffa52e68f5109bca912df5f53c36079fa430e29bad791d091cd8
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              RADARR__AUTHENTICATION_METHOD: External
+              RADARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
+              RADARR__PORT: &port 7878
+              RADARR__API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: radarr-secret
+                    key: RADARR__API_KEY
+
+            resources:
+              {}
+              ## We usually recommend not to specify default resources and to leave this as a conscious
+              ## choice for the user. This also increases chances charts run on environments with little
+              ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+              ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+              # limits:
+              #   cpu: 100m
+              #   memory: 128Mi
+              # requests:
+              #   cpu: 100m
+              #   memory: 128Mi
+
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          hajimari.io/icon: mdi:filmstrip
+          hajimari.io/info: Movie Collection Management
+        hosts:
+          - host: &host radarr.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+
+        tls: 
+         - secretName: radarr-tls-production
+           hosts:
+             - *host
+
+    persistence:
+
+      config:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        retain: false
+        globalMounts: []
+
+      media:
+        enabled: true
+        type: nfs
+        server: ${OMV_IP}
+        path: /export/media 
+        globalMounts:
+          - path: /media/
+            readonly: false
+      
+      # old hard drive in old server
+      movies2:
+        enabled: true
+        type: nfs
+        server: ${OMV2_IP}
+        path: /export/movies
+        globalMounts:
+          - path: /media2/movies
+            readOnly: false

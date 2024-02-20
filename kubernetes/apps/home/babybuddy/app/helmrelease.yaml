@@ -1,0 +1,131 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &name babybuddy
+  namespace: home
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      main:
+        enabled: true
+        type: deployment
+        annotations: {}
+        labels: {}
+        replicas: 1
+
+        # # Controller-specific overrides for `defaultPodOptions` keys
+        # pod:
+        #   securityContext:
+        #     runAsUser: 1000
+        #     runAsGroup: 1000
+        #     fsGroup: 1000
+        #     fsGroupChangePolicy: "OnRootMismatch"
+
+        containers:
+          main:
+            nameOverride: *name
+            image:
+              repository: lscr.io/linuxserver/babybuddy
+              tag: 2.2.1@sha256:d79276d4aef17f71a70a051fbb3ea2ac9fdd8d957c196c21a125da740c2ffc0b
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              PUID: 1000
+              PGID: 1000
+              CSRF_TRUSTED_ORIGINS: https://baby.${SECRET_DOMAIN}
+
+            resources:
+              {}
+              ## We usually recommend not to specify default resources and to leave this as a conscious
+              ## choice for the user. This also increases chances charts run on environments with little
+              ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+              ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+              # limits:
+              #   cpu: 100m
+              #   memory: 128Mi
+              # requests:
+              #   cpu: 100m
+              #   memory: 128Mi
+
+    service:
+      main:
+        ports:
+          http:
+            port: 8000
+
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
+          hajimari.io/icon: fa-solid:baby
+          hajimari.io/info: Child Data Tracking
+          hajimari.io/group: home
+        hosts:
+          - host: &host baby.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+
+        tls: 
+         - secretName: babybuddy-tls-production
+           hosts:
+             - *host
+
+    persistence:
+
+      config:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        retain: true
+        globalMounts: [] 

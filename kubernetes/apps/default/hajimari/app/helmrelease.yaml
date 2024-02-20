@@ -1,0 +1,215 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: hajimari
+  namespace: default
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: hajimari
+      version: 2.0.2
+      sourceRef:
+        kind: HelmRepository
+        name: hajimari-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    # -- environment variables.
+    # @default -- See below
+    env:
+      # -- Set the container timezone
+      TZ: ${TIMEZONE}
+
+    # -- Configures Hajimari settings for this instance.
+    # @default -- See below
+    hajimari:
+      # -- The name of this instance, this allows running multiple 
+      # instances of Hajimari on the same cluster
+      instanceName: null
+
+      # -- Set to true to show all discovered applications by default.
+      defaultEnable: true
+
+      # Theme defaulting
+      lightTheme: cloud
+      darkTheme: horizon
+
+      #Other Hajimari settings
+      showAppGroups: true
+      showAppUrls: false
+      showAppInfo: true
+      
+
+      # -- Namespace selector to use for discovering applications
+      namespaceSelector:
+        matchNames:
+          - downloads
+          - home
+          - kube-system
+          - media
+          - monitoring
+          - networking
+          - storage
+        
+      # -- Override the title of the Hajimari pages
+      title: null
+
+      # -- Default name for welcome message
+      name: "${FIRST_NAME}"
+
+      # -- Add custom applications to the discovered application list
+      customApps: 
+      - group: networking
+        apps:
+          - name: Traefik
+            url: 'https://traefik.local.${SECRET_DOMAIN}'
+            icon: 'simple-icons:traefikproxy'
+            info: 'Ingress & Service Management'
+          - name: Unifi
+            url: 'https://${GATEWAY_IP}'
+            icon: 'simple-icons:ubiquiti'
+            info: Unifi UI Portal
+
+      - group: security
+        apps:
+          - name: Vaultwarden
+            url: 'https://bitwarden.${SECRET_DOMAIN}'
+            icon: 'simple-icons:vaultwarden'
+            info: Password Management
+
+      - group: home
+        apps:
+          - name: Home Assistant
+            url: 'http://homeassistant.local:8123/'
+            icon: 'mdi:home-assistant'
+            info: Home Automation
+
+            
+      - group: infrastructure
+        apps:
+          - name: PVE1
+            url: 'https://${PVE_1}:8006'
+            icon: 'arcticons:proxmox-virtual-environment'
+            info: PVE Host 1
+          - name: PVE2
+            url: 'https://${PVE_2}:8006'
+            icon: 'arcticons:proxmox-virtual-environment'
+            info: PVE Host 2
+          - name: PVE3
+            url: 'https://${PVE_3}:8006'
+            icon: 'arcticons:proxmox-virtual-environment'
+            info: PVE Host 3
+          - name: NAS1
+            url: 'http://${OMV_IP}'
+            icon: 'mdi:nas'
+            info: OpenMediaVault NFS Server 1
+          - name: NAS2
+            url: 'http://${OMV2_IP}'
+            icon: 'mdi:nas'
+            info: OpenMediaVault NFS Server 1
+
+      # -- Create sample Custom Resource Application
+      createCRAppSample: false
+
+      # -- Set default bookmarks
+      globalBookmarks: 
+      - group: development
+        bookmarks: 
+        - name: Home-Ops Repo
+          url: '${GITHUB_HOMEOPS_REPO}'
+        - name: Gitlab CI/CD
+          url: '${GITLAB_CICD_URL}'
+        - name: KubeSearch
+          urL: 'https://kubesearch.dev'
+        - name: Cloudflare
+          url: 'https://dash.cloudflare.com'
+
+      - group: providers
+        bookmarks:
+        - name: IPTorrents
+          url: 'https://iptorrents.com'
+        - name: BroadcasTheNet
+          url: 'https://broadcasthe.net'
+        - name: TorrentLeech
+          url: 'https://torrentleech.org'
+        - name: Audionews
+          url: 'https://audionews.org'
+
+      - group: social
+        bookmarks:
+        - name: Amazon
+          url: 'https://amazon.com'
+        - name: SoundCloud
+          url: 'https://soundcloud.com'
+        - name: UW SWAP
+          url: 'https://swapauction.wisc.edu/Browse'
+
+      - group: weather
+        bookmarks:
+        - name: MerryWeather
+          url: 'https://merrysky.net/forecast/${SECRET_COORDINATES}'
+        - name: MSN Weather
+          url: 'https://www.msn.com/en-us/weather'
+
+
+    # -- Configures service account needed for reading k8s ingress objects
+    # @default -- See below
+    serviceAccount:
+      # -- Create service account
+      create: true
+
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+        hosts:
+          - host: &host "home.local.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                patyType: Prefix
+        tls: 
+         - secretName: hajimari-tls-production
+           hosts:
+             - *host
+
+    # -- Configure persistence settings for the chart under this key.
+    # @default -- See values.yaml
+    persistence:
+      data:
+        enabled: true
+        type: emptyDir

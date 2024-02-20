@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # Pre Flux-Kustomizations
+  - ./namespace.yaml
+  
+  # Post Flux-Kustomizations
+  - ./blocky/ks.yaml
+  - ./blocky/externalsecret.yaml
+  - ./cloudflare-ddns/ks.yaml
+  - ./cloudflare-ddns/externalsecret.yaml
+  - ./error-pages/ks.yaml
+  - ./external-dns/ks.yaml
+  - ./external-dns/externalsecret.yaml
+  - ./metallb/ks.yaml
+  - ./traefik/ks.yaml
+  - ./traefik/externalsecret.yaml
+#  - ./pihole/ks.yaml
+#  - ./pihole/externalsecret.yaml
+

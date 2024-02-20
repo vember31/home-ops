@@ -1,0 +1,129 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &name olivetin
+  namespace: default
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      main:
+        enabled: true
+        type: deployment
+        annotations: {}
+        labels: {}
+        replicas: 1
+
+        # Controller-specific overrides for `defaultPodOptions` keys
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: "OnRootMismatch"
+
+        containers:
+          main:
+            nameOverride: *name
+            image:
+              repository: jamesread/olivetin
+              tag: 2024.02.01@sha256:ac8ee02bfa60aaad70364db05f9d03bb539372dcbc00095c6d1e7648099e462d
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+
+            resources:
+              {}
+
+    service:
+      main:
+        ports:
+          http:
+            port: 1337
+
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+        hosts:
+          - host: &host olivetin.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+
+        tls: 
+         - secretName: olivetin-tls-production
+           hosts:
+             - *host
+
+    persistence:
+
+      config:
+        enabled: true
+        type: configMap
+        name: olivetin-config
+        globalMounts:
+          - path: /config/config.yaml
+            subPath: config.yaml
+
+      blocky-disable-script:
+        enabled: true
+        type: configMap
+        name: blocky-disable-5m
+        globalMounts:
+          - path: /scripts/blocky-disable-5m.sh
+            subPath: blocky-disable-5m.sh
+      
+      kubeconfig:
+        enabled:  true
+        type: secret
+        name: olivetin-secret
+        globalMounts:
+          - path: /home/olivetin/.kube/config
+            subPath: config

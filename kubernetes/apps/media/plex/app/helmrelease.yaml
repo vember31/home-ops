@@ -1,0 +1,217 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: plex
+  namespace: media
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      main:
+        enabled: true
+        type: deployment
+        annotations: {}
+        labels: {}
+        replicas: 1
+
+        # Controller-specific overrides for `defaultPodOptions` keys
+        pod:
+
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            fsGroup: 1000
+            fsGroupChangePolicy: "OnRootMismatch"
+
+          # keep plex off of nas, utility servers
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: node-role
+                    operator: NotIn
+                    values:
+                      - nas
+                      - utility
+
+
+        containers:
+          main:
+            image:
+              repository: ghcr.io/onedr0p/plex
+              tag: 1.40.0.7998-c29d4c0c8@sha256:6aee52b3ad59747bd8d794820be9771ab11d8ee60168c77ea2871f69301bdc35
+            env:
+              TZ: ${TIMEZONE}
+              ADVERTISE_IP: "https://plex.local.${SECRET_DOMAIN},http://${PLEX_IP}:32400"
+              ALLOWED_NETWORKS: "${SECURE_CIDR},${GUEST_CIDR},${IOT_CIDR},${CLUSTER_CIDR},${SERVICE_CIDR}"
+              PLEX_UID: "1000"
+              PLEX_GID: "1000"
+            
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /identity
+                    port: &port 32400
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+            
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            
+            resources:
+              requests:
+                cpu: 200m
+                memory: 2Gi
+              limits:
+                memory: 8Gi
+
+    service:
+      main:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: "${PLEX_IP}"
+        ports:
+          http:
+            port: *port
+
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          hajimari.io/icon: mdi:plex
+          hajimari.io/info: Media Streaming
+          hajimari.io/url: https://plex.local.${SECRET_DOMAIN}${GATUS_PATH}
+        hosts:
+          - host: &host plex.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+
+        tls: 
+         - secretName: plex-tls-production
+           hosts:
+             - *host
+
+    persistence:
+
+      config:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 20Gi
+        retain: true
+        globalMounts: []
+
+      tmp:
+        type: emptyDir
+
+      transcode:
+        type: emptyDir
+
+      tv:
+        enabled: true
+        type: nfs
+        server: ${OMV_IP}
+        path: /export/media/tv
+        globalMounts:
+          - path: /media/tv
+            readOnly: true
+
+      movies:
+        enabled: true
+        type: nfs
+        server: ${OMV_IP}
+        path: /export/media/movies
+        globalMounts:
+          - path: /media/movies
+            readOnly: true
+
+      # live tv recordings
+      recordings:
+        enabled: true
+        type: nfs
+        server: ${OMV_IP}
+        path: /export/media/recordings
+        globalMounts:
+          - path: /media/recordings
+            readOnly: false
+
+      # old hard drive in old server
+      movies2:
+        enabled: true
+        type: nfs
+        server: ${OMV2_IP}
+        path: /export/movies
+        globalMounts:
+          - path: /media2/movies
+            readOnly: true
+
+      # old hard drive in old server
+      tv2:
+        enabled: true
+        type: nfs
+        server: ${OMV2_IP}
+        path: /export/tv
+        globalMounts:
+          - path: /media2/tv
+            readOnly: true
+

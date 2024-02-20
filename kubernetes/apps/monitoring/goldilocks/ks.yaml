@@ -1,0 +1,30 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app goldilocks
+  namespace: flux-system
+  labels: 
+    substitution.flux.home.arpa/disabled: "true" #don't do a sub here so we can bring in secret values
+spec:
+  targetNamespace: monitoring
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: vpa
+  path: ./kubernetes/apps/monitoring/goldilocks/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: goldilocks-secret
+      - kind: ConfigMap
+        name: cluster-settings

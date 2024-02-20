@@ -1,0 +1,118 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: cloudflare-ddns
+  namespace: networking
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  #valuesFrom:
+    #- targetPath: 
+    #  kind: Secret
+    #  name: kured-secret
+    #  valuesKey: kured-discord-webhook-url-shoutrr
+
+  values:
+
+    controllers:
+      main:
+        replicas: 1
+        containers:
+          main:
+            nameOverride: cloudflare-ddns
+            image:
+              repository: ghcr.io/hotio/cloudflareddns
+              tag: release-20240209050850@sha256:2312e78efa0e0fcaa1d350b8b5716f8eb6585780bb475ad9fdfd5ca0718e2590
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              CF_APITOKEN:
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflare-ddns-secret
+                    key: CF_APITOKEN
+              CF_HOSTS: ipv4.${SECRET_DOMAIN}
+              CF_RECORDTYPES: A
+              CF_ZONES: 
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflare-ddns-secret
+                    key: CF_ZONES
+              PUID: 1000
+              PGID: 1000
+              INTERVAL: 300
+              DETECTION_MODE: dig-whoami.cloudflare
+              LOG_LEVEL: 3
+              UMASK: 002
+              APPRISE:
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflare-ddns-secret
+                    key: CF_DDNS_DISCORD_APPRISE
+
+            # -- Set the resource requests / limits for the container.
+            resources:
+              {}
+              ## We usually recommend not to specify default resources and to leave this as a conscious
+              ## choice for the user. This also increases chances charts run on environments with little
+              ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+              ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+              # limits:
+              #   cpu: 100m
+              #   memory: 128Mi
+              # requests:
+              #   cpu: 100m
+              #   memory: 128Mi
+
+    service:
+      main:
+        enabled: false
+
+    ingress:
+      main:
+        enabled: false
+
+    persistence:
+      config:
+        enabled: false

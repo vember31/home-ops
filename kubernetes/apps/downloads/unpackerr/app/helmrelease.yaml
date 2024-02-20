@@ -1,0 +1,152 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: unpackerr
+  namespace: downloads
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  #valuesFrom:
+    #- targetPath: 
+    #  kind: Secret
+    #  name: kured-secret
+    #  valuesKey: kured-discord-webhook-url-shoutrr
+
+  values:
+
+    controllers:
+      main:
+        enabled: true
+        type: deployment
+        annotations: {}
+        labels: {}
+        replicas: 1
+
+        # Controller-specific overrides for `defaultPodOptions` keys
+        # pod:
+        #   securityContext:
+        #     runAsUser: 1000
+        #     runAsGroup: 1000
+        #     fsGroup: 1000
+        #     fsGroupChangePolicy: "OnRootMismatch"
+
+        containers:
+          main:
+            nameOverride: unpackerr
+            image:
+              repository: ghcr.io/hotio/unpackerr
+              tag: release-0.13.1@sha256:a02d12d5848b40386da660d7794d86b47a13eb60e7451f454ae9500eed33f5b6
+              pullPolicy: IfNotPresent
+
+            env:
+            # Global
+              TZ: ${TIMEZONE}
+              PUID: 1000
+              PGID: 1000
+              UMASK: 002
+            # Sonarr Config
+              UN_SONARR_0_URL: http://sonarr:8989
+              UN_SONARR_0_API_KEY: ${SONARR__API_KEY}
+              UN_SONARR_0_PATHS_0: /media/downloads
+              UN_SONARR_0_PROTOCOLS: torrent
+              UN_SONARR_0_TIMEOUT: 10s
+              UN_SONARR_0_DELETE_ORIG: false
+              UN_SONARR_0_DELETE_DELAY: 5m
+              # Radarr Config
+              UN_RADARR_0_URL: http://radarr:7878
+              UN_RADARR_0_API_KEY: ${RADARR__API_KEY}
+              UN_RADARR_0_PATHS_0: /media/downloads
+              UN_RADARR_0_PROTOCOLS: torrent
+              UN_RADARR_0_TIMEOUT: 10s
+              UN_RADARR_0_DELETE_ORIG: false
+              UN_RADARR_0_DELETE_DELAY: 5m
+              # Webhook Config
+              UN_WEBHOOK_0_URL: ${UNPACKERR_NOTIFIARR_URL}
+              UN_WEBHOOK_0_NAME: Notifiarr
+              UN_WEBHOOK_0_NICKNAME: Unpackerr
+              # Webserver Config
+              UN_WEBSERVER_METRICS: true #serves prometheus metrics
+
+
+            resources:
+              {}
+              ## We usually recommend not to specify default resources and to leave this as a conscious
+              ## choice for the user. This also increases chances charts run on environments with little
+              ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+              ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+              # limits:
+              #   cpu: 100m
+              #   memory: 128Mi
+              # requests:
+              #   cpu: 100m
+              #   memory: 128Mi
+
+    service:
+      main:
+        ports:
+          http:
+            port: 5656
+
+    ingress:
+      main:
+        enabled: false
+
+    persistence:
+
+      # config:
+      #   enabled: true
+      #   type: persistentVolumeClaim
+      #   storageClass: longhorn
+      #   accessMode: ReadWriteOnce
+      #   size: 128Mi
+      #   retain: false
+      #   globalMounts: []
+
+      media:
+        enabled: true
+        type: nfs
+        server: ${OMV_IP}
+        path: /export/media 
+        globalMounts:
+          - path: /media/
+      

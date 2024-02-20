@@ -1,0 +1,33 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app **APPNAME**
+  namespace: flux-system
+  labels: 
+    substitution.flux.home.arpa/disabled: "true" #don't do a sub here so we can bring in secret values
+spec:
+  targetNamespace: **TARGETNAMEESPACE**
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: **OPTIONAL**
+  path: ./kubernetes/apps/****************
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: **APPNAME**-secret
+      - kind: ConfigMap
+        name: cluster-settings
+    substitute:
+      APP: *app
+      GATUS_SUBDOMAIN: **remove if not neeeded**

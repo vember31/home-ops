@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: traefik-tls-production
+  namespace: networking
+spec:
+  # secretName doesn't have to match the certificate name, but it may as well, for simplicity!
+  # Remember too that this will be retried by cert-manager, so must be in the cert-manager namespace
+  secretName: traefik-tls-production
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "traefik.local.${SECRET_DOMAIN}"
+  dnsNames:
+    - "traefik.local.${SECRET_DOMAIN}"

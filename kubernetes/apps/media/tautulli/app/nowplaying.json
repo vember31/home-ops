@@ -1,0 +1,42 @@
+{
+    "embeds": [
+        {
+            <episode>"color": 16556313,</episode><movie>"color": 10040012,</movie>
+            "fields": [
+            	{
+                    "inline": true,
+                    "name": "Stream Info",
+                    "value": "Media link: [Tautulli](https://tautulli.local.vember31.xyz/info?rating_key={rating_key}) \nUser: {user}\nQuality: {quality_profile}\nStream Type: {transcode_decision} @ {stream_bandwidth} kbps\nPlayer: {player}|{platform}|{product}|{device}\nLocation: {ip_address}"
+            	},
+               	<episode>{
+                    "inline": true,
+                    "name": "Show Info",
+                    "value": "s**{season_num00}**e**{episode_num00}**\n[TMDb]({themoviedb_url})"
+                },</episode>
+                 <movie>{
+                    "inline": true,
+                    "name": "Movie Info",
+                    "value": "🍿{rating}\n[IMDb]({imdb_url})"
+                },</movie>
+                {
+                    "inline": true,
+                    "name": "Plex",
+                    "value": "[Plex Web]({plex_url})"
+                }
+            ],
+            "thumbnail": {
+                "url": "{poster_url}"
+            },
+            "title": "{title}<movie> ({year})</movie>",
+            "description": "{summary}",
+            "timestamp": "{utctime}",
+            "url": "{plex_url}",
+            "footer": {
+                "text": "{server_name} v.{server_version} | Tautulli {tautulli_version}"
+            }
+            
+        }
+       
+    ],
+    "username": "Tautulli"
+}

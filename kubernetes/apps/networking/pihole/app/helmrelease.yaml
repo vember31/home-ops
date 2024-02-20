@@ -1,0 +1,302 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: pihole
+  namespace: networking
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: pihole
+      version: 2.22.0
+      sourceRef:
+        kind: HelmRepository
+        name: mojo2600-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  #valuesFrom:
+    #- targetPath: 
+    #  kind: Secret
+    #  name: kured-secret
+    #  valuesKey: kured-discord-webhook-url-shoutrr
+
+  values:
+
+    image:
+      # -- the repostory to pull the image from
+      repository: "pihole/pihole"
+      # -- the docker tag, if left empty it will get it from the chart's appVersion
+      tag: "latest@sha256:164d64d2299bcb6721d36da4eace4dc2dbc97caf235d8784d39a34e3c3a5f75c"
+      # -- the pull policy
+      pullPolicy: IfNotPresent
+
+    replicaCount: 1 #3 hasn't seemed to work appropriately; i get a login loop
+
+    # -- Configuration for the DNS service on port 53
+    serviceDns:
+      mixedService: false # -- deploys a mixed (TCP + UDP) Service instead of separate ones
+      type: LoadBalancer
+      port: 53
+      nodePort: ""
+      externalTrafficPolicy: Local
+      loadBalancerIP: "${PIHOLE_KUBE}"
+      loadBalancerIPv6: ""
+      annotations:
+        metallb.universe.tf/allow-shared-ip: pihole-svc
+
+    # -- Configuration for the DHCP service on port 67
+    serviceDhcp:
+      enabled: false
+
+    # -- Configuration for the web interface service
+    serviceWeb:
+      http:
+        enabled: true #do this to fix the smoke test situation
+
+      # -- Configuration for the HTTPS web interface listener
+      https:
+        enabled: true
+        port: 443
+      type: ClusterIP
+      externalTrafficPolicy: Local
+      loadBalancerIP: ""
+      annotations:
+        metallb.universe.tf/allow-shared-ip: pihole-svc
+
+    virtualHost: pi.hole
+
+    # -- Configuration for the Ingress
+    ingress:
+      enabled: true
+      annotations:
+        external-dns.alpha.kubernetes.io/target: traefik.${SECRET_DOMAIN}
+        cert-manager.io/cluster-issuer: letsencrypt-production
+      path: /
+      hosts: &hosts
+        # virtualHost (default value is pi.hole) will be appended to the hosts
+        - "pihole.${SECRET_DOMAIN}"
+      tls: 
+        - hosts: *hosts
+          secretName: pihole-tls-production
+         
+    # -- We usually recommend not to specify default resources and to leave this as a conscious
+    # -- choice for the user. This also increases chances charts run on environments with little
+    # -- resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # -- lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    resources:
+      {}
+      # limits:
+      #  cpu: 100m
+      #  memory: 128Mi
+      # requests:
+      #  cpu: 100m
+      #  memory: 128Mi
+
+    # -- `spec.PersitentVolumeClaim` configuration
+    # persistentVolumeClaim:
+    #   enabled: true
+    #   accessModes:
+    #     - ReadWriteOnce
+    #   size: "2Gi"
+
+    # -- Use an existing secret for the admin password.
+    admin:
+      # -- Specify an existing secret to use as admin password
+      existingSecret: "pihole-secret"
+      # -- Specify the key inside the secret to use
+      passwordKey: "PIHOLE_PRIMARY_PASSWORD"
+
+    # -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use
+    extraEnvVars:
+      TZ: ${TIMEZONE}
+
+    # -- default upstream DNS 1 server to use
+    #DNS1: "8.8.8.8"
+    # -- default upstream DNS 2 server to use
+    #DNS2: "8.8.4.4"
+
+    doh:
+      # -- set to true to enabled DNS over HTTPs via cloudflared
+      enabled: true
+      name: "cloudflared"
+      repository: "crazymax/cloudflared"
+      tag: latest@sha256:7e94afadbc1fca729d4187e566697319a8752e471085f4d86396300e21039508
+      pullPolicy: IfNotPresent
+      envVars:
+        TZ: ${TIMEZONE}
+        TUNNEL_DNS_UPSTREAM: "https://security.cloudflare-dns.com/dns-query" #could also comma-delimit more than one url within the same string for multiple options
+
+      # -- Probes configuration for cloudflared
+      probes:
+        liveness:
+          enabled: true
+          probe:
+            exec:
+              command:
+                - nslookup
+                - -po=5053
+                - cloudflare.com
+                - "127.0.0.1"
+          # -- defines the initial delay for the liveness probe
+          initialDelaySeconds: 60
+          failureThreshold: 10
+          timeoutSeconds: 5
+
+    dnsmasq:
+      # -- Add upstream dns servers. All lines will be added to the pihole dnsmasq configuration
+      upstreamServers: []
+      # - server=/foo.bar/192.168.178.10
+      # - server=/bar.foo/192.168.178.11
+
+      # -- Add custom dns entries to override the dns resolution. All lines will be added to the pihole dnsmasq configuration.
+      customDnsEntries: []
+      # - address=/foo.bar/192.168.178.10
+      # - address=/bar.foo/192.168.178.11
+
+      # -- Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
+      additionalHostsEntries: []
+      # - 192.168.0.3     host4
+      # - 192.168.0.4     host5
+
+      # -- Static DHCP config
+      staticDhcpEntries: []
+      # staticDhcpEntries:
+      # - dhcp-host=MAC_ADDRESS,IP_ADDRESS,HOSTNAME
+
+      # -- Other options
+      customSettings:
+      # otherSettings:
+      # - rebind-domain-ok=/plex.direct/
+
+      # -- Here we specify custom cname entries that should point to `A` records or
+      # elements in customDnsEntries array.
+      # The format should be:
+      #  - cname=cname.foo.bar,foo.bar
+      #  - cname=cname.bar.foo,bar.foo
+      #  - cname=cname record,dns record
+      customCnameEntries: []
+      # Here we specify custom cname entries that should point to `A` records or
+      # elements in customDnsEntries array.
+      # The format should be:
+      #   - cname=cname.foo.bar,foo.bar
+      #   - cname=cname.bar.foo,bar.foo
+      #   - cname=cname record,dns record
+
+    # -- list of adlists to import during initial start of the container
+    adlists:
+      - https://raw.githubusercontent.com/PolishFiltersTeam/KADhosts/master/KADhosts.txt
+      - https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Spam/hosts
+      - https://v.firebog.net/hosts/static/w3kbl.txt
+      - https://adaway.org/hosts.txt
+      - https://v.firebog.net/hosts/AdguardDNS.txt
+      - https://v.firebog.net/hosts/Admiral.txt
+      - https://raw.githubusercontent.com/anudeepND/blacklist/master/adservers.txt
+      - https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt
+      - https://v.firebog.net/hosts/Easylist.txt
+      - https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext
+      - https://raw.githubusercontent.com/FadeMind/hosts.extras/master/UncheckyAds/hosts
+      - https://raw.githubusercontent.com/bigdargon/hostsVN/master/hosts
+      - https://v.firebog.net/hosts/Easyprivacy.txt
+      - https://v.firebog.net/hosts/Prigent-Ads.txt
+      - https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.2o7Net/hosts
+      - https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt
+      - https://hostfiles.frogeye.fr/firstparty-trackers-hosts.txt
+      - https://raw.githubusercontent.com/DandelionSprout/adfilt/master/Alternate%20versions%20Anti-Malware%20List/AntiMalwareHosts.txt
+      - https://osint.digitalside.it/Threat-Intel/lists/latestdomains.txt
+      - https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt
+      - https://v.firebog.net/hosts/Prigent-Crypto.txt
+      - https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Risk/hosts
+      - https://bitbucket.org/ethanr/dns-blacklists/raw/8575c9f96e5b4a1308f2f12394abd86d0927a4a0/bad_lists/Mandiant_APT1_Report_Appendix_D.txt
+      - https://phishing.army/download/phishing_army_blocklist_extended.txt
+      - https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-malware.txt
+      - https://v.firebog.net/hosts/RPiList-Malware.txt
+      - https://v.firebog.net/hosts/RPiList-Phishing.txt
+      - https://raw.githubusercontent.com/Spam404/lists/master/main-blacklist.txt
+      - https://raw.githubusercontent.com/AssoEchap/stalkerware-indicators/master/generated/hosts
+      - https://urlhaus.abuse.ch/downloads/hostfile/
+      - https://zerodot1.gitlab.io/CoinBlockerLists/hosts_browser
+
+    # -- list of whitelisted domains to import during initial start of the container
+    whitelist:
+      {}
+      # If you want to provide whitelisted domains, add them here.
+      # - clients4.google.com
+
+    # -- list of blacklisted domains to import during initial start of the container
+    blacklist:
+      {}
+      # If you want to have special domains blacklisted, add them here
+      # - *.blackist.com
+
+    # -- list of blacklisted regex expressions to import during initial start of the container
+    regex:
+      {}
+      # Add regular expression blacklist items
+      # - (^|\.)facebook\.com$
+
+    # -- values that should be added to pihole-FTL.conf
+    ftl:
+      # Add values for pihole-FTL.conf
+      MAXDBDAYS: 30
+      BLOCK_ICLOUD_PR: false
+
+    # -- port the container should use to expose HTTP traffic
+    webHttp: "80"
+
+    # -- port the container should use to expose HTTPS traffic
+    webHttps: "443"
+
+    # -- hostname of pod
+    hostname: ""
+
+    # -- should the container use host network
+    hostNetwork: "false"
+
+    # -- should container run in privileged mode
+    privileged: "false"
+
+    # linux capabilities container should run with
+    capabilities:
+      {}
+      # add:
+      # - NET_ADMIN
+
+    podDnsConfig:
+      enabled: true
+      policy: "None"
+      nameservers:
+        - 127.0.0.1
+        - 1.1.1.1
+  

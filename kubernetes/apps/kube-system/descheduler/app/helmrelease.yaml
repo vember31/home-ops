@@ -1,0 +1,120 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: descheduler
+  namespace: kube-system
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: descheduler
+      version: 0.29.0
+      sourceRef:
+        kind: HelmRepository
+        name: descheduler-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    replicas: 2
+    kind: Deployment
+    deschedulerPolicyAPIVersion: descheduler/v1alpha2
+    deschedulerPolicy:
+      profiles:
+        - name: ProfileName
+          pluginConfig:
+          - name: DefaultEvictor
+            args:
+              evictSystemCriticalPods: true
+              evictFailedBarePods: true
+              evictLocalStoragePods: true
+          - name: RemovePodsHavingTooManyRestarts
+            args:
+              podRestartThreshold: 5
+              includingInitContainers: true
+          - name: RemovePodsViolatingTopologySpreadConstraint
+            args:
+              constraints:
+                - DoNotSchedule
+          - name: PodLifeTime
+            args:
+              states:
+                - Pending
+                - PodInitializing
+                - ContainerCreating
+              maxPodLifeTimeSeconds: 300
+          - name: RemoveFailedPods
+            args:
+              excludeOwnerKinds:
+                - Job
+              includingInitContainers: true
+              minPodLifetimeSeconds: 300
+          - name: RemoveDuplicates
+          - name: RemovePodsViolatingNodeTaints
+          - name: RemovePodsViolatingNodeAffinity
+            args:
+              nodeAffinityType:
+                - requiredDuringSchedulingIgnoredDuringExecution
+          - name: RemovePodsViolatingInterPodAntiAffinity
+          - name: LowNodeUtilization
+            args:
+              thresholds:
+                cpu: 40
+                memory: 50
+                pods: 40
+              targetThresholds:
+                cpu: 75
+                memory: 75
+                pods: 50
+          plugins:
+            balance:
+              enabled:
+                - RemoveDuplicates
+                - LowNodeUtilization
+                - RemovePodsViolatingTopologySpreadConstraint
+            deschedule:
+              enabled:
+                - PodLifeTime
+                - RemoveFailedPods
+                - RemovePodsViolatingNodeTaints
+                - RemovePodsViolatingNodeAffinity
+                - RemovePodsHavingTooManyRestarts
+                - RemovePodsViolatingInterPodAntiAffinity
+    service:
+      enabled: true
+    serviceMonitor:
+      enabled: false
+    leaderElection:
+      enabled: true

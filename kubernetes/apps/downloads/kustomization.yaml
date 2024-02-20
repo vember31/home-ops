@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+
+  # Pre Flux-Kustomizations
+  - ./namespace.yaml
+
+  # Flux-Kustomizations
+
+  - ./bazarr/ks.yaml
+  - ./bazarr/externalsecret.yaml
+  - ./prowlarr/ks.yaml
+  - ./prowlarr/externalsecret.yaml
+  - ./qbittorrent/ks.yaml
+  - ./qbittorrent/externalsecret.yaml
+  - ./radarr/ks.yaml
+  - ./radarr/externalsecret.yaml
+  - ./sonarr/ks.yaml
+  - ./sonarr/externalsecret.yaml
+  - ./unpackerr/ks.yaml
+  - ./unpackerr/externalsecret.yaml

@@ -1,0 +1,90 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: traefik
+  namespace: traefik
+spec:
+  chart:
+    spec:
+      chart: traefik
+      version: 26.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: traefik-charts
+        namespace: flux-system
+  interval: 15m
+  timeout: 5m
+  releaseName: traefik
+  values:
+
+    ## Create an IngressRoute for the dashboard
+    ingressRoute:
+      dashboard:
+        enabled: false
+
+    # -- Global command arguments to be passed to all traefik's pods
+    globalArguments:
+    - "--global.checknewversion=true"
+    - "--global.sendanonymoususage=false"
+    - "--api.insecure=true"
+    - "--serversTransport.insecureSkipVerify=true"
+
+    # Configure Traefik static configuration
+    additionalArguments: 
+       - "--log.level=DEBUG"
+
+    ports:
+      web:
+        redirectTo: 
+          port: websecure
+      websecure:
+        # these are global middlewares
+        middlewares:
+          - networking-error-pages@kubernetescrd
+        tls:
+          enabled: true
+          options: "default"
+      metrics:
+        port: 9100
+        expose: true
+        exposedPort: 9100
+        protocol: TCP
+        exposeInternal: false
+
+    service:
+      enabled: true
+      single: true
+      type: LoadBalancer
+      spec: 
+        loadBalancerIP: "${TRAEFIK_IP}"
+
+    tlsOptions:
+      default:
+        minVersion: VersionTLS12
+        maxVersion: VersionTLS13
+        sniStrict: true
+
+    # experimental:
+    #   plugins:
+    #     enabled: false #this will need to be flipped back to 'true' after traefik v26 if i use plugins
+
+    rbac:
+      enabled: true
+
+    ingressClass:
+      enabled: true
+      isDefaultClass: true
+
+    providers:
+      kubernetesCRD:
+        enabled: true
+        allowExternalNameServices: true
+        allowCrossNamespace: true
+
+      kubernetesIngress:
+        enabled: true
+        allowExternalNameServices: true
+        allowCrossNamespace: true
+        ingressClass: traefik
+        ingressEndpoint:
+          ip: "${TRAEFIK_IP}"

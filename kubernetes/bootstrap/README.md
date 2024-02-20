@@ -1,0 +1,77 @@
+# Cluster Bootstrap Procedures
+The documentation here will guide from preparing a Debian or Ubuntu-based node, to having k3s setup.
+## Node Preparation
+Install packages:
+```
+sudo apt install nfs-common open-iscsi qemu-guest-agent unattended-upgrades
+```
+Configure Unattended Upgrades:
+```
+sudo dpkg-reconfigure -plow unattended-upgrades
+```
+Permit OS package upgrades by removing the `\\` from the 2nd line listed below:
+```
+sudo nano /etc/apt/apt.conf.d/50unattended-upgrades
+"${distro_id}:${distro_codename}-updates";
+```
+
+### Install k3s on all nodes
+*I'd like to shift this eventually to Ansible*
+
+The below will init a new cluster:
+```
+curl -fL https://get.k3s.io | K3S_TOKEN=${SERVER_TOKEN} \
+    sh -s - \
+    --cluster-init
+    --disable servicelb \
+    --disable traefik \
+    --server https://k3s.[secret domain]:6443 \
+    --tls-san "[ip address of new k3s VM node]" \
+    --tls-san "[dns address of new k3s VM node]"
+```
+The below will add new server nodes to the cluster
+```
+SERVER_TOKEN=[insert server node token]
+curl -fL https://get.k3s.io | K3S_TOKEN=${SERVER_TOKEN} \
+    sh -s - server \
+    --disable servicelb \
+    --disable traefik \
+    --server https://k3s.[secret domain]:6443 \
+    --tls-san "[ip address of new k3s VM node]" \
+    --tls-san "[dns address of new k3s VM node]"
+```
+
+### Secret Preparation
+Create the following gitlab-secret.yaml, and save it to any location, to prepare for external-secrets:
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-secret
+  namespace: kube-system
+data:
+  token: [fill in Gitlab PAT]
+type: Opaque
+```
+
+Then apply the file to the cluster:
+```kubectl apply -f gitlab-secret.yaml```
+
+### Install Flux
+*This only has to be performed once for the full cluster*
+
+First, export the Github PAT:
+```
+export GITHUB_TOKEN=[GITHUB PAT]
+```
+Next, boostrap the cluster:
+```
+flux bootstrap github \
+  --token-auth \
+  --owner=vember31 \
+  --repository=home-ops \
+  --branch=main \
+  --path=kubernetes/flux \
+  --personal
+```
