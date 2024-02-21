@@ -116,6 +116,8 @@ spec:
         enabled: true
         type: secret
         name: olivetin-secret
+        items:
+          - key: config-tpl.yaml
         globalMounts:
           - path: /config/config.yaml
             subPath: config.yaml
