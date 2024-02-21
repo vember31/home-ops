@@ -30,7 +30,7 @@ actions:
     icon: "&#128737;" #shield
     maxConcurrent: 1
     timeout: 10
-    shell: curl -X GET "http://${PIHOLE_LXC_IP}/admin/api.php?disable=300&auth=${PIHOLE_LXC_API_KEY}"
+    shell: curl -X GET "http://${PIHOLE_LXC_IP}/admin/api.php?disable=300&auth={{ .PIHOLE_LXC_API_KEY }}"
 
   - title: date
     shell: date

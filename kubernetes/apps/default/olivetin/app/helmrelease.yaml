@@ -114,8 +114,8 @@ spec:
 
       config:
         enabled: true
-        type: configMap
-        name: olivetin-config
+        type: secret
+        name: olivetin-secret
         globalMounts:
           - path: /config/config.yaml
             subPath: config.yaml
