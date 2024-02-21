@@ -123,11 +123,11 @@ spec:
       blocky-disable-script:
         enabled: true
         type: configMap
-        name: blocky-disable-5m
+        name: olivetin-blocky-script
         defaultMode: 0777
         globalMounts:
-          - path: /scripts/blocky-disable-5m.sh
-            subPath: blocky-disable-5m.sh
+          - path: /scripts/olivetin-blocky-script.sh
+            subPath: olivetin-blocky-script.sh
             readOnly: false
             
       

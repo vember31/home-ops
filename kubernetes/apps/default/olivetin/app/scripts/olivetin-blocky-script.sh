@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-ACTION=disable
-DURATION=5m
+ACTION=$1
+DURATION=$2
 BLOCKY_GROUPS=default #could turn this to variable later, but i only have 'default' group present. comma-delimited
 NAMESPACE=networking
-PAUSE_SECONDS=3s
+PAUSE_SECONDS=1s
 KUBECTL_LOCATION=/home/olivetin/kubectl
 KUBECTL_DIRECTORY=/home/olivetin
 
