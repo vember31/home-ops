@@ -91,6 +91,9 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          hajimari.io/icon: mdi:script-text
+          hajimari.io/info: Shell Scripts Frontend
+          hajimari.io/group: Resources
         hosts:
           - host: &host olivetin.local.${SECRET_DOMAIN}
             paths:
