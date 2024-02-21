@@ -15,7 +15,7 @@ if [ -e "$KUBECTL_LOCATION" ]; then
     echo "Kubectl already exists."
 else
     echo "Kubectl does not exist - downloading."
-    curl -LO --output-dir "$KUBECTL_DIRECTORY" curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    curl -LO --output-dir "$KUBECTL_DIRECTORY" curl -LO curl -LO https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl
     chmod +x $KUBECTL_LOCATION
     echo "Kubectl downloaded & executable."
 fi
