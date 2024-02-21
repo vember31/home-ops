@@ -11,19 +11,17 @@ KUBECTL_DIRECTORY=/home/olivetin
 # First check to see if kubectl exists
 echo "Checking for existence of kubectl..."
 
-if [ -e "${KUBECTL_LOCATION}" ]; then
+if [ -e "$KUBECTL_LOCATION" ]; then
     echo "Kubectl exists. Proceeding to Blocky script."
 else
     echo "Kubectl does not exist - downloading."
     curl -LO --output-dir "$KUBECTL_DIRECTORY" https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl
-    chmod +x ${KUBECTL_LOCATION}
+    chmod +x $ $KUBECTL_LOCATION
     echo "Kubectl downloaded & executable."
 fi
 
 echo "Starting Blocky Script in $PAUSE_SECONDS ..."
-BLOCKY_PODS=$(${KUBECTL_LOCATION} get pods -n $NAMESPACE -o=jsonpath="{range .items[*]}{.metadata.name} " -l app.kubernetes.io/name=blocky)
-
-echo "${BLOCKY_PODS}" #this is debugging only
+BLOCKY_PODS=$($KUBECTL_LOCATION get pods -n $NAMESPACE -o=jsonpath="{range .items[*]}{.metadata.name} " -l app.kubernetes.io/name=blocky)
 
 sleep "$PAUSE_SECONDS"
 
@@ -46,4 +44,4 @@ for pod in $BLOCKY_PODS; do
 done
 
 echo "Script complete."
-sleep 1s
+sleep "1s"
