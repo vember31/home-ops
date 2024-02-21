@@ -30,20 +30,20 @@ actions:
     timeout: 10
     shell: curl -X GET "http://${PIHOLE_LXC_IP}/admin/api.php?disable=300&auth={{ .PIHOLE_LXC_API_KEY }}"
 
-  - title: Blocky All Commands
-    shell: /scripts/olivetin-blocky-script.sh {{ blocky_action }} {{ blocky_duration }}m {{ blocky_groups }}
-    timeout: 10
-    icon: "&#128737;" #shield
-    arguments:
-      - name: blocky_action
-        choices:
-          - title: Disable
-            value: disable
-          - title: Enable
-            value: enable
-          - title: Status
-            value: status
-      - name: blocky_duration
-        type: int
-      - name: blocky_groups
-        type: ascii_sentence
+  # - title: Blocky All Commands
+  #   shell: /scripts/olivetin-blocky-script.sh {{ blocky_action }} {{ blocky_duration }}m {{ blocky_groups }}
+  #   timeout: 10
+  #   icon: "&#128737;" #shield
+  #   arguments:
+  #     - name: blocky_action
+  #       choices:
+  #         - title: Disable
+  #           value: disable
+  #         - title: Enable
+  #           value: enable
+  #         - title: Status
+  #           value: status
+  #     - name: blocky_duration
+  #       type: int
+  #     - name: blocky_groups
+  #       type: ascii_sentence
