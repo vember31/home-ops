@@ -77,6 +77,7 @@ spec:
       # -- Namespace selector to use for discovering applications
       namespaceSelector:
         matchNames:
+          - default
           - downloads
           - home
           - kube-system
