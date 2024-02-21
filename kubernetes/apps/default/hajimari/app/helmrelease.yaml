@@ -77,13 +77,13 @@ spec:
       # -- Namespace selector to use for discovering applications
       namespaceSelector:
         matchNames:
-          - default
           - downloads
           - home
           - kube-system
           - media
           - monitoring
           - networking
+          - default #try putting this here as olivetin will fall into 'Resources'
           - storage
         
       # -- Override the title of the Hajimari pages
@@ -198,6 +198,7 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          hajimario.io/enable: false
         hosts:
           - host: &host "home.local.${SECRET_DOMAIN}"
             paths:
