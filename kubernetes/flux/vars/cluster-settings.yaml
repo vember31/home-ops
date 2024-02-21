@@ -18,7 +18,7 @@ data:
 
   # external service IPs
   GATEWAY_IP: "192.168.2.1"
-  PRIMARY_DNS_IP: "192.168.2.4"
+  PIHOLE_LXC_IP: "192.168.2.4"
   OMV_IP: "192.168.2.9"
   OMV2_IP: "192.168.2.19"
   PVE_1: "192.168.2.3"

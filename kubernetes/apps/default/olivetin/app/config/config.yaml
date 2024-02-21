@@ -26,6 +26,12 @@ actions:
     timeout: 10
     #popupOnStart: "execution-dialog" #popupOnStart only seems to throw execution errors?
 
+  - title: Disable Pihole for 5 minutes
+    icon: "&#128737;" #shield
+    maxConcurrent: 1
+    timeout: 10
+    shell: curl -X GET "http://${PIHOLE_LXC_IP}/admin/api.php?disable=300&auth=${PIHOLE_LXC_API_KEY}"
+
   - title: date
     shell: date
     timeout: 6
