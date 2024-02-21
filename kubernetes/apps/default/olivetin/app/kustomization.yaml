@@ -1,19 +1,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-configMapGenerator:
-  - name: olivetin-config
-    files:
-      - ./config/config.yaml
-  - name: olivetin-blocky-script
-    files:
-      - ./scripts/olivetin-blocky-script.sh
-generatorOptions:
-  disableNameSuffixHash: true
-  annotations:
-    kustomize.toolkit.fluxcd.io/substitute: disabled
 resources:
   - ./externalsecret.yaml #isn't actually needed it seems
   - ./rbac.yaml
+  - ./config
+  - ./scripts
   - ./helmrelease.yaml
   - ../../../../templates/gatus/internal
