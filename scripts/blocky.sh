@@ -7,7 +7,7 @@
 
 ACTION=$1
 DURATION=$2
-BLOCKY_GROUPS=default #could turn this to variable later, but i only have 'default' group present. comma-delimited
+BLOCKY_GROUPS=ads #could turn this to variable later, but i only have 'default' group present. comma-delimited. won't be required with v0.24
 NAMESPACE=networking
 PAUSE_SECONDS=3s
 

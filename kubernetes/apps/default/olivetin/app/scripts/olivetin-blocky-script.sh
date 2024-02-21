@@ -2,7 +2,7 @@
 
 ACTION=$1
 DURATION=$2
-BLOCKY_GROUPS=default #could turn this to variable later, but i only have 'default' group present. comma-delimited
+BLOCKY_GROUPS=$3 # this should be not required with v0.24, but it is now. use 'ads'
 NAMESPACE=networking
 PAUSE_SECONDS=1s
 KUBECTL_LOCATION=/home/olivetin/kubectl
@@ -12,18 +12,18 @@ KUBECTL_DIRECTORY=/home/olivetin
 echo "Checking for existence of kubectl..."
 
 if [ -e "$KUBECTL_LOCATION" ]; then
-    echo "Kubectl exists. Proceeding to Blocky script."
+    echo "Kubectl already exists."
 else
     echo "Kubectl does not exist - downloading."
-    curl -LO --output-dir "$KUBECTL_DIRECTORY" https://dl.k8s.io/release/v1.29.2/bin/linux/amd64/kubectl
+    curl -LO --output-dir "$KUBECTL_DIRECTORY" curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
     chmod +x $KUBECTL_LOCATION
     echo "Kubectl downloaded & executable."
 fi
 
-echo "Starting Blocky Script in $PAUSE_SECONDS ..."
+echo "Beginning Blocky Script"
 BLOCKY_PODS=$($KUBECTL_LOCATION get pods -n $NAMESPACE -o=jsonpath="{range .items[*]}{.metadata.name} " -l app.kubernetes.io/name=blocky)
 
-sleep "$PAUSE_SECONDS"
+#
 
 for pod in $BLOCKY_PODS; do
     case "$ACTION" in
@@ -44,4 +44,3 @@ for pod in $BLOCKY_PODS; do
 done
 
 echo "Script complete."
-sleep "1s"

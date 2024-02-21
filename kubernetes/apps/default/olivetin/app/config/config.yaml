@@ -14,17 +14,15 @@ actions:
 
   - title: Disable Blocky for 5 minutes
     icon: "&#128737;" #shield
-    shell: /scripts/olivetin-blocky-script.sh disable 5m
+    shell: /scripts/olivetin-blocky-script.sh disable 5m ads
     maxConcurrent: 1
     timeout: 10
-    #popupOnStart: "execution-dialog"
 
   - title: Blocky Status
     icon: "&#10003;" #check
     shell: /scripts/olivetin-blocky-script.sh status
     maxConcurrent: 1
     timeout: 10
-    #popupOnStart: "execution-dialog" #popupOnStart only seems to throw execution errors?
 
   - title: Disable Pihole for 5 minutes
     icon: "&#128737;" #shield
@@ -32,8 +30,20 @@ actions:
     timeout: 10
     shell: curl -X GET "http://${PIHOLE_LXC_IP}/admin/api.php?disable=300&auth={{ .PIHOLE_LXC_API_KEY }}"
 
-  - title: date
-    shell: date
-    timeout: 6
-    icon: clock
-    # popupOnStart: "execution-button"
+  - title: Blocky All Commands
+    shell: /scripts/olivetin-blocky-script.sh {{ blocky_action }} {{ blocky_duration }}m {{ blocky_groups }}
+    timeout: 10
+    icon: "&#128737;" #shield
+    arguments:
+      - name: blocky_action
+        choices:
+          - title: Disable
+            value: disable
+          - title: Enable
+            value: enable
+          - title: Status
+            value: status
+      - name: blocky_duration
+        type: int
+      - name: blocky_groups
+        type: ascii_sentence
