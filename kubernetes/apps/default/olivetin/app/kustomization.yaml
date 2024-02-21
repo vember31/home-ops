@@ -13,7 +13,7 @@ generatorOptions:
   annotations:
     kustomize.toolkit.fluxcd.io/substitute: disabled
 resources:
-  - ./externalsecret.yaml
+  # - ./externalsecret.yaml #isn't actually needed it seems
   - ./rbac.yaml
   - ./helmrelease.yaml
   - ../../../../templates/gatus/internal
