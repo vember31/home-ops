@@ -11,9 +11,13 @@ logLevel: "INFO"
 
 # Actions (buttons) to show up on the WebUI:
 actions:
+
   - title: Disable Blocky for 5 minutes
     icon: "&#128737;"
     shell: /scripts/blocky-disable-5m.sh
+    maxConcurrent: 1
+    timeout: 10
+    popupOnStart: execution-dialog
 
   - title: date
     shell: date
