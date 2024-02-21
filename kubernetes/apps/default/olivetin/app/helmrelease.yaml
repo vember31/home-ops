@@ -118,9 +118,10 @@ spec:
         name: olivetin-secret
         items:
           - key: config-tpl.yaml
-        globalMounts:
-          - path: /config/config.yaml
-            subPath: config.yaml
+            path: /config/config.yaml
+        # globalMounts:
+        #   - path: /config/config.yaml
+        #     subPath: config.yaml
 
       blocky-disable-script:
         enabled: true
