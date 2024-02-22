@@ -26,6 +26,12 @@
       "matchPackagePatterns": ["requestrr"]
     },
     {
+      "description": "jellyfin has one rogue package that is a date that needs to be excluded. allow major with only 3 digits max",
+      "matchDatasources": ["docker"],
+      "versioning": "regex:^(?P<major>\\d{1,3})\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)$",
+      "matchPackagePatterns": ["jellyfin"]
+    },
+    {
       "description": "Custom versioning for k3s",
       "matchDatasources": ["github-releases"],
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k3s)(?<build>\\d+)$",
