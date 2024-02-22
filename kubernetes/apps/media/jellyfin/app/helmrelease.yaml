@@ -105,7 +105,6 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: simple-icons:jellyfin
           hajimari.io/info: Open-source Media Server
         hosts:

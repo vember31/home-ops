@@ -199,6 +199,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           hajimari.io/enable: "false"
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
         hosts:
           - host: &host "home.local.${SECRET_DOMAIN}"
             paths:

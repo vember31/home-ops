@@ -73,6 +73,7 @@ spec:
         ingressClassName: traefik
         annotations: 
           cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: mdi:file-chart-outline
           hajimari.io/info: Kubernetes Resource Recommendations
         hosts:

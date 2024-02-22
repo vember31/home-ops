@@ -14,8 +14,8 @@ spec:
         - kind: TraefikService
           name: api@internal
           #port: 9000
-      # middlewares:
-      #   - name: security-header
-      #     namespace: networking
+      middlewares:
+        - name: secure-networks
+          namespace: networking
   tls:
     secretName: traefik-tls-production

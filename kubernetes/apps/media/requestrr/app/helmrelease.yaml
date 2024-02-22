@@ -99,6 +99,7 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: mdi:robot-happy-outline
           hajimari.io/info: Discord Media Requests
         hosts:

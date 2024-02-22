@@ -130,12 +130,3 @@ spec:
           - path: /scripts/olivetin-blocky-script.sh
             subPath: olivetin-blocky-script.sh
             readOnly: false
-            
-      
-    #   kubeconfig:
-    #     enabled:  true
-    #     type: secret
-    #     name: olivetin-secret
-    #     globalMounts:
-    #       - path: /home/olivetin/.kube/config
-    #         subPath: config

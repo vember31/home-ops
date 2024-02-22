@@ -57,6 +57,7 @@ spec:
         ingressClassName: traefik
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/appName: Alert Manager
           hajimari.io/icon: mingcute:alert-fill
           hajimari.io/info: Cluster Alert Management
@@ -214,6 +215,7 @@ spec:
         ingressClassName: traefik
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/appName: Prometheus
           hajimari.io/icon: simple-icons:prometheus
           hajimari.io/info: Cluster Data Aggregation
