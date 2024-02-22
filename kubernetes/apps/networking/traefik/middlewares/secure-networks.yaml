@@ -1,0 +1,12 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: secure-networks-only
+  namespace: networking
+spec:
+  ipWhiteList:
+    sourceRange:
+      - ${SECURE_CIDR}
+      - ${CLUSTER_CIDR}
+      - ${SERVICE_CIDR}
