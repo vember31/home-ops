@@ -113,9 +113,9 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: mdi:television-classic
           hajimari.io/info: TV Collection Management
-          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
         hosts:
           - host: &host sonarr.local.${SECRET_DOMAIN}
             paths:

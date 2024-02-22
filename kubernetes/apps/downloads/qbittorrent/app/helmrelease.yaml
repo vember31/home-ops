@@ -110,6 +110,7 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: arcticons:qbittorrent-remote
           hajimari.io/info: Download Management
         hosts:

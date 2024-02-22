@@ -102,6 +102,7 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: arcticons:iptv-smarters
           hajimari.io/info: Plex IPTV Playlist Management
           hajimari.io/url: https://threadfin.local.${SECRET_DOMAIN}/web/
