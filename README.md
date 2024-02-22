@@ -37,6 +37,7 @@ My cluster is [k3s](https://k3s.io/) provisioned atop Ubuntu 22.04 VMs, which ar
 - [external-dns](https://github.com/kubernetes-sigs/external-dns): automatically syncs DNS records from cluster ingresses to a DNS provider (Cloudflare)
 - [external-secrets](https://github.com/external-secrets/external-secrets/): managed Kubernetes secrets using Gitlab CI/CD variables
 - [kured](https://github.com/kubereboot/kured): Kubernetes daemonset that performs safe automatic node reboots when the need to do so is indicated by the package management system of the underlying OS
+- [kube-prometheus-stack](https://github.com/prometheus-operator/kube-prometheus): Prometheus, Grafana, Alertmanager & Thanos, bundled into one helm chart for high-availability observability & monitoring of the cluster.
 - [longhorn](https://github.com/longhorn/longhorn): distributed block storage for Kubernetes volume persistence
 - [metal-lb](https://github.com/metallb/metallb): internal Kubernetes load-balancing plugin
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller): automated, rolling k3s version upgrades
