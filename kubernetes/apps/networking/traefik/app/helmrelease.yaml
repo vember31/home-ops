@@ -40,9 +40,7 @@ spec:
       websecure:
         # these are global middlewares
         middlewares:
-          - networking-cloudflare-ips@kubernetescrd
           - networking-error-pages@kubernetescrd
-          - networking-secure-networks@kubernetescrd
         tls:
           enabled: true
           options: "default"
