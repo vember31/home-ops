@@ -10,6 +10,7 @@ resources:
   # Flux-Kustomizations
   - ./autoscan/ks.yaml
   - ./autoscan/externalsecret.yaml
+  - ./jellyfin/ks.yaml
   - ./maintainerr/ks.yaml
   - ./overseerr/ks.yaml
   - ./overseerr/externalsecret.yaml
