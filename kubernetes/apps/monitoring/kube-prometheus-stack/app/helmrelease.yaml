@@ -250,11 +250,11 @@ spec:
         retentionSize: 5GB #max size
         replicas: 2
         affinity: *affinity
-        resources:
-          requests:
-            cpu: 15m
-          limits:
-            memory: 128Mi
+        # resources:
+        #   requests:
+        #     cpu: 15m
+        #   limits:
+        #     memory: 128Mi
         # storageSpec:
         #   volumeClaimTemplate:
         #     spec:
