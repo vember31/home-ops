@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: kubernetes-dashboard
-      version: 6.0.8
+      version: 7.0.0-alpha2
       sourceRef:
         kind: HelmRepository
         name: kubernetes-dashboard-charts
@@ -54,6 +54,8 @@ spec:
       - --disable-settings-authorizer
       - --enable-insecure-login
       - --token-ttl=43200
+      - --set=cert-manager.enabled=false
+      - --set=nginx.enabled=false
     ingress:
       enabled: true
       annotations:
@@ -70,8 +72,8 @@ spec:
             - *host
           secretName: kubernetes-dashboard-tls-production
     metricsScraper:
-      enabled: false
+      enabled: true
     serviceMonitor:
-      enabled: false
+      enabled: true
 
   

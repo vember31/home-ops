@@ -56,11 +56,15 @@ spec:
       timeZone: "${TIMEZONE}"                  # time-zone to use (valid zones from "time" golang package)
       concurrency: 1                # amount of nodes to concurrently reboot. (default 1)
 
-    resources: {}
+    resources:
+      requests:
+        cpu: 15m
+      limits:
+        memory: 105M
 
     metrics:
-      create: false
+      create: true
 
     service:
-      create: false
+      create: true
   

@@ -46,12 +46,6 @@ spec:
     
   maxHistory: 1
 
-  #valuesFrom:
-    #- targetPath: 
-    #  kind: Secret
-    #  name: kured-secret
-    #  valuesKey: kured-discord-webhook-url-shoutrr
-
   values:
 
     replicaCount: 1
@@ -73,6 +67,13 @@ spec:
     serviceMonitor:
       # -- Specifies whether to create a ServiceMonitor resource for collecting Prometheus metrics
       enabled: true
+
+    resources: 
+      requests:
+        cpu: 10m
+      limits:
+        memory: 128Mi
+
 
     webhook:
       # -- Specifies whether a webhook deployment be created.
