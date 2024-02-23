@@ -1129,14 +1129,14 @@ spec:
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube.
     # [Ref docs](https://kubernetes.io/docs/user-guide/compute-resources/)
-    resources: 
-      ## If you do want to specify resources, uncomment the following lines,
-      ## adjust them as necessary, and remove the curly braces after 'resources:'.
-      limits:
-       memory: 256Mi
-      requests:
-       cpu: 15m
-       memory: 128Mi
+    # resources: 
+    #   ## If you do want to specify resources, uncomment the following lines,
+    #   ## adjust them as necessary, and remove the curly braces after 'resources:'.
+    #   limits:
+    #    memory: 256Mi
+    #   requests:
+    #    cpu: 15m
+    #    memory: 128Mi
 
     # -- Extra environment variables to pass to the Botkube container.
     # [Ref docs](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#environment-variables).
