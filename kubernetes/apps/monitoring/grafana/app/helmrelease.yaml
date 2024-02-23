@@ -359,6 +359,12 @@ spec:
           hosts:
             - *host
 
+    resources:
+      requests:
+        cpu: 100m
+      limits:
+        memory: 256Mi
+
     persistence:
       enabled: false
 

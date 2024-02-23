@@ -72,6 +72,11 @@ spec:
         replicas: 2
         useExistingSecret: true
         configSecret: alertmanager-secret
+        resources:
+          requests:
+            cpu: 10m
+          limits:
+            memory: 64Mi
         storage:
           volumeClaimTemplate:
             spec:
@@ -245,6 +250,11 @@ spec:
         retentionSize: 5GB #max size
         replicas: 2
         affinity: *affinity
+        resources:
+          requests:
+            cpu: 15m
+          limits:
+            memory: 128Mi
         # storageSpec:
         #   volumeClaimTemplate:
         #     spec:
