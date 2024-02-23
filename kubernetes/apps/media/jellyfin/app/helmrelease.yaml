@@ -92,7 +92,10 @@ spec:
               JELLYFIN_PublishedServerUrl: https://jellyfin.local.${SECRET_DOMAIN}
 
             resources:
-              {}
+              requests:
+                cpu: 100m
+              limits:
+                memory: 2Gi
 
     service:
       main:
