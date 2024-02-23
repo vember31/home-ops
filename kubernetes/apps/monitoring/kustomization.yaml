@@ -14,8 +14,8 @@ resources:
   # - ./botkube/ks.yaml
   - ./gatus/ks.yaml
   - ./gatus/externalsecret.yaml
-  #- ./goldilocks/ks.yaml
-  #- ./goldilocks/externalsecret.yaml
+  - ./goldilocks/ks.yaml
+  - ./goldilocks/externalsecret.yaml
   - ./grafana/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
 #  - ./pialert/ks.yaml
