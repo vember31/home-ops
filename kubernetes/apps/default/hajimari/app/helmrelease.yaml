@@ -54,6 +54,12 @@ spec:
       # -- Set the container timezone
       TZ: ${TIMEZONE}
 
+    resources:
+      requests:
+        cpu: 15m
+      limits:
+        memory: 105M
+
     # -- Configures Hajimari settings for this instance.
     # @default -- See below
     hajimari:
