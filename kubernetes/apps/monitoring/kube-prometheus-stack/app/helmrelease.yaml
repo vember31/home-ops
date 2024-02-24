@@ -72,11 +72,11 @@ spec:
         replicas: 2
         useExistingSecret: true
         configSecret: alertmanager-secret
-        resources:
-          requests:
-            cpu: 10m
-          limits:
-            memory: 64Mi
+        # resources:
+        #   requests:
+        #     cpu: 10m
+        #   limits:
+        #     memory: 64Mi
         storage:
           volumeClaimTemplate:
             spec:
