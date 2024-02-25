@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - ./bazarr-exporter/ks.yaml
   - ./overseerr-exporter/ks.yaml
+  - ./prowlarr-exporter/ks.yaml
