@@ -107,6 +107,10 @@ spec:
           http:
             port: 5656
 
+    serviceMonitor:
+      main:
+        enabled: true
+
     ingress:
       main:
         enabled: false
