@@ -44,7 +44,7 @@ spec:
     
   maxHistory: 1
 
-values:
+  values:
     controllers:
       main:
         annotations:
