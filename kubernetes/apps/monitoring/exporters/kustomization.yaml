@@ -6,4 +6,6 @@ resources:
   - ./bazarr-exporter/ks.yaml
   - ./overseerr-exporter/ks.yaml
   - ./prowlarr-exporter/ks.yaml
+  - ./qbittorrent-exporter/ks.yaml
   - ./radarr-exporter/ks.yaml
+  - ./sonarr-exporter/ks.yaml
