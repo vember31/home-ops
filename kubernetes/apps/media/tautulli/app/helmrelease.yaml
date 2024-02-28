@@ -61,7 +61,7 @@ spec:
             nameOverride: *name
             image:
               repository: ghcr.io/hotio/tautulli
-              tag: release-2.13.4@sha256:8d0976768330a49fa5fc5b1defb710d5d2472218ae204e962a089316b732973e
+              tag: release-2.13.4@sha256:b361880f5dd8636d78c11764b92095ea96008423957c84f50d5a32779dba4959
               pullPolicy: IfNotPresent
 
             env:
