@@ -23,6 +23,7 @@ actions:
     shell: /scripts/olivetin-blocky-script.sh status
     maxConcurrent: 1
     timeout: 10
+    popupOnStart: execution-dialog
 
   - title: Disable Pihole for 5 minutes
     icon: "&#128737;" #shield
@@ -34,6 +35,7 @@ actions:
     shell: /scripts/olivetin-blocky-script.sh {{ `{{blocky_action}}` }} {{ `{{blocky_duration}}` }}m {{ `{{blocky_groups}}` }}
     timeout: 10
     icon: "&#128737;" #shield
+    popupOnStart: execution-dialog
     arguments:
       - name: blocky_action
         choices:
