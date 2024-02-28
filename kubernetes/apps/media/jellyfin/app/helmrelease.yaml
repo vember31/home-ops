@@ -133,3 +133,13 @@ spec:
         size: 2Gi
         retain: true
         globalMounts: []
+
+      # live tv recordings
+      recordings:
+        enabled: true
+        type: nfs
+        server: ${OMV_IP}
+        path: /export/media/recordings
+        globalMounts:
+          - path: /media/recordings
+            readOnly: false #allow jellyfin to record to this too
