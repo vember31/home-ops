@@ -54,8 +54,6 @@ spec:
       - --disable-settings-authorizer
       - --enable-insecure-login
       - --token-ttl=43200
-      - --set=cert-manager.enabled=false
-      - --set=nginx.enabled=false
     ingress:
       enabled: true
       annotations:
@@ -75,5 +73,12 @@ spec:
       enabled: true
     serviceMonitor:
       enabled: true
+    cert-manager:
+      enabled: false
+      installCRDs: false
+    nginx:
+      enabled: false
+    metrics-server:
+      enabled: false
 
   
