@@ -71,7 +71,7 @@ spec:
             nameOverride: *name
             image:
               repository: jamesread/olivetin
-              tag: 2024.02.27@sha256:81cda6cdae6ec57a9b9ef80faa418a19c0b1e6a77a9abd2fccc5d3d8a844bd59
+              tag: 2024.02.28@sha256:baaeadecea8e04663e1258b57b7ed8e6d37bd8a551058b6d20d61f309b6a4b54
               pullPolicy: IfNotPresent
 
             env:
