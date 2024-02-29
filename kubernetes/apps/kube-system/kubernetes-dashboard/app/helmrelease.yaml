@@ -55,7 +55,7 @@ spec:
       - --enable-insecure-login
       - --token-ttl=43200
     ingress:
-      enabled: true
+      enabled: false
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-production
         traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd

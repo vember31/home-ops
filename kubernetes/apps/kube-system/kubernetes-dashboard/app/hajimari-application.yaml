@@ -1,0 +1,11 @@
+apiVersion: hajimari.io/v1alpha1
+kind: Application
+metadata:
+  name: kubernetes-dashboard
+spec:
+  name: Kubernetes Dashboard
+  group: Kubernetes
+  icon: carbon:kubernetes
+  url: https://kubernetes.local.${SECRET_DOMAIN}
+  info: Centralized Kubernetes Management
+  targetBlank: false
