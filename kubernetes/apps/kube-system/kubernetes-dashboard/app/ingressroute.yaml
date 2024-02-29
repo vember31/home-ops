@@ -11,7 +11,7 @@ spec:
     - kind: Rule
       match: Host(`kubernetes.local.${SECRET_DOMAIN}`)
       services:
-        - name: kubernetes-dashboard
+        - name: kubernetes-dashboard-web
           port: https
           scheme: https
       middlewares:
