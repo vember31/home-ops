@@ -60,6 +60,8 @@ spec:
       limits:
         memory: 105M
 
+
+
     # -- Configures Hajimari settings for this instance.
     # @default -- See below
     hajimari:
@@ -150,7 +152,7 @@ spec:
             info: OpenMediaVault NFS Server 1
 
       # -- Create sample Custom Resource Application
-      createCRAppSample: false
+      createCRAppSample: true
 
       # -- Set default bookmarks
       globalBookmarks: 
