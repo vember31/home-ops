@@ -63,7 +63,7 @@ spec:
         hajimari.io/icon: carbon:kubernetes
         hajimari.io/info: Centralized Kubernetes Management
         hajimari.io/appName: Kubernetes Dashboard
-        hajimari.io/group: Kubernetes
+        hajimari.io/group: Resources
       hosts:
         - &host "kubernetes.local.${SECRET_DOMAIN}"
       tls:
