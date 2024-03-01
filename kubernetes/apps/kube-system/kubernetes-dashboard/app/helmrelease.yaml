@@ -76,13 +76,11 @@ spec:
 
     api:
       containers:
-        env:
-          TZ:${TIMEZONE}
         args:
-          - --enable-skip-login
-          - --disable-settings-authorizer
-          - --enable-insecure-login
-          - --token-ttl=43200
+          - "--enable-skip-login"
+          - "--disable-settings-authorizer"
+          - "--enable-insecure-login"
+          - "--token-ttl=43200"
 
     metricsScraper:
       enabled: false
