@@ -87,10 +87,10 @@ spec:
         matchNames:
           - downloads
           - home
-          - kube-system
           - media
           - monitoring
           - networking
+          - kube-system #try putting this here as kube dash will fall into 'Resources'
           - default #try putting this here as olivetin will fall into 'Resources'
           - storage
         
