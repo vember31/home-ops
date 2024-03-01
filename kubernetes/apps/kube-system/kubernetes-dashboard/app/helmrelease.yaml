@@ -60,7 +60,12 @@ spec:
           name: letsencrypt-production
           scope: cluster
         labels: {}
-        annotations: {}
+        annotations: 
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          hajimari.io/icon: carbon:kubernetes
+          hajimari.io/info: Centralized Kubernetes Management
+          hajimari.io/appName: Kubernetes Dashboard
+          hajimari.io/group: Resources
         paths:
           web: /
           api: /api
