@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: kubernetes-dashboard
-      version: 7.0.0-alpha1
+      version: 7.0.0-alpha2
       sourceRef:
         kind: HelmRepository
         name: kubernetes-dashboard-charts
@@ -47,39 +47,45 @@ spec:
   maxHistory: 1
 
   values:
-    env:
-      TZ: ${TIMEZONE}
-    extraArgs:
-      - --enable-skip-login
-      - --disable-settings-authorizer
-      - --enable-insecure-login
-      - --token-ttl=43200
-    ingress:
-      enabled: true
-      className: traefik
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-production
-        traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
-        hajimari.io/icon: carbon:kubernetes
-        hajimari.io/info: Centralized Kubernetes Management
-        hajimari.io/appName: Kubernetes Dashboard
-        hajimari.io/group: Resources
-      hosts:
-        - &host "kubernetes.local.${SECRET_DOMAIN}"
-      tls:
-        - hosts:
-            - *host
-          secretName: kubernetes-dashboard-tls-production
+
+    app:
+      ingress:
+        enabled: true
+        hosts:
+        - kubernetes.local.${SECRET_DOMAIN}
+        ingressClassName: traefik
+        pathType: ImplementationSpecific
+        secretName: kubernetes-dashboard-tls-production
+        issuer:
+          name: letsencrypt-production
+          scope: cluster
+        labels: {}
+        annotations: {}
+        paths:
+          web: /
+          api: /api
+
+    web:
+      env: 
+        TZ: ${TIMEZONE}
+      args:
+        - --enable-skip-login
+        - --disable-settings-authorizer
+        - --enable-insecure-login
+        - --token-ttl=43200
+
     metricsScraper:
-      enabled: true
-    serviceMonitor:
-      enabled: true
+      enabled: false
+    metrics-server:
+      enabled: false
+      args:
+        - --kubelet-preferred-address-types=InternalIP
+        - --kubelet-insecure-tls
     cert-manager:
       enabled: false
       installCRDs: false
     nginx:
       enabled: false
-    metrics-server:
-      enabled: false
+
 
   
