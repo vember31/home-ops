@@ -137,6 +137,7 @@ spec:
               - *host
 
       persistence:
+      
         config:
           enabled: true
           type: configMap
@@ -144,3 +145,9 @@ spec:
           globalMounts:
             - path: /app/config.yml
               subPath: config.yml
+
+        lists:
+          type: configMap
+          name: blocky-whitelist
+          globalMounts:
+            - readOnly: true

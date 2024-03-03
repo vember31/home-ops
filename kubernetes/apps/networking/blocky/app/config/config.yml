@@ -54,6 +54,7 @@ blocking:
   whiteLists:
     ads: &whiteList
       - https://raw.githubusercontent.com/anudeepND/whitelist/master/domains/whitelist.txt
+      - /lists/whitelist.txt
     malicious: *whiteList
     native: *whiteList
     other: *whiteList
