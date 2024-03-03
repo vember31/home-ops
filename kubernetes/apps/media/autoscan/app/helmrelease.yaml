@@ -61,7 +61,7 @@ spec:
             nameOverride: autoscan
             image:
               repository: ghcr.io/hotio/autoscan
-              tag: release-1.4.0@sha256:b354b9e150f194a6e0d210860781e6ca898f3b1c597d1327976ccb6862a6dc43
+              tag: release-1.4.0@sha256:ebdc824930f734fc43405c5434df3686b18c6800ddd57babb71b4364298fc57a
               pullPolicy: IfNotPresent
 
             env:
