@@ -16,9 +16,9 @@ spec:
             command:
             - "sh"
             - "-c"
-            - |
+            - '
               SONARR_URL="http://sonarr.downloads.svc.cluster.local:8989"
-              API_KEY="${SONARR__API_KEY}"
+              API_KEY="'"${SONARR__API_KEY}"'"
               QUALITY_DEFINITIONS=(                   # ID:PREFERRED_SIZE:MAX_SIZE
                 "7:17.4:25.4"                         # HDTV-720p @ 1Gb/hr preferred, 1.5Gb/hr max
                 "10:17.4:25.4"                        # WEBRip-720p @ 1Gb/hr preferred, 1.5Gb/hr max
@@ -37,4 +37,5 @@ spec:
                      -H "X-Api-Key: $API_KEY" \
                      -d "{\"maxSize\": $DEF_MAX_SIZE, \"preferredSize\": $DEF_PREFERRED_SIZE}"
               done
+              '
           restartPolicy: OnFailure
