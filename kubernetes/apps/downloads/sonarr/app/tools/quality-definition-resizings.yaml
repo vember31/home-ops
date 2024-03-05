@@ -24,10 +24,10 @@ spec:
               # Loop over quality definitions
               for DEF in $QUALITY_DEFINITIONS; do
                 DEF_ID=$(echo "$DEF" | cut -d ':' -f 1)
-                DEF_MAX_SIZE=$(echo "$DEF" | cut -d ':' -f 2)
-                DEF_PREFERRED_SIZE=$(echo "$DEF" | cut -d ':' -f 3)
+                DEF_PREFERRED_SIZE=$(echo "$DEF" | cut -d ':' -f 2)
+                DEF_MAX_SIZE=$(echo "$DEF" | cut -d ':' -f 3)
                 
-                curl -X PUT "$SONARR_URL/api/qualitydefinition/$DEF_ID?maxSize=$DEF_MAX_SIZE&preferredSize=$DEF_PREFERRED_SIZE" \
+                curl -X PUT "$SONARR_URL/api/v3/qualitydefinition/$DEF_ID?maxSize=$DEF_MAX_SIZE&preferredSize=$DEF_PREFERRED_SIZE" \
                      -H "Content-Type: application/json" \
                      -H "X-Api-Key: $API_KEY"
               done
