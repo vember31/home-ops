@@ -12,7 +12,7 @@ spec:
         spec:
           containers:
           - name: sonarr-curl
-            image: curlimages/curl:8.6.0@sha256:6be0eb01bbdc8963a3dfe6e3f33b52c2c8ddefec347c328913f5104e28465b6f
+            image: curlimages/curl:8.6.0@sha256:c3b8bee303c6c6beed656cfc921218c529d65aa61114eb9e27c62047a1271b9b
             command:
             - "sh"
             - "-c"
