@@ -16,9 +16,9 @@ spec:
             command:
             - "sh"
             - "-c"
-            - >
-              SONARR_URL="http://sonarr.downloads.svc.cluster.local:8989"; \
-              API_KEY="${SONARR__API_KEY}"; \
+            - |
+              SONARR_URL="http://sonarr.downloads.svc.cluster.local:8989"  # Replace with your Sonarr URL
+              API_KEY="${SONARR__API_KEY}"  # Replace with your Sonarr API key
               QUALITY_DEFINITIONS=(                   # ID:PREFERRED_SIZE:MAX_SIZE
                 "7:17.4:25.4"                         # HDTV-720p @ 1Gb/hr preferred, 1.5Gb/hr max
                 "10:17.4:25.4"                        # WEBRip-720p @ 1Gb/hr preferred, 1.5Gb/hr max
@@ -27,14 +27,14 @@ spec:
                 "13:23:50.4"                          # WEBRip-1080p @ 1.3Gb/hr preferred, 3Gb/hr max
                 "14:23:50.4"                          # WEBDL-1080p @ 1.3Gb/hr preferred, 3Gb/hr max
                 "15:23:50.4"                          # Bluray-1080p @ 1.3Gb/hr preferred, 3Gb/hr max
-                "16:23:50.4"                          # Bluray-1080p Remux @ 1.3Gb/hr preferred, 3Gb/hr max           
-              ); \
-              for DEF in ``"${QUALITY_DEFINITIONS[@]}"``; do \
-                IFS=":" read -r DEF_ID DEF_MAX_SIZE DEF_PREFERRED_SIZE <<< "$DEF"; \
-                curl -X PUT "$SONARR_URL/api/qualitydefinition/$DEF_ID" \
+                "16:23:50.4"                          # Bluray-1080p Remux @ 1.3Gb/hr preferred, 3Gb/hr max        
+              )
+              for DEF in "$${QUALITY_DEFINITIONS[@]}"; do
+                IFS=':' read -r DEF_ID DEF_MAX_SIZE DEF_PREFERRED_SIZE <<< "$$DEF"
+                curl -X PUT "$$SONARR_URL/api/qualitydefinition/$$DEF_ID" \
                      -H "Content-Type: application/json" \
-                     -H "X-Api-Key: $API_KEY" \
-                     -d ``"{\"maxSize\": $DEF_MAX_SIZE, \"preferredSize\": $DEF_PREFERRED_SIZE}"``; \
+                     -H "X-Api-Key: $$API_KEY" \
+                     -d "{\"maxSize\": $$DEF_MAX_SIZE, \"preferredSize\": $$DEF_PREFERRED_SIZE}"
               done
           restartPolicy: OnFailure
 
