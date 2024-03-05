@@ -38,4 +38,3 @@ spec:
                      -d "{\"maxSize\": $DEF_MAX_SIZE, \"preferredSize\": $DEF_PREFERRED_SIZE}"
               done
               '
-          restartPolicy: OnFailure
