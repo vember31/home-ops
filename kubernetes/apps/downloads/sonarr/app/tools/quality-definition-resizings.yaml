@@ -29,12 +29,12 @@ spec:
                 "15:23:50.4"                          # Bluray-1080p @ 1.3Gb/hr preferred, 3Gb/hr max
                 "16:23:50.4"                          # Bluray-1080p Remux @ 1.3Gb/hr preferred, 3Gb/hr max        
               )
-              for DEF in "$${QUALITY_DEFINITIONS[@]}"; do
-                IFS=':' read -r DEF_ID DEF_MAX_SIZE DEF_PREFERRED_SIZE <<< "$$DEF"
-                curl -X PUT "$$SONARR_URL/api/qualitydefinition/$$DEF_ID" \
+              for DEF in `"${QUALITY_DEFINITIONS[@]}"`; do
+                IFS=':' read -r DEF_ID DEF_MAX_SIZE DEF_PREFERRED_SIZE <<< `"$DEF"`
+                curl -X PUT `"$SONARR_URL/api/qualitydefinition/$DEF_ID"` \
                      -H "Content-Type: application/json" \
-                     -H "X-Api-Key: $$API_KEY" \
-                     -d "{\"maxSize\": $$DEF_MAX_SIZE, \"preferredSize\": $$DEF_PREFERRED_SIZE}"
+                     -H `"X-Api-Key: $API_KEY"` \
+                     -d `"{\"maxSize\": $DEF_MAX_SIZE, \"preferredSize\": $DEF_PREFERRED_SIZE}"`
               done
           restartPolicy: OnFailure
 
