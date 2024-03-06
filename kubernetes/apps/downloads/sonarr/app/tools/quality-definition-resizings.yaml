@@ -17,7 +17,6 @@ spec:
             - "sh"
             - "-c"
             - |
-<<<<<<< HEAD
               curl -X 'PUT' \
                 'http://sonarr.downloads.svc.cluster.local:8989/api/v3/qualitydefinition/update?apikey=${SONARR__API_KEY}' \
                 -H 'accept: */*' \
@@ -313,20 +312,4 @@ spec:
                       "id": 21
                     }
                   ]'
-=======
-              SONARR_URL="http://sonarr.downloads.svc.cluster.local:8989" 
-              API_KEY="${SONARR__API_KEY}"
-              QUALITY_DEFINITIONS="7:17.4:25.4 10:17.4:25.4 11:17.4:25.4 8:23:50.4 13:23:50.4 14:23:50.4 15:23:50.4 16:23:50.4"
-
-              # Loop over quality definitions
-              for DEF in $QUALITY_DEFINITIONS; do
-                DEF_ID=$(echo "$DEF" | cut -d ':' -f 1)
-                DEF_PREFERRED_SIZE=$(echo "$DEF" | cut -d ':' -f 2)
-                DEF_MAX_SIZE=$(echo "$DEF" | cut -d ':' -f 3)
-                
-                curl -X PUT "$SONARR_URL/api/v3/qualitydefinition/$DEF_ID?maxSize=$DEF_MAX_SIZE&preferredSize=$DEF_PREFERRED_SIZE" \
-                     -H "Content-Type: application/json" \
-                     -H "X-Api-Key: $API_KEY"
-              done
->>>>>>> 78b82d13ab6fb0dc81fd901705b8ee7c64e0d050
           restartPolicy: OnFailure
