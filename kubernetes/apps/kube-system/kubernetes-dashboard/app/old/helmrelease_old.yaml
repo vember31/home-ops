@@ -49,29 +49,30 @@ spec:
   values:
 
     app:
-      mode: 'dashboard'
-      image:
-        pullPolicy: IfNotPresent
       ingress:
         enabled: true
         hosts:
-          - https://kubernetes.local.${SECRET_DOMAIN}
+        - kubernetes.local.${SECRET_DOMAIN}
         ingressClassName: traefik
-        useDefaultIngressClass: false
-        useDefaultAnnotations: false
         pathType: ImplementationSpecific
-        path: /
+        secretName: kubernetes-dashboard-tls-production
         issuer:
           name: letsencrypt-production
           scope: cluster
-        tls:
-          secretName: "kubernetes-dashboard-tls-production"
+        labels: {}
         annotations: 
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: carbon:kubernetes
           hajimari.io/info: Centralized Kubernetes Management
           hajimari.io/appName: Kubernetes Dashboard
           hajimari.io/group: Resources
+        paths:
+          web: /
+          api: /api
+
+    web:
+      env: 
+        TZ: ${TIMEZONE}
 
     api:
       containers:
@@ -85,14 +86,14 @@ spec:
       enabled: false
     metrics-server:
       enabled: false
-
+      args:
+        - --kubelet-preferred-address-types=InternalIP
+        - --kubelet-insecure-tls
     cert-manager:
       enabled: false
       installCRDs: false
-
     nginx:
       enabled: false
 
-    extras:
-      serviceMonitor:
-        enabled: true
+
+  
