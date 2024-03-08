@@ -73,13 +73,13 @@ spec:
           hajimari.io/appName: Kubernetes Dashboard
           hajimari.io/group: Resources
 
-    api:
-      containers:
-        args:
-          - "--enable-skip-login"
-          - "--disable-settings-authorizer"
-          - "--enable-insecure-login"
-          - "--token-ttl=43200"
+    # api:
+    #   containers:
+    #     args:
+    #       - "--enable-skip-login"
+    #       - "--disable-settings-authorizer"
+    #       - "--enable-insecure-login"
+    #       - "--token-ttl=43200"
 
     metricsScraper:
       enabled: false
