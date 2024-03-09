@@ -73,7 +73,7 @@ spec:
       defaultEnable: true
 
       # Theme defaulting
-      lightTheme: cloud
+      lightTheme: paper
       darkTheme: horizon
 
       #Other Hajimari settings
