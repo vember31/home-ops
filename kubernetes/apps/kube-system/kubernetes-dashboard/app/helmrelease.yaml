@@ -55,7 +55,7 @@ spec:
       ingress:
         enabled: true
         hosts:
-          - https://kubernetes.local.${SECRET_DOMAIN}
+          - kubernetes.local.${SECRET_DOMAIN}
         ingressClassName: traefik
         useDefaultIngressClass: false
         useDefaultAnnotations: false
