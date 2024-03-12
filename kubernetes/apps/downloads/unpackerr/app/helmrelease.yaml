@@ -122,14 +122,16 @@ spec:
 
     serviceMonitor:
       app:
-        serviceName: app
-        enabled: true
-
-    ingress:
-      app:
-        enabled: false
+        serviceName: *name
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
 
     persistence:
+
       media:
         enabled: true
         type: nfs
@@ -137,4 +139,7 @@ spec:
         path: /export/media 
         globalMounts:
           - path: /media/
+
+      logs:
+        type: emptyDir
       
