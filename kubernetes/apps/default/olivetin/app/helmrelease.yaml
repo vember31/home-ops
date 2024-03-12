@@ -84,7 +84,7 @@ spec:
 
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
+              readOnlyRootFilesystem: false #needs to be false to download kubectl
               capabilities:
                 drop:
                   - ALL
