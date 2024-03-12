@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.2/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -10,7 +11,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.0.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s-charts
@@ -49,7 +50,7 @@ spec:
   values:
 
     controllers:
-      main:
+      ${APP}:
         enabled: true
         type: deployment
         annotations: {}
@@ -65,7 +66,7 @@ spec:
             fsGroupChangePolicy: "OnRootMismatch"
 
         containers:
-          main:
+          app:
             nameOverride: prowlarr
             image:
               repository: ghcr.io/onedr0p/prowlarr-develop
@@ -90,13 +91,14 @@ spec:
                 memory: 500Mi
 
     service:
-      main:
+      app:
+        controller: *name
         ports:
           http:
             port: *port
 
     ingress:
-      main:
+      app:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
@@ -104,15 +106,15 @@ spec:
           hajimari.io/icon: mdi:movie-search-outline
           hajimari.io/info: Indexer Management
         hosts:
-          - host: &host prowlarr.local.${SECRET_DOMAIN}
+          - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
-                  name: main
+                  identifier: app
                   port: http
 
         tls: 
-         - secretName: prowlarr-tls-production
+         - secretName: ${APP}-tls-production
            hosts:
              - *host
 
@@ -124,7 +126,7 @@ spec:
         storageClass: longhorn
         accessMode: ReadWriteOnce
         size: 256M
-        retain: false
+        retain: true
         globalMounts: []
 
       media:
