@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.2/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -10,7 +11,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.0.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s-charts
@@ -49,7 +50,7 @@ spec:
   values:
 
     controllers:
-      main:
+      ${APP}:
         enabled: true
         type: deployment
         annotations: {}
@@ -65,56 +66,63 @@ spec:
             fsGroupChangePolicy: "OnRootMismatch"
 
         containers:
-          main:
+          app:
             nameOverride: *name
             image:
-              repository: **REPO**
-              tag: **version@sha256:....***
+              repository: **repo**
+              tag: **version**@**sha256:....**
               pullPolicy: IfNotPresent
 
             env:
               TZ: ${TIMEZONE}
-              **INCLUDE ENV VARIABLES**
-              **ENV VARIABLE SUB**:
+              **other env**
                 valueFrom:
                   secretKeyRef:
-                    name: **secretname**
-                    key: **secretkey**
+                    name: **secret name in cluster**
+                    key: **key name within secret**
 
             resources:
-              {}
-              ## We usually recommend not to specify default resources and to leave this as a conscious
-              ## choice for the user. This also increases chances charts run on environments with little
-              ## resources, such as Minikube. If you do want to specify resources, uncomment the following
-              ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-              # limits:
-              #   cpu: 100m
-              #   memory: 128Mi
-              # requests:
-              #   cpu: 100m
-              #   memory: 128Mi
+              requests:
+                cpu: 10m **review for update**
+              limits:
+                memory: 500Mi **review for update
+
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
 
     service:
-      main:
+      app:
+        controller: *name
         ports:
           http:
-            port: **PORT**
+            port: *port
 
     ingress:
-      main:
+      app:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          ** traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          ** hajimari.io/icon: mdi:movie-search-outline
+          ** hajimari.io/info: Indexer Management
         hosts:
-          - host: &host **appname** .local.${SECRET_DOMAIN}
+          - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
-                  name: main
+                  identifier: app
                   port: http
 
         tls: 
-         - secretName: **appname**-tls-production
+         - secretName: ${APP}-tls-production
            hosts:
              - *host
 
@@ -125,15 +133,15 @@ spec:
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce
-        size: **storage size**
-        retain: false
-        globalMounts: []
+        size: **size**
+        retain: true
+        globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
 
       media:
         enabled: true
         type: nfs
         server: ${OMV_IP}
-        path: /export/media 
+        path: /export/media/
         globalMounts:
           - path: /media/
       
