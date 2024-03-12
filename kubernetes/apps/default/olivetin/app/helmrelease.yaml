@@ -82,6 +82,17 @@ spec:
               limits:
                 memory: 256Mi
 
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false #needs to be false to download kubectl
