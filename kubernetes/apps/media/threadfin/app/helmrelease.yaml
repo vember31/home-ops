@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.2/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -10,7 +11,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.0.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s-charts
@@ -49,23 +50,15 @@ spec:
   values:
 
     controllers:
-      main:
+      ${APP}:
         enabled: true
         type: deployment
         annotations: {}
         labels: {}
         replicas: 1
 
-        # # Controller-specific overrides for `defaultPodOptions` keys
-        # pod:
-        #   securityContext:
-        #     runAsUser: 1000
-        #     runAsGroup: 1000
-        #     fsGroup: 1000
-        #     fsGroupChangePolicy: "OnRootMismatch"
-
         containers:
-          main:
+          app:
             nameOverride: *name
             image:
               repository: fyb3roptik/threadfin
@@ -84,8 +77,20 @@ spec:
               requests:
                 cpu: 20m
 
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+
     service:
-      main:
+      app:
+        controller: *name
         ports:
           http:
             port: *port
@@ -100,15 +105,15 @@ spec:
           hajimari.io/info: Plex IPTV Playlist Management
           hajimari.io/url: https://threadfin.local.${SECRET_DOMAIN}/web/
         hosts:
-          - host: &host threadfin.local.${SECRET_DOMAIN}
+          - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
-                  name: main
+                  identifier: app
                   port: http
 
         tls: 
-         - secretName: threafin-tls-production
+         - secretName: ${APP}-tls-production
            hosts:
              - *host
 
@@ -120,7 +125,7 @@ spec:
         storageClass: longhorn
         accessMode: ReadWriteOnce
         size: 1Gi
-        retain: false
+        retain: true
         globalMounts: 
           - path: /home/threadfin/conf
       
