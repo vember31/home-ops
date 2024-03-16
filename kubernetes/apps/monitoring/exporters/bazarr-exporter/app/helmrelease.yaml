@@ -96,7 +96,7 @@ spec:
 
     serviceMonitor:
       app:
-        serviceName: *app
+        serviceName: *name
         endpoints:
           - port: http
             scheme: http
