@@ -1,8 +1,9 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.2/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: plex
+  name: &name plex
   namespace: media
 
 spec:
@@ -10,7 +11,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.0.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s-charts
@@ -49,7 +50,7 @@ spec:
   values:
 
     controllers:
-      main:
+      ${APP}:
         enabled: true
         type: deployment
         annotations: {}
@@ -80,7 +81,7 @@ spec:
 
 
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/onedr0p/plex
               tag: 1.40.1.8227-c0dd5a73e@sha256:4ca8db0ffa1bee5a2976a0385cc43368112e81a2485b80d0fff3b04c9d5bd1ca
@@ -120,7 +121,8 @@ spec:
                 memory: 8Gi
 
     service:
-      main:
+      app:
+        controller: *name
         type: LoadBalancer
         externalTrafficPolicy: Local
         annotations:
@@ -130,23 +132,23 @@ spec:
             port: *port
 
     ingress:
-      main:
+      app:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           hajimari.io/icon: mdi:plex
           hajimari.io/info: Media Streaming
-          hajimari.io/url: https://plex.local.${SECRET_DOMAIN}${GATUS_PATH}
+          hajimari.io/url: https://${APP}.local.${SECRET_DOMAIN}${GATUS_PATH}
         hosts:
-          - host: &host plex.local.${SECRET_DOMAIN}
+          - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
-                  name: main
+                  identifier: app
                   port: http
 
         tls: 
-         - secretName: plex-tls-production
+         - secretName: ${APP}-tls-production
            hosts:
              - *host
 
