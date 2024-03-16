@@ -1,8 +1,9 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.2/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: &app blocky
+  name: &name blocky
   namespace: networking
 
 spec:
@@ -10,7 +11,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.0.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s-charts
@@ -48,13 +49,13 @@ spec:
 
   values:
       controllers:
-        main:
+        ${APP}:
           type: daemonset #remove replicas for daemonset
           strategy: RollingUpdate
           annotations:
             reloader.stakater.com/auto: "true"
           containers:
-            main:
+            app:
               image:
                 repository: ghcr.io/0xerr0r/blocky
                 tag: v0.23@sha256:450d193393c0dceb108d1cd80a5580ab9d851127c924c1ae89361d32161ae528
@@ -93,17 +94,18 @@ spec:
               runAsNonRoot: true
               
       serviceMonitor:
-        main:
-          enabled: true
+        app:
+          serviceName: *name
 
       service:
-        main:
+        app:
+          controller: *name
           ports:
             http:
               port: 4000
 
         dns:
-          controller: main
+          controller: *name
           type: LoadBalancer
           annotations:
             metallb.universe.tf/loadBalancerIPs: "${BLOCKY_IP}"
@@ -125,16 +127,18 @@ spec:
             cert-manager.io/cluster-issuer: letsencrypt-production
             hajimari.io/enable: "false"
           hosts:
-            - host: &host "blocky.local.${SECRET_DOMAIN}"
+            - host: &host ${APP}.local.${SECRET_DOMAIN}
               paths:
                 - path: /
                   service:
-                    name: main
+                    identifier: app
                     port: http
+
           tls: 
-          - secretName: blocky-tls-production
+          - secretName: ${APP}-tls-production
             hosts:
               - *host
+
 
       persistence:
       
