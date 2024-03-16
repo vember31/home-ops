@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.2/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -10,7 +11,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.0.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s-charts
@@ -49,11 +50,11 @@ spec:
   values:
 
     controllers:
-      main:
+      ${APP}:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/willfantom/overseerr-exporter
               tag: 1.2.1@sha256:b5cbff0fcd04a118190849b1ed92f51669109f766171106fc0b87f7a8562273b
@@ -70,6 +71,11 @@ spec:
                 cpu: 10m
               limits:
                 memory: 128Mi
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -82,10 +88,18 @@ spec:
             runAsGroup: 568
             runAsNonRoot: true
     service:
-      main:
+      app:
+        controller: *name
         ports:
           http:
             port: 9850
+
     serviceMonitor:
-      main:
-        enabled: true
+      app:
+        serviceName: *name
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1h
+            scrapeTimeout: 1m
