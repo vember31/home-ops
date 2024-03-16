@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.2/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -10,7 +11,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.0.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s-charts
@@ -48,10 +49,10 @@ spec:
 
   values:
     controllers:
-      main:
+      ${APP}:
         strategy: RollingUpdate
         containers:
-          main:
+          app:
             image:
               repository: docker.io/rancher/system-upgrade-controller
               tag: v0.13.4@sha256:3df6d01b9eb583a78c309ce0b2cfeed98a9af97983e4ea96bf53410dd56c6f45
@@ -70,16 +71,17 @@ spec:
                 valueFrom:
                   fieldRef:
                     fieldPath: metadata.namespace
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
         pod:
           securityContext:
             runAsNonRoot: true
             runAsUser: 65534
             runAsGroup: 65534
-            allowPrivilegeEscalation: false
             seccompProfile:
               type: RuntimeDefault
-            capabilities:
-              drop: ["ALL"]
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -95,9 +97,6 @@ spec:
             - {key: node-role.kubernetes.io/etcd, operator: Exists, effect: NoExecute}
     serviceAccount:
       name: system-upgrade
-    service:
-      main:
-        enabled: false
     persistence:
       tmp:
         type: emptyDir

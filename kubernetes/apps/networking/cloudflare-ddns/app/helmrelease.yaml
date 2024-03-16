@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-3.0.2/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -10,7 +11,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.0.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s-charts
@@ -46,19 +47,13 @@ spec:
     
   maxHistory: 1
 
-  #valuesFrom:
-    #- targetPath: 
-    #  kind: Secret
-    #  name: kured-secret
-    #  valuesKey: kured-discord-webhook-url-shoutrr
-
   values:
 
     controllers:
-      main:
+      ${APP}:
         replicas: 1
         containers:
-          main:
+          app:
             nameOverride: cloudflare-ddns
             image:
               repository: ghcr.io/hotio/cloudflareddns
@@ -93,26 +88,7 @@ spec:
 
             # -- Set the resource requests / limits for the container.
             resources:
-              {}
-              ## We usually recommend not to specify default resources and to leave this as a conscious
-              ## choice for the user. This also increases chances charts run on environments with little
-              ## resources, such as Minikube. If you do want to specify resources, uncomment the following
-              ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-              # limits:
-              #   cpu: 100m
-              #   memory: 128Mi
-              # requests:
-              #   cpu: 100m
-              #   memory: 128Mi
-
-    service:
-      main:
-        enabled: false
-
-    ingress:
-      main:
-        enabled: false
-
-    persistence:
-      config:
-        enabled: false
+              limits:
+                memory: 64Mi
+              requests:
+                cpu: 10m
