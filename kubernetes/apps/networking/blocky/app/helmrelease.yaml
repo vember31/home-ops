@@ -96,6 +96,12 @@ spec:
       serviceMonitor:
         app:
           serviceName: *name
+          endpoints:
+            - port: http
+              scheme: http
+              path: /metrics
+              interval: 1h
+              scrapeTimeout: 1m
 
       service:
         app:
