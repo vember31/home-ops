@@ -58,12 +58,12 @@ spec:
         replicas: 1
 
         # Controller-specific overrides for `defaultPodOptions` keys
-        pod:
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-            fsGroup: 1000
-            fsGroupChangePolicy: "OnRootMismatch"
+        # pod:
+        #   securityContext:
+        #     runAsUser: 1000
+        #     runAsGroup: 1000
+        #     fsGroup: 1000
+        #     fsGroupChangePolicy: "OnRootMismatch"
 
         containers:
           app:
@@ -79,8 +79,8 @@ spec:
               SERVER_PORT: 2456 #udp
               SERVER_PUBLIC: false
               UPDATE_CRON: "*/60 * * * *"
-              PUID: "1000"
-              PGID: "1000"
+              # PUID: "1000"
+              # PGID: "1000"
               DISCORD_MESSAGE: "Restarting Valheim server in one minute!"
               PRE_RESTART_HOOK: 'curl -sfSL -X POST -H "Content-Type: application/json" -d "{\"username\":\"Valheim\",\"content\":\"$DISCORD_MESSAGE\"}" "$DISCORD_WEBHOOK" && sleep 60'
             envFrom:
