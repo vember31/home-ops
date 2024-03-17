@@ -23,11 +23,6 @@ spec:
   retryInterval: 1m
   timeout: 5m
   postBuild:
-  #   substituteFrom:
-  #     - kind: Secret
-  #       name: babybuddy-secret
-  #     - kind: ConfigMap
-  #       name: cluster-settings
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: baby
