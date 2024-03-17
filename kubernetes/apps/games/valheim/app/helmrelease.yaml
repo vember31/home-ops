@@ -86,6 +86,7 @@ spec:
     service:
       app:
         controller: *name
+        type: LoadBalancer
         annotations:
           metallb.universe.tf/loadBalancerIPs: "${VALHEIM_IP}"
         ports:
