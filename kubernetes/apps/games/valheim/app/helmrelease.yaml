@@ -86,6 +86,8 @@ spec:
     service:
       app:
         controller: *name
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: "${VALHEIM_IP}"
         ports:
           steam1:
             port: 2456
@@ -93,27 +95,6 @@ spec:
           steam2:
             port: 2457
             protocol: UDP
-
-    ingress:
-      app:
-        enabled: true
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          traefik.ingress.kubernetes.io/router.middlewares: networking-cloudflare-ips@kubernetescrd
-          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
-          hajimari.io/icon: game-icons:elven-castle
-          hajimari.io/info: Dedicated Server
-        hosts:
-          - host: &host ${APP}.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: app
-
-        tls: 
-         - secretName: ${APP}-tls-production
-           hosts:
-             - *host
 
     persistence:
 
