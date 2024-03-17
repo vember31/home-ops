@@ -3,8 +3,8 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: &name **NAME**
-  namespace: **NAMESPACE**
+  name: &name valheim
+  namespace: games
 
 spec:
   interval: 5m
@@ -69,23 +69,29 @@ spec:
           app:
             nameOverride: *name
             image:
-              repository: **repo**
-              tag: **version**@**sha256:....**
+              repository: lloesche/valheim-server
+              tag: latest@sha256:972cd120f3ce875aff4f8a4a8b79c8cb9fa89f23480df514feda479ac598ddfa
               pullPolicy: IfNotPresent
 
             env:
               TZ: ${TIMEZONE}
-              **other env**
-                valueFrom:
-                  secretKeyRef:
-                    name: **secret name in cluster**
-                    key: **key name within secret**
+              SERVER_NAME: k3s-valheim
+              SERVER_PORT: 2456 #udp
+              SERVER_PUBLIC: false
+              UPDATE_CRON: "*/60 * * * *"
+              PUID: "1000"
+              PGID: "1000"
+              DISCORD_MESSAGE: "Restarting Valheim server in one minute!"
+              PRE_RESTART_HOOK: 'curl -sfSL -X POST -H "Content-Type: application/json" -d "{\"username\":\"Valheim\",\"content\":\"$DISCORD_MESSAGE\"}" "$DISCORD_WEBHOOK" && sleep 60'
+            envFrom:
+              - secretRef:
+                  name: valheim-secret
 
             resources:
               requests:
-                cpu: 10m **review for update**
+                cpu: 200m
               limits:
-                memory: 500Mi **review for update
+                memory: 8Gi
 
             probes:
               liveness:
@@ -102,24 +108,28 @@ spec:
       app:
         controller: *name
         ports:
-          http:
-            port: *port
+          steam1:
+            port: 2456
+            protocol: UDP
+          steam2:
+            port: 2457
+            protocol: UDP
 
     ingress:
       app:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          ** traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
-          ** hajimari.io/icon: mdi:movie-search-outline
-          ** hajimari.io/info: Indexer Management
+          traefik.ingress.kubernetes.io/router.middlewares: networking-cloudflare-ips@kubernetescrd
+          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
+          hajimari.io/icon: game-icons:elven-castle
+          hajimari.io/info: Dedicated Server
         hosts:
-          - host: &host ${APP}.local.${SECRET_DOMAIN}
+          - host: &host ${APP}.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
                   identifier: app
-                  port: http
 
         tls: 
          - secretName: ${APP}-tls-production
@@ -133,15 +143,5 @@ spec:
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce
-        size: **size**
+        size: 10Gi
         retain: true
-        globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
-
-      media:
-        enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media/
-        globalMounts:
-          - path: /media/
-      
