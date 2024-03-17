@@ -57,6 +57,19 @@ spec:
         labels: {}
         replicas: 1
 
+        pod:
+          # keep games off of nas, utility servers
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: node-role
+                    operator: NotIn
+                    values:
+                      - nas
+                      - utility
+
         containers:
           app:
             nameOverride: *name
