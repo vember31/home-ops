@@ -17,6 +17,4 @@ resources:
   - ./metallb/ks.yaml
   - ./traefik/ks.yaml
   - ./traefik/externalsecret.yaml
-#  - ./pihole/ks.yaml
-#  - ./pihole/externalsecret.yaml
 
