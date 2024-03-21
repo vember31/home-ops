@@ -75,6 +75,8 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
+              PUID: 100
+              PGID: 102
 
             # resources:
             #   requests:
