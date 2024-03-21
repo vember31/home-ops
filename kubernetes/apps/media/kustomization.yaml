@@ -17,6 +17,7 @@ resources:
   - ./plex/ks.yaml
   - ./plex/externalsecret.yaml
   - ./requestrr/ks.yaml
+  - ./streammaster/ks.yaml
   - ./tauticord/ks.yaml
   - ./tauticord/externalsecret.yaml
   - ./tautulli/ks.yaml

@@ -1,0 +1,136 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &name streammaster
+  namespace: media
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.0.4
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      ${APP}:
+        enabled: true
+        type: deployment
+        annotations: {}
+        labels: {}
+        replicas: 1
+
+        containers:
+          app:
+            nameOverride: *name
+            image:
+              repository: senexcrenshaw/streammaster
+              tag: 0.14.4@sha256:17470bb64c28d77b9cf1f3186f0979a6da99594a25bf8fa0bf01b9b879a11fb6
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              PUID: 1000
+              PGID: 1000
+
+            # resources:
+            #   requests:
+            #     cpu: 10m **review for update**
+            #   limits:
+            #     memory: 500Mi **review for update
+
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+
+    service:
+      app:
+        controller: *name
+        ports:
+          http:
+            port: 7095
+
+    ingress:
+      app:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          hajimari.io/icon: material-symbols:stream
+          hajimari.io/info: IPTV Management
+        hosts:
+          - host: &host ${APP}.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+
+        tls: 
+         - secretName: ${APP}-tls-production
+           hosts:
+             - *host
+
+    persistence:
+
+      config:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        retain: true
+        globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
+
+      # tv-logos:
+      #   enabled: true
+      #   type: nfs
+      #   server: ${OMV_IP}
+      #   path: /export/media/
+      #   globalMounts:
+      #     - path: /media/
+      
