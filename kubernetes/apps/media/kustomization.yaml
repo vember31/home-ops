@@ -21,3 +21,4 @@ resources:
   - ./tauticord/externalsecret.yaml
   - ./tautulli/ks.yaml
   - ./threadfin/ks.yaml
+  - ./zap2it/ks.yaml
