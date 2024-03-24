@@ -82,8 +82,8 @@ spec:
     persistence:
       config:
         enabled: true
-        type: configMap
-        name: zap2it-config
+        type: secret
+        name: zap2it-secret
         globalMounts:
           - path: /data/zap2itconfig.ini
             subPath: zap2itconfig.ini
