@@ -1,0 +1,80 @@
+Tautulli:
+  Connection:
+    URL: "http://tautulli:8181"
+    APIKey: "{{ .TC_TAUTULLI_KEY }}"
+    UseSelfSignedCert: false
+  Customization:
+    ServerName: "plex-k3s"
+    TerminateMessage: "Your stream has been terminated. Please contact the admin in the Discord."
+    # How often (seconds) the bot pulls new data. 5-second minimum built-in, it's for your own good
+    RefreshSeconds: 30
+    # Can only kill streams if you have a Plex Pass, so this controls whether you're given the option
+    PlexPass: true
+    ServerTimeZone: "${TIMEZONE}"
+    Use24HourTime: false
+    VoiceChannels:
+      Stats:
+        CategoryName: "Tautulli Stats"
+        StreamCount: true
+        StreamCountChannelID: 0
+        TranscodeCount: true
+        TranscodeCountChannelID: 0
+        Bandwidth: false
+        BandwidthChannelID: 0
+        LocalBandwidth: false
+        LocalBandwidthChannelID: 0
+        RemoteBandwidth: false
+        RemoteBandwidthChannelID: 0
+        PlexStatus: true
+        PlexStatusChannelID: 0
+      Libraries:
+        CategoryName: "Tautulli Libraries"
+        Enable: true
+        LibraryRefreshSeconds: 3600
+        LibraryNames:
+          # List of names of the libraries you'd like stats about. Voice channels will be made/updated with stats (refreshed every hour)
+          - Movies
+          - TV Shows
+        UseEmojis: true
+        # Which stats to show for each type of library
+        TVSeriesCount: true
+        TVEpisodeCount: true
+        MusicArtistCount: false
+        MusicAlbumCount: false
+        MusicTrackCount: false
+      Performance:
+        CategoryName: "Performance"
+    Anonymize:
+      HideUsernames: false
+      HidePlayerNames: false
+      HidePlatforms: false
+      HideQuality: false
+      HideBandwidth: false
+      HideTranscode: false
+      HideProgress: false
+      HideETA: false
+    UseFriendlyNames: false
+    ThousandsSeparator: ""
+
+Discord:
+  Connection:
+    BotToken: "{{ .TC_DISCORD_BOT_TOKEN }}"
+    ServerID: {{ .TC_DISCORD_SERVER_ID }}
+    AdminIDs:
+      - {{ .TC_DISCORD_ADMIN_IDS }}
+    # Whether to post a live stats summary message
+    PostSummaryMessage: false
+    # Where the live stats summary message will be posted
+    ChannelName: "server-notifications"
+    EnableSlashCommands: true
+  Customization:
+    Nitro: false
+
+Extras:
+  # See README.md for details
+  Analytics: false
+  Performance:
+    TautulliUserCount: false
+    DiskSpace: false
+    CPU: false
+    Memory: false
