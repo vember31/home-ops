@@ -7,4 +7,3 @@ resources:
   - ./namespace.yaml
   
   # Post Flux-Kustomizations
-  - ./redis/ks.yaml
