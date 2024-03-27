@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/cluster_v1.json
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -8,7 +9,7 @@ spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:16.2-10
   primaryUpdateStrategy: unsupervised
   storage:
-    size: 20Gi
+    size: 10Gi
     storageClass: longhorn
   superuserSecret:
     name: cloudnative-pg-secret
@@ -27,3 +28,23 @@ spec:
       memory: 4Gi
   monitoring:
     enablePodMonitor: true
+  backup:
+    retentionPolicy: 30d
+    barmanObjectStore: &barmanObjectStore
+      data:
+        compression: bzip2
+      wal:
+        compression: bzip2
+        maxParallel: 8
+      destinationPath: s3://cloudnative-pg/
+      endpointURL: http://${OMV_IP}:9000
+      # Note: serverName version needs to be inclemented
+      # when recovering from an existing cnpg cluster
+      serverName: postgres16-v1
+      s3Credentials:
+        accessKeyId:
+          name: cloudnative-pg-secret
+          key: minio-access-key-id
+        secretAccessKey:
+          name: cloudnative-pg-secret
+          key: minio-secret-access-key
