@@ -73,34 +73,33 @@ spec:
               tag: 4.1.4@sha256:ce2f0a27ebaf1099829803ad457ed4f94af39aa73cef7c426b7393e17688c626
               pullPolicy: IfNotPresent
 
-            env:
-              TZ: ${TIMEZONE}
-              TC_TAUTULLI_URL: http://tautulli:8181
-              TC_SERVER_NAME: "plex-k3s"
-              TC_DISCORD_CHANNEL_NAME: "server-notifications"
-              TC_VC_STATS_CATEGORY_NAME: "Tautulli Stats"
-              TC_VC_STREAM_COUNT: "True"
-              TC_VC_TRANSCODE_COUNT: "True"
-              TC_VC_BANDWIDTH: "True"
-              TC_VC_LOCAL_BANDWIDTH: "True"
-              TC_VC_REMOTE_BANDWIDTH: "True"
-              TC_VC_PLEX_STATUS: "True"
-              TC_VC_LIBRARIES_CATEGORY_NAME: "Tautulli Libraries"
-              TC_VC_LIBRARY_STATS: "True"
-              TC_VC_LIBRARY_NAMES: "Movies,TV Shows"
-              TC_VC_LIBRARY_USE_EMOJIS: "True"
-              TC_VC_TV_SERIES_COUNT: "True"
-              TC_VC_TV_EPISODE_COUNT: "True"
-              TC_ALLOW_ANALYTICS: "False"
-              TC_VC_MUSIC_ARTIST_COUNT: "False"
-              TC_VC_MUSIC_TRACK_COUNT: "False"
+            # env:
+            #   TZ: ${TIMEZONE}
+            #   TC_TAUTULLI_URL: http://tautulli:8181
+            #   TC_SERVER_NAME: "plex-k3s"
+            #   TC_DISCORD_CHANNEL_NAME: "server-notifications"
+            #   TC_VC_STATS_CATEGORY_NAME: "Tautulli Stats"
+            #   TC_VC_STREAM_COUNT: "True"
+            #   TC_VC_TRANSCODE_COUNT: "True"
+            #   TC_VC_BANDWIDTH: "True"
+            #   TC_VC_LOCAL_BANDWIDTH: "True"
+            #   TC_VC_REMOTE_BANDWIDTH: "True"
+            #   TC_VC_PLEX_STATUS: "True"
+            #   TC_VC_LIBRARIES_CATEGORY_NAME: "Tautulli Libraries"
+            #   TC_VC_LIBRARY_STATS: "True"
+            #   TC_VC_LIBRARY_NAMES: "Movies,TV Shows"
+            #   TC_VC_LIBRARY_USE_EMOJIS: "True"
+            #   TC_VC_TV_SERIES_COUNT: "True"
+            #   TC_VC_TV_EPISODE_COUNT: "True"
+            #   TC_ALLOW_ANALYTICS: "False"
+            #   TC_VC_MUSIC_ARTIST_COUNT: "False"
+            #   TC_VC_MUSIC_TRACK_COUNT: "False"
               
-            # TC_DISCORD_BOT_TOKEN, TC_DISCORD_SERVER_ID, TC_TAUTULLI_KEY
-            # TC_DISCORD_ADMIN_IDS
-            envFrom:
-              - secretRef:
-                  name: tauticord-secret
-
+            # # TC_DISCORD_BOT_TOKEN, TC_DISCORD_SERVER_ID, TC_TAUTULLI_KEY
+            # # TC_DISCORD_ADMIN_IDS
+            # envFrom:
+            #   - secretRef:
+            #       name: tauticord-secret
 
             resources:
               limits:
@@ -121,7 +120,15 @@ spec:
 
     persistence:
 
+      config:
+        enabled: true
+        type: secret
+        name: tauticord-secret
+        globalMounts:
+          - path: /config/config.yaml
+            subPath: config.yaml
+            readOnly: true
+
       logs:
         enabled: true
         type: emptyDir
-      

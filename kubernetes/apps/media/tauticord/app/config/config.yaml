@@ -16,17 +16,17 @@ Tautulli:
       Stats:
         CategoryName: "Tautulli Stats"
         StreamCount: true
-        StreamCountChannelID: 0
+        StreamCountChannelID: {{ .TC_STREAM_COUNT_CHANNEL_ID }}
         TranscodeCount: true
-        TranscodeCountChannelID: 0
-        Bandwidth: false
-        BandwidthChannelID: 0
-        LocalBandwidth: false
-        LocalBandwidthChannelID: 0
-        RemoteBandwidth: false
-        RemoteBandwidthChannelID: 0
+        TranscodeCountChannelID: {{ .TC_TRANSCODE_COUNT_CHANNEL_ID }}
+        Bandwidth: true
+        BandwidthChannelID: {{ .TC_BANDWIDTH_CHANNEL_ID }}
+        LocalBandwidth: true
+        LocalBandwidthChannelID: {{ .TC_LOCAL_BANDWIDTH_CHANNEL_ID }}
+        RemoteBandwidth: true
+        RemoteBandwidthChannelID: {{ .TC_REMOTE_BANDWIDTH_CHANNEL_ID }}
         PlexStatus: true
-        PlexStatusChannelID: 0
+        PlexStatusChannelID: {{ .TC_PLEX_STATUS_CHANNEL_ID }}
       Libraries:
         CategoryName: "Tautulli Libraries"
         Enable: true
