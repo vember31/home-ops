@@ -63,7 +63,7 @@ Discord:
     AdminIDs:
       - {{ .TC_DISCORD_ADMIN_IDS }}
     # Whether to post a live stats summary message
-    PostSummaryMessage: false
+    PostSummaryMessage: true
     # Where the live stats summary message will be posted
     ChannelName: "server-notifications"
     EnableSlashCommands: true
