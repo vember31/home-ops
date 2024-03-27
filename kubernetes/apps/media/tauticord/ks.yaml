@@ -4,15 +4,13 @@ kind: Kustomization
 metadata:
   name: &app tauticord
   namespace: flux-system
-  labels: 
-    substitution.flux.home.arpa/disabled: "true" #don't do a sub here so we can bring in secret values
 spec:
   targetNamespace: media
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  # dependsOn:
-  #   - name: tautilli
+  dependsOn:
+    - name: tautilli
   path: ./kubernetes/apps/media/tauticord/app
   prune: true
   sourceRef:
@@ -23,10 +21,5 @@ spec:
   retryInterval: 1m
   timeout: 5m
   postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: tauticord-secret
-      - kind: ConfigMap
-        name: cluster-settings
     substitute:
       APP: *app
