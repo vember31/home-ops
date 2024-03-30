@@ -40,7 +40,7 @@
     {
       "description": "tauticord - add release notes",
       "matchDatasources": ["docker"],
-      "customChangelogUrl": "https://github.com/nwithan8/tauticord"
+      "customChangelogUrl": "https://github.com/nwithan8/tauticord",
       "matchPackagePatterns": ["tauticord"]
     },
     {
