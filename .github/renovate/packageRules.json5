@@ -32,6 +32,12 @@
       "matchPackagePatterns": ["jellyfin"]
     },
     {
+      "description": "olivetin date matching",
+      "matchDatasources": ["docker"],
+      "versioning": "regex:^(?P<major>\\d{4})\\.(?P<minor>\\d{2})\\.(?P<patch>\\d{2})(?P<build>.*)?$",
+      "matchPackagePatterns": ["olivetin"]
+    },
+    {
       "description": "Custom versioning for k3s",
       "matchDatasources": ["github-releases"],
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k3s)(?<build>\\d+)$",
