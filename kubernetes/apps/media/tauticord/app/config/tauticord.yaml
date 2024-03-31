@@ -1,326 +1,160 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/nwithan8/tauticord/master/.schema/config_v2.schema.json
+## yaml-language-server: $schema=https://raw.githubusercontent.com/nwithan8/tauticord/master/.schema/config_v2.schema.json
+# notes - commeted out the schema becuase it appears to have issues in v5.0.0 release
 
 # Tautulli settings
 Tautulli:
-  # The URL of the Tautulli server
   URL: "http://tautulli:8181"
-  # The API key for the Tautulli server
   APIKey: "{{ .TC_TAUTULLI_KEY }}"
-  # Whether to use a self-signed certificate
   UseSelfSignedCert: false
-  # How often (in seconds) the bot pulls new data. 5-second minimum built-in, it's for your own good
   RefreshSeconds: 30
-  # The message to display when a stream is terminated
   TerminateMessage: "Your stream has been terminated. Please contact the server owner with any questions."
 
 # Discord settings
 Discord:
-  # The token for the Discord bot
   BotToken: "{{ .TC_DISCORD_BOT_TOKEN }}"
-  # The ID of the server
   ServerID: '{{ .TC_DISCORD_SERVER_ID }}' # Right-click on your server's icon -> "Copy ID"
-  # List of admin IDs
   AdminIDs:
     - '{{ .TC_DISCORD_ADMIN_IDS }}' # Right-click on your profile picture -> "Copy ID"
-  # Whether to post a live stats summary message
   PostSummaryMessage: true
-  # The name of the channel where the live stats summary message will be posted
   ChannelName: "server-notifications"
-  # Whether to enable slash commands
   EnableSlashCommands: true
 
 # Display settings
 Display:
   # Anonymization settings
   Anonymize:
-    # Whether to hide bandwidth
     HideBandwidth: false
-    # Whether to hide ETA
     HideETA: false
-    # Whether to hide platforms
     HidePlatforms: false
-    # Whether to hide player names
     HidePlayerNames: false
-    # Whether to hide progress
     HideProgress: false
-    # Whether to hide quality
     HideQuality: false
-    # Whether to hide transcode
     HideTranscode: false
-    # Whether to hide usernames
     HideUsernames: false
-  # The name of the server
   ServerName: 'plex-k3s'
-  # The thousands separator
   ThousandsSeparator: ''
+  
   # Time settings
   Time:
-    # The time zone of the server
     ServerTimeZone: '${TIMEZONE}'
-    # Whether to use 24 hour time
     Use24HourTime: false
   # Whether to use Plex users' names instead of usernames
   UseFriendlyNames: true
 
 # Extra settings
 Extras:
-  # Whether to allow analytics. See README.md for details
   AllowAnalytics: false
-  # Whether to enable reminders to update Tauticord
   EnableUpdateReminders: false
 
 # Stats settings
 Stats:
-  # Activity stats about the Plex server
   Activity:
-    # The name of the category
-    CategoryName: "Plex Stats"
-    # Whether to enable the stats
-    Enable: true
-    # The types of stats
-    StatTypes:
-      # Bandwidth settings
-      Bandwidth:
-        # The custom emoji
+   CategoryName: "Plex Stats"
+   Enable: true
+   StatTypes:
+     Bandwidth:
+       CustomEmoji: ''
+       Enable: true
+       VoiceChannelID: {{ .TC_BANDWIDTH_CHANNEL_ID }}
+     LocalBandwidth:
+       CustomEmoji: ''
+       Enable: true
+       VoiceChannelID: {{ .TC_LOCAL_BANDWIDTH_CHANNEL_ID }}
+     PlexServerAvailability:
+       CustomEmoji: ''
+       Enable: true
+       VoiceChannelID: {{ .TC_PLEX_STATUS_CHANNEL_ID }}
+     RemoteBandwidth:
+       CustomEmoji: ''
+       Enable: true
+       VoiceChannelID: {{ .TC_REMOTE_BANDWIDTH_CHANNEL_ID }}
+     StreamCount:
         CustomEmoji: ''
-        # Whether to enable bandwidth stats
         Enable: true
-        # The ID of the voice channel
-        VoiceChannelID: {{ .TC_BANDWIDTH_CHANNEL_ID }}
-      # Local bandwidth settings
-      LocalBandwidth:
-        # The custom emoji
-        CustomEmoji: ''
-        # Whether to enable local bandwidth stats
-        Enable: true
-        # The ID of the voice channel
-        VoiceChannelID: {{ .TC_LOCAL_BANDWIDTH_CHANNEL_ID }}
-      # Plex server availability settings
-      PlexServerAvailability:
-        # The custom emoji
-        CustomEmoji: ''
-        # Whether to enable Plex server availability stats
-        Enable: true
-        # The ID of the voice channel
-        VoiceChannelID: {{ .TC_PLEX_STATUS_CHANNEL_ID }}
-      # Remote bandwidth settings
-      RemoteBandwidth:
-        # The custom emoji
-        CustomEmoji: ''
-        # Whether to enable remote bandwidth stats
-        Enable: true
-        # The ID of the voice channel
-        VoiceChannelID: {{ .TC_REMOTE_BANDWIDTH_CHANNEL_ID }}
-      # Stream count settings
-      StreamCount:
-        # The custom emoji
-        CustomEmoji: ''
-        # Whether to enable stream count stats
-        Enable: true
-        # The ID of the voice channel
         VoiceChannelID: {{ .TC_STREAM_COUNT_CHANNEL_ID }}
-      # Transcode count settings
-      TranscodeCount:
-        # The custom emoji
+     TranscodeCount:
         CustomEmoji: ''
-        # Whether to enable transcode count stats
         Enable: true
-        # The ID of the voice channel
         VoiceChannelID: {{ .TC_TRANSCODE_COUNT_CHANNEL_ID }}
-  # Stats about the Plex server's libraries
+
+  # Library stats
   Libraries:
-    # Whether to enable library stats
     Enable: true
-    # The name of the category
     CategoryName: "Tautulli Libraries"
-    # How often (in seconds) to refresh the stats
     RefreshSeconds: 3600
-    # The libraries
     Libraries:
-      # The name of the library in Plex
       - Name: "Movies"
         # A friendlier name for the library to use in Discord
         AlternateName: "Movies"
-        # How to display stats for each type of media in this library
-        # Only relevant stats will be included based on library type (e.g. a TV Show library will ignore Album settings)
         Albums:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: false
-          # Use a specific voice channel for this library's stats, rather than generating a new one
           VoiceChannelID: 0
         Artists:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: false
-          # The ID of the voice channel
           VoiceChannelID: 0
         Episodes:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: false
-          # The ID of the voice channel
           VoiceChannelID: 0
         Movies:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: true
-          # The ID of the voice channel
           VoiceChannelID: {{ .TC_MOVIES_COUNT_CHANNEL_ID }}
         Series:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: false
-          # The ID of the voice channel
           VoiceChannelID: 0
         Tracks:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: false
-          # The ID of the voice channel
           VoiceChannelID: 0
-        # The name of the library in Plex
       - Name: "TV Shows"
-        # A friendlier name for the library to use in Discord
         AlternateName: "TV Shows"
-        # How to display stats for each type of media in this library
-        # Only relevant stats will be included based on library type (e.g. a TV Show library will ignore Album settings)
         Albums:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: false
-          # The ID of the voice channel
           VoiceChannelID: 0
         Artists:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: false
-          # The ID of the voice channel
           VoiceChannelID: 0
         Episodes:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: true
-          # The ID of the voice channel
           VoiceChannelID: {{ .TC_EPISODES_COUNT_CHANNEL_ID }}
         Movies:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: false
-          # The ID of the voice channel
           VoiceChannelID: 0
         Series:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: true
-          # The ID of the voice channel
           VoiceChannelID: {{ .TC_SERIES_COUNT_CHANNEL_ID }}
         Tracks:
-          # The custom emoji for this metric
           CustomEmoji: ''
-          # Whether to display this metric for this library
           Enable: false
-          # The ID of the voice channel
           VoiceChannelID: 0
-    # # Libraries to combine into an aggregate library
-    # CombinedLibraries:
-    #   # The name of the aggregate library
-    #   - Name: "All Movies"
-    #     # Which Plex libraries to combine into this aggregate library
-    #     Libraries:
-    #       - Movies
-    #     # How to display stats for each type of media in this library
-    #     # Only relevant stats will be included based on library type (e.g. a TV Show library will ignore Album settings)
-    #     Albums:
-    #       # The custom emoji for this metric
-    #       CustomEmoji: ''
-    #       # Whether to display this metric for this library
-    #       Enable: true
-    #       # The ID of the voice channel
-    #       VoiceChannelID: 0
-    #     Artists:
-    #       # The custom emoji for this metric
-    #       CustomEmoji: ''
-    #       # Whether to display this metric for this library
-    #       Enable: true
-    #       # The ID of the voice channel
-    #       VoiceChannelID: 0
-    #     Episodes:
-    #       # The custom emoji for this metric
-    #       CustomEmoji: ''
-    #       # Whether to display this metric for this library
-    #       Enable: true
-    #       # The ID of the voice channel
-    #       VoiceChannelID: 0
-    #     Movies:
-    #       # The custom emoji for this metric
-    #       CustomEmoji: ''
-    #       # Whether to display this metric for this library
-    #       Enable: true
-    #       # The ID of the voice channel
-    #       VoiceChannelID: 0
-    #     Series:
-    #       # The custom emoji for this metric
-    #       CustomEmoji: ''
-    #       # Whether to display this metric for this library
-    #       Enable: true
-    #       # The ID of the voice channel
-    #       VoiceChannelID: 0
-    #     Tracks:
-    #       # The custom emoji for this metric
-    #       CustomEmoji: ''
-    #       # Whether to display this metric for this library
-    #       Enable: true
-    #       # The ID of the voice channel
-    #       VoiceChannelID: 0
+
   # Stats about the Tauticord host's performance
   Performance:
-    # The name of the category
     CategoryName: "Performance"
-    # Whether to enable performance stats
     Enable: false
-    # The metrics
     Metrics:
-      # CPU settings
       CPU:
-        # The custom emoji
         CustomEmoji: ''
-        # Whether to enable CPU stats
         Enable: false
-        # The ID of the voice channel
         VoiceChannelID: 0
-      # Disk space settings
       DiskSpace:
-        # The custom emoji
         CustomEmoji: ''
-        # Whether to enable disk space stats
         Enable: false
-        # The ID of the voice channel
         VoiceChannelID: 0
-      # Memory settings
       Memory:
-        # The custom emoji
         CustomEmoji: ''
-        # Whether to enable memory stats
         Enable: false
-        # The ID of the voice channel
         VoiceChannelID: 0
-      # User count settings
       UserCount:
-        # The custom emoji
         CustomEmoji: ''
-        # Whether to enable user count stats
         Enable: false
-        # The ID of the voice channel
         VoiceChannelID: 0
