@@ -4,7 +4,7 @@ kind: Kustomization
 configMapGenerator:
   - name: tauticord-config
     files:
-      - ./config/config.yaml
+      - ./config/tauticord.yaml
 generatorOptions:
   disableNameSuffixHash: true
   annotations:

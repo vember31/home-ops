@@ -70,7 +70,7 @@ spec:
             nameOverride: *name
             image:
               repository: nwithan8/tauticord
-              tag: 4.2.0@sha256:7be80effe8c36cff719ee442c7b2ba2b0ae6296f2a49126a1367ca63a2d0fc5d
+              tag: 5.0.0@sha256:c1c12f64ce9ffe40ef34a172683dafd41166f229733df55a4e97cc449754649d
               pullPolicy: IfNotPresent
 
             resources:
@@ -97,8 +97,8 @@ spec:
         type: secret
         name: tauticord-secret
         globalMounts:
-          - path: /config/config.yaml
-            subPath: config.yaml
+          - path: /config/tauticord.yaml
+            subPath: tauticord.yaml
             readOnly: true
 
       logs:
