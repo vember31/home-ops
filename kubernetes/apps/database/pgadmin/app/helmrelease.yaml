@@ -1,0 +1,141 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2beta2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &name pgadmin
+  namespace: database
+
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.0.4
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      ${APP}:
+        enabled: true
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        labels: {}
+        replicas: 1
+
+        # Controller-specific overrides for `defaultPodOptions` keys
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: "OnRootMismatch"
+
+        containers:
+          app:
+            nameOverride: *name
+            image:
+              repository: dpage/pgadmin4
+              tag: 8.4@sha256:18cd5711fc9a7ed633a5c4b2b1a8f3e969d9262a94b8166c79fe0bba52697788
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+            envFrom:
+              - secretRef:
+                  name: pgadmin-secret
+
+            resources:
+              requests:
+                cpu: 50m
+                memory: 100Mi
+              limits:
+                memory: 500Mi
+
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+
+    service:
+      app:
+        controller: *name
+        ports:
+          http:
+            port: 80
+
+    ingress:
+      app:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          hajimari.io/icon: simple-icons:postgresql
+          hajimari.io/info: PostgreSQL Database Administration
+          hajimari.io/group: storage
+        hosts:
+          - host: &host ${APP}.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+
+        tls: 
+         - secretName: ${APP}-tls-production
+           hosts:
+             - *host
+
+    persistence:
+
+      config:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        retain: true
+        globalMounts:
+          - path: /var/lib/pgadmin
+      
