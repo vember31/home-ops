@@ -3,7 +3,8 @@ kind: Kustomization
 resources:
   - bitnami.yaml
   - bjw-s.yaml
-  - botkube.yaml
+  # - botkube.yaml
+  - cloudnative-pg.yaml
   - descheduler.yaml
   - emberstack.yaml
   - eraser.yaml
