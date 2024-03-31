@@ -61,9 +61,9 @@ spec:
         # Controller-specific overrides for `defaultPodOptions` keys
         pod:
           securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-            fsGroup: 1000
+            runAsUser: 5050
+            runAsGroup: 5050
+            fsGroup: 5050
             fsGroupChangePolicy: "OnRootMismatch"
 
         containers:
