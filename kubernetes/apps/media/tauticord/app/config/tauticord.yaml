@@ -16,7 +16,7 @@ Discord:
   AdminIDs:
     - '{{ .TC_DISCORD_ADMIN_IDS }}' # Right-click on your profile picture -> "Copy ID"
   PostSummaryMessage: true
-  ChannelName: "server-notifications"
+  ChannelName: "tautulli-live"
   EnableSlashCommands: true
 
 # Display settings

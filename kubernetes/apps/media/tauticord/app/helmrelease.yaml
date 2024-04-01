@@ -53,7 +53,8 @@ spec:
       ${APP}:
         enabled: true
         type: deployment
-        annotations: {}
+        annotations:
+          reloader.stakater.com/auto: "true"
         labels: {}
         replicas: 1
 
