@@ -8,7 +8,6 @@ resources:
   
   # Post Flux-Kustomizations
   - ./blocky/ks.yaml
-  - ./blocky/externalsecret.yaml
   - ./cloudflare-ddns/ks.yaml
   - ./cloudflare-ddns/externalsecret.yaml
   - ./error-pages/ks.yaml

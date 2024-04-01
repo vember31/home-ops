@@ -108,7 +108,9 @@ prometheus:
   path: /metrics
 
 queryLog:
-  type: "console"
+  type: postgresql
+  target: postgresql://{{ .BLOCKY_POSTGRES_USER }}:{{ .BLOCKY_POSTGRES_PASS }}@postgres-rw.databases.svc.cluster.local:5432/blocky
+  logRetentionDays: 7
 
 upstreams:
   groups:
