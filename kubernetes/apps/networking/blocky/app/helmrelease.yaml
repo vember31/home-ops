@@ -153,16 +153,16 @@ spec:
             hosts:
               - *host
 
-
       persistence:
       
         config:
           enabled: true
-          type: configMap
-          name: blocky-config
+          type: secret
+          name: blocky-secret
           globalMounts:
             - path: /app/config.yml
               subPath: config.yml
+              readOnly: true
 
         lists:
           type: configMap
