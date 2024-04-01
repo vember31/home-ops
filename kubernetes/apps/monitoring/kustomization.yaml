@@ -11,13 +11,12 @@ resources:
   - ./exporters
 
   # Flux-Kustomizations
-  # - ./botkube/ks.yaml
   - ./gatus/externalsecret.yaml
   - ./gatus/ks.yaml
   - ./goldilocks/externalsecret.yaml
   - ./goldilocks/ks.yaml
+  - ./grafana/externalsecret.yaml
   - ./grafana/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
-#  - ./pialert/ks.yaml
   - ./unpoller/ks.yaml
   - ./vpa/ks.yaml

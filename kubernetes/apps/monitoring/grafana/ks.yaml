@@ -21,5 +21,8 @@ spec:
   retryInterval: 1m
   timeout: 5m
   postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: grafana-secret
     substitute:
       APP: *app
