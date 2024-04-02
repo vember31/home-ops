@@ -167,6 +167,7 @@ spec:
               implementation: prometheus
           - name: Blocky-Postgres
             type: postgres
+            uid: blocky-postgres
             access: proxy
             url: postgres-ro.database.svc.cluster.local:5432
             user: "${BLOCKY_POSTGRES_USER}"
@@ -221,12 +222,13 @@ spec:
           url: https://raw.githubusercontent.com/0xERR0R/blocky/main/docs/blocky-query-grafana-postgres.json
           datasource:
             - name: DS_POSTGRES
-              value: Blocky
-        # blocky-postgres:
-        #   gnetId: 17996
-        #   revision: 11
-        #   datasource:
-        #     - name: 
+              value: blocky-postgres
+        blocky-postgres:
+          gnetId: 17996
+          revision: 11
+          datasource:
+            - name: BlockyDB
+              value: blocky-postgres
       flux:
         flux-cluster:
           url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/cluster.json
