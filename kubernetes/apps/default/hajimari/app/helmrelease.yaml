@@ -93,6 +93,7 @@ spec:
           - kube-system #try putting this here as kube dash will fall into 'Resources'
           - default #try putting this here as olivetin will fall into 'Resources'
           - storage
+          - database
         
       # -- Override the title of the Hajimari pages
       title: null
