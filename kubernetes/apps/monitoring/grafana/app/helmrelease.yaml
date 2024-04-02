@@ -165,21 +165,22 @@ spec:
             url: http://alertmanager-operated.monitoring.svc.cluster.local.:9093
             jsonData:
               implementation: prometheus
-          # - name: Postgres
-          #   type: postgres
-          #   url: postgres-ro.database.svc.cluster.local:5432
-          #   user: "${BLOCKY_POSTGRES_USER}"
-          #   secureJsonData:
-          #     password: "${BLOCKY_POSTGRES_PASS}"
-          #   jsonData:
-          #     database: blocky
-          #     sslmode: 'disable' # disable/require/verify-ca/verify-full
-          #     maxOpenConns: 100 # Grafana v5.4+
-          #     maxIdleConns: 100 # Grafana v5.4+
-          #     maxIdleConnsAuto: true # Grafana v9.5.1+
-          #     connMaxLifetime: 14400 # Grafana v5.4+
-          #     postgresVersion: 1600 # 903=9.3, 904=9.4, 905=9.5, 906=9.6, 1000=10
-          #     timescaledb: false
+          - name: Blocky-Postgres
+            type: postgres
+            access: proxy
+            url: postgres-ro.database.svc.cluster.local:5432
+            user: "${BLOCKY_POSTGRES_USER}"
+            secureJsonData:
+              password: "${BLOCKY_POSTGRES_PASS}"
+            jsonData:
+              database: blocky
+              sslmode: 'disable' # disable/require/verify-ca/verify-full
+              maxOpenConns: 100 # Grafana v5.4+
+              maxIdleConns: 100 # Grafana v5.4+
+              maxIdleConnsAuto: true # Grafana v9.5.1+
+              connMaxLifetime: 14400 # Grafana v5.4+
+              postgresVersion: 1600 # 903=9.3, 904=9.4, 905=9.5, 906=9.6, 1000=10
+              timescaledb: false
           # - name: Loki
           #   type: loki
           #   uid: loki
