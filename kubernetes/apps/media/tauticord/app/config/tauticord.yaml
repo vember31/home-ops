@@ -58,6 +58,7 @@ Stats:
        VoiceChannelID: {{ .TC_BANDWIDTH_CHANNEL_ID }}
      LocalBandwidth:
        CustomEmoji: ''
+       CustomName: 'LAN:'
        Enable: true
        VoiceChannelID: {{ .TC_LOCAL_BANDWIDTH_CHANNEL_ID }}
      PlexServerAvailability:
@@ -66,6 +67,7 @@ Stats:
        VoiceChannelID: {{ .TC_PLEX_STATUS_CHANNEL_ID }}
      RemoteBandwidth:
        CustomEmoji: ''
+       CustomName: 'WAN:'
        Enable: true
        VoiceChannelID: {{ .TC_REMOTE_BANDWIDTH_CHANNEL_ID }}
      StreamCount:
