@@ -161,4 +161,20 @@ spec:
         path: /export/movies
         globalMounts:
           - path: /media2/movies
+
+      tmp:
+        type: emptyDir
+
+      log:
+        type: emptyDir
+        globalMounts:
+          - path: /config/log
+
+      add-ons:
+        type: emptyDir
+        
+      cache:
+        type: emptyDir
+        globalMounts:
+          - path: /config/cache
       

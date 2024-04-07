@@ -121,6 +121,13 @@ spec:
             icon: 'simple-icons:vaultwarden'
             info: Password Management
 
+      - group: storage
+        apps:
+          - name: Minio
+            url: 'http://${OMV_IP}:9001'
+            icon: 'fa6-solid:bucket'
+            info: S3 Object Store
+
       - group: home
         apps:
           - name: Home Assistant
