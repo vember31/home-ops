@@ -95,6 +95,7 @@ Stats:
       - Name: "Movies"
         # A friendlier name for the library to use in Discord
         AlternateName: "Movies"
+        ID: 0
         Albums:
           CustomEmoji: ''
           Enable: false
@@ -121,6 +122,7 @@ Stats:
           VoiceChannelID: 0
       - Name: "TV Shows"
         AlternateName: "TV Shows"
+        ID: 0
         Albums:
           CustomEmoji: ''
           Enable: false
