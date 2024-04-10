@@ -28,11 +28,12 @@ There is a template over at [onedr0p/flux-cluster-template](https://github.com/o
 
 ### Installation
 
-My cluster is [k3s](https://k3s.io/) provisioned atop Ubuntu 22.04 VMs, which are hosted in Proxmox v8. This is a semi-hyper-converged cluster, where workloads and block storage share the same available resources on nodes.  Two of the nodes also run OpenMediaVault, utilizing XFS & MergerFS as file systems, and serve NFS, SMB and provide bulk file storage and Longhorn backups. These bulk storage drives are backed up via SnapRAID on a weekly cadence.
+My cluster is [k3s](https://k3s.io/) provisioned atop Ubuntu 22.04 VMs, which are hosted in Proxmox v8. This is a semi-hyper-converged cluster, where workloads and block storage share the same available resources on nodes.  Two of the nodes also run OpenMediaVault, utilizing XFS & MergerFS as file systems, and serve NFS, SMB, S3 (via [MinIO](https://min.io)) and provide bulk file storage and Longhorn backups. These bulk storage drives are backed up via SnapRAID on a weekly schedule.
 
 ### Core Components
 
 - [cert-manager](https://cert-manager.io/docs/): manages SSL X509 certificates for all http-based services in the cluster
+- [cloudnative-pg](https://cloudnative-pg.io): high-availability PostgreSQL database built for Kubernetes
 - [eraser](https://github.com/eraser-dev/eraser): removes non-running images from all nodes in a cluster
 - [external-dns](https://github.com/kubernetes-sigs/external-dns): automatically syncs DNS records from cluster ingresses to a DNS provider (Cloudflare)
 - [external-secrets](https://github.com/external-secrets/external-secrets/): managed Kubernetes secrets using Gitlab CI/CD variables
@@ -86,7 +87,7 @@ graph TD;
 
 ## 🌐 DNS
 
-On my Unifi UDM Pro SE, DHCP leases utilize [Blocky](https://github.com/0xERR0R/blocky) as primary DNS and [PiHole](https://github.com/pi-hole/pi-hole) as secondary. Blocky is hosted within my cluster as a daemonset for high availability across 4 nodes (VMs), and PiHole is hosted in an LXC container on one of the nodes. A spare Raspberry Pi is available for further redundancy.
+On my Unifi UDM Pro SE, DHCP leases utilize [Blocky](https://github.com/0xERR0R/blocky) as primary DNS and [PiHole](https://github.com/pi-hole/pi-hole) as secondary. Blocky is hosted within my cluster as a daemonset for high availability across 4 nodes (5 VMs), and PiHole is hosted in an LXC container on one of the nodes. A spare Raspberry Pi is available for further redundancy.
 
 Blocky is responsible for resolving all local (`*.local.${SECRET_DOMAIN}`) DNS entries to the Traefik reverse proxy. All forwarded DNS queries are sent via DoH to Cloudflare. Pi-Hole is predominantly available as a backup.
 
