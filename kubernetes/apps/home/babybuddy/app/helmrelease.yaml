@@ -62,7 +62,7 @@ spec:
             nameOverride: *name
             image:
               repository: lscr.io/linuxserver/babybuddy
-              tag: 2.3.0@sha256:a41e6ddbaf69f914ca440d312b48c1541673a21c7ff4fb1e48519ced4cae9a6f
+              tag: 2.3.1@sha256:3ac008b69235d672a71acf39831b5d868d59dc25768c4ba62d40372cfd8ebe45
               pullPolicy: IfNotPresent
 
             env:
