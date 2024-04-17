@@ -58,7 +58,7 @@ spec:
         repository: ghcr.io/angelnu/cni-plugins
         tag: 1.4.1@sha256:d27f97ae7d9dd1ca9bb2883273ac2477b336da37b4450e1509716124550853d9
 
-      logLevel: error
+      logLevel: verbose
 
       # comment out paths 
       # paths:
