@@ -60,9 +60,10 @@ spec:
 
       logLevel: error
 
-      paths:
-        bin: /opt/cni/bin
-        config: /etc/cni/net.d
+      # comment out paths 
+      # paths:
+      #   bin: /opt/cni/bin
+      #   config: /etc/cni/net.d
 
     resources:
       requests:
@@ -70,5 +71,5 @@ spec:
       limits:
         memory: 64Mi
 
-    hostPaths:
-      netns: /var/run/netns
+    # hostPaths:
+    #   netns: /var/run/netns
