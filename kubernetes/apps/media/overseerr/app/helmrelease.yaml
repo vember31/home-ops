@@ -62,7 +62,7 @@ spec:
             nameOverride: *name
             image:
               repository: ghcr.io/hotio/overseerr
-              tag: release-1.33.2@sha256:a23ef324f179ea514f798fe94e307a248d9e2c621bf01bc249df96bebd6e938d
+              tag: release-1.33.2@sha256:ca53d5ad39922c3bbb8a1b8982130a365a97a11d4d5939b9da3c65f6a806f82c
               pullPolicy: IfNotPresent
 
             env:
