@@ -28,3 +28,4 @@ spec:
       podMonitorEnabled: false
       grafanaDashboard:
         create: true
+        sidecarLabel: '' # to workaround https://github.com/cloudnative-pg/charts/issues/267 temporarily
