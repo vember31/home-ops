@@ -70,7 +70,7 @@ spec:
           app:
             image:
               repository: jamesread/olivetin
-              tag: 2024.04.26@sha256:b1dcfa499a317b70de5bfda96db55d2bd78394bbff8561bef2c3055cb1b6d254
+              tag: 2024.04.261@sha256:90c4848beb2bde0de6e6dd4685bc312c3ba82fb62cb786ecbae20c99135ea925
               pullPolicy: IfNotPresent
 
             env:
