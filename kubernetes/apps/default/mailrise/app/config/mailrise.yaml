@@ -1,0 +1,14 @@
+---
+configs:
+
+  pve@mailrise.local.${SECRET_DOMAIN}:
+    mailrise:
+      title_template: "Proxmox"
+    urls:
+      - !env_var MAILRISE_DISCORD_WEBHOOK
+
+  omv@mailrise.local.${SECRET_DOMAIN}:
+    mailrise:
+      title_template: "OpenMediaVault"
+    urls:
+      - !env_var MAILRISE_DISCORD_WEBHOOK
