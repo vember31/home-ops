@@ -17,6 +17,7 @@ resources:
   - ./qbittorrent/externalsecret.yaml
   - ./radarr/ks.yaml
   - ./radarr/externalsecret.yaml
+  - ./recyclarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./sonarr/externalsecret.yaml
   - ./unpackerr/ks.yaml
