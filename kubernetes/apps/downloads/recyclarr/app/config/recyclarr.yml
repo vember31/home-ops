@@ -6,14 +6,14 @@ sonarr:
     api_key: !env_var SONARR_API_KEY
 
     # Media Naming Configuration
-    # media_naming:
-    #   series: default
-    #   season: default
-    #   episodes:
-    #     rename: true
-    #     standard: default
-    #     daily: default
-    #     anime: default
+    media_naming:
+      series: default
+      season: default
+      episodes:
+        rename: true
+        standard: default
+        daily: default
+        anime: default
 
 radarr:
   radarr:
@@ -21,8 +21,8 @@ radarr:
     api_key: !env_var RADARR_API_KEY
 
     # Media Naming Configuration
-    # media_naming:
-    #   folder: default
-    #   movie:
-    #     rename: true
-    #     standard: default
+    media_naming:
+      folder: default
+      movie:
+        rename: true
+        standard: default

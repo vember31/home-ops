@@ -52,10 +52,13 @@ spec:
     controllers:
       ${APP}:
         enabled: true
-        type: deployment
-        annotations:
-          reloader.stakater.com/auto: "true"
-        replicas: 1
+        type: cronjob
+        cronjob:
+          schedule: "0 1 * * *"  # Run daily at 1am
+          timeZone: &timeZone ${TIMEZONE}
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 1
 
         containers:
           app:
