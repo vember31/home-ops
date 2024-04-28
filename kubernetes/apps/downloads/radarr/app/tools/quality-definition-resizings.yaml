@@ -1,0 +1,162 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: radarr-quality-definitions
+  namespace: downloads
+spec:
+  schedule: "0 1 * * *"  # Run daily at 1am
+  timeZone: ${TIMEZONE}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: radarr-curl
+            image: curlimages/curl:8.7.1@sha256:25d29daeb9b14b89e2fa8cc17c70e4b188bca1466086907c2d9a4b56b59d8e21
+            command:
+            - "sh"
+            - "-c"
+            - |
+              curl -X 'PUT' \
+                'http://radarr.downloads.svc.cluster.local:7878/api/v3/qualitydefinition/update?apikey=${RADARR__API_KEY}' \
+                -H 'accept: */*' \
+                -H 'Content-Type: application/json' \
+                -d '
+                  [
+                    {
+                      "quality": {
+                        "id": 4,
+                        "name": "HDTV-720p",
+                        "source": "tv",
+                        "resolution": 720,
+                        "modifier": "none"
+                      },
+                      "title": "HDTV-720p",
+                      "weight": 14,
+                      "minSize": 0,
+                      "maxSize": 34,
+                      "preferredSize": 18,
+                      "id": 15
+                    },
+                    {
+                      "quality": {
+                        "id": 5,
+                        "name": "WEBDL-720p",
+                        "source": "webdl",
+                        "resolution": 720,
+                        "modifier": "none"
+                      },
+                      "title": "WEBDL-720p",
+                      "weight": 15,
+                      "minSize": 0,
+                      "maxSize": 34,
+                      "preferredSize": 18,
+                      "id": 16
+                    },
+                    {
+                      "quality": {
+                        "id": 14,
+                        "name": "WEBRip-720p",
+                        "source": "webrip",
+                        "resolution": 720,
+                        "modifier": "none"
+                      },
+                      "title": "WEBRip-720p",
+                      "weight": 15,
+                      "minSize": 0,
+                      "maxSize": 34,
+                      "preferredSize": 18,
+                      "id": 17
+                    },
+                    {
+                      "quality": {
+                        "id": 6,
+                        "name": "Bluray-720p",
+                        "source": "bluray",
+                        "resolution": 720,
+                        "modifier": "none"
+                      },
+                      "title": "Bluray-720p",
+                      "weight": 16,
+                      "minSize": 0,
+                      "maxSize": 34,
+                      "preferredSize": 18,
+                      "id": 18
+                    },
+                    {
+                      "quality": {
+                        "id": 9,
+                        "name": "HDTV-1080p",
+                        "source": "tv",
+                        "resolution": 1080,
+                        "modifier": "none"
+                      },
+                      "title": "HDTV-1080p",
+                      "weight": 17,
+                      "minSize": 0,
+                      "maxSize": 42,
+                      "preferredSize": 25,
+                      "id": 19
+                    },
+                    {
+                      "quality": {
+                        "id": 3,
+                        "name": "WEBDL-1080p",
+                        "source": "webdl",
+                        "resolution": 1080,
+                        "modifier": "none"
+                      },
+                      "title": "WEBDL-1080p",
+                      "weight": 18,
+                      "minSize": 0,
+                      "maxSize": 42,
+                      "preferredSize": 25,
+                      "id": 20
+                    },
+                    {
+                      "quality": {
+                        "id": 15,
+                        "name": "WEBRip-1080p",
+                        "source": "webrip",
+                        "resolution": 1080,
+                        "modifier": "none"
+                      },
+                      "title": "WEBRip-1080p",
+                      "weight": 18,
+                      "minSize": 0,
+                      "maxSize": 42,
+                      "preferredSize": 25,
+                      "id": 21
+                    },
+                    {
+                      "quality": {
+                        "id": 7,
+                        "name": "Bluray-1080p",
+                        "source": "bluray",
+                        "resolution": 1080,
+                        "modifier": "none"
+                      },
+                      "title": "Bluray-1080p",
+                      "weight": 19,
+                      "minSize": 0,
+                      "maxSize": 42,
+                      "preferredSize": 25,
+                      "id": 22
+                    },
+                    {
+                      "quality": {
+                        "id": 30,
+                        "name": "Remux-1080p",
+                        "source": "bluray",
+                        "resolution": 1080,
+                        "modifier": "remux"
+                      },
+                      "title": "Remux-1080p",
+                      "weight": 20,
+                      "minSize": 0,
+                      "maxSize": 42,
+                      "preferredSize": 25,
+                      "id": 23
+                    }
+                  ]'
+          restartPolicy: OnFailure
