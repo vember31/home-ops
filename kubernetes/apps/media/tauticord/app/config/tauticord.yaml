@@ -17,6 +17,7 @@ Discord:
     - '{{ .TC_DISCORD_ADMIN_IDS }}' # Right-click on your profile picture -> "Copy ID"
   PostSummaryMessage: true
   ChannelName: "tautulli-live"
+  EnableTermination: true #with v5.4.0
   EnableSlashCommands: true
   StatusMessage:
     Enable: true
