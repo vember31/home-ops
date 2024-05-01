@@ -63,7 +63,7 @@ spec:
             nameOverride: *name
             image:
               repository: nwithan8/tauticord
-              tag: 5.4.0@sha256:ed62d111f37b8547ed08620c9f5d67fe38fa03bde04402d26cac00ddf18629a0
+              tag: 5.4.1@sha256:48024007c62e8ac9e5db238ae140e4748cc3191e3f7d2b2cdffe85ee1e9cecb1
               pullPolicy: IfNotPresent
 
             resources:
