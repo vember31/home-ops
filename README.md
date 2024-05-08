@@ -20,7 +20,7 @@ _... managed via Kubernetes, Flux, and Renovate_ 🤖
 
 ## 📖 Overview
 
-This is a mono repository for my home infrastructure and Kubernetes cluster. I try to adhere to Infrastructure as Code (IaC) and GitOps practices using tools like [Kubernetes](https://kubernetes.io/), [Flux](https://github.com/fluxcd/flux2) and [Renovate](https://github.com/renovatebot/renovate).
+This is a mono repository for my home infrastructure and Kubernetes cluster. This follows Infrastructure as Code (IaC) and GitOps practices using [Kubernetes](https://kubernetes.io/), [Flux](https://github.com/fluxcd/flux2) and [Renovate](https://github.com/renovatebot/renovate).
 
 ## ⛵ Kubernetes
 
@@ -28,7 +28,7 @@ There is a template over at [onedr0p/flux-cluster-template](https://github.com/o
 
 ### Installation
 
-My cluster is [k3s](https://k3s.io/) provisioned atop Ubuntu 22.04 VMs, which are hosted in Proxmox v8. This is a semi-hyper-converged cluster, where workloads and block storage share the same available resources on nodes.  Two of the nodes also run OpenMediaVault, utilizing XFS & MergerFS as file systems, and serve NFS, SMB, S3 (via [MinIO](https://min.io)) and provide bulk file storage and Longhorn backups. These bulk storage drives are backed up via SnapRAID on a weekly schedule.
+This cluster is [k3s](https://k3s.io/) provisioned atop Ubuntu 22.04 VMs, which are hosted in Proxmox v8. This is a semi-hyper-converged cluster, where workloads and block storage share the same available resources on nodes.  Two of the nodes also run OpenMediaVault, utilizing XFS & MergerFS as file systems, and serve NFS, SMB, S3 (via [MinIO](https://min.io)) and provide bulk file storage and Longhorn backups. These bulk storage drives are backed up via SnapRAID on a weekly schedule.
 
 ### Core Components
 
@@ -87,9 +87,9 @@ graph TD;
 
 ## 🌐 DNS
 
-On my Unifi UDM Pro SE, DHCP leases utilize [Blocky](https://github.com/0xERR0R/blocky) as primary DNS and [PiHole](https://github.com/pi-hole/pi-hole) as secondary. Blocky is hosted within my cluster as a daemonset for high availability across 4 nodes (5 VMs), and PiHole is hosted in an LXC container on one of the nodes. A spare Raspberry Pi is available for further redundancy.
+I use a UDM Pro SE as the center of my network. DHCP leases point to [Blocky](https://github.com/0xERR0R/blocky) as the primary DNS and [PiHole](https://github.com/pi-hole/pi-hole) as secondary. Blocky is hosted within the Kubernetes cluster as a daemonset for high availability across 4 nodes (5 VMs), and PiHole is hosted in an LXC container on one of the nodes. A spare Raspberry Pi is available for further redundancy.
 
-Blocky is responsible for resolving all local (`*.local.${SECRET_DOMAIN}`) DNS entries to the Traefik reverse proxy. All forwarded DNS queries are sent via DoH to Cloudflare. Pi-Hole is predominantly available as a backup.
+Blocky resolves all local (`*.local.${SECRET_DOMAIN}`) DNS entries to Traefik (reverse proxy), which directs to the appropriate ingress. All forwarded DNS queries that leave the cluster are sent via DoT to Cloudflare.
 
 
 ## 🔧 Hardware
