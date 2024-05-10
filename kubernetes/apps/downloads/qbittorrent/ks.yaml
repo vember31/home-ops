@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: &app qbittorrent
   namespace: flux-system
-  labels: 
-    substitution.flux.home.arpa/disabled: "true" #don't do a sub here so we can bring in secret values
 spec:
   targetNamespace: downloads
   commonMetadata:
@@ -23,10 +21,5 @@ spec:
   retryInterval: 1m
   timeout: 5m
   postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: qbittorrent-secret
-      - kind: ConfigMap
-        name: cluster-settings
     substitute:
       APP: *app
