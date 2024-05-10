@@ -4,15 +4,11 @@ kind: Kustomization
 metadata:
   name: &app unpackerr
   namespace: flux-system
-  labels: 
-    substitution.flux.home.arpa/disabled: "true" #don't do a sub here so we can bring in secret values
 spec:
   targetNamespace: &namespace downloads
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  # dependsOn:
-  #   - name: **OPTIONAL**
   path: ./kubernetes/apps/downloads/unpackerr/app
   prune: true
   sourceRef:
@@ -23,11 +19,6 @@ spec:
   retryInterval: 1m
   timeout: 5m
   postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: unpackerr-secret
-      - kind: ConfigMap
-        name: cluster-settings
     substitute:
       APP: *app
       GATUS_PORT: "5656"

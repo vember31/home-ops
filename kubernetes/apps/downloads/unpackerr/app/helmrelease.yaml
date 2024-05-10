@@ -73,7 +73,11 @@ spec:
               UMASK: 002
             # Sonarr Config
               UN_SONARR_0_URL: http://sonarr:8989
-              UN_SONARR_0_API_KEY: ${SONARR__API_KEY}
+              UN_SONARR_0_API_KEY: 
+                valueFrom:
+                  secretKeyRef:
+                    name: unpackerr-secret
+                    key: SONARR_API_KEY
               UN_SONARR_0_PATHS_0: /media/downloads
               UN_SONARR_0_PROTOCOLS: torrent
               UN_SONARR_0_TIMEOUT: 10s
@@ -81,14 +85,22 @@ spec:
               UN_SONARR_0_DELETE_DELAY: 5m
               # Radarr Config
               UN_RADARR_0_URL: http://radarr:7878
-              UN_RADARR_0_API_KEY: ${RADARR__API_KEY}
+              UN_RADARR_0_API_KEY: 
+                valueFrom:
+                  secretKeyRef:
+                    name: unpackerr-secret
+                    key: RADARR_API_KEY
               UN_RADARR_0_PATHS_0: /media/downloads
               UN_RADARR_0_PROTOCOLS: torrent
               UN_RADARR_0_TIMEOUT: 10s
               UN_RADARR_0_DELETE_ORIG: false
               UN_RADARR_0_DELETE_DELAY: 5m
               # Webhook Config
-              UN_WEBHOOK_0_URL: ${UNPACKERR_NOTIFIARR_URL}
+              UN_WEBHOOK_0_URL: 
+                valueFrom:
+                  secretKeyRef:
+                    name: unpackerr-secret
+                    key: UNPACKERR_NOTIFIARR_URL
               UN_WEBHOOK_0_NAME: Notifiarr
               UN_WEBHOOK_0_NICKNAME: Unpackerr
               # Webserver Config

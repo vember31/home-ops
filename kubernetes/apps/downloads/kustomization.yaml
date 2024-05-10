@@ -8,7 +8,6 @@ resources:
   - ./namespace.yaml
 
   # Flux-Kustomizations
-
   - ./bazarr/ks.yaml
   - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
@@ -16,4 +15,3 @@ resources:
   - ./recyclarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./unpackerr/ks.yaml
-  - ./unpackerr/externalsecret.yaml
