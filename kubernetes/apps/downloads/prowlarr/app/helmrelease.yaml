@@ -82,7 +82,7 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: prowlarr-secret
-                    key: PROWLARR__API_KEY
+                    key: PROWLARR_API_KEY
 
             resources:
               requests:
