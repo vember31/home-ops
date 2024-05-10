@@ -10,7 +10,6 @@ resources:
   # Flux-Kustomizations
 
   - ./bazarr/ks.yaml
-  - ./bazarr/externalsecret.yaml
   - ./prowlarr/ks.yaml
   - ./prowlarr/externalsecret.yaml
   - ./qbittorrent/ks.yaml
