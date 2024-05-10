@@ -13,7 +13,6 @@ resources:
   - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
   - ./radarr/ks.yaml
-  - ./radarr/externalsecret.yaml
   - ./recyclarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./sonarr/externalsecret.yaml
