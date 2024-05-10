@@ -15,6 +15,5 @@ resources:
   - ./radarr/ks.yaml
   - ./recyclarr/ks.yaml
   - ./sonarr/ks.yaml
-  - ./sonarr/externalsecret.yaml
   - ./unpackerr/ks.yaml
   - ./unpackerr/externalsecret.yaml

@@ -82,7 +82,7 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: sonarr-secret
-                    key: SONARR__API_KEY
+                    key: SONARR_API_KEY
 
             resources:
               requests:
