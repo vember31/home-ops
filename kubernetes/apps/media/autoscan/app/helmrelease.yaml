@@ -99,34 +99,9 @@ spec:
 
       config-file:
         enabled: true
-        type: configMap
-        name: autoscan-config-file
+        type: secret
+        name: autoscan-secret
         globalMounts:
           - path: /config/config.yml
             readOnly: true
             subPath: config.yml
-
-    configMaps:
-      config-file: 
-        enabled: true
-        data: 
-          config.yml: |-
-
-              # <- processor ->
-              minimum-age: 2m
-              port: 3030
-
-              triggers:
-                sonarr:
-                  - name: sonarr
-                    priority: 2
-
-                radarr:
-                  - name: radarr   # /triggers/radarr
-                    priority: 2
-
-              # <- targets ->
-              targets:
-                plex:
-                  - url: http://${PLEX_IP}:32400
-                    token: ${PLEX_TOKEN} 

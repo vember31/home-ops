@@ -1,0 +1,18 @@
+# <- processor ->
+minimum-age: 2m
+port: 3030
+
+triggers:
+  sonarr:
+    - name: sonarr
+      priority: 2
+
+  radarr:
+    - name: radarr   # /triggers/radarr
+      priority: 2
+
+# <- targets ->
+targets:
+  plex:
+    - url: http://${PLEX_IP}:32400
+      token: ${PLEX_TOKEN}
