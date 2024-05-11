@@ -15,4 +15,4 @@ triggers:
 targets:
   plex:
     - url: http://${PLEX_IP}:32400
-      token: ${PLEX_TOKEN}
+      token: {{ .PLEX_TOKEN }}
