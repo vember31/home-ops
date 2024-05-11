@@ -4,15 +4,11 @@ kind: Kustomization
 metadata:
   name: &app plex
   namespace: flux-system
-  labels: 
-    substitution.flux.home.arpa/disabled: "true" #don't do a sub here so we can bring in secret values
 spec:
   targetNamespace: media
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  # dependsOn:
-  #   - name: longhorn
   path: ./kubernetes/apps/media/plex/app
   prune: true
   sourceRef:
@@ -23,11 +19,6 @@ spec:
   retryInterval: 1m
   timeout: 5m
   postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: plex-secret
-      - kind: ConfigMap
-        name: cluster-settings
     substitute:
       APP: *app
       GATUS_PATH: "/web/index.html"
@@ -38,8 +29,6 @@ kind: Kustomization
 metadata:
   name: &app plex-auto-languages
   namespace: flux-system
-  labels: 
-    substitution.flux.home.arpa/disabled: "true" #don't do a sub here so we can bring in secret values
 spec:
   targetNamespace: media
   commonMetadata:
@@ -57,11 +46,6 @@ spec:
   retryInterval: 1m
   timeout: 5m
   postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: plex-secret
-      - kind: ConfigMap
-        name: cluster-settings
     substitute:
       APP: *app
 

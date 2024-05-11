@@ -13,7 +13,6 @@ resources:
   - ./maintainerr/ks.yaml
   - ./overseerr/ks.yaml
   - ./plex/ks.yaml
-  - ./plex/externalsecret.yaml
   - ./requestrr/ks.yaml
   - ./tauticord/ks.yaml
   - ./tautulli/ks.yaml
