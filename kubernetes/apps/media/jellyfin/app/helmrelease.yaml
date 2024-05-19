@@ -76,7 +76,7 @@ spec:
             nameOverride: *name
             image:
               repository: linuxserver/jellyfin
-              tag: 10.9.2@sha256:abe94a7dff6aa1bd36b557a1bf4e47b69de0e9fd9206a7ca7c8862601f9431f8
+              tag: 10.9.2@sha256:f1a97c6a71409dccf9ad26f9502107404c14b49f69626f4faf0dd0c5502de982
               pullPolicy: IfNotPresent
 
             env:
