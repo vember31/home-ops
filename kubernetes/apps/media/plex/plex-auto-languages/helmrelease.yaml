@@ -94,8 +94,8 @@ spec:
           - path: /.local
 
       config-file:
-        type: configMap
-        name: plex-auto-languages-configmap
+        type: secret
+        name: plex-auto-languages-secret
         globalMounts:
           - path: /config/config.yaml
             subPath: config.yaml
