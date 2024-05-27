@@ -16,5 +16,3 @@ spec:
         - kind: Service
           name: error-pages
           port: 8080
-  tls:
-    secretName: "error-pages-tls-production"
