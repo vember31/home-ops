@@ -5,7 +5,7 @@ metadata:
   name: secure-networks
   namespace: networking
 spec:
-  ipWhiteList:
+  ipAllowList:
     sourceRange:
       - ${SECURE_CIDR}
       - ${CLUSTER_CIDR}
