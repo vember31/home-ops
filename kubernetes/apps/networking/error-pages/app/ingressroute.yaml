@@ -11,7 +11,7 @@ spec:
   routes:
     - kind: Rule
       match: HostRegexp(`{host:.+}`)
-      priority: 10
+      priority: 1
       services:
         - kind: Service
           name: error-pages
