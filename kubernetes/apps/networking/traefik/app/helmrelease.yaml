@@ -55,7 +55,7 @@ spec:
       enabled: true
       single: true
       type: LoadBalancer
-      externalTrafficPolicy: Local #for ipwhitelisting detection
+      externalTrafficPolicy: Local #for ipallowlisting detection
       spec: 
         loadBalancerIP: "${TRAEFIK_IP}"
 
