@@ -1,0 +1,2 @@
+# Allowlisted domains can be manually defined here
+*.whattoexpect.com

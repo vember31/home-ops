@@ -6,9 +6,9 @@ configMapGenerator:
   - name: blocky-config
     files:
       - ./config/config.yml
-  - name: blocky-whitelist
+  - name: blocky-allowlist
     files:
-      - ./lists/whitelist.txt
+      - ./lists/allowlist.txt
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
