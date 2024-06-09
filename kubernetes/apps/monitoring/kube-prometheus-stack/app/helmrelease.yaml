@@ -248,7 +248,7 @@ spec:
         scrapeConfigSelectorNilUsesHelmValues: false
         retention: 12h
         retentionSize: 5GB #max size
-        replicas: 2
+        replicas: 1 #avoid need for thanos for my current monitoring needs
         affinity: *affinity
         # resources:
         #   requests:
