@@ -32,13 +32,13 @@ This cluster is [k3s](https://k3s.io/) provisioned atop Ubuntu 22.04 VMs, which 
 
 ### Core Components
 
-- [cert-manager](https://cert-manager.io/docs/): manages SSL X509 certificates for all http-based services in the cluster
+- [cert-manager](https://cert-manager.io/docs/): manages SSL X509 certificates for all http-based services
 - [cloudnative-pg](https://cloudnative-pg.io): high-availability PostgreSQL database built for Kubernetes
-- [eraser](https://github.com/eraser-dev/eraser): removes non-running images from all nodes in a cluster
+- [eraser](https://github.com/eraser-dev/eraser): removes non-running images from all nodes
 - [external-dns](https://github.com/kubernetes-sigs/external-dns): automatically syncs DNS records from cluster ingresses to a DNS provider (Cloudflare)
 - [external-secrets](https://github.com/external-secrets/external-secrets/): managed Kubernetes secrets using Gitlab CI/CD variables
 - [kured](https://github.com/kubereboot/kured): Kubernetes daemonset that performs safe automatic node reboots when the need to do so is indicated by the package management system of the underlying OS
-- [kube-prometheus-stack](https://github.com/prometheus-operator/kube-prometheus): Prometheus, Grafana, Alertmanager & Thanos, bundled into one helm chart for high-availability observability & monitoring of the cluster.
+- [kube-prometheus-stack](https://github.com/prometheus-operator/kube-prometheus): Prometheus, Grafana, Alertmanager & Thanos, bundled into one helm chart for high-availability observability & monitoring
 - [longhorn](https://github.com/longhorn/longhorn): distributed block storage for Kubernetes volume persistence
 - [metal-lb](https://github.com/metallb/metallb): internal Kubernetes load-balancing plugin
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller): automated, rolling k3s version upgrades
