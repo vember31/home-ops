@@ -15,11 +15,9 @@ spec:
             - /bin/sh
             - -c
             - |
-              # Find and delete pods in 'Succeeded' state with 'eraser-k3s' in their name
-              for namespace in $(kubectl get namespaces -o jsonpath='{.items[*].metadata.name}'); do
-                kubectl get pods -n $namespace --field-selector=status.phase=Succeeded -o jsonpath='{.items[*].metadata.name}' | \
-                tr ' ' '\n' | grep 'eraser-k3s' | while read pod; do
-                  kubectl delete pod $pod -n $namespace;
-                done
+              # Find and delete pods in 'Succeeded' state with 'eraser-k3s' in their name in the kube-system namespace
+              kubectl get pods -n kube-system --field-selector=status.phase=Succeeded -o jsonpath='{.items[*].metadata.name}' | \
+              tr ' ' '\n' | grep 'eraser-k3s' | while read pod; do
+                kubectl delete pod $pod -n kube-system;
               done
           restartPolicy: OnFailure
