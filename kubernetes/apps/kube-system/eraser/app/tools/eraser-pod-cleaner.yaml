@@ -8,6 +8,7 @@ spec:
     spec:
       template:
         spec:
+          serviceAccountName: eraser-k3s-cleaner-sa
           containers:
           - name: pod-cleaner
             image: bitnami/kubectl:latest

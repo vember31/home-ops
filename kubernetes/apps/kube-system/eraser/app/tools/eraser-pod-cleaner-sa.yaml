@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: eraser-k3s-cleaner-sa
+  namespace: kube-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: kube-system
+  name: eraser-k3s-cleaner-role
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "delete"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: eraser-k3s-cleaner-rolebinding
+  namespace: kube-system
+subjects:
+- kind: ServiceAccount
+  name: eraser-k3s-cleaner-sa
+  namespace: kube-system
+roleRef:
+  kind: Role
+  name: eraser-k3s-cleaner-role
+  apiGroup: rbac.authorization.k8s.io
