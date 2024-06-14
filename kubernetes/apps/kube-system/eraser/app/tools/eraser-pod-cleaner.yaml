@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: eraser-k3s-cleaner
+spec:
+  schedule: "0 0 * * *" # Runs every day at midnight
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: pod-cleaner
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # Find and delete pods in 'Succeeded' state with 'eraser-k3s' in their name
+              for namespace in $(kubectl get namespaces -o jsonpath='{.items[*].metadata.name}'); do
+                kubectl get pods -n $namespace --field-selector=status.phase=Succeeded -o jsonpath='{.items[*].metadata.name}' | \
+                tr ' ' '\n' | grep 'eraser-k3s' | while read pod; do
+                  kubectl delete pod $pod -n $namespace;
+                done
+              done
+          restartPolicy: OnFailure
