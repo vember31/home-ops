@@ -14,5 +14,5 @@ triggers:
 # <- targets ->
 targets:
   plex:
-    - url: http://${PLEX_IP}:32400
+    - url: http://plex.media.svc.cluster.local:32400
       token: {{ .PLEX_TOKEN }}
