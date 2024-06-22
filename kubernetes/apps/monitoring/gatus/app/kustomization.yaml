@@ -3,6 +3,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - ./externalsecret.yaml
   - ./rbac.yaml
   - ./helmrelease.yaml
 configMapGenerator:
@@ -12,4 +13,4 @@ configMapGenerator:
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
-    kustomize.toolkit.fluxcd.io/substitute: enabled #try this out
+    kustomize.toolkit.fluxcd.io/substitute: enabled
