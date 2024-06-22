@@ -2,8 +2,8 @@
 web:
   port: 8080
 storage:
-  type: sqlite
-  path: data.db
+  type: postgres
+  path: postgres://{{ .INIT_POSTGRES_USER }}:{{ .INIT_POSTGRES_PASS }}@{{ .INIT_POSTGRES_HOST }}:5432/{{ .INIT_POSTGRES_DBNAME }}?sslmode=disable
   caching: true
 metrics: true
 debug: false
@@ -12,7 +12,7 @@ ui:
   header: Status
 alerting:
   discord:
-    webhook-url: ${GATUS_DISCORD_WEBHOOK}
+    webhook-url: {{ .GATUS_DISCORD_WEBHOOK }}
     title: ":helmet_with_white_cross: Gatus"
     default-alert:
       description: health-check failed

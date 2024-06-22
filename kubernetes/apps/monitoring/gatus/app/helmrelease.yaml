@@ -40,6 +40,7 @@ spec:
               - secretRef:
                   name: gatus-secret
           init-config:
+            dependsOn: init-db
             image: &configSyncImage
               repository: ghcr.io/kiwigrid/k8s-sidecar
               tag: 1.27.4
@@ -133,8 +134,10 @@ spec:
         enabled: true
         type: emptyDir
       config-file:
-        type: configMap
-        name: gatus-configmap
+        type: secret
+        name: gatus-secret
+        items:
+          - key: config.yaml
         globalMounts:
           - path: /config/config.yaml
             subPath: config.yaml
