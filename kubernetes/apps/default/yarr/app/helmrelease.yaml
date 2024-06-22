@@ -3,8 +3,8 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: &name **NAME**
-  namespace: **NAMESPACE**
+  name: &name yarr
+  namespace: default
 
 spec:
   interval: 5m
@@ -53,8 +53,6 @@ spec:
       ${APP}:
         enabled: true
         type: deployment
-        annotations: {}
-        labels: {}
         replicas: 1
 
         # Controller-specific overrides for `defaultPodOptions` keys
@@ -69,23 +67,22 @@ spec:
           app:
             nameOverride: *name
             image:
-              repository: **repo**
-              tag: **version**@**sha256:....**
+              repository: ghcr.io/wakeful-cloud/yarr
+              tag: latest@sha256:71cd0ac4e41e2672c0fc25241e8b28b6c232a7892cced771227cb5f590f2be6d
               pullPolicy: IfNotPresent
 
             env:
               TZ: ${TIMEZONE}
-              **other env**
-                valueFrom:
-                  secretKeyRef:
-                    name: **secret name in cluster**
-                    key: **key name within secret**
+              UID: 1000
+              GID: 1000
+              PORT: &port 7070
+              DATA: /config
 
-            resources:
-              requests:
-                cpu: 10m **review for update**
-              limits:
-                memory: 500Mi **review for update
+            # resources:
+            #   requests:
+            #     cpu: 10m **review for update**
+            #   limits:
+            #     memory: 500Mi **review for update
 
             probes:
               liveness:
@@ -110,9 +107,9 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          ** traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
-          ** hajimari.io/icon: mdi:movie-search-outline
-          ** hajimari.io/info: Indexer Management
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          hajimari.io/icon: mdi:rss
+          hajimari.io/info: RSS Aggregator
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:
@@ -133,15 +130,5 @@ spec:
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce
-        size: **size**
+        size: 256Mi
         retain: true
-        globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
-
-      media:
-        enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media/
-        globalMounts:
-          - path: /media/
-      

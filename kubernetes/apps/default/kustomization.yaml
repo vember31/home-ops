@@ -11,3 +11,4 @@ resources:
   - ./hajimari/ks.yaml
   - ./mailrise/ks.yaml
   - ./olivetin/ks.yaml
+  - ./yarr/ks.yaml
