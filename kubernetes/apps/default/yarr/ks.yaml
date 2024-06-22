@@ -22,4 +22,4 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: rss
+      # GATUS_SUBDOMAIN: rss
