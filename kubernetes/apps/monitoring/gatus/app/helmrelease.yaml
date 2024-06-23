@@ -138,6 +138,8 @@ spec:
         name: gatus-secret
         items:
           - key: config.yaml
-            path: /config/config.yaml
+            path: config.yaml
+        globalMounts:
+          - path: /config/config.yaml
             subPath: config.yaml
             readOnly: true
