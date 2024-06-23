@@ -75,10 +75,13 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
-              PROWLARR__AUTHENTICATION_METHOD: External
-              PROWLARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
-              PROWLARR__PORT: &port 9696
-              PROWLARR__API_KEY:
+              PROWLARR__AUTH__METHOD: External
+              PROWLARR__AUTH__REQUIRED: DisabledForLocalAddresses
+              PROWLARR__SERVER__PORT: &port 9696
+              PROWLARR__UPDATE__BRANCH: develop
+              PROWLARR__LOG__DBENABLED: "False"
+              PROWLARR__LOG__LEVEL: info
+              PROWLARR__AUTH__APIKEY:
                 valueFrom:
                   secretKeyRef:
                     name: prowlarr-secret
