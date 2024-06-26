@@ -105,6 +105,10 @@ spec:
       customApps: 
       - group: networking
         apps:
+          - name: PiHole
+            url: 'https://${PIHOLE_LXC_IP}'
+            icon: 'simple-icons:pihole'
+            info: PiHole - LXC Container
           - name: Traefik
             url: 'https://traefik.local.${SECRET_DOMAIN}'
             icon: 'simple-icons:traefikproxy'
@@ -123,7 +127,7 @@ spec:
 
       - group: storage
         apps:
-          - name: Minio
+          - name: MinIO
             url: 'http://${OMV_IP}:9001'
             icon: 'fa6-solid:bucket'
             info: S3 Object Store
