@@ -4,6 +4,7 @@ metadata:
   name: eraser-k3s-cleaner
 spec:
   schedule: "0 0 * * *" # Runs every day at midnight
+  timeZone: "${TIMEZONE}"
   jobTemplate:
     spec:
       template:
