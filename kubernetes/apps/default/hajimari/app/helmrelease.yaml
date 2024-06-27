@@ -106,7 +106,7 @@ spec:
       - group: networking
         apps:
           - name: PiHole
-            url: 'https://${PIHOLE_LXC_IP}'
+            url: 'http://${PIHOLE_LXC_IP}/admin'
             icon: 'simple-icons:pihole'
             info: PiHole - LXC Container
           - name: Traefik
