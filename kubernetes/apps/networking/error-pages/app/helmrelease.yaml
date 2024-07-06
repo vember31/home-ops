@@ -62,7 +62,7 @@ spec:
             nameOverride: *name
             image:
               repository: tarampampam/error-pages
-              tag: 2.27.0@sha256:40e2631173b1a407c18fe7d1ba8104d995cf9e4780d123eeadfa1d57c68eaf4f
+              tag: 3.1.0@sha256:fe37acadb95d1fe812de84d48b24f8a7a65a3c5a3559eeab169712de6798a2c1
               pullPolicy: IfNotPresent
 
             env:
