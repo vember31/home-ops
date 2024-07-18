@@ -117,7 +117,7 @@ upstreams:
     default:
       - tcp-tls:security.cloudflare-dns.com:853
 
-# redis:
-#   required: false
-#   address: dragonfly.database.svc.cluster.local:6379
-#   database: 2
+redis:
+  required: false
+  address: dragonfly.database.svc.cluster.local:6379
+  database: 2
