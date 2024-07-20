@@ -21,7 +21,7 @@
         widget:
             type: homeassistant
             url: http://homeassistant.local:8123
-            key: {{ .HASS_API_KEY }}
+            key: {{HOMEPAGE_VAR_HASS_TOKEN}}
 
 - Infrastructure:
     - PVE1:
@@ -31,8 +31,8 @@
         widget:
           type: proxmox
           url: https://${PVE_1}:8006
-          username: {{ .PVE_TOKEN_ID }}
-          password: {{ .PVE_1_SECRET }}
+          username: {{HOMEPAGE_VAR_PVE_TOKEN_ID}}
+          password: {{HOMEPAGE_VAR_PVE_1_SECRET}}
           node: pve
     - PVE2:
         href: https://${PVE_2}:8006
@@ -41,8 +41,8 @@
         widget:
           type: proxmox
           url: https://${PVE_2}:8006
-          username: {{ .PVE_TOKEN_ID }}
-          password: {{ .PVE_2_SECRET }}
+          username: {{HOMEPAGE_VAR_PVE_TOKEN_ID}}
+          password: {{HOMEPAGE_VAR_PVE_2_SECRET}}
           node: pve2
     - PVE3:
         href: https://${PVE_1}:8006
@@ -51,8 +51,8 @@
         widget:
           type: proxmox
           url: https://${PVE_1}:8006
-          username: {{ .PVE_TOKEN_ID }}
-          password: {{ .PVE_1_SECRET }}
+          username: {{HOMEPAGE_VAR_PVE_TOKEN_ID}}
+          password: {{HOMEPAGE_VAR_PVE_1_SECRET}}
           node: pve3
     - PVE4:
         href: https://${PVE_1}:8006
@@ -61,8 +61,8 @@
         widget:
           type: proxmox
           url: https://${PVE_1}:8006
-          username: {{ .PVE_TOKEN_ID }}
-          password: {{ .PVE_1_SECRET }}
+          username: {{HOMEPAGE_VAR_PVE_TOKEN_ID}}
+          password: {{HOMEPAGE_VAR_PVE_1_SECRET}}
           node: pve4
 
 - Networking:
@@ -74,7 +74,7 @@
           type: pihole
           url: http://${PIHOLE_LXC_IP}
           version: 5
-          key: {{ .PIHOLE_API_KEY }}
+          key: {{HOMEPAGE_VAR_PIHOLE_API_KEY}}
     - Unifi:
         href: https://${GATEWAY_IP}
         icon: unifi
@@ -82,8 +82,8 @@
         widget:
           type: unifi
           url: https://${GATEWAY_IP}
-          username: {{ .UNIFI_USERNAME }}
-          password: {{ .UNIFI_PASSWORD }}
+          username: {{HOMEPAGE_VAR_UNIFI_USERNAME}}
+          password: {{HOMEPAGE_VAR_UNIFI_PASSWORD}}
 
 - Security:
     - Vaultwarden:
@@ -103,8 +103,8 @@
         widget:
           type: openmediavault
           url: http://${OMV_IP}
-          username: {{ .OMV1_USER }}
-          password: {{ .OMV1_PASS }}
+          username: {{HOMEPAGE_VAR_OMV1_USER}}
+          password: {{HOMEPAGE_VAR_OMV1_PASS}}
           method: services.getStatus
     - OpenMediaVault2:
         href: http://${OMV2_IP}
@@ -113,6 +113,6 @@
         widget:
           type: openmediavault
           url: http://${OMV2_IP}
-          username: {{ .OMV2_USER }}
-          password: {{ .OMV2_PASS }}
+          username: {{HOMEPAGE_VAR_OMV2_USER}}
+          password: {{HOMEPAGE_VAR_OMV2_PASS}}
           method: services.getStatus
