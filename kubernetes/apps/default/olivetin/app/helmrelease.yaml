@@ -114,8 +114,13 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: mdi:script-text
-          hajimari.io/info: Shell Scripts Frontend
+          hajimari.io/info: &description Shell Scripts Frontend
           hajimari.io/group: Resources
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: *description
+          gethomepage.dev/group: Resources
+          gethomepage.dev/icon: olivetin
+          gethomepage.dev/name: Olivetin
         hosts:
           - host: &host olivetin.local.${SECRET_DOMAIN}
             paths:

@@ -111,7 +111,14 @@ spec:
           traefik.ingress.kubernetes.io/router.middlewares: networking-cloudflare-ips@kubernetescrd
           cert-manager.io/cluster-issuer: letsencrypt-production
           hajimari.io/icon: mdi:list-status
-          hajimari.io/info: Service Monitoring
+          hajimari.io/info: &description Service Monitoring
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: *description
+          gethomepage.dev/group: Monitoring
+          gethomepage.dev/icon: gatus
+          gethomepage.dev/name: Gatus
+          gethomepage.dev/widget.type: ${APP}
+          gethomepage.dev/widget.url: http://${APP}.monitoring.svc.cluster.local:8080
         hosts:
           - host: &host status.${SECRET_DOMAIN}
             paths:

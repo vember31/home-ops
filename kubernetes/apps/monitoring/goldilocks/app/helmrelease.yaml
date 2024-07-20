@@ -75,7 +75,12 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: mdi:file-chart-outline
-          hajimari.io/info: Kubernetes Resource Recommendations
+          hajimari.io/info: &description Kubernetes Resource Recommendations
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: *description
+          gethomepage.dev/group: Monitoring
+          gethomepage.dev/icon: https://github.com/FairwindsOps/goldilocks/raw/master/img/goldilocks.svg
+          gethomepage.dev/name: Goldilocks
         hosts:
           - host: &host goldilocks.local.${SECRET_DOMAIN}
             paths:

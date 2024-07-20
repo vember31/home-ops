@@ -69,10 +69,14 @@ spec:
         annotations: 
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: carbon:kubernetes
-          hajimari.io/info: Centralized Kubernetes Management
+          hajimari.io/info: &description Centralized Kubernetes Management
           hajimari.io/appName: Kubernetes Dashboard
           hajimari.io/group: Resources
-
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: *description
+          gethomepage.dev/group: Resources
+          gethomepage.dev/icon: kubernetes
+          gethomepage.dev/name: "Kubernetes Dashboard"
     # api:
     #   containers:
     #     args:
