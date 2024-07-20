@@ -20,6 +20,7 @@ rules:
       - extensions
       - networking.k8s.io
       - traefik.containo.us
+      - traefik.io
     resources:
       - ingresses
       - ingressroutes
