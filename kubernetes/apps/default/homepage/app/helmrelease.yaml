@@ -67,6 +67,9 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
+            envFrom:
+              - secretRef:
+                  name: homepage-secret
 
             resources:
               requests:
