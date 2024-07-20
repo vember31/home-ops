@@ -120,7 +120,7 @@ spec:
           gethomepage.dev/description: *description
           gethomepage.dev/group: Media
           gethomepage.dev/icon: jellyfin
-          gethomepage.dev/name: ${APP}
+          gethomepage.dev/name: Jellyfin
           gethomepage.dev/widget.type: ${APP}
           gethomepage.dev/widget.url: http://${APP}.media.svc.cluster.local:8096
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_JELLYFIN_TOKEN}}` }}"
