@@ -106,11 +106,9 @@ spec:
           hajimari.io/url: https://threadfin.local.${SECRET_DOMAIN}/web/
           gethomepage.dev/enabled: "true"
           gethomepage.dev/description: *description
-          gethomepage.dev/group: media
+          gethomepage.dev/group: Media
           gethomepage.dev/icon: https://github.com/Threadfin/Threadfin/raw/main/html/img/threadfin.png
-          gethomepage.dev/name: ${APP}
-          gethomepage.dev/widget.type: xteve
-          gethomepage.dev/widget.url: http://${APP}.media.svc.cluster.local:34400
+          gethomepage.dev/name: Threadfin
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:
