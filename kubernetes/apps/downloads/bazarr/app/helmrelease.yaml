@@ -118,7 +118,7 @@ spec:
           gethomepage.dev/description: Subtitle Management
           gethomepage.dev/group: Downloads
           gethomepage.dev/icon: bazarr
-          gethomepage.dev/name: ${APP}
+          gethomepage.dev/name: Bazarr
           gethomepage.dev/widget.type: ${APP}
           gethomepage.dev/widget.url: http://${APP}.downloads.svc.cluster.local:6767
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_BAZARR_TOKEN}}` }}"

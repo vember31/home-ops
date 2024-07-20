@@ -123,7 +123,7 @@ spec:
           gethomepage.dev/description: *description
           gethomepage.dev/group: Downloads
           gethomepage.dev/icon: prowlarr
-          gethomepage.dev/name: ${APP}
+          gethomepage.dev/name: Prowlarr
           gethomepage.dev/widget.type: ${APP}
           gethomepage.dev/widget.url: http://${APP}.downloads.svc.cluster.local:9696
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_PROWLARR_TOKEN}}` }}"

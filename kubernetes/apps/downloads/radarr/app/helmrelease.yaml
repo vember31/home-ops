@@ -123,7 +123,7 @@ spec:
           gethomepage.dev/description: *description
           gethomepage.dev/group: Downloads
           gethomepage.dev/icon: radarr
-          gethomepage.dev/name: ${APP}
+          gethomepage.dev/name: Radarr
           gethomepage.dev/widget.type: ${APP}
           gethomepage.dev/widget.url: http://${APP}.downloads.svc.cluster.local:7878
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_RADARR_TOKEN}}` }}"

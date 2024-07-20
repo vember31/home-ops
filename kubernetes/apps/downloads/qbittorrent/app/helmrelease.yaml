@@ -119,7 +119,7 @@ spec:
           gethomepage.dev/description: *description
           gethomepage.dev/group: Downloads
           gethomepage.dev/icon: qbittorrent
-          gethomepage.dev/name: ${APP}
+          gethomepage.dev/name: qBittorrent
           gethomepage.dev/widget.type: ${APP}
           gethomepage.dev/widget.url: http://${APP}.downloads.svc.cluster.local:8080
           gethomepage.dev/widget.username: "{{ `{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}` }}"

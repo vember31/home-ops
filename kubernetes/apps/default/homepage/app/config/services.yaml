@@ -15,12 +15,12 @@
 
 - Home:
     - HomeAssistant:
-        href: http://homeassistant.local:8123
+        href: http://192.168.2.7:8123
         icon: home-assistant
         description: Home Assistant
         widget:
             type: homeassistant
-            url: http://homeassistant.local:8123
+            url: http://192.168.2.7:8123
             key: {{HOMEPAGE_VAR_HASS_TOKEN}}
 
 - Infrastructure:
