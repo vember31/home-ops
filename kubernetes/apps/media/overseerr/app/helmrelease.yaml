@@ -108,7 +108,7 @@ spec:
           gethomepage.dev/description: *description
           gethomepage.dev/group: Media
           gethomepage.dev/icon: overseerr
-          gethomepage.dev/name: ${APP}
+          gethomepage.dev/name: Overseerr
           gethomepage.dev/widget.type: ${APP}
           gethomepage.dev/widget.url: http://${APP}.media.svc.cluster.local:5055
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_OVERSEERR_TOKEN}}` }}"

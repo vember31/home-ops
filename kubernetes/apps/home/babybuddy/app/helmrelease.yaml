@@ -109,7 +109,7 @@ spec:
           gethomepage.dev/description: *description
           gethomepage.dev/group: Home
           gethomepage.dev/icon: babybuddy.png
-          gethomepage.dev/name: ${APP}
+          gethomepage.dev/name: BabyBuddy
         hosts:
           - host: &host ${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
             paths:

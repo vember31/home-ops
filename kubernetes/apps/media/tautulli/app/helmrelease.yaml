@@ -107,7 +107,7 @@ spec:
           gethomepage.dev/description: *description
           gethomepage.dev/group: Media
           gethomepage.dev/icon: tautulli
-          gethomepage.dev/name: ${APP}
+          gethomepage.dev/name: Tautulli
           gethomepage.dev/widget.type: ${APP}
           gethomepage.dev/widget.url: http://${APP}.media.svc.cluster.local:8181
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_TAUTULLI_TOKEN}}` }}"

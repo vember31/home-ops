@@ -104,7 +104,7 @@ spec:
           gethomepage.dev/description: *description
           gethomepage.dev/group: Media
           gethomepage.dev/icon: https://maintainerr.info/images/logo.svg
-          gethomepage.dev/name: ${APP}
+          gethomepage.dev/name: Maintainerr
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

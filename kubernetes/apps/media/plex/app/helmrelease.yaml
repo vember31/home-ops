@@ -143,7 +143,7 @@ spec:
           gethomepage.dev/description: *description
           gethomepage.dev/group: Downloads
           gethomepage.dev/icon: plex
-          gethomepage.dev/name: ${APP}
+          gethomepage.dev/name: Plex
           gethomepage.dev/widget.type: ${APP}
           gethomepage.dev/widget.url: http://${APP}.media.svc.cluster.local:32400
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_PLEX_TOKEN}}` }}"
