@@ -15,7 +15,7 @@
 
 - Home:
     - HomeAssistant:
-        href: http://192.168.2.7:8123
+        href: http://homeassistant.local:8123
         icon: home-assistant
         description: Home Assistant
         widget:
