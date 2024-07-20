@@ -105,6 +105,7 @@ spec:
           hajimari.io/info: &description IPTV Playlist Management
           hajimari.io/url: https://threadfin.local.${SECRET_DOMAIN}/web/
           gethomepage.dev/enabled: "true"
+          gethomepage.dev/href: https://threadfin.local.${SECRET_DOMAIN}/web/
           gethomepage.dev/description: *description
           gethomepage.dev/group: Media
           gethomepage.dev/icon: https://github.com/Threadfin/Threadfin/raw/main/html/img/threadfin.png
