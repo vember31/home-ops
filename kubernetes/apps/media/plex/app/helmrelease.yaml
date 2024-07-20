@@ -141,7 +141,7 @@ spec:
           hajimari.io/url: https://${APP}.local.${SECRET_DOMAIN}${GATUS_PATH}
           gethomepage.dev/enabled: "true"
           gethomepage.dev/description: *description
-          gethomepage.dev/group: Downloads
+          gethomepage.dev/group: Media
           gethomepage.dev/icon: plex
           gethomepage.dev/name: Plex
           gethomepage.dev/href: https://${APP}.local.${SECRET_DOMAIN}${GATUS_PATH}
