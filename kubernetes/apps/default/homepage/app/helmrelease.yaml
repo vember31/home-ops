@@ -1,10 +1,10 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
-apiVersion: helm.toolkit.fluxcd.io/v2
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
-  name: &name babybuddy
-  namespace: home
+  name: &name homepage
+  namespace: default
 
 spec:
   interval: 5m
@@ -53,29 +53,27 @@ spec:
       ${APP}:
         enabled: true
         type: deployment
-        annotations: {}
-        labels: {}
-        replicas: 1
-
+        replicas: 2
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
         containers:
           app:
             nameOverride: *name
             image:
-              repository: lscr.io/linuxserver/babybuddy
-              tag: 2.5.0@sha256:0d7839557c39602b63fe0c83f85a76fd835300d93091988e6dc96d761eee91af
+              repository: ghcr.io/gethomepage/homepage
+              tag: v0.9.5@sha256:e23fcd332ecf927fe5c0149142040236b17686916004566c149eef06eb6f8d75
               pullPolicy: IfNotPresent
 
             env:
               TZ: ${TIMEZONE}
-              PUID: 1000
-              PGID: 1000
-              CSRF_TRUSTED_ORIGINS: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
 
             resources:
               requests:
                 cpu: 15m
+                memory: 200Mi
               limits:
-                memory: 256Mi
+                memory: 1Gi
 
             probes:
               liveness:
@@ -93,25 +91,21 @@ spec:
         controller: *name
         ports:
           http:
-            port: 8000
+            port: 3000
+
+    serviceAccount:
+      create: true
+      name: *app
 
     ingress:
       app:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          traefik.ingress.kubernetes.io/router.middlewares: networking-cloudflare-ips@kubernetescrd
-          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
-          hajimari.io/icon: fa-solid:baby
-          hajimari.io/info: &description Child Data Tracking
-          hajimari.io/group: home
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/description: *description
-          gethomepage.dev/group: Home
-          gethomepage.dev/icon: babybuddy.png
-          gethomepage.dev/name: ${APP}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          hajimari.io/enable: "false"
         hosts:
-          - host: &host ${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
+          - host: &host dashboard.local.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
@@ -124,12 +118,17 @@ spec:
              - *host
 
     persistence:
-
       config:
-        enabled: true
-        type: persistentVolumeClaim
-        storageClass: longhorn
-        accessMode: ReadWriteOnce
-        size: 2Gi
-        retain: true
-        globalMounts: [] 
+        type: configMap
+        name: ${APP}-config
+        globalMounts:
+          - subPath: bookmarks.yaml
+            path: /app/config/bookmarks.yaml
+          - subPath: kubernetes.yaml
+            path: /app/config/kubernetes.yaml
+          - subPath: services.yaml
+            path: /app/config/services.yaml
+          - subPath: settings.yaml
+            path: /app/config/settings.yaml
+          - subPath: widgets.yaml
+            path: /app/config/widgets.yaml

@@ -114,6 +114,14 @@ spec:
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: mdi:subtitles-outline
           hajimari.io/info: Subtitle Management
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: Subtitle Management
+          gethomepage.dev/group: Downloads
+          gethomepage.dev/icon: bazarr
+          gethomepage.dev/name: ${APP}
+          gethomepage.dev/widget.type: ${APP}
+          gethomepage.dev/widget.url: http://${APP}.downloads.svc.cluster.local:6767
+          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_BAZARR_TOKEN}}` }}"
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

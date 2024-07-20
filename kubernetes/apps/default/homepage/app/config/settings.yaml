@@ -1,0 +1,16 @@
+---
+title: Home Dashboard
+useEqualHeights: true
+headerStyle: clean
+language: en
+target: _self
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: true
+  showSearchSuggestions: true
+  hideVisitURL: true
+  provider: google
+statusStyle: "dot"
+providers:
+  longhorn:
+    url: https://longhorn.storage.svc.cluster.local

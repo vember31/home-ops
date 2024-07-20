@@ -1,0 +1,50 @@
+---
+- Development:
+    - Home-Ops Repo:
+        - icon: github.svg
+          href: https://github.com/vember31/home-ops
+          description: Kubernetes cluster hosted on Github
+    - Gitlab CI/CD:
+        - icon: gitlab.svg
+          href: https://gitlab.com/vember31/external-secrets/-/settings/ci_cd
+          description: Storage for CI/CD Variables
+    - Kubesearch:
+        - icon: kubernetes.svg
+          href: https://kubesearch.dev/
+          description: Innovation through imitation
+    - Cloudflare:
+        - icon: cloudflare.svg
+          href: https://dash.cloudflare.com/
+          description: Domain & DNS management
+
+- Providers:
+    - IPTorrents:
+        - abbr: IPT
+          href: https://iptorrents.com
+    - BroadcasTheNet:
+        - abbr: BTN
+          href: https://broadcasthe.net
+    - TorrentLeech:
+        - abbr: TL
+          href: https://torrentleech.org
+    - Audionews:
+        - abbr: AN
+          href: https://audionews.org
+
+- Social:
+    - Amazon:
+        - icon: si-amazon
+          href: https://amazon.com
+          description: Amazon
+    - Soundcloud:
+        - icon: si-soundcloud
+          href: https://soundcloud.com
+          description: SoundCloud
+
+- Weather:
+    - MerryWeather:
+        - icon: mdi-weather-lightning
+          href: https://merrysky.net/forecast/${SECRET_COORDINATES}
+    - MSN Weather:
+        - icon: mdi-weather-night-partly-cloudy
+          href: https://www.msn.com/en-us/weather

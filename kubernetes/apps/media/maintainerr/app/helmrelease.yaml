@@ -99,7 +99,12 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: heroicons:wrench-20-solid
-          hajimari.io/info: Media Cleanup Tool
+          hajimari.io/info: &description Media Cleanup Tool
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: *description
+          gethomepage.dev/group: Media
+          gethomepage.dev/icon: https://maintainerr.info/images/logo.svg
+          gethomepage.dev/name: ${APP}
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

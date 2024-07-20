@@ -1,0 +1,118 @@
+---
+- Calendar:
+    - Agenda:
+        widget:
+          type: calendar
+          view: agenda # optional - possible values monthly, agenda
+          maxEvents: 10 # optional - defaults to 10
+          integrations: # optional
+            - type: sonarr # active widget type that is currently enabled on homepage - possible values: radarr, sonarr>
+              service_group: Downloads # group name where widget exists
+              service_name: Sonarr # service name for that widget
+            - type: radarr # active widget type that is currently enabled on homepage - possible values: radarr, sonarr>
+              service_group: Downloads # group name where widget exists
+              service_name: Radarr # service name for that widget
+
+- Home:
+    - HomeAssistant:
+        href: http://homeassistant.local:8123
+        icon: home-assistant
+        description: Home Assistant
+        widget:
+            type: homeassistant
+            url: http://homeassistant.local:8123
+            key: {{ .HASS_API_KEY }}
+
+- Infrastructure:
+    - PVE1:
+        href: https://${PVE_1}:8006
+        icon: proxmox
+        description: 'Proxmox: Node 1'
+        widget:
+          type: proxmox
+          url: https://${PVE_1}:8006
+          username: {{ .PVE_TOKEN_ID }}
+          password: {{ .PVE_1_SECRET }}
+          node: pve
+    - PVE2:
+        href: https://${PVE_2}:8006
+        icon: proxmox
+        description: 'Proxmox: Node 2'
+        widget:
+          type: proxmox
+          url: https://${PVE_2}:8006
+          username: {{ .PVE_TOKEN_ID }}
+          password: {{ .PVE_2_SECRET }}
+          node: pve2
+    - PVE3:
+        href: https://${PVE_1}:8006
+        icon: proxmox
+        description: 'Proxmox: Node 3'
+        widget:
+          type: proxmox
+          url: https://${PVE_1}:8006
+          username: {{ .PVE_TOKEN_ID }}
+          password: {{ .PVE_1_SECRET }}
+          node: pve3
+    - PVE4:
+        href: https://${PVE_1}:8006
+        icon: proxmox
+        description: 'Proxmox: Node 4'
+        widget:
+          type: proxmox
+          url: https://${PVE_1}:8006
+          username: {{ .PVE_TOKEN_ID }}
+          password: {{ .PVE_1_SECRET }}
+          node: pve4
+
+- Networking:
+    - PiHole:
+        href: http://${PIHOLE_LXC_IP}/admin
+        icon: pi-hole
+        description: Ad-Blocker
+        widget:
+          type: pihole
+          url: http://${PIHOLE_LXC_IP}
+          version: 5
+          key: {{ .PIHOLE_API_KEY }}
+    - Unifi:
+        href: https://${GATEWAY_IP}
+        icon: unifi
+        description: Unifi Controller
+        widget:
+          type: unifi
+          url: https://${GATEWAY_IP}
+          username: {{ .UNIFI_USERNAME }}
+          password: {{ .UNIFI_PASSWORD }}
+
+- Security:
+    - Vaultwarden:
+        href: https://bitwarden.${SECRET_DOMAIN}
+        icon: vaultwarden
+        description: Password Management      
+
+- Storage:
+    - MinIO:
+        href: http://${OMV_IP}:9001
+        icon: minio
+        description: Local S3 Storage
+    - OpenMediaVault1:
+        href: http://${OMV_IP}
+        icon: openmediavault
+        description: 'OpenMediaVault: Instance 1'
+        widget:
+          type: openmediavault
+          url: http://${OMV_IP}
+          username: {{ .OMV1_USER }}
+          password: {{ .OMV1_PASS }}
+          method: services.getStatus
+    - OpenMediaVault2:
+        href: http://${OMV2_IP}
+        icon: openmediavault
+        description: 'OpenMediaVault: Instance 2'
+        widget:
+          type: openmediavault
+          url: http://${OMV2_IP}
+          username: {{ .OMV2_USER }}
+          password: {{ .OMV2_PASS }}
+          method: services.getStatus

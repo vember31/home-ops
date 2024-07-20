@@ -102,7 +102,18 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: arcticons:tautulli-remote
-          hajimari.io/info: Plex Analytics
+          hajimari.io/info: &description Plex Analytics
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: *description
+          gethomepage.dev/group: Media
+          gethomepage.dev/icon: tautulli
+          gethomepage.dev/name: ${APP}
+          gethomepage.dev/widget.type: ${APP}
+          gethomepage.dev/widget.url: http://${APP}.media.svc.cluster.local:8181
+          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_TAUTULLI_TOKEN}}` }}"
+          gethomepage.dev/widget.enableUser: "true"
+          gethomepage.dev/widget.showEpisodeNumber: "true"
+          gethomepage.dev/widget.expandOneStreamToTwoRows: "true"
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

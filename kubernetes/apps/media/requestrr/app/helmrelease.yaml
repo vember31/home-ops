@@ -99,7 +99,12 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: mdi:robot-happy-outline
-          hajimari.io/info: Discord Media Requests
+          hajimari.io/info: &description Discord Media Requests
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: *description
+          gethomepage.dev/group: Media
+          gethomepage.dev/icon: requestrr
+          gethomepage.dev/name: ${APP}
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

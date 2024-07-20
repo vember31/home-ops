@@ -117,7 +117,16 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: mdi:television-classic
-          hajimari.io/info: TV Collection Management
+          hajimari.io/info: &description TV Collection Management
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: *description
+          gethomepage.dev/group: Downloads
+          gethomepage.dev/icon: sonarr
+          gethomepage.dev/name: ${APP}
+          gethomepage.dev/widget.type: ${APP}
+          gethomepage.dev/widget.url: http://${APP}.downloads.svc.cluster.local:8989
+          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_SONARR_TOKEN}}` }}"
+          gethomepage.dev/widget.enableQueue: "true"
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

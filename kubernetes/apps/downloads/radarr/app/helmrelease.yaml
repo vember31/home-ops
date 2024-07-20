@@ -118,7 +118,16 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: mdi:filmstrip
-          hajimari.io/info: Movie Collection Management
+          hajimari.io/info: &description Movie Collection Management
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: *description
+          gethomepage.dev/group: Downloads
+          gethomepage.dev/icon: radarr
+          gethomepage.dev/name: ${APP}
+          gethomepage.dev/widget.type: ${APP}
+          gethomepage.dev/widget.url: http://${APP}.downloads.svc.cluster.local:7878
+          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_RADARR_TOKEN}}` }}"
+          gethomepage.dev/widget.enableQueue: "true"
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:
