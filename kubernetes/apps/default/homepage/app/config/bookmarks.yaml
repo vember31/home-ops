@@ -44,7 +44,7 @@
 - Weather:
     - MerryWeather:
         - icon: mdi-weather-lightning
-          href: https://merrysky.net/forecast/${SECRET_COORDINATES}
+          href: https://merrysky.net/forecast/{{HOMEPAGE_VAR_LATITUDE}},{{HOMEPAGE_VAR_LONGITUDE}}
     - MSN Weather:
         - icon: mdi-weather-night-partly-cloudy
           href: https://www.msn.com/en-us/weather
