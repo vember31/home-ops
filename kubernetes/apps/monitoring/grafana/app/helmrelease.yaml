@@ -366,7 +366,7 @@ spec:
         traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
         hajimari.io/appName: Grafana
         hajimari.io/icon: simple-icons:grafana
-        hajimari.io/info: Data Visualization
+        hajimari.io/info: &description Data Visualization
         gethomepage.dev/enabled: "true"
         gethomepage.dev/description: *description
         gethomepage.dev/group: Monitoring
