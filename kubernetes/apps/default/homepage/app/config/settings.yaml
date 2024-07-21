@@ -28,7 +28,7 @@ layout:
     columns: 4
   Storage:
     style: row
-    columns: 3
+    columns: 4
   Networking:
     style: column
   Home:
