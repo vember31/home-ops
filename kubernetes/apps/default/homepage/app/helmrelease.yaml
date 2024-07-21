@@ -53,7 +53,7 @@ spec:
       ${APP}:
         enabled: true
         type: deployment
-        replicas: 2
+        replicas: 1 #does some weird refresh behavior with 2+ replicas
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
