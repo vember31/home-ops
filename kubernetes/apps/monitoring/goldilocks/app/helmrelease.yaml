@@ -81,6 +81,7 @@ spec:
           gethomepage.dev/group: Monitoring
           gethomepage.dev/icon: https://github.com/FairwindsOps/goldilocks/raw/master/img/goldilocks.svg
           gethomepage.dev/name: Goldilocks
+          gethomepage.dev/siteMonitor: https://goldilocks.local.${SECRET_DOMAIN}
         hosts:
           - host: &host goldilocks.local.${SECRET_DOMAIN}
             paths:

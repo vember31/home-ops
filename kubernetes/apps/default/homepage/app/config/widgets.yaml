@@ -4,9 +4,9 @@
     focus: true
     target: _blank
     showSearchSuggestions: true
-- greeting:
-    text_size: xl
-    text: Welcome to your Home Dashboard
+# - greeting:
+#     text_size: xl
+#     text: Welcome to your Home Dashboard
 - kubernetes:
     cluster:
       cpu: true

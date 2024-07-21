@@ -287,8 +287,13 @@ spec:
         cert-manager.io/cluster-issuer: letsencrypt-production
         traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
         hajimari.io/icon: mdi:cow
-        hajimari.io/info: Kubernetes Storage
+        hajimari.io/info: &description Kubernetes Storage
         hajimari.io/appName: Longhorn
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/description: *description
+        gethomepage.dev/group: storage
+        gethomepage.dev/icon: longhorn
+        gethomepage.dev/name: Longhorn
 
       # -- Add ingressClassName to the Ingress
       # Can replace the kubernetes.io/ingress.class annotation on v1.18+
