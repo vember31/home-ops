@@ -4,6 +4,7 @@ useEqualHeights: true
 headerStyle: clean
 language: en
 target: _self
+hideErrors: true
 quicklaunch:
   searchDescriptions: true
   hideInternetSearch: true
