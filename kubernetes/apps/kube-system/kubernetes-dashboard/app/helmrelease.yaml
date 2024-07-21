@@ -78,6 +78,7 @@ spec:
           gethomepage.dev/icon: kubernetes
           gethomepage.dev/name: "Kubernetes Dashboard"
           gethomepage.dev/href: https://kubernetes.local.${SECRET_DOMAIN}/#/login
+          gethomepage.dev/app: kubernetes-dashboard-web
     # api:
     #   containers:
     #     args:
