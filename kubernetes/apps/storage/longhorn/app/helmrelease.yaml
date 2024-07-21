@@ -291,7 +291,7 @@ spec:
         hajimari.io/appName: Longhorn
         gethomepage.dev/enabled: "true"
         gethomepage.dev/description: *description
-        gethomepage.dev/group: storage
+        gethomepage.dev/group: Storage
         gethomepage.dev/icon: longhorn
         gethomepage.dev/name: Longhorn
 
