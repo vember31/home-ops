@@ -18,7 +18,7 @@ providers:
 layout:
   Calendar:
     style: column
-  Monitoring:
+  Status:
     style: column
   Downloads:
     style: row
@@ -30,6 +30,9 @@ layout:
     style: row
     columns: 4
   Storage:
+    style: row
+    columns: 4
+  Monitoring:
     style: row
     columns: 4
   Networking:
