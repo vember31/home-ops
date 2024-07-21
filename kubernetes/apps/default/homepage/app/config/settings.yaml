@@ -10,7 +10,7 @@ quicklaunch:
   showSearchSuggestions: true
   hideVisitURL: true
   provider: google
-statusStyle: "dot"
+# statusStyle: "dot"
 providers:
   longhorn:
     url: http://longhorn-frontend.storage.svc.cluster.local

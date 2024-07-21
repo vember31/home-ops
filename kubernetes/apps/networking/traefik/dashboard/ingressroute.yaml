@@ -6,7 +6,7 @@ metadata:
   namespace: networking
   annotations:
     gethomepage.dev/enabled: "true"
-    gethomepage.dev/href: &href https://traefik.local.{SECRET_DOMAIN}
+    gethomepage.dev/href: &href https://traefik.local.${SECRET_DOMAIN}
     gethomepage.dev/description: "Ingress & Service Management"
     gethomepage.dev/group: Networking
     gethomepage.dev/icon: traefik
