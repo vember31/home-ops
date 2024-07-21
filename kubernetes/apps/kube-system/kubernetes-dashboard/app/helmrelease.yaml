@@ -77,7 +77,6 @@ spec:
           gethomepage.dev/group: Resources
           gethomepage.dev/icon: kubernetes
           gethomepage.dev/name: "Kubernetes Dashboard"
-          gethomepage.dev/ping: kubernetes.local.{SECRET_DOMAIN}
     # api:
     #   containers:
     #     args:
