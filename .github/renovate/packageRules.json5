@@ -8,12 +8,6 @@
       "matchPackagePatterns": ["onedr0p/plex", "qbittorrent"]
     },
     {
-      "description": "Hotio Date Versioning (e.g. 20240107 for 1/7/2024)",
-      "matchDatasources": ["docker"],
-      "versioning": "regex:^release-(?<major>\\d{4})(?<minor>\\d{2})(?<patch>\\d{2})(?<build>.*)?$",
-      "matchPackagePatterns": ["cloudflare"]
-    },
-    {
       "description": "Hotio Release Semver Packages",
       "matchDatasources": ["docker"],
       "versioning": "regex:^release-(?<major>\\d+)\\.(?<minor>\\d+)?\\.(?<patch>\\d+)?(-(?<build>.*))?$",
