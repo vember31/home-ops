@@ -16,6 +16,7 @@ configMapGenerator:
       - services.yaml=./config/services.yaml
       - settings.yaml=./config/settings.yaml
       - widgets.yaml=./config/widgets.yaml
+      - custom.js=./config/custom_js.yaml
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
