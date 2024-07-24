@@ -1,5 +1,4 @@
 // Function to set theme-mode in localStorage
-// *DM 6/23/2024: intended to try to toggle the theme between light/dark based on browser theme.
 // Local theme is found if you hit F12, go to Application tab, and then browse what's in the 'local storage'
 function setThemeMode() {
     // Check if the browser is in dark mode
