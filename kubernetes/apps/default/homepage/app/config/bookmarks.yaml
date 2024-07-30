@@ -1,19 +1,19 @@
 ---
 - Development:
     - Home-Ops Repo:
-        - icon: github.svg
+        - icon: si-github
           href: https://github.com/vember31/home-ops
           description: Kubernetes cluster hosted on Github
     - Gitlab CI/CD:
-        - icon: gitlab.svg
+        - icon: si-gitlab
           href: https://gitlab.com/vember31/external-secrets/-/settings/ci_cd
           description: Storage for CI/CD Variables
     - Kubesearch:
-        - icon: kubernetes.svg
+        - icon: si-kubernetes
           href: https://kubesearch.dev/
           description: Innovation through imitation
     - Cloudflare:
-        - icon: cloudflare.svg
+        - icon: si-cloudflare
           href: https://dash.cloudflare.com/
           description: Domain & DNS management
 
