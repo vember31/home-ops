@@ -7,5 +7,5 @@ resources:
   - ./namespace.yaml
   
   # Post Flux-Kustomizations
-  - ./actual/ks.yaml
+  # - ./actual/ks.yaml
   - ./babybuddy/ks.yaml
