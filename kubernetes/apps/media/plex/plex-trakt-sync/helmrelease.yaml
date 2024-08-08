@@ -76,10 +76,6 @@ spec:
               - watch
             env:
               TZ: ${TIMEZONE}
-              PLEX_BASEURL: http://plex.media.svc.cluster.local:32400
-              PLEX_LOCALURL: http://plex.media.svc.cluster.local:32400
-              PLEX_USERNAME: vember31
-              TRAKT_USERNAME: vember31
 
             probes:
               liveness:
@@ -101,20 +97,26 @@ spec:
       dot-env:
         type: configMap
         name: plex-trakt-sync-configmap
+        defaultMode: 0777
         items:
           - key: .env
-            path: /app/config/.env
+            path: .env
+        globalMounts:
+          - path: /app/config/.env
             subPath: .env
-            readOnly: true
+            readOnly: false
 
       pytrakt-json:
         type: secret
         name: plex-trakt-sync-secret
+        defaultMode: 0777
         items:
           - key: .pytrakt.json
-            path: /app/config/.pytrakt.json
+            path: .pytrakt.json
+        globalMounts:
+          - path: /app/config/.pytrakt.json
             subPath: .pytrakt.json
-            readOnly: true
+            readOnly: false
 
       config:
         type: emptyDir
@@ -128,15 +130,20 @@ spec:
         name: plex-trakt-sync-configmap
         items:
           - key: config.yml
-            path: /app/config/config.yml
+            path: config.yml
+        globalMounts:
+          - path: /app/config/config.yml
             subPath: config.yml
             readOnly: true
 
       servers-yaml:
         type: secret
         name: plex-trakt-sync-secret
+        defaultMode: 0777
         items:
           - key: servers.yml
-            path: /app/config/servers.yml
+            path: servers.yml
+        globalMounts:
+          - path: /app/config/servers.yml
             subPath: servers.yml
-            readOnly: true    
+            readOnly: false
