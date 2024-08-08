@@ -1,0 +1,7 @@
+servers:
+  plex-k3s:
+    token: {{ .PLEX_TOKEN }}
+    urls:
+    - http://plex.media.svc.cluster.local:32400
+    id: {{ .PLEX_SERVER_ID }}
+    config: null

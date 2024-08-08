@@ -2,14 +2,17 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-resources:
-  # - ./externalsecret.yaml #isn't needed with recent versions of plex-trakt-sync, just not fully deleting it yet
-  - ./helmrelease.yaml
 configMapGenerator:
   - name: plex-trakt-sync-configmap
     files:
+      - ./config/.env
+      - ./config/.pytrakt.json
       - ./config/config.yml
+      - ./config/servers.yml
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
     kustomize.toolkit.fluxcd.io/substitute: disabled
+resources:
+  - ./externalsecret.yaml
+  - ./helmrelease.yaml

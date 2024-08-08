@@ -98,13 +98,26 @@ spec:
 
     persistence:
 
+      dot-env:
+        type: configMap
+        name: plex-trakt-sync-configmap
+        items:
+          - key: .env
+            path: /app/config/.env
+            subPath: .env
+            readOnly: true
+
+      pytrakt-json:
+        type: secret
+        name: plex-trakt-sync-secret
+        items:
+          - key: .pytrakt.json
+            path: /app/config/.pytrakt.json
+            subPath: .pytrakt.json
+            readOnly: true
+
       config:
-        enabled: true
-        type: persistentVolumeClaim
-        storageClass: longhorn
-        accessMode: ReadWriteOnce
-        size: 512Mi
-        retain: true
+        type: emptyDir
         advancedMounts:
           ${APP}:
             app:
@@ -113,8 +126,17 @@ spec:
       config-yaml:
         type: configMap
         name: plex-trakt-sync-configmap
-        globalMounts:
-          - path: /app/config/config.yml
+        items:
+          - key: config.yml
+            path: /app/config/config.yml
             subPath: config.yml
             readOnly: true
-      
+
+      servers-yaml:
+        type: secret
+        name: plex-trakt-sync-secret
+        items:
+          - key: servers.yml
+            path: /app/config/servers.yml
+            subPath: servers.yml
+            readOnly: true    
