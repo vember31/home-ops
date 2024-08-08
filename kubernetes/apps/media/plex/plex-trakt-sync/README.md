@@ -5,6 +5,13 @@ This program requires that you do an interactive authentication within a shell. 
 
 At this time, I am coding in the tokens in .pytrakt.json, which will eventually lead to errors once the tokens expire.  When this happens, I'll need to:
 
+1. Exec into the container with `kubectl exec -it $(kubectl get pods -n media -o name | grep plex-trakt-sync) -n media -- /bin/sh`.
+2. Run `plextraktsync trakt-login`. Follow prompts.
+3. Update Gitlab variables. It shouldn't be necessary to update the Plex login.
+
+
+If I cannot do it in Kubernetes for any reason, I'll need to:
+
 1. Go into the Alpine-LXC and do `cd /root/containers/plex-trakt-sync`.
 2. Run `docker compose run --rm plextraktsync login`.
 3. Answer all prompts
