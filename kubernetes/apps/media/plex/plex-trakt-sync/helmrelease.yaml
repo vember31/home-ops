@@ -80,7 +80,7 @@ spec:
               PLEX_LOCALURL: http://plex.media.svc.cluster.local:32400
               PLEX_USERNAME: vember31
               TRAKT_USERNAME: vember31
-              PLEX_TOKEN:
+              PLEX_OWNER_TOKEN:
                 valueFrom:
                   secretKeyRef:
                     name: plex-trakt-sync-secret
