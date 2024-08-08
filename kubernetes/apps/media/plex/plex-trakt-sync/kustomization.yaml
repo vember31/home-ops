@@ -3,7 +3,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./externalsecret.yaml
+  # - ./externalsecret.yaml #isn't needed with recent versions of plex-trakt-sync, just not fully deleting it yet
   - ./helmrelease.yaml
 configMapGenerator:
   - name: plex-trakt-sync-configmap
