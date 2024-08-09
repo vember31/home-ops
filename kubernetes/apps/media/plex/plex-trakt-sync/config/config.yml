@@ -16,13 +16,13 @@ logging:
 sync:
   plex_to_trakt:
     collection: true
-    ratings: false
+    ratings: true
     watched_status: true
   trakt_to_plex:
     liked_lists: false
-    ratings: false
+    ratings: true
     watched_status: true
-    watchlist: false
+    watchlist: true
 
 watch:
   add_collection: false
