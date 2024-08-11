@@ -69,3 +69,6 @@ spec:
     registry: noop
     provider:
       name: pihole
+
+    extraArgs:
+      - --annotation-filter notin (external-dns.alpha.kubernetes.io/target)
