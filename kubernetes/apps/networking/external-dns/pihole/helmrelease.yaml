@@ -44,6 +44,8 @@ spec:
     fullnameOverride: external-dns-pihole
 
     env:
+      - name: EXTERNAL_DNS_DEFAULT_TARGETS
+        value: ${TRAEFIK_IP}
       - name: EXTERNAL_DNS_PIHOLE_SERVER
         value: http://${PIHOLE_LXC_IP}
       - name: EXTERNAL_DNS_PIHOLE_PASSWORD
@@ -66,5 +68,5 @@ spec:
     provider:
       name: pihole
 
-    extraArgs:
-      - --default-targets=traefik.local.${SECRET_DOMAIN}
+    # extraArgs:
+    #   - --default-targets=traefik.local.${SECRET_DOMAIN}
