@@ -65,3 +65,6 @@ spec:
     registry: noop
     provider:
       name: pihole
+
+    extraArgs:
+      - --default-targets=traefik.local.${SECRET_DOMAIN}
