@@ -107,6 +107,7 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/enable: "false"
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
         hosts:
           - host: &host dashboard.local.${SECRET_DOMAIN}
             paths:

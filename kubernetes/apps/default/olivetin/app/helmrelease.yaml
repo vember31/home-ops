@@ -111,6 +111,7 @@ spec:
       app:
         enabled: true
         annotations:
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           cert-manager.io/cluster-issuer: letsencrypt-production
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: mdi:script-text
