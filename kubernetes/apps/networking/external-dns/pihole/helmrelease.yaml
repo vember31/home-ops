@@ -71,4 +71,4 @@ spec:
       name: pihole
 
     extraArgs:
-      - --annotation-filter notin (external-dns.alpha.kubernetes.io/target)
+      - --annotation-filter=external-dns.alpha.kubernetes.io/target doesnotexist #can avoid the public-facing ones
