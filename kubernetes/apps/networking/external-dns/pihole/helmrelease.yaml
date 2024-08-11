@@ -58,6 +58,9 @@ spec:
     sources:
       - ingress
 
+    domainFilters:
+      - local.${SECRET_DOMAIN}
+
     policy: upsert-only
     registry: noop
     provider:
