@@ -136,6 +136,7 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           hajimari.io/icon: mdi:plex
           hajimari.io/info: &description Media Streaming
           hajimari.io/url: https://${APP}.local.${SECRET_DOMAIN}${GATUS_PATH}

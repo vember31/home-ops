@@ -73,6 +73,7 @@ spec:
         ingressClassName: traefik
         annotations: 
           cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: mdi:file-chart-outline
           hajimari.io/info: &description Kubernetes Resource Recommendations

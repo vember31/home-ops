@@ -57,6 +57,7 @@ spec:
         ingressClassName: traefik
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/appName: Alert Manager
           hajimari.io/icon: mingcute:alert-fill
@@ -220,6 +221,7 @@ spec:
         ingressClassName: traefik
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/appName: Prometheus
           hajimari.io/icon: simple-icons:prometheus
