@@ -69,3 +69,6 @@ spec:
     registry: noop
     provider:
       name: pihole
+
+    extraArgs:
+      - --ignore-hostname-annotation
