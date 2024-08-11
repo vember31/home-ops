@@ -41,6 +41,8 @@ spec:
 
   values:
 
+    fullnameOverride: external-dns-cloudflare
+
     rbac:
       # Specifies whether RBAC resources should be created
       create: true
