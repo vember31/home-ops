@@ -12,7 +12,6 @@ resources:
   - ./cloudflare-ddns/externalsecret.yaml
   - ./error-pages/ks.yaml
   - ./external-dns/ks.yaml
-  - ./external-dns/externalsecret.yaml
   - ./metallb/ks.yaml
   - ./traefik/ks.yaml
   - ./traefik/externalsecret.yaml
