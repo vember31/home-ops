@@ -9,9 +9,9 @@ spec:
   routes:
   - match: Host(`bitwarden.${SECRET_DOMAIN}`)
     kind: Rule
-    middlewares:
-    - name: no-redirect
-      namespace: networking
+    # middlewares:
+    # - name: no-redirect
+    #   namespace: networking
     services:
     - name: vaultwarden-external-service
       namespace: security
