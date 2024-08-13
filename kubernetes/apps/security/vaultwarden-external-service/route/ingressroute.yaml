@@ -13,5 +13,5 @@ spec:
     - name: no-redirect
       namespace: networking
     services:
-    - name: bitwarden-external-service
+    - name: vaultwarden-external-service
       namespace: security
