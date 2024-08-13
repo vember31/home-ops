@@ -11,7 +11,7 @@ spec:
     kind: Rule
     middlewares:
     - name: no-redirect
-      namespace: security
+      namespace: networking
     services:
     - name: bitwarden-external-service
       namespace: security
