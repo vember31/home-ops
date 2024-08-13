@@ -5,4 +5,5 @@ kind: Kustomization
 resources:
   - ./cloudflare-ips.yaml
   - ./error-pages-middleware.yaml
+  - ./no-redirect.yaml
   - ./secure-networks.yaml
