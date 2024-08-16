@@ -18,7 +18,7 @@ spec:
             - "-c"
             - |
               curl -X 'PUT' \
-                'http://sonarr.downloads.svc.cluster.local:8989/api/v3/qualitydefinition/update?apikey=${SONARR__API_KEY}' \
+                'http://sonarr.downloads.svc.cluster.local:8989/api/v3/qualitydefinition/update?apikey=$SONARR_API_KEY' \
                 -H 'accept: */*' \
                 -H 'Content-Type: application/json' \
                 -d '
@@ -136,4 +136,10 @@ spec:
                       "id": 15
                     }
                   ]'
+            env:
+            - name: SONARR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sonarr-secret
+                  key: SONARR_API_KEY
           restartPolicy: OnFailure
