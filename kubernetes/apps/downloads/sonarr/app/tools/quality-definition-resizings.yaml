@@ -17,7 +17,7 @@ spec:
             args:
             - |
               curl -X 'PUT' \
-                'http://sonarr.downloads.svc.cluster.local:8989/api/v3/qualitydefinition/update?apikey=$SONARR_API_KEY' \
+                "http://sonarr.downloads.svc.cluster.local:8989/api/v3/qualitydefinition/update?apikey=${SONARR_API_KEY}" \
                 -H 'accept: */*' \
                 -H 'Content-Type: application/json' \
                 -d '
