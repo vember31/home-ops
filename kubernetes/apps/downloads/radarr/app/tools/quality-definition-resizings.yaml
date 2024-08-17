@@ -5,7 +5,7 @@ metadata:
   namespace: downloads
 spec:
   schedule: "0 1 * * *"  # Run daily at 1am
-  timeZone: ${TIMEZONE}
+  timeZone: "America/Chicago"
   jobTemplate:
     spec:
       template:

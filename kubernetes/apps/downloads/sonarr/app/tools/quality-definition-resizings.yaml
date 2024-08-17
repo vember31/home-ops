@@ -5,7 +5,7 @@ metadata:
   namespace: downloads
 spec:
   schedule: "0 1 * * *"  # Run daily at 1am
-  timeZone: ${TIMEZONE}
+  timeZone: "America/Chicago"
   jobTemplate:
     spec:
       template:
@@ -16,7 +16,7 @@ spec:
             command: ["/bin/sh", "-c"]
             args:
             - |
-              curl -X 'PUT' \
+              curl --trace-ascii /dev/stdout -X 'PUT' \
                 "http://sonarr.downloads.svc.cluster.local:8989/api/v3/qualitydefinition/update?apikey=${SONARR_API_KEY}" \
                 -H 'accept: */*' \
                 -H 'Content-Type: application/json' \
