@@ -13,12 +13,11 @@ spec:
           containers:
           - name: radarr-curl
             image: curlimages/curl:8.9.1@sha256:8addc281f0ea517409209f76832b6ddc2cabc3264feb1ebbec2a2521ffad24e4
-            command:
-            - "sh"
-            - "-c"
+            command: ["/bin/sh", "-c"]
+            args:
             - |
               curl -X 'PUT' \
-                'http://radarr.downloads.svc.cluster.local:7878/api/v3/qualitydefinition/update?apikey=${RADARR__API_KEY}' \
+                'http://radarr.downloads.svc.cluster.local:7878/api/v3/qualitydefinition/update?apikey=${RADARR_API_KEY}' \
                 -H 'accept: */*' \
                 -H 'Content-Type: application/json' \
                 -d '
@@ -159,4 +158,10 @@ spec:
                       "id": 23
                     }
                   ]'
+            env:
+            - name: RADARR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: radarr-secret
+                  key: RADARR_API_KEY
           restartPolicy: OnFailure
