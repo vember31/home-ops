@@ -62,7 +62,7 @@ spec:
           app:
             nameOverride: *name
             image:
-              repository: docker pull ghcr.io/wizarrrr/wizarr
+              repository: ghcr.io/wizarrrr/wizarr
               tag: beta@sha256:d19d886d50909f24d36f16fd62d4f984d49c94ff417d4ab540572f8b1bafbb5a
               pullPolicy: IfNotPresent
 
