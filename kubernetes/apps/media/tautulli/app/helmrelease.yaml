@@ -94,9 +94,6 @@ spec:
             securityContext: &securityContext
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
-              capabilities:
-                drop:
-                  - ALL
 
           jbops:
             image:
