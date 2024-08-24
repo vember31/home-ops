@@ -71,22 +71,48 @@ spec:
               PGID: 1000
               UMASK: 002
 
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: &path /status
+                    port: &port 8181
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+
             resources:
-              limits:
-                memory: 256M
               requests:
                 cpu: 10m
+              limits:
+                memory: 512Mi
 
-            probes:
-              liveness:
-                enabled: true
-              readiness:
-                enabled: true
-              startup:
-                enabled: true
-                spec:
-                  failureThreshold: 30
-                  periodSeconds: 5
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+
+          jbops:
+            image:
+              repository: registry.k8s.io/git-sync/git-sync
+              tag: v4.2.4@sha256:8bfbf28623690fba06c65ec392e42023d28ecfc7e0fbfd4443388d020dc112ea
+            env:
+              GITSYNC_REPO: https://github.com/blacktwin/JBOPS
+              GITSYNC_REF: master
+              GITSYNC_PERIOD: 86400s # 1 day
+              GITSYNC_ROOT: /add-ons
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 128Mi
+            securityContext: *securityContext
 
     service:
       app:
@@ -140,3 +166,14 @@ spec:
         globalMounts:
           - path: /config
             readOnly: false
+
+      add-ons:
+        type: emptyDir
+
+      logs:
+        type: emptyDir
+        globalMounts:
+          - path: /config/logs
+          
+      tmp:
+        type: emptyDir
