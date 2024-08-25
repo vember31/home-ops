@@ -115,7 +115,7 @@ queryLog:
 upstreams:
   groups:
     default:
-      - tcp-tls:p2.freedns.controld.com:853
+      - tcp-tls:security.cloudflare-dns.com:853
 
 redis:
   required: false
