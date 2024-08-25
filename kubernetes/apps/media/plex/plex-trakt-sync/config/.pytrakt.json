@@ -1,5 +1,5 @@
 {
-    "CLIENT_ID": "{{ .PTS_CLIENT_ID}}",
+    "CLIENT_ID": "{{ .PTS_CLIENT_ID }}",
     "CLIENT_SECRET": "{{ .PTS_CLIENT_SECRET }}",
     "OAUTH_TOKEN": "{{ .PTS_OAUTH_TOKEN }}",
     "OAUTH_REFRESH": "{{ .PTS_OAUTH_REFRESH }}",
