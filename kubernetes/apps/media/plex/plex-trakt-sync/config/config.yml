@@ -10,7 +10,7 @@ config:
 
 logging:
   append: false
-  debug: true
+  debug: false
   filename: plextraktsync.log
 
 sync:
