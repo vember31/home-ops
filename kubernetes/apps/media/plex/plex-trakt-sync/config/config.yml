@@ -18,6 +18,7 @@ sync:
     collection: true
     ratings: true
     watched_status: true
+    clear_collected: true #re-sync content from current plex collection to trakt each time to fix any 'not found' errors
   trakt_to_plex:
     liked_lists: false
     ratings: true
