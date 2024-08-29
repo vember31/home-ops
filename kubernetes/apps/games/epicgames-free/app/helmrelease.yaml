@@ -82,7 +82,7 @@ spec:
               readiness:
                 enabled: false # will suspend the container unnecessarily. kinda correct, but no need to make the container look like it's not ready.
               startup:
-                enabled: true # this should be fine because the web server will run on start and pass.
+                enabled: false # this should be fine because the web server will run on start and pass, but now false
                 spec:
                   failureThreshold: 30
                   periodSeconds: 5
