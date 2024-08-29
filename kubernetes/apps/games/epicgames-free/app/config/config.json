@@ -1,0 +1,21 @@
+{
+    "runOnStartup": true,
+    "timezone":"${TIMEZONE}",
+    "cronSchedule": "0 0,6,12,18 * * *",
+    "logLevel": "info",
+    "webPortalConfig": {
+      "baseUrl": "https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}"
+    },
+    "accounts": [
+      {
+        "email": "{{ .EPICGAMES_EMAIL }}"
+      }
+    ],
+    "notifiers": [
+      {
+        "type": "discord",
+        "webhookUrl": "{{ .EPICGAMES_DISCORD_WEBHOOK }}",
+        "mentionedUsers": ["{{ .EPICGAMES_DISCORD_USER }}"]
+      }
+    ]
+  }
