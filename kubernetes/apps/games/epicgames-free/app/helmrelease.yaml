@@ -76,13 +76,13 @@ spec:
               readOnlyRootFilesystem: false
               capabilities: { drop: ["ALL"] }
 
-            probes:
+            probes: #these should be disabled because the web server isn't always running
               liveness:
-                enabled: true
+                enabled: false
               readiness:
-                enabled: true
+                enabled: false
               startup:
-                enabled: true
+                enabled: false 
                 spec:
                   failureThreshold: 30
                   periodSeconds: 5
