@@ -62,7 +62,7 @@ spec:
             nameOverride: *name
             image:
               repository: ghcr.io/claabs/epicgames-freegames-node
-              tag: latest@bd270e1e833476b4cb482431e29f453cf08c2d711a73b36d6b698536725a9a83
+              tag: latest@sha256:bd270e1e833476b4cb482431e29f453cf08c2d711a73b36d6b698536725a9a83
               pullPolicy: IfNotPresent
 
             resources:
