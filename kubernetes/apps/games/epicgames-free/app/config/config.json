@@ -2,7 +2,6 @@
     "runOnStartup": true,
     "runOnce": true,
     "timezone":"${TIMEZONE}",
-    "cronSchedule": "0 0,6,12,18 * * *",
     "logLevel": "info",
     "webPortalConfig": {
       "baseUrl": "https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}"
