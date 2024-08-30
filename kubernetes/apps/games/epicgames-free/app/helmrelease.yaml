@@ -52,10 +52,17 @@ spec:
     controllers:
       ${APP}:
         enabled: true
-        type: deployment
-        annotations:
-          reloader.stakater.com/auto: "true"
-        replicas: 1
+        # type: deployment
+        # annotations:
+        #   reloader.stakater.com/auto: "true"
+        # replicas: 1
+        type: cronjob
+        cronjob:
+          schedule: "31 8 * * *" #testing for this commit
+          timeZone: &timeZone ${TIMEZONE}
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 1
 
         containers:
           app:
@@ -123,11 +130,22 @@ spec:
 
       config:
         enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 64Mi
+        retain: true
+        globalMounts: 
+          - path: /usr/app/config
+
+      config-secret:
+        enabled: true
         type: secret
         name: epicgames-secret
         globalMounts:
           - path: /usr/app/config/config.json
             subPath: config.json
+            readOnly: true
 
       tmp:
         type: emptyDir
