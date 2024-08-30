@@ -58,7 +58,7 @@ spec:
         # replicas: 1
         type: cronjob
         cronjob:
-          schedule: "31 8 * * *" #testing for this commit
+          schedule: "0 3,9,15,21 * * *"
           timeZone: &timeZone ${TIMEZONE}
           concurrencyPolicy: Forbid
           successfulJobsHistory: 1
