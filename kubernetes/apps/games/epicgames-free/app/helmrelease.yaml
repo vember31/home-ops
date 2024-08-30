@@ -52,10 +52,6 @@ spec:
     controllers:
       ${APP}:
         enabled: true
-        # type: deployment
-        # annotations:
-        #   reloader.stakater.com/auto: "true"
-        # replicas: 1
         type: cronjob
         cronjob:
           schedule: "0 3,9,15,21 * * *"
@@ -85,11 +81,11 @@ spec:
 
             probes: 
               liveness: 
-                enabled: false # because the web server isn't always running and this will cause a restart
+                enabled: false
               readiness:
-                enabled: false # will suspend the container unnecessarily. kinda correct, but no need to make the container look like it's not ready.
+                enabled: false
               startup:
-                enabled: false # this should be fine because the web server will run on start and pass, but now false
+                enabled: false
                 spec:
                   failureThreshold: 30
                   periodSeconds: 5
