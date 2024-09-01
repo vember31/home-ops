@@ -86,32 +86,44 @@ spec:
 
     persistence:
 
-      dot-env:
-        type: configMap
-        name: plex-trakt-sync-configmap
-        defaultMode: 0777
-        items:
-          - key: .env
-            path: .env
-        globalMounts:
-          - path: /app/config/.env
-            subPath: .env
-            readOnly: false
+      # dot-env:
+      #   type: configMap
+      #   name: plex-trakt-sync-configmap
+      #   defaultMode: 0777
+      #   items:
+      #     - key: .env
+      #       path: .env
+      #   globalMounts:
+      #     - path: /app/config/.env
+      #       subPath: .env
+      #       readOnly: false
 
-      pytrakt-json:
-        type: secret
-        name: plex-trakt-sync-secret
-        defaultMode: 0777
-        items:
-          - key: .pytrakt.json
-            path: .pytrakt.json
-        globalMounts:
-          - path: /app/config/.pytrakt.json
-            subPath: .pytrakt.json
-            readOnly: false
+      # pytrakt-json:
+      #   type: secret
+      #   name: plex-trakt-sync-secret
+      #   defaultMode: 0777
+      #   items:
+      #     - key: .pytrakt.json
+      #       path: .pytrakt.json
+      #   globalMounts:
+      #     - path: /app/config/.pytrakt.json
+      #       subPath: .pytrakt.json
+      #       readOnly: false
+
+      # config:
+      #   type: emptyDir
+      #   advancedMounts:
+      #     ${APP}:
+      #       app:
+      #         - path: /app/config
 
       config:
-        type: emptyDir
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 64Mi
+        retain: true
         advancedMounts:
           ${APP}:
             app:
@@ -128,14 +140,14 @@ spec:
             subPath: config.yml
             readOnly: true
 
-      servers-yaml:
-        type: secret
-        name: plex-trakt-sync-secret
-        defaultMode: 0777
-        items:
-          - key: servers.yml
-            path: servers.yml
-        globalMounts:
-          - path: /app/config/servers.yml
-            subPath: servers.yml
-            readOnly: false
+      # servers-yaml:
+      #   type: secret
+      #   name: plex-trakt-sync-secret
+      #   defaultMode: 0777
+      #   items:
+      #     - key: servers.yml
+      #       path: servers.yml
+      #   globalMounts:
+      #     - path: /app/config/servers.yml
+      #       subPath: servers.yml
+      #       readOnly: false
