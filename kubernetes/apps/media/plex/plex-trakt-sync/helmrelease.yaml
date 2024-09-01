@@ -86,17 +86,17 @@ spec:
 
     persistence:
 
-      # dot-env:
-      #   type: configMap
-      #   name: plex-trakt-sync-configmap
-      #   defaultMode: 0777
-      #   items:
-      #     - key: .env
-      #       path: .env
-      #   globalMounts:
-      #     - path: /app/config/.env
-      #       subPath: .env
-      #       readOnly: false
+      dot-env:
+        type: configMap
+        name: plex-trakt-sync-configmap
+        defaultMode: 0777
+        items:
+          - key: .env
+            path: .env
+        globalMounts:
+          - path: /app/config/.env
+            subPath: .env
+            readOnly: false
 
       # pytrakt-json:
       #   type: secret
