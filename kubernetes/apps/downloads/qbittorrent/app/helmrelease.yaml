@@ -86,6 +86,7 @@ spec:
               QBT_BitTorrent__Session__MaxActiveUploads: 100
               QBT_BitTorrent__Session__TempPath: /media/downloads/incomplete
               QBT_BitTorrent__Session__TempPathEnabled: true
+              QBT_BitTorrent__Session__MaxConnectionsPerTorrent: 300
 
             resources:
               requests:
