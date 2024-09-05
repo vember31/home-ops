@@ -81,7 +81,7 @@ spec:
               RADARR__LOG__DBENABLED: "False"
               RADARR__LOG__LEVEL: info
               RADARR__UPDATE__BRANCH: develop
-              RADARR__API_KEY:
+              RADARR__AUTH__APIKEY:
                 valueFrom:
                   secretKeyRef:
                     name: radarr-secret
