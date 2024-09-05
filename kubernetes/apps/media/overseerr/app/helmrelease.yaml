@@ -137,12 +137,3 @@ spec:
         globalMounts:
           - path: /config
             readOnly: false
-
-      # media:
-      #   enabled: true
-      #   type: nfs
-      #   server: ${OMV_IP}
-      #   path: /export/media 
-      #   globalMounts:
-      #     - path: /media/
-      
