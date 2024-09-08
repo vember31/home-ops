@@ -35,12 +35,12 @@
           password: {{HOMEPAGE_VAR_PVE_1_SECRET}}
           node: pve
     - PVE2:
-        href: https://${PVE_2}:8006
+        href: https://${PVE_1}:8006
         icon: proxmox
         description: 'Proxmox: Node 2'
         widget:
           type: proxmox
-          url: https://${PVE_2}:8006
+          url: https://${PVE_1}:8006
           username: {{HOMEPAGE_VAR_PVE_TOKEN_ID}}
           password: {{HOMEPAGE_VAR_PVE_1_SECRET}}
           node: pve2
