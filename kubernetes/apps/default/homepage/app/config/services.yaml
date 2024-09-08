@@ -42,7 +42,7 @@
           type: proxmox
           url: https://${PVE_2}:8006
           username: {{HOMEPAGE_VAR_PVE_TOKEN_ID}}
-          password: {{HOMEPAGE_VAR_PVE_2_SECRET}}
+          password: {{HOMEPAGE_VAR_PVE_1_SECRET}}
           node: pve2
     - PVE3:
         href: https://${PVE_1}:8006
