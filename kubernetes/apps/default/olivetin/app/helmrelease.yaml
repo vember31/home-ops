@@ -53,8 +53,8 @@ spec:
       olivetin:
         enabled: true
         type: deployment
-        annotations: {}
-        labels: {}
+        annotations:
+          reloader.stakater.com/auto: "true"
         replicas: 1
 
         # Controller-specific overrides for `defaultPodOptions` keys
