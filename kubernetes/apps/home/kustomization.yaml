@@ -8,4 +8,4 @@ resources:
   
   # Post Flux-Kustomizations
   - ./babybuddy/ks.yaml
-  - ./outline/ks.yaml
+  # - ./outline/ks.yaml
