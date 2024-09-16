@@ -79,7 +79,7 @@ spec:
               NODE_ENV: production
               PGSSLMODE: disable
               REDIS_URL: redis://dragonfly.database.svc.cluster.local:6379
-              URL: https://notes.${SECRET_DOMAIN}
+              URL: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
               PORT: &port 3000
               FILE_STORAGE: s3
               AWS_REGION: us-midwest-1
