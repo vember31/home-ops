@@ -128,7 +128,7 @@ spec:
           gethomepage.dev/icon: outline.png
           gethomepage.dev/name: Outline
         hosts:
-          - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+          - host: &host ${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
