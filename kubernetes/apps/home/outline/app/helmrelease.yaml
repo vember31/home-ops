@@ -3,8 +3,8 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &name **NAME**
-  namespace: **NAMESPACE**
+  name: &name outline
+  namespace: home
 
 spec:
   interval: 5m
@@ -53,39 +53,49 @@ spec:
       ${APP}:
         enabled: true
         type: deployment
-        annotations: {}
-        labels: {}
+        annotations:
+          reloader.stakater.com/auto: "true"
         replicas: 1
 
-        # Controller-specific overrides for `defaultPodOptions` keys
-        pod:
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-            fsGroup: 1000
-            fsGroupChangePolicy: "OnRootMismatch"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/onedr0p/postgres-init
+              tag: 16
+            envFrom: &envFrom
+              - secretRef:
+                  name: outline-secret
 
         containers:
           app:
             nameOverride: *name
             image:
-              repository: **repo**
-              tag: **version**@**sha256:....**
+              repository: docker.io/outlinewiki/outline
+              tag: 0.79.1@sha256:0785351e332e07c426bdcbfea93521887ac0970d2269739702f19dbd3f7d3699
               pullPolicy: IfNotPresent
 
             env:
               TZ: ${TIMEZONE}
-              **other env**
-                valueFrom:
-                  secretKeyRef:
-                    name: **secret name in cluster**
-                    key: **key name within secret**
+              NODE_ENV: production
+              PGSSLMODE: disable
+              REDIS_URL: redis://dragonfly.database.svc.cluster.local:6379
+              URL: https://notes.${SECRET_DOMAIN}
+              PORT: &port 3000
+              FILE_STORAGE: s3
+              AWS_REGION: us-midwest-1
+              AWS_S3_ACCELERATE_URL: 
+              AWS_S3_UPLOAD_BUCKET_URL: http://${OMV_IP}:9001
+              AWS_S3_UPLOAD_BUCKET_NAME: outline
+              AWS_S3_FORCE_PATH_STYLE: true
+              AWS_S3_ACL: private
+            envFrom: *envFrom
+            command: ["/bin/sh", "-c", "yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled"]
 
             resources:
               requests:
-                cpu: 10m **review for update**
+                cpu: 10m
               limits:
-                memory: 500Mi **review for update
+                memory: 750Mi
 
             probes:
               liveness:
@@ -110,10 +120,13 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          ** traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
-          ** hajimari.io/icon: mdi:movie-search-outline
-          ** hajimari.io/info: Indexer Management
+          traefik.ingress.kubernetes.io/router.middlewares: networking-cloudflare-ips@kubernetescrd
+          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: "Note-taking & Documentation"
+          gethomepage.dev/group: Home
+          gethomepage.dev/icon: outline.png
+          gethomepage.dev/name: Outline
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
             paths:
@@ -126,23 +139,3 @@ spec:
          - secretName: ${APP}-tls-production
            hosts:
              - *host
-
-    persistence:
-
-      config:
-        enabled: true
-        type: persistentVolumeClaim
-        storageClass: longhorn
-        accessMode: ReadWriteOnce
-        size: **size**
-        retain: true
-        globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
-
-      media:
-        enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media/
-        globalMounts:
-          - path: /media/
-      
