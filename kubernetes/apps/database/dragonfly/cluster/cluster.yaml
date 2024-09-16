@@ -20,6 +20,6 @@ spec:
     - --default_lua_flags=allow-undeclared-keys
   resources:
     requests:
-      cpu: 100m
+      cpu: 500m
     limits:
-      memory: 512Mi
+      memory: 1Gi
