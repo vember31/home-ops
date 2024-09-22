@@ -26,6 +26,7 @@ data:
   PVE_2: "192.168.2.10"
   PVE_3: "192.168.2.2"
   VAULTWARDEN_IP: "192.168.2.150"
+  UNVR_IP: "192.168.2.189"
 
   # network CIDRs
   SECURE_CIDR: "192.168.2.0/24"

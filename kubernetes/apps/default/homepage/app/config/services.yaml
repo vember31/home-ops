@@ -86,10 +86,14 @@
           password: {{HOMEPAGE_VAR_UNIFI_PASSWORD}}
 
 - Security:
+    - Unifi Protect:
+        href: https://${UNVR_IP}/protect
+        icon: unifi-protect.png
+        description: Home Security
     - Vaultwarden:
         href: https://bitwarden.${SECRET_DOMAIN}
         icon: vaultwarden
-        description: Password Management      
+        description: Password Management
 
 - Storage:
     - MinIO:
