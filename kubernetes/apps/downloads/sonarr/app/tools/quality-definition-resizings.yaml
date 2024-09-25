@@ -32,7 +32,7 @@ spec:
                       "title": "HDTV-720p",
                       "weight": 6,
                       "minSize": 3,
-                      "maxSize": 26,
+                      "maxSize": 28,
                       "preferredSize": 11.7,
                       "id": 7
                     },
@@ -60,7 +60,7 @@ spec:
                       "title": "WEBRip-720p",
                       "weight": 9,
                       "minSize": 3,
-                      "maxSize": 26,
+                      "maxSize": 28,
                       "preferredSize": 11.7,
                       "id": 10
                     },
@@ -74,7 +74,7 @@ spec:
                       "title": "WEBDL-720p",
                       "weight": 9,
                       "minSize": 3,
-                      "maxSize": 26,
+                      "maxSize": 28,
                       "preferredSize": 11.7,
                       "id": 11
                     },
