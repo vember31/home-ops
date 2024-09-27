@@ -62,7 +62,7 @@ spec:
           app:
             image:
               repository: docker.io/kometateam/imagemaid
-              tag: v1.1.0@sha256:d3e5283c65a7161fd49471131351abe4237d106d1980de1804ad743ebdbc9627
+              tag: v1.1.1@sha256:fbec331b36c1473f8a9c4214f55e5b097860476c8a5274eb61a2b85df89e56cc
             env:
               TZ: ${TIMEZONE}
               PLEX_URL: http://plex.media.svc.cluster.local:32400
