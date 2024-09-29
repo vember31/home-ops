@@ -97,7 +97,7 @@ spec:
               # AWS_S3_FORCE_PATH_STYLE: true
               # AWS_S3_ACL: private
             envFrom: *envFrom
-            command: ["/bin/sh", "-c", "yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled"]
+            command: ["/bin/sh", "-c", "yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled && chown -R 1001 /var/lib/outline/data"]
 
             resources:
               requests:
