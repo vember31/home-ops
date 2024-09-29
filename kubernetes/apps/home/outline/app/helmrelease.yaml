@@ -90,7 +90,8 @@ spec:
               FILE_STORAGE: local
               FILE_STORAGE_UPLOAD_MAX_SIZE: 26214400
               FILE_STORAGE_IMPORT_MAX_SIZE: 26214400
-              FILE_STORAGE_WORKSPACE_IMPORT_MAX_SIZE: 26214400
+              DATABASE_CONNECTION_POOL_MAX: 10
+              WEB_CONCURRENCY: 10
 
               # don't really want to make minio public-facing currently so switched to local file storage
               # https://github.com/outline/outline/discussions/4840
@@ -102,7 +103,7 @@ spec:
               # AWS_S3_FORCE_PATH_STYLE: true
               # AWS_S3_ACL: private
             envFrom: *envFrom
-            command: ["/bin/sh", "-c", "yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled && chown -R 1001 /var/lib/outline/data"]
+            command: ["/bin/sh", "-c", "yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled"]
 
             resources:
               requests:
