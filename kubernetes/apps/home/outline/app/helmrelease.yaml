@@ -81,12 +81,21 @@ spec:
               REDIS_URL: ioredis://eyJkYiI6MTUsInNlbnRpbmVscyI6W3siaG9zdCI6InJlZGlzLW5vZGUtMC5yZWRpcy1oZWFkbGVzcy5kYXRhYmFzZS5zdmMuY2x1c3Rlci5sb2NhbCIsInBvcnQiOjI2Mzc5fSx7Imhvc3QiOiJyZWRpcy1ub2RlLTEucmVkaXMtaGVhZGxlc3MuZGF0YWJhc2Uuc3ZjLmNsdXN0ZXIubG9jYWwiLCJwb3J0IjoyNjM3OX0seyJob3N0IjoicmVkaXMtbm9kZS0yLnJlZGlzLWhlYWRsZXNzLmRhdGFiYXNlLnN2Yy5jbHVzdGVyLmxvY2FsIiwicG9ydCI6MjYzNzl9XSwibmFtZSI6InJlZGlzLW1hc3RlciJ9
               URL: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
               PORT: &port 3000
-              FILE_STORAGE: s3
-              AWS_REGION: us-midwest-1
-              AWS_S3_UPLOAD_BUCKET_URL: http://${OMV_IP}:9001
-              AWS_S3_UPLOAD_BUCKET_NAME: outline
-              AWS_S3_FORCE_PATH_STYLE: true
-              AWS_S3_ACL: private
+
+              FILE_STORAGE: local
+              FILE_STORAGE_UPLOAD_MAX_SIZE: 26214400
+              FILE_STORAGE_IMPORT_MAX_SIZE: 26214400
+              FILE_STORAGE_WORKSPACE_IMPORT_MAX_SIZE: 26214400
+
+              # don't really want to make minio public-facing currently so switched to local file storage
+              # https://github.com/outline/outline/discussions/4840
+              #
+              # FILE_STORAGE: s3
+              # AWS_REGION: us-midwest-1
+              # AWS_S3_UPLOAD_BUCKET_URL: http://${OMV_IP}:9001
+              # AWS_S3_UPLOAD_BUCKET_NAME: outline
+              # AWS_S3_FORCE_PATH_STYLE: true
+              # AWS_S3_ACL: private
             envFrom: *envFrom
             command: ["/bin/sh", "-c", "yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled"]
 
@@ -138,3 +147,15 @@ spec:
          - secretName: ${APP}-tls-production
            hosts:
              - *host
+
+    persistence:
+
+      file-storage:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 5Gi
+        retain: true
+        globalMounts: 
+          - path: /var/lib/outline/data
