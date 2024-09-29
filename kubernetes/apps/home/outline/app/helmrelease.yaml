@@ -57,6 +57,11 @@ spec:
           reloader.stakater.com/auto: "true"
         replicas: 1
 
+        pod:
+          securityContext:
+            fsGroup: 1001
+            fsGroupChangePolicy: "OnRootMismatch"
+
         initContainers:
           init-db:
             image:
