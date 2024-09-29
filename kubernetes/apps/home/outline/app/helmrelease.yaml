@@ -71,7 +71,7 @@ spec:
             nameOverride: *name
             image:
               repository: docker.io/outlinewiki/outline
-              tag: 0.79.1@sha256:0785351e332e07c426bdcbfea93521887ac0970d2269739702f19dbd3f7d3699
+              tag: 0.80.2@sha256:fde16562c9b8c67bc7855c71d8a1203125d63fcefc7ebb4e649de35a9281e6df
               pullPolicy: IfNotPresent
 
             env:
