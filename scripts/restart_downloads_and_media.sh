@@ -1,0 +1,1 @@
+kubectl rollout restart deployment --namespace=media && kubectl rollout restart deployment --namespace=downloads
