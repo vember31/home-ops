@@ -53,7 +53,8 @@ spec:
       ${APP}:
         enabled: true
         type: deployment
-        annotations: {}
+        annotations:
+          reloader.stakater.com/auto: "true"
         labels: {}
         replicas: 1
 
@@ -112,8 +113,12 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           ** traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
-          ** hajimari.io/icon: mdi:movie-search-outline
-          ** hajimari.io/info: Indexer Management
+          gethomepage.dev/enabled: "true"
+          ** gethomepage.dev/description: 
+          ** gethomepage.dev/group: 
+          ** gethomepage.dev/icon: 
+          ** gethomepage.dev/name: 
+
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
             paths:

@@ -1,0 +1,24 @@
+---
+server:
+  host: 0.0.0.0
+  port: 7441
+  # apiToken: "{{ .OMEGABRR_API_KEY }}"
+
+clients:
+  autobrr:
+    host: http://autobrr.downloads.svc.cluster.local:7474
+    apikey: "{{ .AUTOBRR_API_KEY }}"
+
+  arr:
+    - name: radarr
+      type: radarr
+      host: http://radarr.downloads.svc.cluster.local:7878
+      apikey: "{{ .RADARR_API_KEY }}"
+      filters: [3]
+
+    - name: sonarr
+      type: sonarr
+      host: http://sonarr.downloads.svc.cluster.local:8989
+      apikey: "{{ .SONARR_API_KEY }}"
+      filters: [2]
+      excludeAlternateTitles: true

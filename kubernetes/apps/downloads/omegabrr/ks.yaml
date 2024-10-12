@@ -3,16 +3,18 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app **APPNAME**
+  name: &app omegabrr
   namespace: flux-system
 spec:
-  targetNamespace: **TARGETNAMEESPACE**
+  targetNamespace: downloads
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: **OPTIONAL**
-  path: ./kubernetes/apps/****************
+    - name: autobrr
+    - name: sonarr
+    - name: radarr
+  path: ./kubernetes/apps/downloads/omegabrr/app
   prune: true
   sourceRef:
     kind: GitRepository
@@ -24,4 +26,3 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: **remove if not neeeded**
