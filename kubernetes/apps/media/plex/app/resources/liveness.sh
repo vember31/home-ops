@@ -12,21 +12,18 @@ if [ -z "$PORT" ] || [ -z "$DIRECTORIES" ]; then
     exit 1
 fi
 
-# Function to check HTTP response output
-check_http_output() {
-    OUTPUT=$(curl -f -s "http://localhost:$PORT$HTTP_ENDPOINT")
-    if [ -z "$OUTPUT" ]; then
-        echo "HTTP request to http://localhost:$PORT$HTTP_ENDPOINT returned no output."
-        exit 1
-    fi
-}
-
 # If no HTTP endpoint is provided, perform a standard liveness check on the port
 if [ -z "$HTTP_ENDPOINT" ]; then
-    check_http_output
+    if ! curl -f -s "http://localhost:$PORT" > /dev/null; then
+        echo "Standard liveness check failed on port $PORT."
+        exit 1
+    fi
 else
     # If an HTTP endpoint is provided, perform an HTTP GET request to it instead
-    check_http_output
+    if ! curl -f -s "http://localhost:$PORT/$HTTP_ENDPOINT" > /dev/null; then
+        echo "HTTP GET request failed for endpoint $HTTP_ENDPOINT."
+        exit 1
+    fi
 fi
 
 # Loop through all directories and check for stale file handles
