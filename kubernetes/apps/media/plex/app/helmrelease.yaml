@@ -97,12 +97,20 @@ spec:
                 enabled: true
                 custom: true
                 spec:
-                  httpGet:
-                    path: /identity
-                    port: &port 32400
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
+                  # httpGet:  #commenting this in case i blow things up
+                  #   path: /identity
+                  #   port: &port 32400
+                  exec:
+                    command: 
+                      - /bin/sh
+                      - /probes/liveness.sh
+                      - "34200"
+                      - "identity"
+                      - "/media/tv" #check omv1
+                      - "/media2/tv" #check omv2
+                  initialDelaySeconds: 30
+                  periodSeconds: 60
+                  timeoutSeconds: 5
                   failureThreshold: 3
               readiness: *probes
               startup:
@@ -129,7 +137,7 @@ spec:
           metallb.universe.tf/loadBalancerIPs: "${PLEX_IP}"
         ports:
           http:
-            port: *port
+            port: 32400
 
     ingress:
       app:
@@ -173,6 +181,17 @@ spec:
         size: 20Gi
         retain: true
         globalMounts: []
+
+      liveness:
+        enabled: true
+        type: configMap
+        name: plex-liveness-configmap
+        defaultMode: 0777
+        globalMounts:
+          - path: /probes/liveness.sh
+            subPath: liveness.sh
+            readOnly: true
+
 
       tmp:
         type: emptyDir
