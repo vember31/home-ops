@@ -12,14 +12,14 @@ if [ -z "$PORT" ] || [ -z "$DIRECTORIES" ]; then
     exit 1
 fi
 
-# Check if the service is responding on the specified port with curl
-if ! curl -f -s "http://localhost:$PORT" > /dev/null; then
-    echo "Standard liveness check failed on port $PORT."
-    exit 1
-fi
-
-# If an HTTP endpoint is provided, perform an HTTP GET request
-if [ -n "$HTTP_ENDPOINT" ]; then
+# If no HTTP endpoint is provided, perform a standard liveness check on the port
+if [ -z "$HTTP_ENDPOINT" ]; then
+    if ! curl -f -s "http://localhost:$PORT" > /dev/null; then
+        echo "Standard liveness check failed on port $PORT."
+        exit 1
+    fi
+else
+    # If an HTTP endpoint is provided, perform an HTTP GET request to it instead
     if ! curl -f -s "$HTTP_ENDPOINT" > /dev/null; then
         echo "HTTP GET request failed for endpoint $HTTP_ENDPOINT."
         exit 1
