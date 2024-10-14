@@ -12,8 +12,8 @@ if [ -z "$PORT" ] || [ -z "$DIRECTORIES" ]; then
     exit 1
 fi
 
-# Check standard liveness condition (e.g., application is listening on the specified port)
-if ! nc -z localhost "$PORT"; then
+# Check if the service is responding on the specified port with curl
+if ! curl -f -s "http://localhost:$PORT" > /dev/null; then
     echo "Standard liveness check failed on port $PORT."
     exit 1
 fi
