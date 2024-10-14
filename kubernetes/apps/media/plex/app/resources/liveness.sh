@@ -20,7 +20,7 @@ if [ -z "$HTTP_ENDPOINT" ]; then
     fi
 else
     # If an HTTP endpoint is provided, perform an HTTP GET request to it instead
-    if ! curl -f -s "$HTTP_ENDPOINT" > /dev/null; then
+    if ! curl -f -s "http://localhost:$PORT/$HTTP_ENDPOINT" > /dev/null; then
         echo "HTTP GET request failed for endpoint $HTTP_ENDPOINT."
         exit 1
     fi
