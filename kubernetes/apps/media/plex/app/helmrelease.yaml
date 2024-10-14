@@ -97,17 +97,17 @@ spec:
                 enabled: true
                 custom: true
                 spec:
-                  # httpGet:  #commenting this in case i blow things up
-                  #   path: /identity
-                  #   port: &port 32400
-                  exec:
-                    command: 
-                      - /bin/sh
-                      - /probes/liveness.sh
-                      - "34200"
-                      - "identity"
-                      - "/media/tv" #check omv1
-                      - "/media2/tv" #check omv2
+                  httpGet:  #commenting this in case i blow things up
+                    path: /identity
+                    port: &port 32400
+                  # exec:
+                  #   command: 
+                  #     - /bin/sh
+                  #     - /probes/liveness.sh
+                  #     - "34200"
+                  #     - "identity"
+                  #     - "/media/tv" #check omv1
+                  #     - "/media2/tv" #check omv2
                   initialDelaySeconds: 30
                   periodSeconds: 60
                   timeoutSeconds: 5
