@@ -49,3 +49,10 @@ actions:
         type: int
       - name: blocky_groups
         type: ascii_sentence
+
+  - title: Restart Media & Download Apps
+    shell: kubectl rollout restart deployment --namespace=media && kubectl rollout restart deployment --namespace=downloads
+    maxConcurrent: 1
+    timeout: 10
+    icon: <iconify-icon icon="solar:restart-linear"></iconify-icon>
+    popupOnStart: execution-dialog
