@@ -151,9 +151,25 @@ spec:
       blocky-disable-script:
         enabled: true
         type: configMap
-        name: olivetin-blocky-script
+        name: olivetin-scripts
+        items:
+          - key: olivetin-blocky-script.sh
+            path: olivetin-blocky-script.sh
         defaultMode: 0777
         globalMounts:
           - path: /scripts/olivetin-blocky-script.sh
             subPath: olivetin-blocky-script.sh
+            readOnly: false
+
+      reboot-downloads-media:
+        enabled: true
+        type: configMap
+        name: olivetin-scripts
+        items:
+          - key: restart_download_media_apps.sh
+            path: restart_download_media_apps.sh
+        defaultMode: 0777
+        globalMounts:
+          - path: /scripts/restart_download_media_apps.sh
+            subPath: restart_download_media_apps.sh
             readOnly: false
