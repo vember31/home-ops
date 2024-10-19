@@ -148,6 +148,12 @@ spec:
         size: 10Gi
         retain: true
         globalMounts: []
+      
+      cache:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - /config/cache
 
       # live tv recordings
       recordings:
