@@ -98,7 +98,7 @@ spec:
         controller: *name
         ports:
           http:
-            port: *port
+            port: 5000
 
     ingress:
       app:
