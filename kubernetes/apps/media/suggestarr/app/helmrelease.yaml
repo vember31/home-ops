@@ -135,3 +135,5 @@ spec:
         accessMode: ReadWriteOnce
         size: 256Mi
         retain: true
+        globalMounts:
+          - path: /app/config/config_files
