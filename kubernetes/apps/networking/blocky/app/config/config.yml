@@ -119,5 +119,9 @@ upstreams:
 
 redis:
   required: false
-  address: dragonfly.database.svc.cluster.local:6379
+  address: redis-master
   database: 2
+  sentinelAddresses:
+    - redis-node-0:26379
+    - redis-node-1:26379
+    - redis-node-2:26379
