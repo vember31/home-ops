@@ -6,7 +6,7 @@ metadata:
   namespace: &namespace kube-system
 
 spec:
-  interval: 5m
+  interval: 30m
   chart:
     spec:
       chart: reloader
