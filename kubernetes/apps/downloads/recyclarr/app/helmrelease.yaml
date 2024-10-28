@@ -55,7 +55,7 @@ spec:
         type: cronjob
         cronjob:
           schedule: "0 1 * * *"  # Run daily at 1am
-          timeZone: &timeZone ${TIMEZONE}
+          timeZone: ${TIMEZONE}
           concurrencyPolicy: Forbid
           successfulJobsHistory: 1
           failedJobsHistory: 1
@@ -65,7 +65,7 @@ spec:
             nameOverride: *name
             image:
               repository: ghcr.io/recyclarr/recyclarr
-              tag: 7.2.4@sha256:1bf2436ed4749a4309765dd21643aac858dd436a536e37c25bb463513601e962
+              tag: 7.3.0@sha256:2aaa0205a93171b93a159e4665004ccee1a5aacd60359fb8d7683db0ae7e774b
               pullPolicy: IfNotPresent
             args:
               - sync
@@ -102,14 +102,57 @@ spec:
                   failureThreshold: 30
                   periodSeconds: 5
 
+          apprise:
+            image:
+              repository: docker.io/caronc/apprise
+              tag: 1.1.6@sha256:7b4cbe23581912a51f13648da746c2e38982d4faf1c20d0f54f961a3381a9b4c
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 256Mi
+
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+
+    service:
+      apprise:
+        controller: *name
+        ports:
+          http:
+            port: 8000    
+
     persistence:
 
       config:
         enabled: true
         type: configMap
         name: recyclarr-configmap
+        items:
+          - key: recyclarr.yml
+            path: recyclarr.yml
         globalMounts:
           - path: /config/recyclarr.yml
             subPath: recyclarr.yml
+            readOnly: true
+
+      settings:
+        enabled: true
+        type: configMap
+        name: olivetin-scripts
+        items:
+          - key: settings.yml
+            path: settings.yml
+        globalMounts:
+          - path: /config/settings.yml
+            subPath: settings.yml
             readOnly: true
       
