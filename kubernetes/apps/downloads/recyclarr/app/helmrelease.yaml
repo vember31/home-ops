@@ -62,7 +62,7 @@ spec:
 
         containers:
           app:
-            dependsOn: apprise
+            # dependsOn: apprise
             nameOverride: *name
             image:
               repository: ghcr.io/recyclarr/recyclarr
