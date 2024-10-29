@@ -147,7 +147,7 @@ spec:
       settings:
         enabled: true
         type: configMap
-        name: olivetin-scripts
+        name: recyclarr-configmap
         items:
           - key: settings.yml
             path: settings.yml
