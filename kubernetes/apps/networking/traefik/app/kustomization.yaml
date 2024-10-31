@@ -6,3 +6,5 @@ resources:
   - ./helmrelease.yaml
   # - https://raw.githubusercontent.com/traefik/traefik/master/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
   # the above reconciles all kubernetes crds. helm upgrade should grab it but this is a 'just-in-case catch'
+  # I had to use this for v3 reconciliations
+  # kubectl apply --server-side --force-conflicts -k https://github.com/traefik/traefik-helm-chart/traefik/crds/
