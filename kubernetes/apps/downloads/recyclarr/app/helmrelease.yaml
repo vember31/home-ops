@@ -59,9 +59,9 @@ spec:
           concurrencyPolicy: Forbid
           successfulJobsHistory: 1
           failedJobsHistory: 1
-          ttlSecondsAfterFinished: 120  # Time to keep job resources after completion
+          ttlSecondsAfterFinished: 60  # Time to keep job resources after completion
           backoffLimit: 0  # Prevent retries
-          activeDeadlineSeconds: 120  # Ensure the job completes in 1 minute
+          activeDeadlineSeconds: 60  # Ensure the job completes in 1 minute
 
         containers:
           app:
@@ -130,6 +130,7 @@ spec:
     service:
       apprise:
         controller: *name
+        nameOverride: apprise
         ports:
           http:
             port: 8000 
