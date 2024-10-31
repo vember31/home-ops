@@ -59,10 +59,13 @@ spec:
           concurrencyPolicy: Forbid
           successfulJobsHistory: 1
           failedJobsHistory: 1
+          ttlSecondsAfterFinished: 120  # Time to keep job resources after completion
+          backoffLimit: 0  # Prevent retries
+          activeDeadlineSeconds: 120  # Ensure the job completes in 1 minute
 
         containers:
           app:
-            # dependsOn: apprise
+            dependsOn: apprise
             nameOverride: *name
             image:
               repository: ghcr.io/recyclarr/recyclarr
@@ -103,38 +106,33 @@ spec:
                   failureThreshold: 30
                   periodSeconds: 5
 
-    #       apprise:
-    #         image:
-    #           repository: docker.io/caronc/apprise
-    #           tag: 1.1.6@sha256:7b4cbe23581912a51f13648da746c2e38982d4faf1c20d0f54f961a3381a9b4c
-    #           pullPolicy: IfNotPresent
+          apprise:
+            image:
+              repository: docker.io/caronc/apprise
+              tag: 1.1.6@sha256:7b4cbe23581912a51f13648da746c2e38982d4faf1c20d0f54f961a3381a9b4c
+              pullPolicy: IfNotPresent
 
-    #         env:
-    #           TZ: ${TIMEZONE}
+            env:
+              TZ: ${TIMEZONE}
 
-    #         resources:
-    #           requests:
-    #             cpu: 10m
-    #           limits:
-    #             memory: 1024Mi
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 1024Mi
 
-    #         probes:
-    #           liveness:
-    #             enabled: true
-    #           readiness:
-    #             enabled: true
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
 
-    #         lifecycle:
-    #           preStop:
-    #             exec:
-    #               command: ["/bin/sh", "-c", "while pgrep recyclarr; do sleep 1; done"]
-
-    # service:
-    #   apprise:
-    #     controller: *name
-    #     ports:
-    #       http:
-    #         port: 8000    
+    service:
+      apprise:
+        controller: *name
+        ports:
+          http:
+            port: 8000 
 
     persistence:
 
@@ -150,15 +148,15 @@ spec:
             subPath: recyclarr.yml
             readOnly: true
 
-      # settings:
-      #   enabled: true
-      #   type: configMap
-      #   name: recyclarr-configmap
-      #   items:
-      #     - key: settings.yml
-      #       path: settings.yml
-      #   globalMounts:
-      #     - path: /config/settings.yml
-      #       subPath: settings.yml
-      #       readOnly: true
+      settings:
+        enabled: true
+        type: configMap
+        name: recyclarr-configmap
+        items:
+          - key: settings.yml
+            path: settings.yml
+        globalMounts:
+          - path: /config/settings.yml
+            subPath: settings.yml
+            readOnly: true
       
