@@ -122,6 +122,8 @@ spec:
                 memory: 1024Mi
 
             probes:
+              startup:
+                enabled: true
               liveness:
                 enabled: true
               readiness:
