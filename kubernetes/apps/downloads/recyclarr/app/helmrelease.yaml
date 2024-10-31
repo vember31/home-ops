@@ -74,7 +74,11 @@ spec:
             command: ["/bin/sh", "-c"]
             args: 
               - sleep 30
-              - recyclarr sync > /dev/stdout 2> /dev/stderr
+              - |
+                echo "Waiting 30 seconds before starting Recyclarr...";
+                for i in $(seq 1 30); do echo "$i seconds passed..."; sleep 1; done;
+                echo "Starting Recyclarr now.";
+                recyclarr sync
 
 
             env:
