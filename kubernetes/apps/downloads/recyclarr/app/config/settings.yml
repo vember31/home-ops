@@ -2,6 +2,6 @@
 notifications:
   apprise:
     mode: stateless
-    base_url: http://apprise:8000
+    base_url: http://recyclarr-apprise:8000
     urls:
       - !env_var RECYCLARR_DISCORD_NOTIFICATIONS
