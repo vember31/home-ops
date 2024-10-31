@@ -72,6 +72,7 @@ spec:
               tag: 7.3.0@sha256:2aaa0205a93171b93a159e4665004ccee1a5aacd60359fb8d7683db0ae7e774b
               pullPolicy: IfNotPresent
             args:
+              - sleep 30
               - sync
 
             env:
