@@ -73,8 +73,8 @@ spec:
               pullPolicy: IfNotPresent
             command: ["/bin/sh", "-c"]
             args: 
-              - "sleep 30"
-              - "recyclarr sync"
+              - sleep 30
+              - recyclarr sync > /dev/stdout 2> /dev/stderr
 
 
             env:
