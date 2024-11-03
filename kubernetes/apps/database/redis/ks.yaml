@@ -6,7 +6,7 @@ metadata:
   name: &app redis
   namespace: flux-system
 spec:
-  targetNamespace: database
+  targetNamespace: &namespace database
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -22,3 +22,5 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      GATUS_NAMESPACE: *namespace
+      GATUS_PORT: "6379"
