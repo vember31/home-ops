@@ -97,14 +97,6 @@ spec:
                 exec:
                   command: ["/bin/sh", "-c", "cp /secret/config.yml /config/config.yml"]
 
-    defaultPodOptions:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 568
-        runAsGroup: 568
-        fsGroup: 568
-        fsGroupChangePolicy: OnRootMismatch
-
     persistence:
       app:
         type: emptyDir
