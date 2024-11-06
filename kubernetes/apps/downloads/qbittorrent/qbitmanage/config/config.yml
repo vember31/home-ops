@@ -1,6 +1,5 @@
 ---
 commands:
-  # The commands defined below will IGNORE any commands used in command line and docker env variables.
   dry_run: False
   cross_seed: False
   recheck: False
@@ -9,39 +8,37 @@ commands:
   rem_unregistered: True
   tag_tracker_error: False
   rem_orphaned: True
-  tag_nohardlinks: False
+  tag_nohardlinks: True
   share_limits: True
   skip_qb_version_check: False
   skip_cleanup: False
 
 qbt:
-  # qBittorrent parameters
   host: "qbittorrent.downloads.svc.cluster.local:8080"
   user: "{{ .QBITTORRENT_USERNAME }}"
   pass: "{{ .QBITTORRENT_PASSWORD }}"
 
 settings:
-  force_auto_tmm: False # Will force qBittorrent to enable Automatic Torrent Management for each torrent.
-  force_auto_tmm_ignore_tags: #Torrents with these tags will be ignored when force_auto_tmm is enabled.
+  force_auto_tmm: False
+  force_auto_tmm_ignore_tags:
     - cross-seed
     - Upload
-  tracker_error_tag: issue # Will set the tag of any torrents that do not have a working tracker.
-  nohardlinks_tag: noHL # Will set the tag of any torrents with no hardlinks.
-  share_limits_tag: ~share_limit # Will add this tag when applying share limits to provide an easy way to filter torrents by share limit group/priority for each torrent
-  share_limits_min_seeding_time_tag: MinSeedTimeNotReached # Tag to be added to torrents that have not yet reached the minimum seeding time
-  share_limits_min_num_seeds_tag: MinSeedsNotMet # Tag to be added to torrents that have not yet reached the minimum number of seeds
-  share_limits_last_active_tag: LastActiveLimitNotReached # Tag to be added to torrents that have not yet reached the last active limit
-  cross_seed_tag: cross-seed # Will set the tag of any torrents that are added by cross-seed command
-  cat_filter_completed: True # Filters for completed torrents only when running cat_update command
-  share_limits_filter_completed: True # Filters for completed torrents only when running share_limits command
-  tag_nohardlinks_filter_completed: True # Filters for completed torrents only when running tag_nohardlinks command
-  cat_update_all: True # Checks and updates all torrent categories if set to True when running cat_update command, otherwise only update torrents that are uncategorized
-  disable_qbt_default_share_limits: True # Allows QBM to handle share limits by disabling qBittorrents default Share limits. Only active when the share_limits command is set to True
+  tracker_error_tag: issue
+  nohardlinks_tag: noHL
+  share_limits_tag: ~share_limit
+  share_limits_min_seeding_time_tag: MinSeedTimeNotReached
+  share_limits_min_num_seeds_tag: MinSeedsNotMet
+  share_limits_last_active_tag: LastActiveLimitNotReached
+  cross_seed_tag: cross-seed 
+  cat_filter_completed: True 
+  share_limits_filter_completed: True
+  tag_nohardlinks_filter_completed: True
+  cat_update_all: True
+  disable_qbt_default_share_limits: True
 
 directory:
   root_dir: "/media/downloads"
   recycle_bin: "/media/downloads/.RecycleBin"
-  # torrents_dir: "/downloads/.torrent_files/"
 
 tracker:
   empirehost|bgp.technology|stackoverflow.tech:
