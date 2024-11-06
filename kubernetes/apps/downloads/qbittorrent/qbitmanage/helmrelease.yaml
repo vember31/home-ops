@@ -113,10 +113,10 @@ spec:
             subPath: config.yml
             readOnly: true
 
-      downloads:
+      media:
         enabled: true
         type: nfs
         server: ${OMV_IP}
-        path: /export/downloads
+        path: /export/media
         globalMounts:
-          - path: /media/downloads
+          - path: /media/

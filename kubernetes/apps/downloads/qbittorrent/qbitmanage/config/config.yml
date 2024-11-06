@@ -40,6 +40,10 @@ directory:
   root_dir: "/media/downloads"
   recycle_bin: "/media/downloads/.RecycleBin"
 
+cat:
+  sonarr-complete: "/media/tv"
+  radarr-complete: "/media/movies"
+
 tracker:
   empirehost|bgp.technology|stackoverflow.tech:
     tag: IPTorrents
