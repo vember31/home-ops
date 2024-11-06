@@ -84,7 +84,7 @@ orphaned:
     - "/data/torrents/temp/**"
     - "**/*.!qB"
     - "**/*_unpackerred"
-  max_orphaned_files_to_delete: 10
+  max_orphaned_files_to_delete: 25
 
 recyclebin:
   enabled: true
