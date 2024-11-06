@@ -41,7 +41,7 @@ settings:
 directory:
   root_dir: "/downloads/"
   recycle_bin: "/downloads/.RecycleBin"
-  torrents_dir: "/downloads/.torrent_files/"
+  # torrents_dir: "/downloads/.torrent_files/"
 
 tracker:
   empirehost|bgp.technology|stackoverflow.tech:
@@ -78,7 +78,7 @@ share_limits:
 recyclebin:
   enabled: true
   empty_after_x_days: 7
-  save_torrents: true
+  # save_torrents: true
   split_by_category: false
 
 notifiarr:
