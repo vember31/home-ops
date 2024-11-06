@@ -39,8 +39,8 @@ settings:
   disable_qbt_default_share_limits: True # Allows QBM to handle share limits by disabling qBittorrents default Share limits. Only active when the share_limits command is set to True
 
 directory:
-  root_dir: "/downloads"
-  recycle_bin: "/downloads/.RecycleBin"
+  root_dir: "/media/downloads"
+  recycle_bin: "/media/downloads/.RecycleBin"
   # torrents_dir: "/downloads/.torrent_files/"
 
 tracker:

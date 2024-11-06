@@ -119,4 +119,4 @@ spec:
         server: ${OMV_IP}
         path: /export/downloads
         globalMounts:
-          - path: /downloads
+          - path: /media/downloads
