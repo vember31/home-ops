@@ -72,6 +72,15 @@ share_limits:
     min_num_seeds: 0
     custom_tag: qbm_sharelimits_default
 
+nohardlinks:
+  # Tag Movies/Series that are not hard linked outside the root directory
+  # Mandatory to fill out directory parameter above to use this function (root_dir/remote_dir)
+  # This variable should be set to your category name of your completed movies/completed series in qbit. Acceptable variable can be any category you would like to tag if there are no hardlinks found
+  sonarr-complete:
+    ignore_root_dir: true
+  radarr-complete:
+    ignore_root_dir: true
+
 
 orphaned:
   empty_after_x_days: 0
