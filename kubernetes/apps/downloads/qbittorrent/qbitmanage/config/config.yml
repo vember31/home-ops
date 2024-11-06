@@ -8,7 +8,7 @@ commands:
   rem_unregistered: True
   tag_tracker_error: False
   rem_orphaned: True
-  tag_nohardlinks: True
+  tag_nohardlinks: False
   share_limits: True
   skip_qb_version_check: False
   skip_cleanup: False
