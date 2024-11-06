@@ -54,7 +54,7 @@ spec:
         enabled: true
         type: cronjob
         cronjob:
-          schedule: "0 30 * * *"  # Run daily at 1230am
+          schedule: "30 0 * * *"  # Run daily at 1230am
           timeZone: ${TIMEZONE}
           concurrencyPolicy: Forbid
           successfulJobsHistory: 1
