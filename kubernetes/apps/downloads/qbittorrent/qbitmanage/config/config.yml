@@ -75,6 +75,17 @@ share_limits:
     custom_tag: qbm_sharelimits_default
 
 
+orphaned:
+  empty_after_x_days: 0
+  exclude_patterns:
+    - "**/.DS_Store"
+    - "**/Thumbs.db"
+    - "**/@eaDir"
+    - "/data/torrents/temp/**"
+    - "**/*.!qB"
+    - "**/*_unpackerred"
+  max_orphaned_files_to_delete: 10
+
 recyclebin:
   enabled: true
   empty_after_x_days: 7
