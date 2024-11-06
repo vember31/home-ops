@@ -62,6 +62,7 @@ share_limits:
     categories:
       - sonarr-complete
       - radarr-complete
+      - prowlarr
     max_seeding_time: 60d
     min_seeding_time: 30d
     max_ratio: 10 #i guess this can't be 'no limit' of -1. rare to be above 10
