@@ -54,11 +54,14 @@ spec:
         enabled: true
         type: cronjob
         cronjob:
-          schedule: "0 10 * * *"  # Run daily at 1am
+          schedule: "0 30 * * *"  # Run daily at 1230am
           timeZone: ${TIMEZONE}
           concurrencyPolicy: Forbid
           successfulJobsHistory: 1
           failedJobsHistory: 1
+          ttlSecondsAfterFinished: 300
+          backoffLimit: 0
+          activeDeadlineSeconds: 120
 
         # Controller-specific overrides for `defaultPodOptions` keys
         pod:
