@@ -59,9 +59,9 @@ spec:
           concurrencyPolicy: Forbid
           successfulJobsHistory: 1
           failedJobsHistory: 1
-          ttlSecondsAfterFinished: 300
+          ttlSecondsAfterFinished: 60
           backoffLimit: 0
-          activeDeadlineSeconds: 120
+          activeDeadlineSeconds: 60
 
         # Controller-specific overrides for `defaultPodOptions` keys
         pod:
