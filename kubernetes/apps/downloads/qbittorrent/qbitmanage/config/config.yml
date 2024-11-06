@@ -1,7 +1,7 @@
 ---
 commands:
   # The commands defined below will IGNORE any commands used in command line and docker env variables.
-  dry_run: True
+  dry_run: False
   cross_seed: False
   recheck: False
   cat_update: False
