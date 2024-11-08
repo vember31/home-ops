@@ -1,0 +1,181 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name autopulse
+  namespace: media
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      ${APP}:
+        enabled: true
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/onedr0p/postgres-init
+              tag: 16
+            envFrom: &envFrom
+              - secretRef:
+                  name: autopulse-secret
+
+        containers:
+          app:
+            nameOverride: *name
+            image:
+              repository: docker.io/danonline/autopulse
+              tag: latest-postgres@sha256:82811c9a12b24ff90128a5d7a4e728aee134f85008b9aa0e55315361cc7f0a87
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 256Mi
+
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+
+          ui:
+            nameOverride: *name
+            image:
+              repository: docker.io/danonline/autopulse
+              tag: ui@sha256:b1ded0468381819bb39200e77695b53dc1d15de9fa64e5a71df25fd55526dc58
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              SECRET: [need to create autopulse secret value in gitlab]
+              ORIGIN: https://${APP}.local.${SECRET_DOMAIN}/
+
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 256Mi
+
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+
+    service:
+      app:
+        controller: *name
+        ports:
+          http:
+            port: 2875
+      ui:
+        controller: *name
+        ports:
+          http:
+            port: 2880
+
+    ingress:
+      ui:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          ** traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          gethomepage.dev/enabled: "true"
+          ** gethomepage.dev/description: 
+          ** gethomepage.dev/group: 
+          ** gethomepage.dev/icon: 
+          ** gethomepage.dev/name: 
+
+        hosts:
+          - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+
+        tls: 
+         - secretName: ${APP}-tls-production
+           hosts:
+             - *host
+
+    persistence:
+
+      config:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: **size**
+        retain: true
+        globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
+
+      media:
+        enabled: true
+        type: nfs
+        server: ${OMV_IP}
+        path: /export/media/
+        globalMounts:
+          - path: /media/
+      
