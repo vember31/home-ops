@@ -152,7 +152,7 @@ spec:
             paths:
               - path: /
                 service:
-                  identifier: app
+                  identifier: ui
                   port: http
 
         tls: 
