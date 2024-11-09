@@ -4,12 +4,15 @@ app:
   database_url: postgres://{{ .AUTOPULSE_POSTGRES_USER }}:{{ .AUTOPULSE_POSTGRES_PASS }}@postgres-rw.database.svc.cluster.local:5432/${APP}?sslmode=disable
 
 auth:
-  enabled: false
+  enabled: true
+  username: admin
+  password: {{ .AUTOPULSE_POSTGRES_PASS }}
+
 
 opts:
-  check_path: false # Check if the path exists, assuming the path is available to the container
-  max_retries: 5 # Exponential backoff when a target fails
-  default_timer_wait: 120 #seconds to group events
+  check_path: false
+  max_retries: 5
+  default_timer_wait: 120
   cleanup_days: 14
 
 triggers:

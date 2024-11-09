@@ -102,8 +102,12 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
-              SECRET: [need to create autopulse secret value in gitlab]
               ORIGIN: https://${APP}.local.${SECRET_DOMAIN}/
+              SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: autopulse-secret
+                    key: AUTOPULSE_SECRET
 
             resources:
               requests:
@@ -140,12 +144,12 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          ** traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           gethomepage.dev/enabled: "true"
-          ** gethomepage.dev/description: 
-          ** gethomepage.dev/group: 
-          ** gethomepage.dev/icon: 
-          ** gethomepage.dev/name: 
+          gethomepage.dev/description: "*Arr / Plex Bridge"
+          gethomepage.dev/group: Media
+          gethomepage.dev/icon: mdi-line-scan
+          gethomepage.dev/name: Autopulse
 
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
@@ -161,21 +165,12 @@ spec:
              - *host
 
     persistence:
-
       config:
-        enabled: true
-        type: persistentVolumeClaim
-        storageClass: longhorn
-        accessMode: ReadWriteOnce
-        size: **size**
-        retain: true
-        globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
-
-      media:
-        enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media/
-        globalMounts:
-          - path: /media/
-      
+        type: secret
+        name: autopulse-secret
+        advancedMounts:
+          ${APP}: 
+            app: 
+              - path: /app/config.yaml
+                readOnly: false
+                subPath: config.yaml
