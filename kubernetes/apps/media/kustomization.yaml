@@ -8,6 +8,7 @@ resources:
   - ./namespace.yaml
 
   # Flux-Kustomizations
+  - ./autopulse/ks.yaml
   - ./autoscan/ks.yaml
   - ./jellyfin/ks.yaml
   - ./maintainerr/ks.yaml

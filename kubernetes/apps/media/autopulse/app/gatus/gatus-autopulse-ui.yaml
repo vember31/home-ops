@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "autopulse-ui-gatus-ep"
+  labels:
+    gatus.io/enabled: "true"
+data:
+  config.yaml: |
+    endpoints:
+      - name: "autopulse-ui"
+        group: internal
+        url: "https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}${GATUS_PATH:-/}"
+        interval: 1m
+        client:
+          dns-resolver: tcp://${BLOCKY_IP}:53
+        conditions:
+          - "[STATUS] == ${GATUS_STATUS:-200}"
+        alerts:
+          - type: discord
+            send-on-resolved: true
+            failure-threshold: 2
