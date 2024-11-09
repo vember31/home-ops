@@ -102,7 +102,7 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
-              ORIGIN: https://${APP}.local.${SECRET_DOMAIN}/
+              ORIGIN: https://${APP}.local.${SECRET_DOMAIN}
               SECRET:
                 valueFrom:
                   secretKeyRef:
