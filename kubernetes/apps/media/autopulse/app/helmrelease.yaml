@@ -176,10 +176,11 @@ spec:
                 readOnly: true
                 subPath: config.yaml
 
-      localtime:
+      zoneinfo:
         type: hostPath
         hostPath: /usr/share/zoneinfo
         advancedMounts:
           ${APP}: 
             app: 
               - path: /usr/share/zoneinfo
+                readOnly: true
