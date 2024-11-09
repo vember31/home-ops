@@ -176,21 +176,10 @@ spec:
                 readOnly: true
                 subPath: config.yaml
 
-      # localtime:
-      #   type: hostPath
-      #   hostPath: /usr/share/zoneinfo
-      #   advancedMounts:
-      #     ${APP}: 
-      #       app: 
-      #         - path: /etc/localtime
-      #           subPath: ${TIMEZONE}
-      #           readOnly: true
-
-      # timezone:
-      #   type: hostPath
-      #   hostPath: /etc/timezone
-      #   advancedMounts:
-      #     ${APP}: 
-      #       app: 
-      #         - path: /etc/timezone
-      #           readOnly: true
+      localtime:
+        type: hostPath
+        hostPath: /usr/share/zoneinfo
+        advancedMounts:
+          ${APP}: 
+            app: 
+              - path: /usr/share/zoneinfo
