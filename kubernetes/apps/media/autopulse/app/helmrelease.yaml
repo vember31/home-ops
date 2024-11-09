@@ -178,9 +178,10 @@ spec:
 
       timezone:
         type: hostPath
-        hostPath: /etc/localtime
+        hostPath: /usr/share/zoneinfo
         advancedMounts:
           ${APP}: 
             app: 
               - path: /etc/localtime
+                subPath: ${TIMEZONE}
                 readOnly: true
