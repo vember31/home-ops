@@ -9,7 +9,7 @@ resources:
 
   # Flux-Kustomizations
   - ./autopulse/ks.yaml
-  - ./autoscan/ks.yaml
+  # - ./autoscan/ks.yaml #suspending autoscan to verify autopulse
   - ./jellyfin/ks.yaml
   - ./maintainerr/ks.yaml
   - ./overseerr/ks.yaml
