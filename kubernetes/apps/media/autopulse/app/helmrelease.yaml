@@ -148,7 +148,7 @@ spec:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/description: "*Arr / Plex Bridge"
           gethomepage.dev/group: Media
-          gethomepage.dev/icon: mdi-line-scan
+          gethomepage.dev/icon: https://github.com/dan-online/autopulse/raw/main/assets/logo.webp
           gethomepage.dev/name: Autopulse
 
         hosts:
@@ -176,7 +176,9 @@ spec:
                 readOnly: true
                 subPath: config.yaml
 
-      timezone:
+      # I don't think this works
+      # 
+      localtime:
         type: hostPath
         hostPath: /usr/share/zoneinfo
         advancedMounts:
@@ -184,4 +186,13 @@ spec:
             app: 
               - path: /etc/localtime
                 subPath: ${TIMEZONE}
+                readOnly: true
+
+      timezone:
+        type: hostPath
+        hostPath: /etc/timezone
+        advancedMounts:
+          ${APP}: 
+            app: 
+              - path: /etc/timezone
                 readOnly: true
