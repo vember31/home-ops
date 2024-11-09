@@ -165,6 +165,7 @@ spec:
              - *host
 
     persistence:
+
       config:
         type: secret
         name: autopulse-secret
@@ -174,3 +175,13 @@ spec:
               - path: /app/config.yaml
                 readOnly: true
                 subPath: config.yaml
+
+      timezone:
+        type: hostPath
+        hostPath: /etc/localtime
+        advancedMounts:
+          ${APP}: 
+            app: 
+              - path: /etc/localtime
+                readOnly: true
+                subPath: localtime
