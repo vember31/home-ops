@@ -7,7 +7,7 @@ auth:
   enabled: false
 
 opts:
-  check_path: true # Check if the path exists, assuming the path is available to the container
+  check_path: false # Check if the path exists, assuming the path is available to the container
   max_retries: 5 # Exponential backoff when a target fails
   default_timer_wait: 120 #seconds to group events
   cleanup_days: 14
