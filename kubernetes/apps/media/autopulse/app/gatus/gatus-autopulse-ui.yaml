@@ -10,7 +10,7 @@ data:
     endpoints:
       - name: "autopulse-ui"
         group: internal
-        url: "https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}${GATUS_PATH:-/}"
+        url: "https://autopulse.local.${SECRET_DOMAIN}/"
         interval: 1m
         client:
           dns-resolver: tcp://${BLOCKY_IP}:53

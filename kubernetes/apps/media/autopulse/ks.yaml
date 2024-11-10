@@ -26,5 +26,3 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_NAMESPACE: *namespace
-      GATUS_PORT: "2875"
