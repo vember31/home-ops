@@ -2,12 +2,12 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "packageRules": [
     {
-      "description": ["Auto-merge container digests updates for trusted containers"],
+      "description": ["Auto-merge certain container digest updates"],
       "matchDatasources": ["docker"],
       "automerge": true,
       "automergeType": "pr",
       "matchUpdateTypes": ["digest"],
-      "matchPackagePatterns": ["hotio","bazarr","sonarr","radarr","qbittorrent","prowlarr"]
+      "matchPackagePatterns": ["hotio","bazarr","sonarr","radarr","qbittorrent","prowlarr","autopulse"]
     }
   ]
 }
