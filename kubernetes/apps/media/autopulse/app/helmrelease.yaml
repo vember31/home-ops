@@ -179,8 +179,6 @@ spec:
       zoneinfo:
         type: hostPath
         hostPath: /usr/share/zoneinfo
-        advancedMounts:
-          ${APP}: 
-            app: 
-              - path: /usr/share/zoneinfo
-                readOnly: true
+        globalMounts:
+          - path: /usr/share/zoneinfo
+            readOnly: true
