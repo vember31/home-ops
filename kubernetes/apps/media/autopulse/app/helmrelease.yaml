@@ -102,6 +102,9 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
+              DEFAULT_SERVER_URL: http://autopulse-app.media.svc.cluster.local:2875
+              FORCE_DEFAULT_SERVER_URL: true
+              FORCE_AUTH: true
               ORIGIN: https://${APP}.local.${SECRET_DOMAIN}
               SECRET:
                 valueFrom:
