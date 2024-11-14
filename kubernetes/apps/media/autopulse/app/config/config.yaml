@@ -5,9 +5,6 @@ app:
 
 auth:
   enabled: false
-  # username: admin
-  # password: {{ .AUTOPULSE_POSTGRES_PASS }}
-
 
 opts:
   check_path: false
