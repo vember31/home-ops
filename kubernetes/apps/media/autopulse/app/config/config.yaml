@@ -4,9 +4,9 @@ app:
   database_url: postgres://{{ .AUTOPULSE_POSTGRES_USER }}:{{ .AUTOPULSE_POSTGRES_PASS }}@postgres-rw.database.svc.cluster.local:5432/${APP}?sslmode=disable
 
 auth:
-  enabled: true
-  username: admin
-  password: {{ .AUTOPULSE_POSTGRES_PASS }}
+  enabled: false
+  # username: admin
+  # password: {{ .AUTOPULSE_POSTGRES_PASS }}
 
 
 opts:

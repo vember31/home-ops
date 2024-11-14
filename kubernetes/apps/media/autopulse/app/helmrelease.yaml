@@ -103,6 +103,8 @@ spec:
             env:
               TZ: ${TIMEZONE}
               ORIGIN: https://${APP}.local.${SECRET_DOMAIN}
+              FORCE_AUTH: true
+              FORCE_SERVER_URL: http://autopulse-app.media.svc.cluster.local:2875
               SECRET:
                 valueFrom:
                   secretKeyRef:
