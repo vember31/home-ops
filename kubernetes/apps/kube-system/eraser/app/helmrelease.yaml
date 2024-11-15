@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: eraser
-      version: 1.4.0-beta.0
+      version: 1.5.0-beta.0
       sourceRef:
         kind: HelmRepository
         name: eraser-charts
@@ -49,120 +49,5 @@ spec:
   values:
 
     runtimeConfig:
-      apiVersion: eraser.sh/v1alpha3
-      kind: EraserConfig
-      health: {}
-        # healthProbeBindAddress: :8081
-      metrics: {}
-        # bindAddress: 127.0.0.1:8080
-      webhook: {}
-        # port: 9443
-      leaderElection: {}
-        # leaderElect: true
-        # resourceName: e29e094a.k8s.io
-      manager:
-        runtime:
-          name: containerd
-          address: unix:///run/k3s/containerd/containerd.sock
-        otlpEndpoint: ""
-        logLevel: info
-        scheduling: {}
-          # repeatInterval: ""
-          # beginImmediately: true
-        profile: {}
-          # enabled: false
-          # port: 0
-        imageJob:
-          successRatio: 1.0
-          cleanup: {}
-            # delayOnSuccess: ""
-            # delayOnFailure: ""
-        pullSecrets: [] # image pull secrets for collector/scanner/eraser
-        priorityClassName: "" # priority class name for collector/scanner/eraser
-        nodeFilter:
-          type: exclude # must be either exclude|include
-          selectors:
-            - eraser.sh/cleanup.filter
-            - kubernetes.io/os=windows
-      components:
-        collector:
-          enabled: true
-          image:
-            # repo: ""
-            tag: "v1.4.0-beta.0"
-          request: {}
-            # mem: ""
-            # cpu: ""
-          limit: {}
-            # mem: ""
-            # cpu: ""
         scanner:
           enabled: false
-          image:
-            # repo: ""
-            tag: "v1.4.0-beta.0"
-          request: {}
-            # mem: ""
-            # cpu: ""
-          limit: {}
-            # mem: ""
-            # cpu: ""
-          config: "" # |
-            # cacheDir: /var/lib/trivy
-            # dbRepo: ghcr.io/aquasecurity/trivy-db
-            # deleteFailedImages: true
-            # deleteEOLImages: true
-            # vulnerabilities:
-            #   ignoreUnfixed: true
-            #   types:
-            #     - os
-            #     - library
-            #   securityChecks:
-            #     - vuln
-            #   severities:
-            #     - CRITICAL
-            #     - HIGH
-            #     - MEDIUM
-            #     - LOW
-            #   ignoredStatuses:
-            # timeout:
-            #   total: 23h
-            #   perImage: 1h
-        remover:
-          image:
-            # repo: ""
-            tag: "v1.4.0-beta.0"
-          request: {}
-            # mem: ""
-            # cpu: ""
-          limit: {}
-            # mem: ""
-            # cpu: ""
-
-    deploy:
-      image:
-        repo: ghcr.io/eraser-dev/eraser-manager
-        pullPolicy: IfNotPresent
-        # Overrides the image tag whose default is the chart appVersion.
-        tag: "v1.4.0-beta.0"
-      additionalArgs: []
-      priorityClassName: ""
-
-      securityContext:
-        allowPrivilegeEscalation: false
-
-      resources:
-        limits:
-          memory: 30Mi
-        requests:
-          cpu: 100m
-          memory: 20Mi
-
-      nodeSelector:
-        kubernetes.io/os: linux
-
-      tolerations: []
-
-      affinity: {}
-
-    nameOverride: ""
