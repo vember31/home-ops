@@ -1,5 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/settings-schema.json
 notifications:
+  verbosity: detailed
   apprise:
     mode: stateless
     base_url: http://recyclarr-apprise:8000
