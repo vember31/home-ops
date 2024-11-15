@@ -49,5 +49,6 @@ spec:
   values:
 
     runtimeConfig:
+      components:
         scanner:
           enabled: false
