@@ -91,6 +91,8 @@ I use a UDM Pro SE as the center of my network. DHCP leases point to [Blocky](ht
 
 Blocky resolves all local (`*.local.${SECRET_DOMAIN}`) DNS entries to Traefik (reverse proxy), which directs to the appropriate ingress. All forwarded DNS queries that leave the cluster are sent via DoT to Cloudflare.
 
+To keep Pi-Hole up-to-date with local domain name resolution, external-dns creates CNAMES in Pi-Hole for each kubernetes ingress, and points these ingresses to the Traefik loadbalancer IP.
+
 
 ## 🔧 Hardware
 
