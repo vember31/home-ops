@@ -379,7 +379,7 @@ spec:
         enabled: false # true > false: not using BGP - using L2
         image:
           repository: quay.io/frrouting/frr
-          tag: 10.1.1
+          tag: 10.2.0
           pullPolicy:
         metricsPort: 7473
         resources: {}
