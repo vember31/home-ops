@@ -62,7 +62,7 @@ spec:
             nameOverride: *name
             image:
               repository: fyb3roptik/threadfin
-              tag: 1.2.16@sha256:7a086bf45618f51fda65851f88338185c2ba551efd212b29d13593ce7932b8df
+              tag: 1.2.17@sha256:9898aea8e5bec99b393bacc041bc5ed8d84c59856c8b8dea470cc59c4ba69f74
               pullPolicy: IfNotPresent
 
             env:
