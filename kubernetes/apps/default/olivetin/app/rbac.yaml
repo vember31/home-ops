@@ -39,4 +39,4 @@ rules:
   verbs: ["get", "list", "exec", "create"]
 - apiGroups: ["apps"] # Apps API group for deployments
   resources: ["deployments"]
-  verbs: ["get", "list"]
+  verbs: ["get", "list", "patch"]
