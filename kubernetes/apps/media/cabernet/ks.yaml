@@ -10,7 +10,7 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/media/carbernet/app
+  path: ./kubernetes/apps/media/cabernet/app
   prune: true
   sourceRef:
     kind: GitRepository
