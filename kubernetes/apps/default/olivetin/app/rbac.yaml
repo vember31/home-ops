@@ -37,3 +37,6 @@ rules:
 - apiGroups: [""]
   resources: ["pods", "pods/exec", "nodes"]
   verbs: ["get", "list", "exec", "create"]
+- apiGroups: ["apps"] # Apps API group for deployments
+  resources: ["deployments"]
+  verbs: ["get", "list"]
