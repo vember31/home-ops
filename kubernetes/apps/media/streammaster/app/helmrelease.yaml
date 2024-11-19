@@ -95,6 +95,11 @@ spec:
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/icon: material-symbols:stream
           hajimari.io/info: IPTV Management
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: IPTV Proxy
+          gethomepage.dev/group: Media
+          gethomepage.dev/icon: https://raw.githubusercontent.com/SenexCrenshaw/StreamMaster/refs/heads/main/streammasterwebui/public/images/streammaster_logo.png
+          gethomepage.dev/name: StreamMaster
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:
