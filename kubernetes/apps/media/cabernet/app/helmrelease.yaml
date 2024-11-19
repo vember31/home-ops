@@ -57,14 +57,6 @@ spec:
           reloader.stakater.com/auto: "true"
         replicas: 1
 
-        # Controller-specific overrides for `defaultPodOptions` keys
-        pod:
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-            fsGroup: 1000
-            fsGroupChangePolicy: "OnRootMismatch"
-
         containers:
           app:
             nameOverride: *name
