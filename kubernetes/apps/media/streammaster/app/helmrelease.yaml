@@ -11,7 +11,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 3.0.4
+      version: 3.5.1
       sourceRef:
         kind: HelmRepository
         name: bjw-s-charts
@@ -70,7 +70,7 @@ spec:
             nameOverride: *name
             image:
               repository: senexcrenshaw/streammaster
-              tag: 0.14.4@sha256:17470bb64c28d77b9cf1f3186f0979a6da99594a25bf8fa0bf01b9b879a11fb6
+              tag: 0.17.9@sha256:b78657df19795aa3f21ea7ce989c4be721ba3dce36a9397c58e4af7f7007c293
               pullPolicy: IfNotPresent
 
             env:
@@ -134,12 +134,3 @@ spec:
         size: 1Gi
         retain: true
         globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
-
-      # tv-logos:
-      #   enabled: true
-      #   type: nfs
-      #   server: ${OMV_IP}
-      #   path: /export/media/
-      #   globalMounts:
-      #     - path: /media/
-      
