@@ -48,10 +48,6 @@ spec:
 
   values:
 
-    prometheus:
-      serviceMonitor:
-        enabled: true
-
     controller:
       enabled: true
 
