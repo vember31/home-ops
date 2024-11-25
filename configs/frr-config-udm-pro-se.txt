@@ -1,0 +1,38 @@
+! -*- bgp -*-
+hostname $UDMP_HOSTNAME
+password [removed]
+frr defaults traditional
+log file stdout
+!
+router bgp 64513
+ bgp ebgp-requires-policy
+ bgp router-id 192.168.2.1
+ maximum-paths 1
+ !
+ ! Peer group for DNS
+ neighbor K8S peer-group
+ neighbor K8S remote-as 64514
+ neighbor K8S activate
+ neighbor K8S soft-reconfiguration inbound
+ neighbor K8S timers 15 45
+ neighbor K8S timers connect 15
+ !
+ ! Neighbors for K8s
+ neighbor 192.168.2.11 peer-group K8S
+ neighbor 192.168.2.12 peer-group K8S
+ neighbor 192.168.2.13 peer-group K8S
+ neighbor 192.168.2.14 peer-group K8S
+ neighbor 192.168.2.15 peer-group K8S
+ !
+ address-family ipv4 unicast
+  redistribute connected
+  neighbor K8S activate
+  neighbor K8S route-map ALLOW-ALL in
+  neighbor K8S route-map ALLOW-ALL out
+  neighbor K8S next-hop-self
+ exit-address-family
+ !
+route-map ALLOW-ALL permit 10
+!
+line vty
+!
