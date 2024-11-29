@@ -1,6 +1,5 @@
 ! -*- bgp -*-
 hostname $UDMP_HOSTNAME
-password [removed]
 frr defaults traditional
 log file stdout
 !
