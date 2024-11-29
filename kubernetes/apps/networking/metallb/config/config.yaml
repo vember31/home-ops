@@ -5,7 +5,7 @@ metadata:
   namespace: networking
 spec:
   addresses:
-  - 192.168.2.20-192.168.2.50
+  - ${METALLB_CIDR}
 
 # ---
 # apiVersion: metallb.io/v1beta1

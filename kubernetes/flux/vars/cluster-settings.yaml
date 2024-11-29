@@ -11,11 +11,11 @@ data:
   TIMEZONE: "America/Chicago"
 
   # k3s-based IPs
-  TRAEFIK_IP: "192.168.2.20"
-  BLOCKY_IP: "192.168.2.22"
+  TRAEFIK_IP: "192.168.10.20"
+  BLOCKY_IP: "192.168.10.22"
   K3S_LB_IP: "192.168.2.8"
-  PLEX_IP: "192.168.2.21"
-  VALHEIM_IP: "192.168.2.23"
+  PLEX_IP: "192.168.10.21"
+  VALHEIM_IP: "192.168.10.23"
 
   # external service IPs
   GATEWAY_IP: "192.168.2.1"
@@ -34,6 +34,7 @@ data:
   IOT_CIDR: "192.168.4.0/24"
   CLUSTER_CIDR: "10.42.0.0/16"
   SERVICE_CIDR: "10.43.0.0/16"
+  METALLB_CIDR: "192.168.10.0/24"
 
   # network gateways
   SECURE_GATEWAY: "192.168.2.1"
