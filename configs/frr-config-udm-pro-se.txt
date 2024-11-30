@@ -15,7 +15,7 @@ router bgp 64513
  neighbor K8S soft-reconfiguration inbound
  neighbor K8S timers 15 45
  neighbor K8S timers connect 15
- neighbor K8S bfd
+ ! neighbor K8S bfd
  !
  ! Neighbors for K8s
  neighbor 192.168.2.11 peer-group K8S
