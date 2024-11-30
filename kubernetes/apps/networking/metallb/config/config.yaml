@@ -27,6 +27,7 @@ spec:
   myASN: 64514
   peerASN: 64513
   peerAddress: ${GATEWAY_IP}
+  bfdProfile: metallb-bfd-profile
 
 ---
 apiVersion: metallb.io/v1beta1
@@ -37,3 +38,13 @@ metadata:
 spec:
   ipAddressPools:
   - metallb-pool
+
+---
+apiVersion: metallb.io/v1beta1
+kind: BFDProfile
+metadata:
+  name: metallb-bfd-profile
+  namespace: metallb-system
+spec:
+  receiveInterval: 380
+  transmitInterval: 270
