@@ -43,7 +43,6 @@ RPKI validation codes: V valid, I invalid, N Not found
 *=                  192.168.2.14             0             0 64514 i
 *=                  192.168.2.13             0             0 64514 i
 *>                  192.168.2.15             0             0 64514 i
-*> 208.190.138.0/23 0.0.0.0                  0         32768 ?
 
 Displayed  8 routes and 12 total paths
 ```
