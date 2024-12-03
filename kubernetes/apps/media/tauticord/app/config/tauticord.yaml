@@ -96,7 +96,7 @@ Stats:
       - Name: "Movies"
         # A friendlier name for the library to use in Discord
         AlternateName: "Movies"
-        ID: 0
+        ID: 1
         Albums:
           CustomEmoji: ''
           CustomName: ''
@@ -135,7 +135,7 @@ Stats:
           Hours: 24
       - Name: "TV Shows"
         AlternateName: "TV Shows"
-        ID: 0
+        ID: 2
         Albums:
           CustomEmoji: ''
           CustomName: ''
@@ -148,7 +148,7 @@ Stats:
           VoiceChannelID: 0
         Episodes:
           CustomEmoji: ''
-          CustomName: ''
+          CustomName: 'TV Episodes'
           Enable: true
           VoiceChannelID: {{ .TC_EPISODES_COUNT_CHANNEL_ID }}
         Movies:
@@ -158,7 +158,7 @@ Stats:
           VoiceChannelID: 0
         Series:
           CustomEmoji: ''
-          CustomName: ''
+          CustomName: 'TV Series'
           Enable: true
           VoiceChannelID: {{ .TC_SERIES_COUNT_CHANNEL_ID }}
         Tracks:
@@ -169,7 +169,7 @@ Stats:
         RecentlyAdded:
           CustomName: ''
           CustomEmoji: ''
-          Enable: true
+          Enable: false
           VoiceChannelID: 0
           Hours: 24
 
@@ -177,10 +177,6 @@ Stats:
       - Name: "All Movies"
         Libraries:
           - Name: "Movies"
-            ID: 0
-          - Name: "Movies (Non-English)"
-            ID: 0
-          - Name: "Movies (4K)"
             ID: 0
         Albums:
           CustomName: ''
