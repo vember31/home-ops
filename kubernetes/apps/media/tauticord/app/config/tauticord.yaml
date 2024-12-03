@@ -127,6 +127,12 @@ Stats:
           CustomName: ''
           Enable: false
           VoiceChannelID: 0
+        RecentlyAdded:
+          CustomName: ''
+          CustomEmoji: ''
+          Enable: false
+          VoiceChannelID: 0
+          Hours: 24
       - Name: "TV Shows"
         AlternateName: "TV Shows"
         ID: 0
