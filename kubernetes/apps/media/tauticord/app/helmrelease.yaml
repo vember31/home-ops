@@ -55,7 +55,6 @@ spec:
         type: deployment
         annotations:
           reloader.stakater.com/auto: "true"
-        labels: {}
         replicas: 1
 
         containers:

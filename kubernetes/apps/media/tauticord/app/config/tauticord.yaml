@@ -1,5 +1,4 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nwithan8/tauticord/master/.schema/config_v2.schema.json
-# notes - commeted out the schema becuase it appears to have issues in v5.0.0 release
 
 # Tautulli settings
 Tautulli:
@@ -68,6 +67,7 @@ Stats:
        Enable: true
        VoiceChannelID: {{ .TC_LOCAL_BANDWIDTH_CHANNEL_ID }}
      PlexServerAvailability:
+       CustomName: ''
        CustomEmoji: ''
        Enable: true
        VoiceChannelID: {{ .TC_PLEX_STATUS_CHANNEL_ID }}
@@ -99,26 +99,32 @@ Stats:
         ID: 0
         Albums:
           CustomEmoji: ''
+          CustomName: ''
           Enable: false
           VoiceChannelID: 0
         Artists:
           CustomEmoji: ''
+          CustomName: ''
           Enable: false
           VoiceChannelID: 0
         Episodes:
           CustomEmoji: ''
+          CustomName: ''
           Enable: false
           VoiceChannelID: 0
         Movies:
           CustomEmoji: ''
+          CustomName: ''
           Enable: true
           VoiceChannelID: {{ .TC_MOVIES_COUNT_CHANNEL_ID }}
         Series:
           CustomEmoji: ''
+          CustomName: ''
           Enable: false
           VoiceChannelID: 0
         Tracks:
           CustomEmoji: ''
+          CustomName: ''
           Enable: false
           VoiceChannelID: 0
       - Name: "TV Shows"
@@ -126,28 +132,86 @@ Stats:
         ID: 0
         Albums:
           CustomEmoji: ''
+          CustomName: ''
           Enable: false
           VoiceChannelID: 0
         Artists:
           CustomEmoji: ''
+          CustomName: ''
           Enable: false
           VoiceChannelID: 0
         Episodes:
           CustomEmoji: ''
+          CustomName: ''
           Enable: true
           VoiceChannelID: {{ .TC_EPISODES_COUNT_CHANNEL_ID }}
         Movies:
           CustomEmoji: ''
+          CustomName: ''
           Enable: false
           VoiceChannelID: 0
         Series:
           CustomEmoji: ''
+          CustomName: ''
           Enable: true
           VoiceChannelID: {{ .TC_SERIES_COUNT_CHANNEL_ID }}
         Tracks:
           CustomEmoji: ''
+          CustomName: ''
           Enable: false
           VoiceChannelID: 0
+        RecentlyAdded:
+          CustomName: ''
+          CustomEmoji: ''
+          Enable: true
+          VoiceChannelID: 0
+          Hours: 24
+
+    CombinedLibraries:
+      - Name: "All Movies"
+        Libraries:
+          - Name: "Movies"
+            ID: 0
+          - Name: "Movies (Non-English)"
+            ID: 0
+          - Name: "Movies (4K)"
+            ID: 0
+        Albums:
+          CustomName: ''
+          CustomEmoji: ''
+          Enable: false
+          VoiceChannelID: 0
+        Artists:
+          CustomName: ''
+          CustomEmoji: ''
+          Enable: false
+          VoiceChannelID: 0
+        Episodes:
+          CustomName: ''
+          CustomEmoji: ''
+          Enable: false
+          VoiceChannelID: 0
+        Movies:
+          CustomName: ''
+          CustomEmoji: ''
+          Enable: false
+          VoiceChannelID: 0
+        Series:
+          CustomName: ''
+          CustomEmoji: ''
+          Enable: false
+          VoiceChannelID: 0
+        Tracks:
+          CustomName: ''
+          CustomEmoji: ''
+          Enable: false
+          VoiceChannelID: 0
+        RecentlyAdded:
+          CustomName: ''
+          CustomEmoji: ''
+          Enable: false
+          VoiceChannelID: 0
+          Hours: 24
 
   # Stats about the Tauticord host's performance
   Performance:
@@ -156,17 +220,21 @@ Stats:
     Metrics:
       CPU:
         CustomEmoji: ''
+        CustomName: ''
         Enable: false
         VoiceChannelID: 0
       DiskSpace:
         CustomEmoji: ''
+        CustomName: ''
         Enable: false
         VoiceChannelID: 0
       Memory:
         CustomEmoji: ''
+        CustomName: ''
         Enable: false
         VoiceChannelID: 0
       UserCount:
         CustomEmoji: ''
+        CustomName: ''
         Enable: false
         VoiceChannelID: 0
