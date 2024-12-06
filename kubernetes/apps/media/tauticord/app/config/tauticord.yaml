@@ -173,47 +173,7 @@ Stats:
           VoiceChannelID: 0
           Hours: 24
 
-    CombinedLibraries:
-      - Name: "All Movies"
-        Libraries:
-          - Name: "Movies"
-            ID: 0
-        Albums:
-          CustomName: ''
-          CustomEmoji: ''
-          Enable: false
-          VoiceChannelID: 0
-        Artists:
-          CustomName: ''
-          CustomEmoji: ''
-          Enable: false
-          VoiceChannelID: 0
-        Episodes:
-          CustomName: ''
-          CustomEmoji: ''
-          Enable: false
-          VoiceChannelID: 0
-        Movies:
-          CustomName: ''
-          CustomEmoji: ''
-          Enable: false
-          VoiceChannelID: 0
-        Series:
-          CustomName: ''
-          CustomEmoji: ''
-          Enable: false
-          VoiceChannelID: 0
-        Tracks:
-          CustomName: ''
-          CustomEmoji: ''
-          Enable: false
-          VoiceChannelID: 0
-        RecentlyAdded:
-          CustomName: ''
-          CustomEmoji: ''
-          Enable: false
-          VoiceChannelID: 0
-          Hours: 24
+    CombinedLibraries: []
 
   # Stats about the Tauticord host's performance
   Performance:
