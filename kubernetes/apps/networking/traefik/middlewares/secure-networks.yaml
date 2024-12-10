@@ -10,3 +10,4 @@ spec:
       - ${SECURE_CIDR}
       - ${CLUSTER_CIDR}
       - ${SERVICE_CIDR}
+      - ${VPN_CIDR}
