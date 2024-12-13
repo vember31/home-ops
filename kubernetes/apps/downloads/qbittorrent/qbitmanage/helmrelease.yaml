@@ -76,7 +76,7 @@ spec:
             nameOverride: *name
             image:
               repository: ghcr.io/stuffanthings/qbit_manage
-              tag: develop@sha256:572aa9591533a662ea77e4f4f01dc4b70063433378d1b797637861d39979b559
+              tag: develop@sha256:b62867d06f477d0bd35081283da65801a8c62189f43b62d3c77ef3dd1907911f
 
             env:
               TZ: ${TIMEZONE}
