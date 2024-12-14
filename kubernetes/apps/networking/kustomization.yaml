@@ -14,5 +14,4 @@ resources:
   - ./external-dns/ks.yaml
   - ./metallb/ks.yaml
   - ./traefik/ks.yaml
-  - ./traefik/externalsecret.yaml
 
