@@ -74,7 +74,7 @@ spec:
       loadBalancerIP: "${PIHOLE_KUBE}"
       loadBalancerIPv6: ""
       annotations:
-        metallb.universe.tf/allow-shared-ip: pihole-svc
+        metallb.io/allow-shared-ip: pihole-svc
 
     # -- Configuration for the DHCP service on port 67
     serviceDhcp:
@@ -93,7 +93,7 @@ spec:
       externalTrafficPolicy: Local
       loadBalancerIP: ""
       annotations:
-        metallb.universe.tf/allow-shared-ip: pihole-svc
+        metallb.io/allow-shared-ip: pihole-svc
 
     virtualHost: pi.hole
 

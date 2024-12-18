@@ -122,7 +122,7 @@ spec:
           controller: *name
           type: LoadBalancer
           annotations:
-            metallb.universe.tf/loadBalancerIPs: "${BLOCKY_IP}"
+            metallb.io/loadBalancerIPs: "${BLOCKY_IP}"
           externalTrafficPolicy: Cluster #to give better loadbalancing, but IPs will be obscured.
           ports:
             dns-tcp:
