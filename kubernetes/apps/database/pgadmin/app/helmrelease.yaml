@@ -115,6 +115,11 @@ spec:
           hajimari.io/icon: simple-icons:postgresql
           hajimari.io/info: PostgreSQL Database Administration
           hajimari.io/group: storage
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: "Postgres GUI Tool"
+          gethomepage.dev/group: Storage #don't want to make a separate db group
+          gethomepage.dev/icon: postgres
+          gethomepage.dev/name: pgAdmin
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:
