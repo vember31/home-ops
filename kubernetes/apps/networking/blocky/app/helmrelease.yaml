@@ -123,7 +123,7 @@ spec:
           type: LoadBalancer
           annotations:
             metallb.io/loadBalancerIPs: "${BLOCKY_IP}"
-          externalTrafficPolicy: Cluster #to give better loadbalancing, but IPs will be obscured.
+          externalTrafficPolicy: Local #switch back to Local now that MetalLB is deployed in BGP mode
           ports:
             dns-tcp:
               enabled: true
