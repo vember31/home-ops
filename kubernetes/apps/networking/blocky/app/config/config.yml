@@ -89,6 +89,10 @@ customDNS:
     local.${SECRET_DOMAIN}: ${TRAEFIK_IP}
     k3s.${SECRET_DOMAIN}: ${K3S_LB_IP}
     nfs.${SECRET_DOMAIN}: ${OMV_IP}
+    pve1.${SECRET_DOMAIN}: ${PVE_1}
+    pve2.${SECRET_DOMAIN}: ${PVE_2}
+    pve3.${SECRET_DOMAIN}: ${PVE_3}
+    pve4.${SECRET_DOMAIN}: ${PVE_4}
 
 connectIPVersion: v4
 
