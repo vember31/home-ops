@@ -6,6 +6,7 @@ resources:
   - bjw-s.yaml
   # - botkube.yaml
   - cloudnative-pg.yaml
+  # - crowdsec.yaml
   - descheduler.yaml
   - emberstack.yaml
   - eraser.yaml
