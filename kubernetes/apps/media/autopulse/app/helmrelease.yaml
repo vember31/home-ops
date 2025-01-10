@@ -70,7 +70,7 @@ spec:
             nameOverride: *name
             image:
               repository: docker.io/danonline/autopulse
-              tag: latest-postgres@sha256:e0c7e4503b624fb21185aa8fc834a8cbfdfb64ff423dd310370e288fce5bf6de
+              tag: latest-postgres@sha256:3a8804b550af605643ee49513ae8f21683205bc4e75cf099bd72a0154921d189
               pullPolicy: IfNotPresent
 
             env:
