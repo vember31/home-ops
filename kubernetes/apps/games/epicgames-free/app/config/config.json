@@ -23,7 +23,7 @@
         {
           "type": "discord",
           "webhookUrl": "{{ .EPICGAMES_DISCORD_WEBHOOK }}",
-          "content": ["{{ .EPICGAMES_DISCORD_USER_RK }}"]
+          "mentionedUsers": ["{{ .EPICGAMES_DISCORD_USER_RK }}"]
         }
       ]
     },
@@ -33,7 +33,7 @@
         {
           "type": "discord",
           "webhookUrl": "{{ .EPICGAMES_DISCORD_WEBHOOK }}",
-          "content": ["{{ .EPICGAMES_DISCORD_USER_GE }}"]
+          "mentionedUsers": ["{{ .EPICGAMES_DISCORD_USER_GE }}"]
         }
       ]
     }
