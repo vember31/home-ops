@@ -102,15 +102,24 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          # external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          # traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: networking-cloudflare-ips@kubernetescrd
+          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
           gethomepage.dev/enabled: "false"
           gethomepage.dev/description: Free Epic Games Aggregator
           gethomepage.dev/group: Home
           gethomepage.dev/icon: si-epicgames
           gethomepage.dev/name: Epic Games Free
+        # hosts:
+        #   - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+        #     paths:
+        #       - path: /
+        #         service:
+        #           identifier: app
+        #           port: http
         hosts:
-          - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+          - host: &host ${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
