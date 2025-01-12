@@ -1,21 +1,41 @@
 {
-    "runOnStartup": true,
-    "runOnce": true,
-    "timezone":"${TIMEZONE}",
-    "logLevel": "info",
-    "webPortalConfig": {
-      "baseUrl": "https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}"
+  "runOnStartup": true,
+  "runOnce": true,
+  "timezone": "${TIMEZONE}",
+  "logLevel": "info",
+  "webPortalConfig": {
+    "baseUrl": "https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}"
+  },
+  "accounts": [
+    {
+      "email": "{{ .EPICGAMES_EMAIL_DM }}",
+      "notifiers": [
+        {
+          "type": "discord",
+          "webhookUrl": "{{ .EPICGAMES_DISCORD_WEBHOOK }}",
+          "mentionedUsers": ["{{ .EPICGAMES_DISCORD_USER_DM }}"]
+        }
+      ]
     },
-    "accounts": [
-      {
-        "email": "{{ .EPICGAMES_EMAIL }}"
-      }
-    ],
-    "notifiers": [
-      {
-        "type": "discord",
-        "webhookUrl": "{{ .EPICGAMES_DISCORD_WEBHOOK }}",
-        "mentionedUsers": ["{{ .EPICGAMES_DISCORD_USER }}"]
-      }
-    ]
-  }
+    {
+      "email": "{{ .EPICGAMES_EMAIL_RK }}",
+      "notifiers": [
+        {
+          "type": "discord",
+          "webhookUrl": "{{ .EPICGAMES_DISCORD_WEBHOOK }}",
+          "content": ["{{ .EPICGAMES_DISCORD_USER_RK }}"]
+        }
+      ]
+    },
+    {
+      "email": "{{ .EPICGAMES_EMAIL_GE }}",
+      "notifiers": [
+        {
+          "type": "discord",
+          "webhookUrl": "{{ .EPICGAMES_DISCORD_WEBHOOK }}",
+          "content": ["{{ .EPICGAMES_DISCORD_USER_GE }}"]
+        }
+      ]
+    }
+  ]
+}
