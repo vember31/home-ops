@@ -1,6 +1,7 @@
 {
     "yaml.schemas": {
         "https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/library/common/values.schema.json": "file:///home/duke/home-ops/kubernetes/apps/downloads/bazarr/app/helmrelease.yaml",
-        "https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json": "file:///home/duke/home-ops/kubernetes/apps/security/crowdsec/app/helmrelease.yaml"
+        "https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json": "file:///home/duke/home-ops/kubernetes/apps/security/crowdsec/app/helmrelease.yaml",
+        "https://raw.githubusercontent.com/traefik/traefik-helm-chart/refs/heads/master/traefik/values.schema.json": "vscode-vfs://github%2B7b2276223a312c22726566223a7b2274797065223a352c226964223a226d61696e227d7d/vember31/home-ops/kubernetes/apps/networking/traefik/app/helmrelease.yaml"
     }
 }
