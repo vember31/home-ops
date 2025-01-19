@@ -75,20 +75,7 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
-              QBITTORRENT__PORT: &port 8080
-              QBT_Preferences__WebUI__Password_PBKDF2: "@ByteArray(ARQ77eY1NUZaQsuDHbIMCA==:0WMRkYTUWVT9wVvdDtHAjU9b3b7uB8NR1Gur2hmQCvCDpm39Q+PsJRJPaCU51dEiz+dTzh8qbPsL8WkFljQYFQ==)"
-              QBT_Preferences__WebUI__AuthSubnetWhitelistEnabled: true
-              QBT_Preferences__WebUI__AuthSubnetWhitelist: ${SECURE_CIDR}, ${CLUSTER_CIDR}, ${SERVICE_CIDR}
-              QBT_Preferences__WebUI__LocalHostAuth: false
-              QBT_BitTorrent__Session__DefaultSavePath: &mountpath /media/downloads
-              QBT_BitTorrent__Session__MaxActiveDownloads: 10
-              QBT_BitTorrent__Session__MaxActiveTorrents: 200
-              QBT_BitTorrent__Session__MaxActiveUploads: 200
-              QBT_BitTorrent__Session__TempPath: /media/downloads/incomplete
-              QBT_BitTorrent__Session__TempPathEnabled: true
-              QBT_BitTorrent__Session__MaxConnectionsPerTorrent: 300
-              QBT_BitTorrent__Session__MaxUploads: 50
-              QBT_BitTorrent__Session__MaxUploadsPerTorrent: 20
+              QBT_WEBUI_PORT: &port 8080
 
             resources:
               requests:
