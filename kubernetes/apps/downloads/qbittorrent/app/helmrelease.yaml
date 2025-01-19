@@ -73,10 +73,10 @@ spec:
               tag: 5.0.3@sha256:19597e4a5c5e52702ff6b4ea5c4b5f9f42433d6c2f1ef1d2db5964938bf44557
               pullPolicy: IfNotPresent
 
-            # lifecycle:
-            #   postStart:
-            #     exec:
-            #       command: ["/bin/sh", "-c", "cp /config/qBittorrent/qbt_static_config.conf /config/qBittorrent/qBittorrent.conf"]
+            lifecycle:
+              postStart:
+                exec:
+                  command: ["/bin/sh", "-c", "cp /template/qBittorrent.conf /config/qBittorrent/qBittorrent.conf"]
 
             env:
               TZ: ${TIMEZONE}
@@ -148,8 +148,8 @@ spec:
         type: configMap
         name: qbt-configmap
         globalMounts:
-          - path: /config/qBittorrent/qbt_static_config.conf
-            subPath: qbt_static_config.conf
+          - path: /template/qBittorrent.conf
+            subPath: qBittorrent.conf
             readOnly: true
 
       downloads:
