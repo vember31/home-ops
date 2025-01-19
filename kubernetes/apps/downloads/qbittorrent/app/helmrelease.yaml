@@ -81,12 +81,14 @@ spec:
               QBT_Preferences__WebUI__AuthSubnetWhitelist: ${SECURE_CIDR}, ${CLUSTER_CIDR}, ${SERVICE_CIDR}
               QBT_Preferences__WebUI__LocalHostAuth: false
               QBT_BitTorrent__Session__DefaultSavePath: &mountpath /media/downloads
-              QBT_BitTorrent__Session__MaxActiveDownloads: 5
+              QBT_BitTorrent__Session__MaxActiveDownloads: 10
               QBT_BitTorrent__Session__MaxActiveTorrents: 200
-              QBT_BitTorrent__Session__MaxActiveUploads: 100
+              QBT_BitTorrent__Session__MaxActiveUploads: 200
               QBT_BitTorrent__Session__TempPath: /media/downloads/incomplete
               QBT_BitTorrent__Session__TempPathEnabled: true
               QBT_BitTorrent__Session__MaxConnectionsPerTorrent: 300
+              QBT_BitTorrent__Session__MaxUploads: 50
+              QBT_BitTorrent__Session__MaxUploadsPerTorrent: 20
 
             resources:
               requests:
