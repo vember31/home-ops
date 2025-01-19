@@ -145,5 +145,5 @@ spec:
         server: ${OMV_IP}
         path: /export/downloads
         globalMounts:
-          - path: *mountpath
+          - path: /media/downloads
       
