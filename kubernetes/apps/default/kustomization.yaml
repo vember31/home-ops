@@ -12,4 +12,4 @@ resources:
   - ./homepage/ks.yaml
   - ./mailrise/ks.yaml
   - ./olivetin/ks.yaml
-  # - ./upsnap/ks.yaml
+  - ./upsnap/ks.yaml

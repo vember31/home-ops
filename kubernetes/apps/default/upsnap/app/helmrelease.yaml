@@ -81,7 +81,7 @@ spec:
                 spec:
                   httpGet:
                     path: /api/health
-                    port: &port 5000
+                    port: &port 8090
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
