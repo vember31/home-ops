@@ -62,7 +62,7 @@ spec:
             nameOverride: *name
             image:
               repository: senexcrenshaw/streammaster
-              tag: latest@sha256:ab3ba32c064836734638f851260384bcdb2b98c3caa59e5f28a5604023353b08
+              tag: latest@sha256:a5bde081782cd448f27ad5b76ea79a9d8e49141f6ff74a29bc7ef95a670ca9a5
               pullPolicy: IfNotPresent
 
             env:
