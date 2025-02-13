@@ -14,8 +14,8 @@ resources:
   - ./overseerr/ks.yaml
   - ./plex/ks.yaml
   - ./requestrr/ks.yaml
-  - ./streammaster/ks.yaml
   - ./tauticord/ks.yaml
   - ./tautulli/ks.yaml
+  - ./threadfin/ks.yaml
   - ./wizarr/ks.yaml
   - ./zap2it/ks.yaml

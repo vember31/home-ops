@@ -4,15 +4,11 @@ kind: Kustomization
 metadata:
   name: &app threadfin
   namespace: flux-system
-  # labels: 
-  #   substitution.flux.home.arpa/disabled: "true" #don't do a sub here so we can bring in secret values
 spec:
   targetNamespace: media
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  # dependsOn:
-  #   - name: **OPTIONAL**
   path: ./kubernetes/apps/media/threadfin/app
   prune: true
   sourceRef:

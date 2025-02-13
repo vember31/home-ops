@@ -11,7 +11,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 3.5.1
+      version: 3.7.1
       sourceRef:
         kind: HelmRepository
         name: bjw-s-charts
@@ -53,8 +53,6 @@ spec:
       ${APP}:
         enabled: true
         type: deployment
-        annotations: {}
-        labels: {}
         replicas: 1
 
         containers:
@@ -62,7 +60,7 @@ spec:
             nameOverride: *name
             image:
               repository: fyb3roptik/threadfin
-              tag: 1.2.10@sha256:17e15233ecc75b06bb4ce27a4a10e181980641e576d4b606a50fbc372820c895
+              tag: 1.2.26@sha256:22a3ecd260d035c57beb23f58dce4d76ee98c7b478413a8c29054ee979f6c676
               pullPolicy: IfNotPresent
 
             env:
