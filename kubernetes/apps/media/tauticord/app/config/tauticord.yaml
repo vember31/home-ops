@@ -38,10 +38,8 @@ Display:
   ServerName: 'plex-k3s'
   ThousandsSeparator: ''
   
-  # Time settings
-  Time:
-    ServerTimeZone: '${TIMEZONE}'
-    Use24HourTime: false
+  # Time settings - remove with v5.12.0
+  Time: {}
   # Whether to use Plex users' names instead of usernames
   UseFriendlyNames: true
 
