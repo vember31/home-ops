@@ -1,7 +1,7 @@
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/onedr0p/home-ops/main/docs/src/assets/logo.png" align="center" width="144px" height="144px"/>
+<img src="https://raw.githubusercontent.com/vember31/home-ops/main/home-ops%20logo.png" align="center" width="144px" height="144px"/>
 
 ### My Home Operations Repository :house_with_garden:
 
