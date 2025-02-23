@@ -28,7 +28,7 @@
     {
       "description": "olivetin date matching",
       "matchDatasources": ["docker"],
-      "versioning": "regex:^(?P<major>\\d{4})\\.(?P<minor>\\d{2})\\.(?P<patch>\\d{2})(?P<build>\\d*)?$",
+      "versioning": "regex:^(?P<major>\\d{4})\\.(?P<minor>\\d{1,2})\\.(?P<patch>\\d{2})(?P<build>\\d*)?$",
       "matchPackagePatterns": ["olivetin"]
     },
     {
