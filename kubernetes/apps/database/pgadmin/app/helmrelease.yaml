@@ -76,6 +76,8 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
+              PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
+              PGADMIN_DISABLE_POSTFIX: "true"
             envFrom:
               - secretRef:
                   name: pgadmin-secret
@@ -88,15 +90,18 @@ spec:
                 memory: 500Mi
 
             probes:
-              liveness:
+              liveness: &probes
                 enabled: true
-              readiness:
-                enabled: true
-              startup:
-                enabled: true
+                custom: true
                 spec:
-                  failureThreshold: 30
-                  periodSeconds: 5
+                  httpGet:
+                    path: /misc/ping
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
 
     service:
       app:
