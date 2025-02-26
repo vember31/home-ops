@@ -55,7 +55,6 @@ spec:
         type: deployment
         annotations:
           reloader.stakater.com/auto: "true"
-        labels: {}
         replicas: 1
 
         # Controller-specific overrides for `defaultPodOptions` keys
@@ -96,7 +95,7 @@ spec:
                 spec:
                   httpGet:
                     path: /misc/ping
-                    port: *port
+                    port: &port 80
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -108,7 +107,7 @@ spec:
         controller: *name
         ports:
           http:
-            port: 80
+            port: *port
 
     ingress:
       app:
