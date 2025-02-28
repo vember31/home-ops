@@ -67,7 +67,7 @@
 
 - Networking:
     - Adguard:
-        href: http://${ADGUARD_LXC_IP}/admin
+        href: http://${ADGUARD_LXC_IP}
         icon: adguard-home
         description: Network-wide Ad-Blocker
         widget:
