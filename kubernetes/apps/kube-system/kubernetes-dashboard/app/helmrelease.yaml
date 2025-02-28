@@ -68,6 +68,7 @@ spec:
           secretName: "kubernetes-dashboard-tls-production"
         annotations: 
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           hajimari.io/icon: carbon:kubernetes
           hajimari.io/info: &description Centralized Kubernetes Management
           hajimari.io/appName: Kubernetes Dashboard
