@@ -13,14 +13,21 @@ for NODE in "${NODES[@]}"; do
     REBOOT_STATUS="🔄 No reboot required."
     INSTALLED_PACKAGES="None"
 
+    # Capture package versions before upgrade
+    BEFORE_UPGRADE=$(ssh root@"$NODE" "dpkg-query -W -f='\${Package} \${Version}\n'")
+
     # Perform updates
     ssh root@"$NODE" "apt update && apt full-upgrade -y"
 
-    # Check for installed packages after upgrade
-    UPDATES=$(ssh root@"$NODE" "apt list --upgradable 2>/dev/null | tail -n +2")
-    if [ -n "$UPDATES" ]; then
+    # Capture package versions after upgrade
+    AFTER_UPGRADE=$(ssh root@"$NODE" "dpkg-query -W -f='\${Package} \${Version}\n'")
+
+    # Determine which packages were updated
+    UPDATED_PACKAGES=$(diff <(echo "$BEFORE_UPGRADE") <(echo "$AFTER_UPGRADE") | grep "^>" | awk '{print $2 " (" $3 ")"}' | paste -sd ', ' -)
+
+    if [ -n "$UPDATED_PACKAGES" ]; then
         UPDATE_STATUS="⚠️ Updates installed."
-        INSTALLED_PACKAGES=$(echo "$UPDATES" | awk '{print $1}' | paste -sd ', ' -)
+        INSTALLED_PACKAGES="$UPDATED_PACKAGES"
     fi
 
     # Check if a reboot is required
