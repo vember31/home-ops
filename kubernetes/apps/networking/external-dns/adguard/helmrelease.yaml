@@ -80,12 +80,12 @@ spec:
             value: 0.0.0.0
           - name: LOG_LEVEL
             value: info
-          - name: DOMAIN_FILTER
-            value: local.${SECRET_DOMAIN}
         securityContext:
           readOnlyRootFilesystem: true
     interval: 1h
     triggerLoopOnEvent: true
+    domainFilters:
+      - local.${SECRET_DOMAIN}
     policy: sync
     registry: noop
     extraArgs:
