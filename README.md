@@ -87,11 +87,9 @@ graph TD;
 
 ## 🌐 DNS
 
-A UDM Pro SE is the center of the network. DHCP leases point to [Blocky](https://github.com/0xERR0R/blocky) as the primary DNS and [PiHole](https://github.com/pi-hole/pi-hole) as secondary. Blocky is hosted within the Kubernetes cluster as a daemonset for high availability across 4 nodes (5 VMs), and PiHole is hosted in an LXC container on one of the nodes. MetalLB announces these routes via BGP to achieve true high-availability for clients to have direct routes to each node. A spare Raspberry Pi is available for further redundancy.
+A UDM Pro SE is the center of the network. DHCP leases point to [Blocky](https://github.com/0xERR0R/blocky) as the primary DNS and [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome) as secondary. Blocky is hosted within the Kubernetes cluster as a daemonset for high availability across 4 nodes (5 VMs), and AdGuard Home is hosted in an LXC container on one of the nodes. MetalLB announces these routes via BGP to achieve true high-availability for clients to have direct routes to each node. A spare Raspberry Pi is available for further redundancy.
 
-Blocky resolves all local (`*.local.${SECRET_DOMAIN}`) DNS entries to Traefik (reverse proxy), which directs to the appropriate ingress. All forwarded DNS queries that leave the cluster are sent via DoT to Cloudflare.
-
-To keep Pi-Hole up-to-date with local domain name resolution, external-dns creates CNAMES in Pi-Hole for each kubernetes ingress, and points these ingresses to the Traefik loadbalancer IP.
+Blocky / AdGuard Home reoslve all local (`*.local.${SECRET_DOMAIN}`) DNS entries to Traefik (reverse proxy), which directs to the appropriate ingress. All forwarded DNS queries that leave the cluster are sent via DoT to Cloudflare.
 
 
 ## 🔧 Hardware
