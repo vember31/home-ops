@@ -19,7 +19,7 @@ actions:
     timeout: 10
 
   - title: Disable AdGuard Home for 5 minutes
-    icon: <iconify-icon icon="simple-icons:pihole"></iconify-icon>
+    icon: <iconify-icon icon="arcticons:adguard-home-manager"></iconify-icon> 
     maxConcurrent: 1
     timeout: 10
     shell: |
