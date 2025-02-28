@@ -66,15 +66,15 @@
           node: pve4
 
 - Networking:
-    - PiHole:
-        href: http://${PIHOLE_LXC_IP}/admin
-        icon: pi-hole
-        description: Ad-Blocker
+    - Adguard:
+        href: http://${ADGUARD_LXC_IP}/admin
+        icon: adguard-home
+        description: Network-wide Ad-Blocker
         widget:
-          type: pihole
-          url: http://${PIHOLE_LXC_IP}
-          version: 5
-          key: {{HOMEPAGE_VAR_PIHOLE_API_KEY}}
+          type: adguard
+          url: http://${ADGUARD_LXC_IP}
+          username: {{HOMEPAGE_VAR_ADGUARD_USERNAME}}
+          password: {{HOMEPAGE_VAR_ADGUARD_PASSWORD}}
     - Unifi:
         href: https://${GATEWAY_IP}
         icon: unifi
