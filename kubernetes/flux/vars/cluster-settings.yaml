@@ -19,7 +19,6 @@ data:
 
   # external service IPs
   GATEWAY_IP: "192.168.2.1"
-  PIHOLE_LXC_IP: "192.168.2.4"
   ADGUARD_LXC_IP: "192.168.2.4"
   OMV_IP: "192.168.2.9"
   OMV2_IP: "192.168.2.19"
