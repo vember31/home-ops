@@ -11,7 +11,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 3.7.1
+      version: 3.7.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s-charts
@@ -53,20 +53,32 @@ spec:
       ${APP}:
         enabled: true
         type: deployment
-        annotations: {}
-        labels: {}
+        annotations:
+          reloader.stakater.com/auto: "true"
         replicas: 1
+
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/onedr0p/postgres-init
+              tag: 16
+            envFrom: &envFrom
+              - secretRef:
+                  name: streammaster-secret
 
         containers:
           app:
             nameOverride: *name
             image:
-              repository: senexcrenshaw/streammaster
-              tag: main-1.0.1.7
+              repository: ghcr.io/carlreid/streammaster
+              tag: 0.11.1@sha256:f4910a3c5220157019b57904ae082a5bc9fa489da3298447f2b7c8f3593189cc
               pullPolicy: IfNotPresent
 
             env:
               TZ: ${TIMEZONE}
+            envFrom:
+              - secretRef:
+                  name: streammaster-secret
 
             probes:
               liveness:
@@ -98,7 +110,7 @@ spec:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/description: IPTV Proxy
           gethomepage.dev/group: Media
-          gethomepage.dev/icon: https://raw.githubusercontent.com/SenexCrenshaw/StreamMaster/e8aa9a2764afe4ddf7a8a631d557b2cd52de97d9/StreamMaster.Docs/streammaster/docs/assets/sm_logo.png
+          gethomepage.dev/icon: https://carlreid.github.io/StreamMaster/assets/sm_logo.png
           gethomepage.dev/name: StreamMaster
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
@@ -114,12 +126,6 @@ spec:
              - *host
 
     persistence:
-
       config:
         enabled: true
-        type: persistentVolumeClaim
-        storageClass: longhorn
-        accessMode: ReadWriteOnce
-        size: 1Gi
-        retain: true
-        globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
+        type: emptyDir
