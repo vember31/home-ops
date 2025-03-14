@@ -71,7 +71,7 @@ spec:
             nameOverride: *name
             image:
               repository: ghcr.io/carlreid/streammaster
-              tag: 0.11.1@sha256:f4910a3c5220157019b57904ae082a5bc9fa489da3298447f2b7c8f3593189cc
+              tag: 0.11.2@sha256:b8d90a9e6abfde005cad8b64b95ef7295471788c23d469a67e0d674ec4f293ec
               pullPolicy: IfNotPresent
 
             env:
