@@ -67,6 +67,7 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
+              HOMEPAGE_ALLOWED_HOSTS: &host "dashboard.local.${SECRET_DOMAIN}"
             envFrom:
               - secretRef:
                   name: homepage-secret
@@ -109,7 +110,7 @@ spec:
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           hajimari.io/enable: "false"
         hosts:
-          - host: &host dashboard.local.${SECRET_DOMAIN}
+          - host: *host
             paths:
               - path: /
                 service:
