@@ -11,6 +11,7 @@ resources:
   - ./exporters
 
   # Flux-Kustomizations
+  - ./dozzle/ks.yaml
   - ./gatus/ks.yaml
   - ./goldilocks/externalsecret.yaml
   - ./goldilocks/ks.yaml
