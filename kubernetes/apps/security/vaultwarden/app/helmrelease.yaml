@@ -1,0 +1,221 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name vaultwarden
+  namespace: security
+
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 10m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      ${APP}:
+        enabled: true
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+
+        containers:
+          app:
+            nameOverride: *name
+            image:
+              repository: ghcr.io/dani-garcia/vaultwarden
+              tag: 1.33.2@sha256:87edb99945da91bd7504ac1435495595af2e89ad2c7adc151ae5bf091ec8baf2
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /alive
+                    port: &port 80
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+
+          backup:
+            nameOverride: backup
+            image:
+              repository: ghcr.io/ttionya/vaultwarden-backup
+              tag: 1.24.0@sha256:5b50c186b2bb7350a216395b393ae8628871b213774064b2a138a97ec62bd457
+              pullPolicy: IfNotPresent
+
+            env:
+              TIMEZONE: ${TIMEZONE}
+              RCLONE_REMOTE_NAME: VAULTWARDEN-K3S
+              RCLONE_REMOTE_DIR: /Vaultwarden-k3s/
+              CRON: 0 5 * * *
+              ZIP_ENABLE: true
+              ZIP_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: vaultwarden-secret
+                    key: VAULTWARDEN_BACKUP_ZIP_PASSWORD
+              BACKUP_KEEP_DAYS: 30
+              DATA_DIR: /data
+              PING_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: vaultwarden-secret
+                    key: VAULTWARDEN_BACKUP_PING_URL
+
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+
+    service:
+      app:
+        controller: *name
+        ports:
+          http:
+            port: *port
+
+    ingress:
+      app:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          traefik.ingress.kubernetes.io/router.middlewares: networking-cloudflare-ips@kubernetescrd
+          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/name: Vaultwarden Admin
+          gethomepage.dev/description: Vaultwarden Admin Page
+          gethomepage.dev/group: Security
+          gethomepage.dev/icon: vaultwarden.png
+        hosts:
+          - host: &apphost ${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls: 
+         - secretName: ${APP}-tls-production
+           hosts:
+             - *apphost
+
+      admin:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/name: Vaultwarden Admin Page
+          gethomepage.dev/description: Vaultwarden Admin Page
+          gethomepage.dev/group: Security
+          gethomepage.dev/icon: vaultwarden.png
+        hosts:
+          - host: &adminhost vaultadmin.local.${SECRET_DOMAIN}
+            paths:
+              - path: /admin
+                service:
+                  identifier: app
+                  port: http
+        tls: 
+         - secretName: bwadmin-tls-production
+           hosts:
+             - *adminhost
+
+    persistence:
+      data:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        retain: true
+
+      env:
+        enabled: true
+        type: secret
+        name: vaultwarden-secret
+        items:
+          - key: .env
+            path: /data/.env
+        advancedMounts:
+          ${APP}: 
+            app: 
+              - path: /data/.env
+                readOnly: true
+                subPath: .env
+      

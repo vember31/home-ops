@@ -12,7 +12,6 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: traefik
-    - name: cloudnative-pg-cluster
   path: ./kubernetes/apps/security/vaultwarden/app
   prune: true
   sourceRef:
@@ -25,4 +24,5 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: "bitwarden"
+      GATUS_SUBDOMAIN: "vault"
+      GATUS_PATH: "/alive"
