@@ -7,5 +7,5 @@ resources:
   - ./namespace.yaml
   
   # Post Flux-Kustomizations
-  - ./vaultwarden/ks.yaml
+  # - ./vaultwarden/ks.yaml
 
