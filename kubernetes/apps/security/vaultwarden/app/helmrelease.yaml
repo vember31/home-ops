@@ -211,7 +211,7 @@ spec:
         name: vaultwarden-secret
         items:
           - key: .env
-            path: /data/.env
+            path: .env
         advancedMounts:
           ${APP}: 
             app: 
