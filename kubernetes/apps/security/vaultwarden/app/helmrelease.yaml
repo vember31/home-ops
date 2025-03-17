@@ -164,39 +164,34 @@ spec:
           gethomepage.dev/group: Security
           gethomepage.dev/icon: vaultwarden.png
         hosts:
-          - host: &apphost ${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}
+          - host: &host ${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
                   identifier: app
                   port: http
         tls: 
-         - secretName: ${APP}-tls-production
+         - secretName: &tls ${APP}-tls-production
            hosts:
-             - *apphost
+             - *host
 
+      # the /admin subpath can be accessed via secure networks thanks to a dns change that 
+      # resolves the public subdomain (vault.${SECRET_DOMAIN}) to the internal LB IP for Traefik
       admin:
         enabled: true
         annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/name: Vaultwarden Admin Page
-          gethomepage.dev/description: Vaultwarden Admin Page
-          gethomepage.dev/group: Security
-          gethomepage.dev/icon: vaultwarden.png
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd 
         hosts:
-          - host: &adminhost vaultadmin.local.${SECRET_DOMAIN}
+          - host: *host
             paths:
               - path: /admin
                 service:
                   identifier: app
                   port: http
         tls: 
-         - secretName: bwadmin-tls-production
+         - secretName: *tls
            hosts:
-             - *adminhost
+             - *host
 
     persistence:
       data:
