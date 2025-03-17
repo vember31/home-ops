@@ -103,6 +103,8 @@ spec:
 
             env:
               TIMEZONE: ${TIMEZONE}
+              RCLONE_TEMP_DIR: "/data/"
+              RCLONE_CONFIG: "/data/rclone.conf"
               RCLONE_REMOTE_NAME: VAULTWARDEN-K3S
               RCLONE_REMOTE_DIR: /Vaultwarden-k3s/
               CRON: 0 5 * * *
