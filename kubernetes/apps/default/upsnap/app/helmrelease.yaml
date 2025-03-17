@@ -62,7 +62,7 @@ spec:
             nameOverride: *name
             image:
               repository: ghcr.io/seriousm4x/upsnap
-              tag: 4.6.1@sha256:036f8be0712ed4cc607c1852ad4afa3bae4e4c9df83415bdfab8d981a8183044
+              tag: 5.0.1@sha256:b5da39ec4866524786f8914763c29c4f8e5af4d433e13d0b887f03c502a213ba
               pullPolicy: IfNotPresent
 
             env:
