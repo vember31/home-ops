@@ -93,6 +93,7 @@ customDNS:
     pve2.${SECRET_DOMAIN}: ${PVE_2}
     pve3.${SECRET_DOMAIN}: ${PVE_3}
     pve4.${SECRET_DOMAIN}: ${PVE_4}
+    vault.${SECRET_DOMAIN}: ${TRAEFIK_IP}
 
 connectIPVersion: v4
 
