@@ -125,6 +125,7 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
+              runAsNonRoot: false
               capabilities: { drop: ["ALL"] }
 
             resources:
