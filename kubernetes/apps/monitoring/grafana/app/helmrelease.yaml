@@ -363,7 +363,7 @@ spec:
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-production
-        traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+        traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
         external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
         hajimari.io/appName: Grafana
         hajimari.io/icon: simple-icons:grafana

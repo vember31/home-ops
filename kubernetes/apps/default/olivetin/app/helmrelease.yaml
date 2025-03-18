@@ -113,7 +113,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
           hajimari.io/icon: mdi:script-text
           hajimari.io/info: &description Shell Scripts Frontend
           hajimari.io/group: Resources

@@ -114,7 +114,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
           hajimari.io/icon: arcticons:iptv-smarters
           hajimari.io/info: &description IPTV Playlist Management
           hajimari.io/url: https://threadfin.local.${SECRET_DOMAIN}/web/

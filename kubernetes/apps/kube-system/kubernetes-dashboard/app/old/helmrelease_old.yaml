@@ -61,7 +61,7 @@ spec:
           scope: cluster
         labels: {}
         annotations: 
-          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
           hajimari.io/icon: carbon:kubernetes
           hajimari.io/info: Centralized Kubernetes Management
           hajimari.io/appName: Kubernetes Dashboard
