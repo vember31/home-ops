@@ -71,9 +71,6 @@ spec:
             scheme: https
             permanent: true
       websecure:
-        # these are global middlewares
-        middlewares:
-          - networking-error-pages@kubernetescrd
         tls:
           enabled: true
           options: "default"
