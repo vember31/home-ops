@@ -1,0 +1,11 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: external-with-errors
+  namespace: networking
+spec:
+  chain:
+    middlewares:
+    - name: cloudflare-ips
+    - name: error-pages

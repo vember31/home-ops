@@ -1,0 +1,11 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: internal-with-errors
+  namespace: networking
+spec:
+  chain:
+    middlewares:
+    - name: secure-networks
+    - name: error-pages
