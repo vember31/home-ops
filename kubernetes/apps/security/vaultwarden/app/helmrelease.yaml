@@ -172,7 +172,8 @@ spec:
       admin:
         enabled: true
         annotations:
-          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd 
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
+          external-dns.alpha.kubernetes.io/exclude: "true"
         hosts:
           - host: *host
             paths:
@@ -204,7 +205,7 @@ spec:
         advancedMounts:
           ${APP}: 
             app: 
-              - path: /data/.env
+              - path: /.env
                 readOnly: true
                 subPath: .env
       
