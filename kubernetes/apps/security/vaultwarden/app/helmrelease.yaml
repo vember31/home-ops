@@ -172,7 +172,7 @@ spec:
       admin:
         enabled: true
         annotations:
-          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
           external-dns.alpha.kubernetes.io/exclude: "true"
         hosts:
           - host: *host
@@ -208,4 +208,3 @@ spec:
               - path: /.env
                 readOnly: true
                 subPath: .env
-      
