@@ -63,7 +63,7 @@ spec:
             nameOverride: *name
             image:
               repository: ghcr.io/wizarrrr/wizarr
-              tag: beta@sha256:d19d886d50909f24d36f16fd62d4f984d49c94ff417d4ab540572f8b1bafbb5a
+              tag: 4.2.0@sha256:7350c4be4faafda28215da19781ce393900d4f776da4a77de453cf40171ebf2a
               pullPolicy: IfNotPresent
 
             env:
