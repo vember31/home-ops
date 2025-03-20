@@ -61,7 +61,7 @@ spec:
   # externalClusters:
   #   - name: *previousCluster
   #     connectionParameters:
-  #       host: postgres-rw.database.svc.cluster.local #service of the previous cluster
+  #       host: postgres-17-rw.database.svc.cluster.local #service of the previous cluster
   #       user: postgres
   #       dbname: postgres
   #     password:

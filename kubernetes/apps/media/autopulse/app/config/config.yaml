@@ -1,7 +1,7 @@
 app:
   hostname: 0.0.0.0
   port: 2875
-  database_url: postgres://{{ .AUTOPULSE_POSTGRES_USER }}:{{ .AUTOPULSE_POSTGRES_PASS }}@postgres-rw.database.svc.cluster.local:5432/${APP}?sslmode=disable
+  database_url: postgres://{{ .AUTOPULSE_POSTGRES_USER }}:{{ .AUTOPULSE_POSTGRES_PASS }}@postgres-17-rw.database.svc.cluster.local:5432/${APP}?sslmode=disable
 
 auth:
   enabled: false

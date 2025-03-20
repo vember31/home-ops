@@ -3,7 +3,7 @@ web:
   port: 8080
 storage:
   type: postgres
-  path: postgres://{{ .GATUS_POSTGRES_USER }}:{{ .GATUS_POSTGRES_PASS }}@postgres-rw.database.svc.cluster.local:5432/${APP}?sslmode=disable
+  path: postgres://{{ .GATUS_POSTGRES_USER }}:{{ .GATUS_POSTGRES_PASS }}@postgres-17-rw.database.svc.cluster.local:5432/${APP}?sslmode=disable
   caching: true
 metrics: true
 debug: false

@@ -5,7 +5,7 @@
           "Group": "Kubernetes",
           "Port": 5432,
           "Username": "postgres",
-          "Host": "postgres-rw",
+          "Host": "postgres-17-rw",
           "SSLMode": "prefer",
           "MaintenanceDB": "postgres"
       }
