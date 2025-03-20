@@ -70,8 +70,8 @@ spec:
           app:
             nameOverride: *name
             image:
-              repository: docker.io/remirigal/plex-auto-languages
-              tag: v1.2.3@sha256:54bd9cf5d399514b8ed3052ce1d01a14375825a429653cb06da129685740889e
+              repository: ghcr.io/journeydocker/plex-auto-languages
+              tag: v1.3.6@sha256:1f6418366e59e03d9a4f0a88babd6addbdeccae8d9d4aa42d2818686523e11c1
               pullPolicy: IfNotPresent
 
             env:
