@@ -7,5 +7,5 @@ resources:
   - ./helmrelease.yaml
   - ./tools
   - ../../../../templates/gatus/internal
-  - ../../../../templates/longhorn/backup
-  - ../../../../templates/longhorn/fstrim
+  # - ../../../../templates/longhorn/backup
+  - ../../../../templates/longhorn/fstrim/ks.yaml
