@@ -7,4 +7,3 @@ resources:
   - ./helmrelease.yaml
   - ./tools
   - ../../../../templates/gatus/internal
-  - ../../../../templates/longhorn/fstrim
