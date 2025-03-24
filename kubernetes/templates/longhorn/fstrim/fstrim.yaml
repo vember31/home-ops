@@ -2,7 +2,7 @@ apiVersion: longhorn.io/v1beta1
 kind: RecurringJob
 metadata:
   name: ${APP}-fstrim
-  namespace: ${STORAGE_NAMESPACE:=storage}
+  namespace: storage
 spec:
   cron: "0 9 * * *"
   task: "filesystem-trim"
