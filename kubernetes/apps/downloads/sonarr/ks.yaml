@@ -13,8 +13,6 @@ spec:
     - name: traefik
     - name: cert-manager
     - name: longhorn
-  components:
-    - ../../../../templates/longhorn/fstrim
   path: ./kubernetes/apps/downloads/sonarr/app
   prune: true
   sourceRef:
