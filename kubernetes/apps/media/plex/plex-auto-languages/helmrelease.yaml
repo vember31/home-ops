@@ -71,7 +71,7 @@ spec:
             nameOverride: *name
             image:
               repository: ghcr.io/journeydocker/plex-auto-languages
-              tag: 1.3.6@sha256:1f6418366e59e03d9a4f0a88babd6addbdeccae8d9d4aa42d2818686523e11c1
+              tag: 1.3.7@sha256:69863f43ce12a24f1d31ff01f021def79ba13c2a0e816e59b821efbca78d3098
               pullPolicy: IfNotPresent
 
             env:
