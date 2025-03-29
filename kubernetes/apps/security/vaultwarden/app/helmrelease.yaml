@@ -151,8 +151,8 @@ spec:
           traefik.ingress.kubernetes.io/router.middlewares: networking-cloudflare-ips@kubernetescrd
           external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/name: Vaultwarden Admin
-          gethomepage.dev/description: Vaultwarden Admin Page
+          gethomepage.dev/name: Vaultwarden-k3s
+          gethomepage.dev/description: Password Management
           gethomepage.dev/group: Security
           gethomepage.dev/icon: vaultwarden.png
         hosts:
@@ -173,7 +173,7 @@ spec:
         enabled: true
         annotations:
           traefik.ingress.kubernetes.io/router.middlewares: networking-secure-networks@kubernetescrd
-          external-dns.alpha.kubernetes.io/exclude: "true"
+          external-dns.alpha.kubernetes.io/exclude: "true" #prevent external-dns from trying to make 2 public DNS records
         hosts:
           - host: *host
             paths:
