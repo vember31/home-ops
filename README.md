@@ -28,7 +28,7 @@ There is a template over at [onedr0p/flux-cluster-template](https://github.com/o
 
 ### Installation
 
-This cluster is [k3s](https://k3s.io/) provisioned atop Ubuntu 22.04 VMs, which are hosted in Proxmox v8. This is a semi-hyper-converged cluster, where workloads and block storage share the same available resources on nodes.  Two of the nodes also run OpenMediaVault, utilizing XFS & MergerFS as file systems, and serve NFS, SMB, S3 (via [MinIO](https://min.io)) and provide bulk file storage and Longhorn backups. These bulk storage drives are backed up via SnapRAID on a weekly schedule.
+This cluster is [k3s](https://k3s.io/) provisioned atop Ubuntu Server VMs, which are hosted in Proxmox. This is a semi-hyper-converged cluster, where workloads and block storage share the same available resources on nodes.  Two of the nodes also run OpenMediaVault, utilizing XFS & MergerFS as file systems, and serve NFS, SMB, S3 (via [MinIO](https://min.io)) and provide bulk file storage and Longhorn backups. These bulk storage drives are backed up via SnapRAID on a weekly schedule.
 
 ### Core Components
 
@@ -89,7 +89,7 @@ graph TD;
 
 A UDM Pro SE is the center of the network. DHCP leases point to [Blocky](https://github.com/0xERR0R/blocky) as the primary DNS and [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome) as secondary. Blocky is hosted within the Kubernetes cluster as a daemonset for high availability across 4 nodes (5 VMs), and AdGuard Home is hosted in an LXC container on one of the nodes. MetalLB announces these routes via BGP to achieve true high-availability for clients to have direct routes to each node. A spare Raspberry Pi is available for further redundancy.
 
-Blocky / AdGuard Home reoslve all local (`*.local.${SECRET_DOMAIN}`) DNS entries to Traefik (reverse proxy), which directs to the appropriate ingress. All forwarded DNS queries that leave the cluster are sent via DoT to Cloudflare.
+Blocky / AdGuard Home resolve all local (`*.local.${SECRET_DOMAIN}`) DNS entries to Traefik (reverse proxy), which directs to the appropriate ingress. All forwarded DNS queries that leave the cluster are sent via DoT to Cloudflare.
 
 
 ## 🔧 Hardware
