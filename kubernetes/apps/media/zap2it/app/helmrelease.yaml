@@ -58,7 +58,7 @@ spec:
           app:
             image:
               repository: ghcr.io/vember31/zap2it-docker
-              tag: main@sha256:2b519caca235d4ebd70b84e792708be824308df8228005c12321812f76c7cdfa
+              tag: main@sha256:ed88fb85d3b1a33b99f1525d60d6cf20d7b8ecb7bce50b39aa1ca2d1aa611c8a
             env:
               CONFIGFILE: "/data/zap2itconfig.ini"
               OUTPUTFILE: "/recordings/xmlguide.xmltv"
