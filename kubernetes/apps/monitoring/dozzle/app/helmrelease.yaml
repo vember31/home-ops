@@ -62,7 +62,7 @@ spec:
             nameOverride: *name
             image:
               repository: amir20/dozzle
-              tag: v8.12.1@sha256:9a70764bd83a4a33719b6ff812c38f54ebde41a59d3a7949d84f4c4a2b8dd0bd
+              tag: v8.12.2@sha256:d70209a948fe40aa0dd0dbfdabcdb56bf0494e23839659c0dd25a0945906651f
               pullPolicy: IfNotPresent
 
             env:
