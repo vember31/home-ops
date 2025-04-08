@@ -68,6 +68,7 @@ spec:
             env:
               TZ: ${TIMEZONE}
               DOZZLE_MODE: k8s
+              DOZZLE_ENABLE_SHELL: true
 
             resources:
               requests:
