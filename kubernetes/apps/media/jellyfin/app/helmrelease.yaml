@@ -115,6 +115,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
           hajimari.io/icon: simple-icons:jellyfin
           hajimari.io/info: &description Open-source Media Server
           gethomepage.dev/enabled: "true"
