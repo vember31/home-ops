@@ -6,8 +6,8 @@ metadata:
   name: pod-viewer-role
 rules:
   - apiGroups: [""]
-    resources: ["pods", "pods/log", "nodes"]
-    verbs: ["get", "list", "watch","exec"]
+    resources: ["pods", "pods/log", "nodes","pods/exec"]
+    verbs: ["get", "list", "watch","create"]
   - apiGroups: ["metrics.k8s.io"]
     resources: ["pods"]
     verbs: ["get", "list"]
