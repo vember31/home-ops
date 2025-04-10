@@ -90,10 +90,6 @@
         href: https://${UNVR_IP}/protect
         icon: unifi-protect.png
         description: Home Security
-    - Vaultwarden:
-        href: https://bitwarden.${SECRET_DOMAIN}
-        icon: vaultwarden
-        description: Password Management
 
 - Storage:
     - MinIO:
