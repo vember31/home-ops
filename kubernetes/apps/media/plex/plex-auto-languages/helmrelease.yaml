@@ -83,6 +83,30 @@ spec:
               requests:
                 cpu: 10m
 
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec: &probes_spec
+                  httpGet:
+                    path: /ready
+                    port: 9880
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness:
+                <<: *probes
+                spec:
+                  <<: *probes_spec
+                  initialDelaySeconds: 0
+              startup:
+                <<: *probes
+                spec:
+                  <<: *probes_spec
+                  initialDelaySeconds: 0
+                  failureThreshold: 30
+
     persistence:
       config:
         enabled: true
