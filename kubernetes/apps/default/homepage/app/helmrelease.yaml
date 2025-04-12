@@ -80,22 +80,26 @@ spec:
                 memory: 1Gi
 
             probes:
-              liveness:
+              liveness: &probes
                 enabled: true
-              readiness:
-                enabled: true
-              startup:
-                enabled: true
+                custom: true
                 spec:
-                  failureThreshold: 30
-                  periodSeconds: 5
+                  httpGet:
+                    port: &port 3000
+                    path: /api/healthcheck
+                    httpHeaders:
+                      - name: Host
+                        value: *host
+                  initialDelaySeconds: 0
+              readiness: *probes
+              startup: *probes
 
     service:
       app:
         controller: *name
         ports:
           http:
-            port: 3000
+            port: *port
 
     serviceAccount:
       create: true

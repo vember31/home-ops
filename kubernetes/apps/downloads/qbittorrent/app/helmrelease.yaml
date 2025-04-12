@@ -54,7 +54,6 @@ spec:
         enabled: true
         type: deployment
         annotations: {}
-        labels: {}
         replicas: 1
 
         # Controller-specific overrides for `defaultPodOptions` keys
@@ -87,6 +86,25 @@ spec:
                 cpu: 100m
               limits:
                 memory: 4Gi
+
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v2/app/version
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
 
             securityContext:
               allowPrivilegeEscalation: false

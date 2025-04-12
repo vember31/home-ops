@@ -83,15 +83,18 @@ spec:
                 memory: 256Mi
 
             probes:
-              liveness:
+              liveness: &probes
                 enabled: true
-              readiness:
-                enabled: true
-              startup:
-                enabled: true
+                custom: true
                 spec:
-                  failureThreshold: 30
-                  periodSeconds: 5
+                  httpGet:
+                    path: /api/readyz
+                    port: &port 1337
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
 
             securityContext:
               allowPrivilegeEscalation: false
@@ -105,7 +108,7 @@ spec:
         controller: *name
         ports:
           http:
-            port: 1337
+            port: *port
 
     ingress:
       app:
