@@ -62,7 +62,7 @@ spec:
             nameOverride: *name
             image:
               repository: ghcr.io/hotio/unpackerr
-              tag: release-0.14.5@sha256:d1bc11b7cfd30b978a08afa980aa962c7c8560ec5bdb8d4b52f00cb05c7232c6
+              tag: release-0.14.5@sha256:541576ea74f53e70e37fba6372b34fa355d166c5a027f3c64079f3517d7fd267
               pullPolicy: IfNotPresent
 
             env:
