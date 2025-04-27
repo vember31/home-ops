@@ -227,7 +227,7 @@ spec:
           gnetId: 17996
           revision: 12
           datasource:
-            - name: DS_BLOCKYDB
+            - name: DS_BLOCKY-POSTGRESQL
               value: blocky-postgres
       flux:
         flux-cluster:
