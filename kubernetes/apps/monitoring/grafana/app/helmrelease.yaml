@@ -169,7 +169,7 @@ spec:
             type: postgres
             uid: blocky-postgres
             access: proxy
-            url: postgres-ro.database.svc.cluster.local:5432
+            url: postgres-17-ro.database.svc.cluster.local:5432
             user: "${BLOCKY_POSTGRES_USER}"
             secureJsonData:
               password: "${BLOCKY_POSTGRES_PASS}"
