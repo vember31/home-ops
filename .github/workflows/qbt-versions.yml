@@ -21,10 +21,12 @@ jobs:
 
           echo "Using version <= $VERSION for allowedVersions"
 
-          echo "{\"packageRules\": [{\"matchPackageNames\": [\"home-operations/qbittorrent\"], \"allowedVersions\": [\"<=$VERSION\"]}]}" \
+          echo "{\"packageRules\": [{\"matchPackageNames\": [\"linuxserver/qbittorrent\"], \"allowedVersions\": [\"<=$VERSION\"]}]}" \
             > .github/renovate/qbittorrent-versions.json
 
       - name: Commit and push if changed
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -32,7 +34,7 @@ jobs:
           git add .github/renovate/qbittorrent-versions.json
           if ! git diff --cached --quiet; then
             git commit -m "Update qBittorrent allowedVersions from qbitmanage develop"
-            git push
+            git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
           else
             echo "No changes to commit"
           fi
