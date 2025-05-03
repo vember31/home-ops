@@ -27,7 +27,7 @@ jobs:
           mkdir -p .github/renovate
 
           echo "{\"packageRules\": [{" \
-          "\"matchPackageNames\": [\"home-operations/qbittorrent\"]," \
+          "\"matchPackageNames\": [\"ghcr.io/home-operations/qbittorrent\"]," \
           "\"matchDatasources\": [\"docker\"]," \
           "\"versioning\": \"loose\"," \
           "\"allowedVersions\": [\"<=$VERSION\"]" \
