@@ -29,7 +29,7 @@ jobs:
 
       - name: Commit, push, and notify if changed
         env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -39,6 +39,6 @@ jobs:
             git push
             curl -X POST -H "Content-Type: application/json" \
               -d "{\"content\": \"qBittorrent allowedVersions updated to $VERSION.\"}" \
-              "$DISCORD_WEBHOOK"
+              "$DISCORD_WEBHOOK_URL"
           else
             echo "No changes to commit"
