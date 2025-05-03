@@ -26,18 +26,12 @@ jobs:
 
           mkdir -p .github/renovate
 
-          cat > .github/renovate/qbittorrent-versions.json <<EOF
-{
-  "packageRules": [
-    {
-      "matchPackageNames": ["home-operations/qbittorrent"],
-      "matchDatasources": ["docker"],
-      "versioning": "loose",
-      "allowedVersions": ["<=$VERSION"]
-    }
-  ]
-}
-EOF
+          echo "{\"packageRules\": [{
+            \"matchPackageNames\": [\"home-operations/qbittorrent\"],
+            \"matchDatasources\": [\"docker\"],
+            \"versioning\": \"loose\",
+            \"allowedVersions\": [\"<=$VERSION\"]
+          }]}" > .github/renovate/qbittorrent-versions.json
 
       - name: Commit and push if changed
         run: |
