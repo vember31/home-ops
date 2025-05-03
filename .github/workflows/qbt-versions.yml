@@ -1,0 +1,38 @@
+name: Update qBittorrent Allowed Versions for Renovate
+
+on:
+  schedule:
+    - cron: "0 9 * * *"  # 9:00 AM UTC = 4:00 AM CT
+  workflow_dispatch:
+
+jobs:
+  update-qbit-versions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch qbit version from qbitmanage develop
+        run: |
+          VERSION=$(curl -s https://raw.githubusercontent.com/StuffAnThings/qbit_manage/master/SUPPORTED_VERSIONS.json \
+            | jq -r '.develop.qbit' \
+            | sed 's/^v//')
+
+          echo "Using version <= $VERSION for allowedVersions"
+
+          echo "{\"packageRules\": [{\"matchPackageNames\": [\"home-operations/qbittorrent\"], \"allowedVersions\": [\"<=$VERSION\"]}]}" \
+            > .github/renovate/qbittorrent-versions.json
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .github/renovate/qbittorrent-versions.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update qBittorrent allowedVersions from qbitmanage develop"
+            git push
+          else
+            echo "No changes to commit"
+          fi
