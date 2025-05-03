@@ -1,1 +1,1 @@
-{"packageRules": [{ "matchPackageNames": ["ghcr.io/home-operations/qbittorrent"], "matchDatasources": ["docker"], "versioning": "loose", "allowedVersions": ["<=5.0.5"] }]}
+{"packageRules": [{ "matchPackageNames": ["ghcr.io/home-operations/qbittorrent"], "matchDatasources": ["docker"], "versioning": "loose", "allowedVersions": ["<=5.0.4"] }]}
