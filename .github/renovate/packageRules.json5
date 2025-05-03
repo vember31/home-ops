@@ -5,7 +5,7 @@
       "description": "Loose versioning for non-semver packages",
       "matchDatasources": ["docker"],
       "versioning": "loose",
-      "matchPackagePatterns": ["home-operations/plex", "qbittorrent"]
+      "matchPackagePatterns": ["home-operations/plex"]
     },
     {
       "description": "Hotio Release Semver Packages",
