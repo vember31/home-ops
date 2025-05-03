@@ -5,6 +5,9 @@ on:
     - cron: "0 9 * * *"  # 9:00 AM UTC = 4:00 AM CT
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update-qbit-versions:
     runs-on: ubuntu-latest
@@ -21,12 +24,12 @@ jobs:
 
           echo "Using version <= $VERSION for allowedVersions"
 
-          echo "{\"packageRules\": [{\"matchPackageNames\": [\"linuxserver/qbittorrent\"], \"allowedVersions\": [\"<=$VERSION\"]}]}" \
-            > .github/renovate/qbittorrent-versions.json
+          echo "{\"packageRules\": [{
+            \"matchPackageNames\": [\"home-operations/qbittorrent\"],
+            \"allowedVersions\": [\"<=$VERSION\"]
+          }]}" > .github/renovate/qbittorrent-versions.json
 
       - name: Commit and push if changed
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -34,7 +37,7 @@ jobs:
           git add .github/renovate/qbittorrent-versions.json
           if ! git diff --cached --quiet; then
             git commit -m "Update qBittorrent allowedVersions from qbitmanage develop"
-            git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
+            git push
           else
             echo "No changes to commit"
           fi
