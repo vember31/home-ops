@@ -1,47 +1,44 @@
-name: Update qBittorrent Allowed Versions for Renovate
+name: Check qbitmanage for qBittorrent compatibility
 
 on:
   schedule:
-    - cron: "0 9 * * *"  # 9:00 AM UTC = 4:00 AM CT
+    - cron: '0 9 * * *' # 4 AM CT
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  update-qbit-versions:
+  check-qbittorrent-version:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Fetch qbit version from qbitmanage develop
+      - name: Fetch qbitmanage develop version
+        id: fetch
         run: |
-          VERSION=$(curl -s https://raw.githubusercontent.com/StuffAnThings/qbit_manage/master/SUPPORTED_VERSIONS.json \
-            | jq -r '.develop.qbit' \
-            | sed 's/^v//')
+          DEVELOP_VERSION=$(curl -s https://raw.githubusercontent.com/StuffAnThings/qbit_manage/master/SUPPORTED_VERSIONS.json | jq -r '.develop.qbit' | sed 's/^v//')
+          echo "VERSION=$DEVELOP_VERSION" >> $GITHUB_ENV
 
-          echo "Using version <= $VERSION for allowedVersions"
+      - name: Write Renovate packageRules file
+        run: |
+          echo "{\"packageRules\": [{
+            \"matchPackageNames\": [\"ghcr.io/home-operations/qbittorrent\"],
+            \"matchDatasources\": [\"docker\"],
+            \"versioning\": \"loose\",
+            \"allowedVersions\": [\"<=$VERSION\"]
+          }]}" > .github/renovate/qbittorrent-versions.json
 
-          mkdir -p .github/renovate
-
-          echo "{\"packageRules\": [{" \
-          "\"matchPackageNames\": [\"ghcr.io/home-operations/qbittorrent\"]," \
-          "\"matchDatasources\": [\"docker\"]," \
-          "\"versioning\": \"loose\"," \
-          "\"allowedVersions\": [\"<=$VERSION\"]" \
-          "}]}" > .github/renovate/qbittorrent-versions.json
-
-      - name: Commit and push if changed
+      - name: Commit, push, and notify if changed
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add .github/renovate/qbittorrent-versions.json
           if ! git diff --cached --quiet; then
             git commit -m "Update qBittorrent allowedVersions from qbitmanage develop"
             git push
+            curl -X POST -H "Content-Type: application/json" \
+              -d "{\"content\": \"qBittorrent allowedVersions updated to $VERSION.\"}" \
+              "$DISCORD_WEBHOOK"
           else
             echo "No changes to commit"
-          fi
