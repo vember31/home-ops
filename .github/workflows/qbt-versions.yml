@@ -24,10 +24,20 @@ jobs:
 
           echo "Using version <= $VERSION for allowedVersions"
 
-          echo "{\"packageRules\": [{
-            \"matchPackageNames\": [\"home-operations/qbittorrent\"],
-            \"allowedVersions\": [\"<=$VERSION\"]
-          }]}" > .github/renovate/qbittorrent-versions.json
+          mkdir -p .github/renovate
+
+          cat <<EOF > .github/renovate/qbittorrent-versions.json
+{
+  "packageRules": [
+    {
+      "matchPackageNames": ["home-operations/qbittorrent"],
+      "matchDatasources": ["docker"],
+      "versioning": "loose",
+      "allowedVersions": ["<=$VERSION"]
+    }
+  ]
+}
+EOF
 
       - name: Commit and push if changed
         run: |
