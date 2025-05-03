@@ -5,35 +5,40 @@ on:
     - cron: '0 9 * * *' # 4 AM CT
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   check-qbittorrent-version:
     runs-on: ubuntu-latest
+    env:
+      FILE_PATH: .github/renovate/qbittorrent-versions.json
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Fetch qbitmanage develop version
-        id: fetch
+      - name: Fetch qbitmanage supported versions
+        id: fetch_versions
         run: |
-          DEVELOP_VERSION=$(curl -s https://raw.githubusercontent.com/StuffAnThings/qbit_manage/master/SUPPORTED_VERSIONS.json | jq -r '.develop.qbit' | sed 's/^v//')
-          echo "VERSION=$DEVELOP_VERSION" >> $GITHUB_ENV
+          curl -s https://raw.githubusercontent.com/StuffAnThings/qbit_manage/refs/heads/master/SUPPORTED_VERSIONS.json > versions.json
+          VERSION=$(jq -r '.develop.qbit' versions.json | sed 's/^v//')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Write Renovate packageRules file
+      - name: Generate qbittorrent-versions.json
         run: |
           echo "{\"packageRules\": [{
             \"matchPackageNames\": [\"ghcr.io/home-operations/qbittorrent\"],
             \"matchDatasources\": [\"docker\"],
             \"versioning\": \"loose\",
             \"allowedVersions\": [\"<=$VERSION\"]
-          }]}" > .github/renovate/qbittorrent-versions.json
+          }]}" > $FILE_PATH
 
-      - name: Commit, push, and notify if changed
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .github/renovate/qbittorrent-versions.json
+
+          git add $FILE_PATH
           if ! git diff --cached --quiet; then
             git commit -m "Update qBittorrent allowedVersions from qbitmanage develop"
             git push
@@ -43,3 +48,5 @@ jobs:
           else
             echo "No changes to commit"
           fi
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
