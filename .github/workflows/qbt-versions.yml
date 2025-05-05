@@ -20,7 +20,7 @@ jobs:
       - name: Fetch qbitmanage supported versions
         id: fetch_versions
         run: |
-          curl -s https://raw.githubusercontent.com/StuffAnThings/qbit_manage/refs/heads/master/SUPPORTED_VERSIONS.json > versions.json
+          curl -s https://raw.githubusercontent.com/StuffAnThings/qbit_manage/refs/heads/develop/SUPPORTED_VERSIONS.json > versions.json
           VERSION=$(jq -r '.develop.qbit' versions.json | sed 's/^v//')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
