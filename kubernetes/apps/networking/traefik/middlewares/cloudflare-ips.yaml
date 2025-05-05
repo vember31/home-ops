@@ -31,3 +31,4 @@ spec:
       - 2c0f:f248::/32
       - ${SECURE_CIDR} #for supporting an internal redirect for vaultwarden
       - ${VPN_CIDR} #for supporting an internal redirect for vaultwarden
+      - ${GUEST_CIDR} #for supporting an internal redirect for vaultwarden
