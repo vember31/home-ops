@@ -49,7 +49,6 @@ spec:
         enabled: true
         type: deployment
         annotations: {}
-        labels: {}
         replicas: 1
 
         # Controller-specific overrides for `defaultPodOptions` keys
@@ -87,22 +86,36 @@ spec:
                 memory: 2Gi
 
             probes:
-              liveness:
+              liveness: &probe
                 enabled: true
-              readiness:
-                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 8096
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probe
               startup:
                 enabled: true
+                custom: true
                 spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
                   failureThreshold: 30
-                  periodSeconds: 5
 
     service:
       app:
         controller: *name
         ports:
           http:
-            port: 8096
+            port: *port
 
     ingress:
       app:
