@@ -133,7 +133,7 @@ spec:
     service:
       apprise:
         controller: *name
-        nameOverride: apprise
+        forceRename: apprise
         ports:
           http:
             port: 8000 
