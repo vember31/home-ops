@@ -52,7 +52,7 @@ spec:
           reloader.stakater.com/auto: "true"
         replicas: 1
         serviceAccount:
-          identifier: pod-viewer
+          identifier: ${APP}
 
         containers:
           app:
@@ -117,4 +117,4 @@ spec:
              - *host
 
     serviceAccount:
-      pod-viewer: {}
+      ${APP}: {}
