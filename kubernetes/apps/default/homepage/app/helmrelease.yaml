@@ -46,12 +46,13 @@ spec:
 
     controllers:
       ${APP}:
-        enabled: true
         type: deployment
         replicas: 1 #does some weird refresh behavior with 2+ replicas
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
+        serviceAccount:
+          identifier: ${APP}
         containers:
           app:
             image:
@@ -90,17 +91,16 @@ spec:
 
     service:
       app:
-        controller: *name
+        controller: ${APP}
         ports:
           http:
             port: *port
 
     serviceAccount:
-      homepage: {}
+      ${APP}: {}
 
     ingress:
       app:
-        enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
