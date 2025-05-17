@@ -184,6 +184,7 @@ spec:
     persistence:
       data:
         enabled: true
+        suffix: data
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce
