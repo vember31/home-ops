@@ -48,6 +48,8 @@ spec:
       olivetin:
         enabled: true
         type: deployment
+        serviceAccount:
+          identifier: ${APP}
         annotations:
           reloader.stakater.com/auto: "true"
         replicas: 1
@@ -134,10 +136,9 @@ spec:
              - *host
 
     serviceAccount:
-      name: olivetin
+      ${APP}: {}
 
     persistence:
-
       config:
         enabled: true
         type: secret
