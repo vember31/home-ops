@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -46,6 +46,8 @@ spec:
     controllers:
       ${APP}:
         strategy: RollingUpdate
+        serviceAccount:
+          identifier: system-upgrade
         containers:
           app:
             image:
@@ -90,8 +92,10 @@ spec:
             - {key: node-role.kubernetes.io/controlplane, operator: Exists, effect: NoSchedule}
             - {key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}
             - {key: node-role.kubernetes.io/etcd, operator: Exists, effect: NoExecute}
-        serviceAccount:
-          name: system-upgrade
+
+    serviceAccount:
+      system-upgrade: {}
+
     persistence:
       tmp:
         type: emptyDir

@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -51,10 +51,11 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         replicas: 1
+        serviceAccount:
+          identifier: pod-viewer
 
         containers:
           app:
-            nameOverride: *name
             image:
               repository: amir20/dozzle
               tag: v8.12.15@sha256:4d4d12db0575db8a5e80641f536ab0aa4ae81003d50aea5ea55fc80ae444ca66
@@ -116,5 +117,4 @@ spec:
              - *host
 
     serviceAccount:
-      create: true
-      name: pod-viewer
+      pod-viewer: {}

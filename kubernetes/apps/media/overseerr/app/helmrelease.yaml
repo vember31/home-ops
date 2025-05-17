@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -54,7 +54,6 @@ spec:
 
         containers:
           app:
-            nameOverride: *name
             image:
               repository: ghcr.io/hotio/overseerr
               tag: release-1.34.0@sha256:f6dda8b893dbd91003c6f486c77b3b07e2ce7a99f0f4838c884285c9c8002136
@@ -124,6 +123,7 @@ spec:
 
       config:
         enabled: true
+        suffix: config
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce

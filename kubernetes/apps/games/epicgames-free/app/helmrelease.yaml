@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -57,7 +57,6 @@ spec:
 
         containers:
           app:
-            nameOverride: *name
             image:
               repository: ghcr.io/claabs/epicgames-freegames-node
               tag: latest@sha256:493d039af91b13cabe4b4d5a51d7a8ed789f21697e6fdb07d6a00dd1a7c9639b
@@ -130,6 +129,7 @@ spec:
 
       config:
         enabled: true
+        suffix: config
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce

@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -55,7 +55,6 @@ spec:
 
         containers:
           app:
-            nameOverride: *name
             image:
               repository: ghcr.io/wizarrrr/wizarr
               tag: 4.2.0@sha256:7350c4be4faafda28215da19781ce393900d4f776da4a77de453cf40171ebf2a
@@ -117,6 +116,7 @@ spec:
 
       config:
         enabled: true
+        suffix: config
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce

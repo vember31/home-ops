@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -29,6 +29,8 @@ spec:
       ${APP}:
         annotations:
           reloader.stakater.com/auto: "true"
+        serviceAccount:
+          identifier: ${APP}
         initContainers:
           init-db:
             image:
@@ -131,8 +133,7 @@ spec:
              - *host
 
     serviceAccount:
-      create: true
-      name: gatus
+      gatus: {}
 
     persistence:
       config:
