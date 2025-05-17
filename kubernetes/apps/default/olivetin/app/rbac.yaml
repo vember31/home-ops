@@ -6,6 +6,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: olivetin
+  namespace: default
 roleRef:
   kind: ClusterRole
   name: pod-exec-and-list
