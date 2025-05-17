@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -59,6 +59,7 @@ spec:
 
         containers:
           app:
+            nameOverride: *name
             image:
               repository: ghcr.io/hotio/autoscan
               tag: release-1.4.0@sha256:fecc8f428c7f5355492aa926f48ad6c45723e78d8b08b5a2f93229919ba88b67
