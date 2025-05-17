@@ -45,12 +45,14 @@ spec:
   values:
 
     controllers:
-      olivetin:
+      ${APP}:
         enabled: true
         type: deployment
         annotations:
           reloader.stakater.com/auto: "true"
         replicas: 1
+        serviceAccount:
+          identifier: ${APP}
 
         # Controller-specific overrides for `defaultPodOptions` keys
         pod:
@@ -134,7 +136,7 @@ spec:
              - *host
 
     serviceAccount:
-      name: olivetin
+      ${APP}: {}
 
     persistence:
 

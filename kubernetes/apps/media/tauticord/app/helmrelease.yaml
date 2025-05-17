@@ -54,7 +54,6 @@ spec:
 
         containers:
           app:
-            nameOverride: *name
             image:
               repository: ghcr.io/nwithan8/tauticord
               tag: 5.12.1@sha256:7ce4f9da43bcab9cea025f4bbdd87243cf3186cee86fbf64e47b6598818b01bc

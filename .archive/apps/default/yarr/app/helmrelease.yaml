@@ -65,7 +65,6 @@ spec:
 
         containers:
           app:
-            nameOverride: *name
             image:
               repository: ghcr.io/wakeful-cloud/yarr
               tag: latest@sha256:71cd0ac4e41e2672c0fc25241e8b28b6c232a7892cced771227cb5f590f2be6d

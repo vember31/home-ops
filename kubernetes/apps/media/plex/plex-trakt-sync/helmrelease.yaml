@@ -54,7 +54,6 @@ spec:
 
         containers:
           app:
-            nameOverride: *name
             image:
               repository: ghcr.io/taxel/plextraktsync
               tag: 0.34.10@sha256:aa39f34a2deed41982398c8b52db98ff3929035ff68cfa15978d18fb46c45f55

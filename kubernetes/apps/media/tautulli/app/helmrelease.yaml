@@ -54,7 +54,6 @@ spec:
         
         containers:
           app:
-            nameOverride: *name
             image:
               repository: ghcr.io/hotio/tautulli
               tag: release-2.15.2@sha256:691a112ec493ef019d634e9c38062731b99e73027bee7398fd678302283c902d
