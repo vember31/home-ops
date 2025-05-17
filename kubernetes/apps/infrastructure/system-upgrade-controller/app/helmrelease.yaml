@@ -119,3 +119,6 @@ spec:
         globalMounts:
           - path: /etc/ca-certificates
             readOnly: true
+
+    serviceAccount:
+      system-upgrade: {}
