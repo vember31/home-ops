@@ -29,6 +29,8 @@ spec:
       ${APP}:
         annotations:
           reloader.stakater.com/auto: "true"
+        serviceAccount:
+          identifier: ${APP}
         initContainers:
           init-db:
             image:
@@ -131,8 +133,7 @@ spec:
              - *host
 
     serviceAccount:
-      create: true
-      name: gatus
+      gatus: {}
 
     persistence:
       config:

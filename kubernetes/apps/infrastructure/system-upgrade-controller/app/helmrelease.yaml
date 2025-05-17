@@ -46,6 +46,8 @@ spec:
     controllers:
       ${APP}:
         strategy: RollingUpdate
+        serviceAccount:
+          identifier: system-upgrade
         containers:
           app:
             image:
@@ -90,8 +92,10 @@ spec:
             - {key: node-role.kubernetes.io/controlplane, operator: Exists, effect: NoSchedule}
             - {key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}
             - {key: node-role.kubernetes.io/etcd, operator: Exists, effect: NoExecute}
-        serviceAccount:
-          name: system-upgrade
+
+    serviceAccount:
+      system-upgrade: {}
+
     persistence:
       tmp:
         type: emptyDir
