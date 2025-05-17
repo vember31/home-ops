@@ -62,7 +62,6 @@ spec:
 
         containers:
           app:
-            nameOverride: *name
             image:
               repository: docker.io/danonline/autopulse
               tag: latest-postgres@sha256:4da0f2bcc8a9bc3b78828249983792ce26dd49859346e9787d6d96f101bf28f4

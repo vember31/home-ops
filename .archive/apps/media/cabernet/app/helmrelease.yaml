@@ -59,7 +59,6 @@ spec:
 
         containers:
           app:
-            nameOverride: *name
             image:
               repository: ghcr.io/cabernetwork/cabernet
               tag: latest@sha256:8e27747e4475eb98d50871ec8a11b58bdb7039381ee079e4e7c1058253c96e70

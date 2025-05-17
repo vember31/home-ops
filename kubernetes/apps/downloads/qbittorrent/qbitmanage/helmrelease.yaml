@@ -68,7 +68,6 @@ spec:
 
         containers:
           app:
-            nameOverride: *name
             image:
               repository: ghcr.io/stuffanthings/qbit_manage
               tag: develop@sha256:c3bfa79b70dac52c6a3f9bca50cecaf9c0e189941c986e04f879d7a72090413c

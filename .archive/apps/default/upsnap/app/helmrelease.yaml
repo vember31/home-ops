@@ -54,7 +54,6 @@ spec:
 
         containers:
           app:
-            nameOverride: *name
             image:
               repository: ghcr.io/seriousm4x/upsnap
               tag: 5.0.7@sha256:1120019c02bf1e7b8ffd099b669573cd8507fb8045164e659b578b0f6c5a136c
