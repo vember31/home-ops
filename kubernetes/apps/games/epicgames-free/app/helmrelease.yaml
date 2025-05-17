@@ -130,6 +130,7 @@ spec:
 
       config:
         enabled: true
+        suffix: config
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce
