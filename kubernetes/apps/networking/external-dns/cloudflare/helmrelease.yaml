@@ -22,7 +22,7 @@ spec:
     createNamespace: true
     remediation:
       retries: 3
-    disableSchemaValidation: true #due to bug with external-dns 1.16.0. Revert to 'false' when fixed. https://github.com/kubernetes-sigs/external-dns/issues/5206
+    
   upgrade:
     remediation:
       remediateLastFailure: true
@@ -30,7 +30,7 @@ spec:
       strategy: rollback
     cleanupOnFail: true
     crds: CreateReplace
-    disableSchemaValidation: true #due to bug with external-dns 1.16.0. Revert to 'false' when fixed. https://github.com/kubernetes-sigs/external-dns/issues/5206
+    
   test:
     enable: true
   rollback:
