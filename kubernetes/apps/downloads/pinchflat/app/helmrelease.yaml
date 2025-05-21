@@ -138,4 +138,12 @@ spec:
         path: /export/media/youtube
         globalMounts:
           - path: /downloads
+
+      yt-dlp:
+        type: emptyDir
+        globalMounts:
+          - path: /etc/yt-dlp
+
+      tmp:
+        type: emptyDir
       
