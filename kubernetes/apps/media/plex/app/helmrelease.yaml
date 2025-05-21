@@ -244,3 +244,13 @@ spec:
           - path: /media2/tv
             readOnly: true
 
+      # vids and stuff
+      videos:
+        enabled: true
+        type: nfs
+        server: ${OMV_IP}
+        path: /export/media/videos
+        globalMounts:
+          - path: /media/videos
+            readOnly: false
+
