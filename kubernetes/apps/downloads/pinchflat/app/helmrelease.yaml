@@ -145,7 +145,7 @@ spec:
         enabled: true
         type: nfs
         server: ${OMV_IP}
-        path: /export/media/youtube
+        path: /export/media/videos
         globalMounts:
           - path: /downloads
 
