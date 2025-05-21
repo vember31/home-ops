@@ -32,6 +32,12 @@
       "matchPackagePatterns": ["olivetin"]
     },
     {
+      "description": "pinchflat date matching",
+      "matchDatasources": ["docker"],
+      "versioning": "regex:^v(?P<major>\\d{4})\\.(?P<minor>\\d{1,2})\\.(?P<patch>\\d{2})(?P<build>\\d*)?$",
+      "matchPackagePatterns": ["pinchflat"]
+    },
+    {
       "description": "tauticord - add release notes",
       "matchDatasources": ["docker"],
       "customChangelogUrl": "https://github.com/nwithan8/tauticord",
