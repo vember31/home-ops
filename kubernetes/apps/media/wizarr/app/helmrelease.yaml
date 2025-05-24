@@ -50,18 +50,19 @@ spec:
         type: deployment
         annotations: 
           reloader.stakater.com/auto: "true"
-        labels: {}
         replicas: 1
 
         containers:
           app:
             image:
               repository: ghcr.io/wizarrrr/wizarr
-              tag: 4.2.0@sha256:7350c4be4faafda28215da19781ce393900d4f776da4a77de453cf40171ebf2a
+              # once re-stabilized, get back to versions that have more of a semver approach
+              tag: latest@sha256:7c93cacd5162dff8c20590bf54286ee4c04a60c65f6cceb194153c45cbe226de
               pullPolicy: IfNotPresent
 
             env:
               TZ: ${TIMEZONE}
+              APP_URL: &host ${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
 
             resources:
               requests:
@@ -100,7 +101,7 @@ spec:
           gethomepage.dev/icon: wizarr.png
           gethomepage.dev/name: Wizarr
         hosts:
-          - host: &host ${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
+          - host: *host
             paths:
               - path: /
                 service:
