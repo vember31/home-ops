@@ -62,7 +62,7 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
-              APP_URL: &host ${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
+              APP_URL: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
 
             resources:
               requests:
@@ -101,7 +101,7 @@ spec:
           gethomepage.dev/icon: wizarr.png
           gethomepage.dev/name: Wizarr
         hosts:
-          - host: *host
+          - host: &host ${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
