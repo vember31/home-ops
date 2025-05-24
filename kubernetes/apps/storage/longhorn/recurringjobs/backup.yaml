@@ -1,11 +1,11 @@
 apiVersion: longhorn.io/v1beta1
 kind: RecurringJob
 metadata:
-  name: filesystem-trim
+  name: backup
   namespace: storage
 spec:
-  cron: "0 8 * * *" #UTC
-  task: "filesystem-trim"
+  cron: "10 8  * *" #UTC
+  task: "backup"
   groups:
   - default
   retain: 1
