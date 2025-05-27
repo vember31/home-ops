@@ -70,6 +70,7 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
+              DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE: false
             envFrom:
               - secretRef:
                   name: streammaster-secret
