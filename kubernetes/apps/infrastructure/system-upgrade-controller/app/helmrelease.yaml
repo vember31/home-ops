@@ -47,7 +47,7 @@ spec:
       ${APP}:
         strategy: RollingUpdate
         serviceAccount:
-          identifier: system-upgrade
+          identifier: system-upgrade-controller
         containers:
           app:
             image:
@@ -121,4 +121,4 @@ spec:
             readOnly: true
 
     serviceAccount:
-      system-upgrade: {}
+      system-upgrade-controller: {}
