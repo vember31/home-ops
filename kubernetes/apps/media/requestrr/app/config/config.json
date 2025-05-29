@@ -1,0 +1,139 @@
+{
+    "Authentication": {
+        "Username": "{{ .REQUESTRR_USERNAME }}",
+        "Password": "{{ .REQUESTRR_PASSWORD }}",
+        "PrivateKey": "{{ .REQUESTRR_PRIVATE_KEY }}"
+    },
+    "ChatClients": {
+        "Discord": {
+            "BotToken": "{{ .REQUESTRR_BOT_TOKEN }}",
+            "ClientId": "{{ .REQUESTRR_CLIENT_ID }}",
+            "StatusMessage": "/help",
+            "TvShowRoles": [
+                "{{ .REQUESTRR_ROLE }}"
+            ],
+            "MovieRoles": [
+                "{{ .REQUESTRR_ROLE }}"
+            ],
+            "MusicRoles": [],
+            "MonitoredChannels": [
+                "{{ .REQUESTRR_CHANNEL }}"
+            ],
+            "EnableRequestsThroughDirectMessages": false,
+            "AutomaticallyNotifyRequesters": true,
+            "NotificationMode": "PrivateMessages",
+            "NotificationChannels": [],
+            "AutomaticallyPurgeCommandMessages": false
+        },
+        "Language": "english"
+    },
+    "DownloadClients": {
+        "Lidarr": {
+            "Hostname": "",
+            "Port": 8686,
+            "ApiKey": "",
+            "BaseUrl": "",
+            "Categories": [
+                {
+                    "Id": 0,
+                    "Name": "music",
+                    "ProfileId": "1",
+                    "MetadataProfileId": "1",
+                    "RootFolder": "",
+                    "Tags": []
+                }
+            ],
+            "SearchNewRequests": true,
+            "MonitorNewRequests": true,
+            "UseSSL": false,
+            "Version": "1"
+        },
+        "Ombi": {
+            "Hostname": "",
+            "Port": 3579,
+            "ApiKey": "",
+            "ApiUsername": "",
+            "BaseUrl": "",
+            "UseSSL": false,
+            "Version": "3",
+            "UseMovieIssue": false,
+            "UseTVIssue": false
+        },
+        "Overseerr": {
+            "Hostname": "overseerr.media.svc.cluster.local",
+            "Port": 5055,
+            "ApiKey": "{{ .OVERSEERR_API_KEY }}",
+            "Movies": {
+                "DefaultApiUserId": "",
+                "Categories": []
+            },
+            "TvShows": {
+                "DefaultApiUserId": "",
+                "Categories": []
+            },
+            "UseSSL": false,
+            "Version": "1",
+            "UseMovieIssue": false,
+            "UseTVIssue": false
+        },
+        "Radarr": {
+            "Hostname": "",
+            "Port": 7878,
+            "ApiKey": "",
+            "BaseUrl": "",
+            "Categories": [
+                {
+                    "Id": 0,
+                    "Name": "movie",
+                    "ProfileId": "1",
+                    "RootFolder": "",
+                    "MinimumAvailability": "announced",
+                    "Tags": []
+                }
+            ],
+            "SearchNewRequests": true,
+            "MonitorNewRequests": true,
+            "UseSSL": false,
+            "Version": "3"
+        },
+        "Sonarr": {
+            "Hostname": "",
+            "Port": 8989,
+            "ApiKey": "",
+            "BaseUrl": "",
+            "Categories": [
+                {
+                    "Id": 0,
+                    "Name": "tv",
+                    "ProfileId": "1",
+                    "RootFolder": "",
+                    "Tags": [],
+                    "LanguageId": "1",
+                    "UseSeasonFolders": true,
+                    "SeriesType": "standard"
+                }
+            ],
+            "SearchNewRequests": true,
+            "MonitorNewRequests": true,
+            "UseSSL": false,
+            "Version": "4"
+        }
+    },
+    "BotClient": {
+        "Client": "Discord"
+    },
+    "Movies": {
+        "Client": "Overseerr"
+    },
+    "Music": {
+        "Client": "Disabled"
+    },
+    "TvShows": {
+        "Client": "Overseerr",
+        "Restrictions": "SingleSeason"
+    },
+    "Port": 4545,
+    "BaseUrl": "",
+    "DisableAuthentication": false,
+    "Version": "2.1.3"
+}

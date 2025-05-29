@@ -59,6 +59,11 @@ spec:
               tag: v2.1.7@sha256:6de400daa5c78d3e79188ff7ebb50df8e8ed15b781f3145a07ecb46b41b12380
               pullPolicy: IfNotPresent
 
+            lifecycle:
+              postStart:
+                exec:
+                  command: ["/bin/sh", "-c", "cp /template/settings.json /root/config/settings.json"]
+
             env:
               TZ: ${TIMEZONE}
 
@@ -126,5 +131,11 @@ spec:
         globalMounts:
           - path: /root/config
             readOnly: false
-          
-      
+
+      config-file:
+        type: secret
+        name: requestrr-secret
+        globalMounts:
+          - path: /template/settings.json
+            subPath: settings.json
+            readOnly: true
