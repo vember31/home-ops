@@ -5,7 +5,7 @@ kind: Kustomization
 configMapGenerator:
   - name: requestrr-configmap
     files:
-      - ./config/config.json
+      - ./config/settings.json
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
