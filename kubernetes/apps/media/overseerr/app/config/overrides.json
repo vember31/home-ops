@@ -67,7 +67,7 @@
    "tags": [],
    "isDefault": false,
    "syncEnabled": false,
-   "preventSearch": false,
+   "preventSearch": true,
    "tagRequests": false,
    "id": 0
   }
@@ -93,7 +93,7 @@
    "isDefault": false,
    "enableSeasonFolders": true,
    "syncEnabled": false,
-   "preventSearch": false,
+   "preventSearch": true,
    "tagRequests": false,
    "id": 0
   }
