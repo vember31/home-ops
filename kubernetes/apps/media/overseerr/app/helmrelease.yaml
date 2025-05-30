@@ -69,7 +69,14 @@ spec:
             lifecycle:
               postStart:
                 exec:
-                  command: ["/bin/sh", "-c", "jq -s '.[0] * .[1]' /config/settings.json /config/overrides.json > /config/tmp.json && mv /config/tmp.json /config/settings.json","chown 1000:1000 /config/settings.json"]
+                  command:
+                    - /bin/sh
+                    - -c
+                    - |
+                      chown 1000:1000 /config/settings.json && \
+                      jq -s '.[0] * .[1]' /config/settings.json /config/overrides.json > /config/tmp.json && \
+                      mv /config/tmp.json /config/settings.json && \
+                      chown 1000:1000 /config/settings.json
 
             env:
               TZ: ${TIMEZONE}
