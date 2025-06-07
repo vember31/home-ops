@@ -52,10 +52,12 @@ spec:
       dashboard:
         enabled: false
 
+    global:
+      checkNewVersion: true
+      sendAnonymousUsage: false
+
     # -- Global command arguments to be passed to all traefik's pods
     globalArguments:
-    - "--global.checknewversion=true"
-    - "--global.sendanonymoususage=false"
     - "--api.insecure=true"
     - "--serversTransport.insecureSkipVerify=true"
 
