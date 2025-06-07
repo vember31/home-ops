@@ -52,27 +52,17 @@ spec:
       dashboard:
         enabled: false
 
-    global:
-      checkNewVersion: true
-      sendAnonymousUsage: false
-
     serversTransport:
       insecureSkipVerify: true
 
-    api:
-      insecure: true
-
-    log:
-      level: "DEBUG"
-
     # -- Global command arguments to be passed to all traefik's pods
-    # globalArguments:
-    # - "--api.insecure=true"
-    # - "--serversTransport.insecureSkipVerify=true"
+    globalArguments:
+    - "--api.insecure=true"
+    - "--serversTransport.insecureSkipVerify=true"
 
     # Configure Traefik static configuration
-    # additionalArguments: 
-    #    - "--log.level=DEBUG"
+    additionalArguments: 
+       - "--log.level=DEBUG"
 
     ports:
       web:
