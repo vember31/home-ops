@@ -89,7 +89,7 @@ spec:
     #       - "--token-ttl=43200"
 
     metricsScraper:
-      enabled: false
+      enabled: true #randomly without this, i'm error'ing
     metrics-server:
       enabled: false
 
