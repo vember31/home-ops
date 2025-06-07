@@ -52,9 +52,6 @@ spec:
       dashboard:
         enabled: false
 
-    serversTransport:
-      insecureSkipVerify: true
-
     # -- Global command arguments to be passed to all traefik's pods
     globalArguments:
     - "--api.insecure=true"
