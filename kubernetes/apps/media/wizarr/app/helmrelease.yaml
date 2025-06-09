@@ -72,6 +72,8 @@ spec:
             env:
               TZ: ${TIMEZONE}
               APP_URL: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
+              PUID: 1000
+              PGID: 1000
 
             resources:
               requests:
