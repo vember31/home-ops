@@ -66,12 +66,14 @@ spec:
             image:
               repository: ghcr.io/wizarrrr/wizarr
               # once re-stabilized, get back to versions that have more of a semver approach
-              tag: latest@sha256:2f23ee5a79a5ccfe84d9fa8a9e1ed848a99161b49aebd70c69b7701f4d88dccf
+              tag: latest@sha256:ed043ce100b8e878148edc624273560ea68796dbe2d210c3b554ba14fe4b05dd
               pullPolicy: IfNotPresent
 
             env:
               TZ: ${TIMEZONE}
               APP_URL: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
+              PUID: 1000
+              PGID: 1000
 
             resources:
               requests:
