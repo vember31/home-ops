@@ -145,3 +145,9 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /data/database/sessions
+      
+      cache:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /.cache
