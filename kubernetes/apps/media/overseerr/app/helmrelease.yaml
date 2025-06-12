@@ -49,7 +49,6 @@ spec:
         enabled: true
         type: deployment
         annotations: {}
-        labels: {}
         replicas: 1
 
         containers:
@@ -84,22 +83,30 @@ spec:
                 cpu: 100m
 
             probes:
-              liveness:
+              liveness: &probes
                 enabled: true
-              readiness:
-                enabled: true
-              startup:
-                enabled: true
+                custom: true
                 spec:
-                  failureThreshold: 30
-                  periodSeconds: 5
+                  httpGet:
+                    path: /api/v1/status
+                    port: &port 5055
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
 
     service:
       app:
         controller: *name
         ports:
           http:
-            port: 5055
+            port: *port
 
     ingress:
       app:
