@@ -96,11 +96,6 @@ spec:
                   failureThreshold: 3
               readiness: *probes
 
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
-              capabilities: { drop: ["ALL"] }
-
     service:
       app:
         controller: *name
