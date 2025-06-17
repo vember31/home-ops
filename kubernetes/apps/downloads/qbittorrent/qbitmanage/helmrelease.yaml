@@ -114,3 +114,6 @@ spec:
         path: /export/media
         globalMounts:
           - path: /media/
+
+      tmp:
+        type: emptyDir
