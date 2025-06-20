@@ -131,6 +131,11 @@ queryLog:
   target: postgresql://{{ .BLOCKY_POSTGRES_USER }}:{{ .BLOCKY_POSTGRES_PASS }}@postgres-17-rw.database.svc.cluster.local:5432/blocky
   logRetentionDays: 7
 
+bootstrapDns:
+  - upstream: tcp-tls:security.cloudflare-dns.com
+    ips:
+    - 1.1.1.1
+
 upstreams:
   groups:
     default:
