@@ -141,6 +141,4 @@ redis:
   address: redis-master
   database: 2
   sentinelAddresses:
-    - redis-node-0:26379
-    - redis-node-1:26379
-    - redis-node-2:26379
+    - redis-headless.database.svc.cluster.local:26379
