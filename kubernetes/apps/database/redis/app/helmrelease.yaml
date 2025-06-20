@@ -58,6 +58,7 @@ spec:
     replica:
       persistence:
         enabled: false
+      replicaCount: 5 #equal to count of nodes
     sentinel:
       enabled: true
       masterSet: redis-master
