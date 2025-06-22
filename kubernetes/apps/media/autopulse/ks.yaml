@@ -12,8 +12,6 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: plex
-    - name: sonarr
-    - name: radarr
   path: ./kubernetes/apps/media/autopulse/app
   prune: true
   sourceRef:

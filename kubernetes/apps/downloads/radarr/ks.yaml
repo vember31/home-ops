@@ -13,6 +13,8 @@ spec:
     - name: traefik
     - name: cert-manager
     - name: longhorn
+    - name: qbittorrent
+    - name: autopulse
   path: ./kubernetes/apps/downloads/radarr/app
   prune: true
   sourceRef:
