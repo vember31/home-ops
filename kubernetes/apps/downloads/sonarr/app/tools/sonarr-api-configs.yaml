@@ -162,7 +162,7 @@ spec:
             - name: QBITTORRENT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: qbittorrent-exporter-secret
+                  name: qbittorrent-secret
                   key: QBITTORRENT_PASSWORD
             - name: SONARR_NOTIFIARR_API_KEY
               valueFrom:
