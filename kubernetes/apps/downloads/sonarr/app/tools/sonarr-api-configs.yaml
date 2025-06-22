@@ -135,24 +135,25 @@ spec:
                       "id": 15
                     }
                   ]'
-            - | # add qbt
+
               curl -X 'PUT' \
                 'http://sonarr.downloads.svc.cluster.local:8989/api/v3/downloadclient/1?forceSave=false&apikey=$(SONARR_API_KEY)' \
                 -H 'accept: application/json' \
                 -H 'Content-Type: application/json' \
                 -d '{"enable":true,"protocol":"torrent","priority":1,"removeCompletedDownloads":true,"removeFailedDownloads":true,"name":"qBittorrent","fields":[{"name":"host","value":"qbittorrent"},{"name":"port","value":8080},{"name":"useSsl","value":false},{"name":"urlBase"},{"name":"username","value":"admin"},{"name":"password","value":"$(QBITTORRENT_PASSWORD)"},{"name":"tvCategory","value":"sonarr"},{"name":"tvImportedCategory","value":"sonarr-complete"},{"name":"recentTvPriority","value":0},{"name":"olderTvPriority","value":0},{"name":"initialState","value":0},{"name":"sequentialOrder","value":true},{"name":"firstAndLast","value":false},{"name":"contentLayout","value":0}],"implementationName":"qBittorrent","implementation":"QBittorrent","configContract":"QBittorrentSettings","infoLink":"https://wiki.servarr.com/sonarr/supported#qbittorrent","tags":[],"id":1}'
-            - | #add autopulse
+
               curl -X 'PUT' \
                 'http://sonarr.downloads.svc.cluster.local:8989/api/v3/notification/2?forceSave=false&apikey=$(SONARR_API_KEY)' \
                 -H 'accept: application/json' \
                 -H 'Content-Type: application/json' \
                 -d '{"onGrab":false,"onDownload":true,"onUpgrade":true,"onImportComplete":false,"onRename":false,"onSeriesAdd":false,"onSeriesDelete":true,"onEpisodeFileDelete":true,"onEpisodeFileDeleteForUpgrade":true,"onHealthIssue":false,"includeHealthWarnings":false,"onHealthRestored":false,"onApplicationUpdate":false,"onManualInteractionRequired":false,"supportsOnGrab":true,"supportsOnDownload":true,"supportsOnUpgrade":true,"supportsOnImportComplete":true,"supportsOnRename":true,"supportsOnSeriesAdd":true,"supportsOnSeriesDelete":true,"supportsOnEpisodeFileDelete":true,"supportsOnEpisodeFileDeleteForUpgrade":true,"supportsOnHealthIssue":true,"supportsOnHealthRestored":true,"supportsOnApplicationUpdate":true,"supportsOnManualInteractionRequired":true,"name":"Autopulse","fields":[{"name":"url","value":"http://autopulse-app.media.svc.cluster.local:2875/triggers/sonarr"},{"name":"method","value":1},{"name":"username"},{"name":"password"},{"name":"headers","value":[]}],"implementationName":"Webhook","implementation":"Webhook","configContract":"WebhookSettings","infoLink":"https://wiki.servarr.com/sonarr/supported#webhook","tags":[],"id":2}'
-            - | #add notifiarr
+
               curl -X 'PUT' \
                 'http://sonarr.downloads.svc.cluster.local:8989/api/v3/notification/1?forceSave=false&apikey=$(SONARR_API_KEY)' \
                 -H 'accept: application/json' \
                 -H 'Content-Type: application/json' \
                 -d '{"onGrab":true,"onDownload":false,"onUpgrade":false,"onImportComplete":true,"onRename":false,"onSeriesAdd":false,"onSeriesDelete":false,"onEpisodeFileDelete":true,"onEpisodeFileDeleteForUpgrade":true,"onHealthIssue":false,"includeHealthWarnings":false,"onHealthRestored":false,"onApplicationUpdate":false,"onManualInteractionRequired":true,"supportsOnGrab":true,"supportsOnDownload":true,"supportsOnUpgrade":true,"supportsOnImportComplete":true,"supportsOnRename":true,"supportsOnSeriesAdd":true,"supportsOnSeriesDelete":true,"supportsOnEpisodeFileDelete":true,"supportsOnEpisodeFileDeleteForUpgrade":true,"supportsOnHealthIssue":true,"supportsOnHealthRestored":true,"supportsOnApplicationUpdate":true,"supportsOnManualInteractionRequired":true,"name":"Notifiarr","fields":[{"name":"apiKey","value":"$(SONARR_API_KEY)"}],"implementationName":"Notifiarr","implementation":"Notifiarr","configContract":"NotifiarrSettings","infoLink":"https://wiki.servarr.com/sonarr/supported#notifiarr","tags":[],"id":1}'
+            
             env:
             - name: SONARR_API_KEY
               valueFrom:
