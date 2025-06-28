@@ -98,7 +98,7 @@ spec:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/description: *description
           gethomepage.dev/group: Media
-          gethomepage.dev/icon: https://maintainerr.info/images/logo.svg
+          gethomepage.dev/icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/maintainerr.svg
           gethomepage.dev/name: Maintainerr
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
