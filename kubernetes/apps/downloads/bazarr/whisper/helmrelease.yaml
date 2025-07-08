@@ -1,0 +1,95 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name whisper
+  namespace: downloads
+
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      ${APP}:
+        enabled: true
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+
+        containers:
+          app:
+            image:
+              repository: onerahmet/openai-whisper-asr-webservice
+              tag: v1.9.1@sha256:03b402335881cdab2e4939b24620809df8d6ceec3bf2712217d41c8761a0f5d4
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              ASR_ENGINE: faster_whisper
+              ASR_MODEL: distil-medium.en
+              ASR_DEVICE: cpu
+              ASR_QUANTIZATION: int8
+              MODEL_IDLE_TIMEOUT: 600 # 10 min timeout, then unload the model
+
+
+            resources:
+              requests:
+                cpu: 1000m
+                memory: 4Gi
+              limits:
+                memory: 8Gi
+
+    service:
+      app:
+        controller: *name
+        ports:
+          http:
+            port: 9000
+
+    # persistence:
+
+    #   cache:
+    #     enabled: true
+    #     suffix: config
+    #     type: persistentVolumeClaim
+    #     storageClass: longhorn
+    #     accessMode: ReadWriteOnce
+    #     size: 4Gi
+    #     retain: true
+    #     globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
