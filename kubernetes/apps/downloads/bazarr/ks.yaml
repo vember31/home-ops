@@ -46,4 +46,4 @@ spec:
     substitute:
       APP: *app
       GATUS_NAMESPACE: *namespace
-      GATUS_PORT: 9000
+      GATUS_PORT: "9000"
