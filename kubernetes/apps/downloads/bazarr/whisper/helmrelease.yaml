@@ -80,7 +80,7 @@ spec:
         controller: *name
         ports:
           http:
-            port: 9000
+            port: ${GATUS_PORT}
 
     # persistence:
 
