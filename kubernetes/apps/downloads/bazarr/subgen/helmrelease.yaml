@@ -1,0 +1,105 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name subgen
+  namespace: downloads
+
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      ${APP}:
+        enabled: true
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+
+        containers:
+          app:
+            image:
+              repository: mccloud/subgen
+              tag: 2025.05.8-cpu@sha256:fd1c92d2d2f41b0ff11d857e72e6e5a14c588c276ac544c252f483978e68da53
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              TRANSCRIBE_DEVICE: cpu
+              WHISPER_MODEL: small.en
+              CONCURRENT_TRANSCRIPTIONS: 1
+              WHISPER_THREADS: 2
+              PROCADDEDMEDIA: false
+              PROCMEDIAONPLAY: false
+              NAMESUBLANG: en
+              SKIPIFINTERNALSUBLANG: eng
+              WORD_LEVEL_HIGHLIGHT: false
+              WEBHOOKPORT: &port ${GATUS_PORT}
+              COMPUTE_TYPE: int8
+              DEBUG: true
+              FORCE_DETECTED_LANGUAGE_TO: 'en'
+              CLEAR_VRAM_ON_COMPLETE: true
+              SKIPIFEXTERNALSUB: true
+              SKIP_IF_TO_TRANSCRIBE_SUB_ALREADY_EXIST:  true
+
+            resources:
+              requests:
+                cpu: 1000m
+                memory: 4Gi
+              limits:
+                memory: 8Gi
+
+    service:
+      app:
+        controller: *name
+        ports:
+          http:
+            port: *port
+
+    # persistence:
+
+    #   cache:
+    #     enabled: true
+    #     suffix: config
+    #     type: persistentVolumeClaim
+    #     storageClass: longhorn
+    #     accessMode: ReadWriteOnce
+    #     size: 4Gi
+    #     retain: true
+    #     globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
