@@ -77,15 +77,10 @@ spec:
               CLEAR_VRAM_ON_COMPLETE: true
               SKIPIFEXTERNALSUB: true
               SKIP_IF_TO_TRANSCRIBE_SUB_ALREADY_EXIST:  true
-              PLEXSERVER: http://plex.media.svc.cluster.local:32400
-              PLEXTOKEN:
-                valueFrom:
-                  secretKeyRef:
-                    name: subgen-secret
-                    key: PLEX_TOKEN
+              
             resources:
               requests:
-                cpu: 1000m
+                cpu: 2000m
                 memory: 4Gi
               limits:
                 memory: 8Gi
