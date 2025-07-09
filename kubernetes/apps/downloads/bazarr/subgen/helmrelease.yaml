@@ -92,7 +92,7 @@ spec:
           http:
             port: *port
 
-    persistence:
+    # persistence:
 
     #   cache:
     #     enabled: true
@@ -103,61 +103,3 @@ spec:
     #     size: 4Gi
     #     retain: true
     #     globalMounts: [] #default will mount at name of the pvc item above (e.g. /config)
-
-      tv:
-        enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media/tv
-        globalMounts:
-          - path: /media/tv
-            readOnly: true
-
-      movies:
-        enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media/movies
-        globalMounts:
-          - path: /media/movies
-            readOnly: true
-
-      # live tv recordings
-      recordings:
-        enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media/recordings
-        globalMounts:
-          - path: /media/recordings
-            readOnly: false
-
-      # old hard drive in old server
-      movies2:
-        enabled: true
-        type: nfs
-        server: ${OMV2_IP}
-        path: /export/movies
-        globalMounts:
-          - path: /media2/movies
-            readOnly: true
-
-      # old hard drive in old server
-      tv2:
-        enabled: true
-        type: nfs
-        server: ${OMV2_IP}
-        path: /export/tv
-        globalMounts:
-          - path: /media2/tv
-            readOnly: true
-
-      # vids and stuff
-      videos:
-        enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media/videos
-        globalMounts:
-          - path: /media/videos
-            readOnly: false
