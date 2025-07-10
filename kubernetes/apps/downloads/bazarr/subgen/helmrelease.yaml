@@ -64,7 +64,7 @@ spec:
               TRANSCRIBE_DEVICE: cpu
               WHISPER_MODEL: small.en
               CONCURRENT_TRANSCRIPTIONS: 1
-              WHISPER_THREADS: 2
+              WHISPER_THREADS: 4
               PROCADDEDMEDIA: false
               PROCMEDIAONPLAY: false
               NAMESUBLANG: en
@@ -80,7 +80,7 @@ spec:
               
             resources:
               requests:
-                cpu: 2000m
+                cpu: 4000m
                 memory: 4Gi
               limits:
                 memory: 8Gi
