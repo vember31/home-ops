@@ -70,7 +70,7 @@ spec:
           app:
             image:
               repository: ghcr.io/stuffanthings/qbit_manage
-              tag: develop@sha256:b1763198a33c0ae9919f31a0f89d7d35a3f99b517647d61864a3f22898db3232
+              tag: develop@sha256:a7f0a6c22584ed8e50077c87c28ebd9c650b3a7206e685be55df27a5791f4ab4
 
             env:
               TZ: ${TIMEZONE}
