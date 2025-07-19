@@ -65,8 +65,7 @@ spec:
           app:
             image:
               repository: ghcr.io/wizarrrr/wizarr
-              # once re-stabilized, get back to versions that have more of a semver approach
-              tag: latest@sha256:8bd288cda8004fa834349b8196080ecd90a31ccbf8834cf99a38a9552887c8e1
+              tag: 2025.7.5b@sha256:8bd288cda8004fa834349b8196080ecd90a31ccbf8834cf99a38a9552887c8e1
               pullPolicy: IfNotPresent
 
             env:

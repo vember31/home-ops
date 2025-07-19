@@ -26,10 +26,10 @@
       "matchPackagePatterns": ["jellyfin"]
     },
     {
-      "description": "olivetin date matching",
+      "description": "olivetin/wizarr date matching",
       "matchDatasources": ["docker"],
-      "versioning": "regex:^(?P<major>\\d{4})\\.(?P<minor>\\d{1,2})\\.(?P<patch>\\d{2})(?P<build>\\d*)?$",
-      "matchPackagePatterns": ["olivetin"]
+      "versioning": "regex:^(?P<major>\\d{4})\\.(?P<minor>\\d{1,2})\\.(?P<patch>\\d{1,2})(?P<build>[a-zA-Z0-9]?)?$",
+      "matchPackagePatterns": ["olivetin","wizarr"]
     },
     {
       "description": "pinchflat date matching",
