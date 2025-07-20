@@ -89,8 +89,8 @@ spec:
                     path: /health
                     port: &port 5690
                   initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
+                  periodSeconds: 30
+                  timeoutSeconds: 5
                   failureThreshold: 3
               readiness: *probes
 
