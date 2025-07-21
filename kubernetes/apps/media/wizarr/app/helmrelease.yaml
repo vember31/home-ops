@@ -99,7 +99,7 @@ spec:
         controller: *name
         ports:
           http:
-            port: *port
+            port: 5690
 
     ingress:
       app:
