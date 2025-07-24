@@ -135,11 +135,18 @@ bootstrapDns:
   - upstream: tcp-tls:security.cloudflare-dns.com
     ips:
     - 1.1.1.1
+    - 9.9.9.9
+  - upstream: tcp-tls:dns11.quad9.net
+    ips:
+    - 1.1.1.1
+    - 9.9.9.9
 
 upstreams:
+  strategy: strict
   groups:
     default:
       - tcp-tls:security.cloudflare-dns.com:853
+      - tcp-tls:dns11.quad9.net:853
 
 redis:
   required: false
