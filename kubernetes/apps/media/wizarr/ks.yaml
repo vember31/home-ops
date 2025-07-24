@@ -24,3 +24,4 @@ spec:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: join
+      GATUS_PATH: /health
