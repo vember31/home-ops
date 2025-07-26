@@ -102,6 +102,7 @@ spec:
           gethomepage.dev/group: Monitoring
           gethomepage.dev/icon: dozzle
           gethomepage.dev/name: Dozzle
+          gethomepage.dev/siteMonitor: http://${APP}.monitoring.svc.cluster.local:8080
 
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}

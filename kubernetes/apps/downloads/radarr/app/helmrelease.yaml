@@ -124,9 +124,11 @@ spec:
           gethomepage.dev/icon: radarr
           gethomepage.dev/name: Radarr
           gethomepage.dev/widget.type: ${APP}
-          gethomepage.dev/widget.url: http://${APP}.downloads.svc.cluster.local:7878
+          gethomepage.dev/widget.url: &siteMonitor http://${APP}.downloads.svc.cluster.local:7878
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_RADARR_TOKEN}}` }}"
           gethomepage.dev/widget.enableQueue: "true"
+          gethomepage.dev/siteMonitor: *siteMonitor
+
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

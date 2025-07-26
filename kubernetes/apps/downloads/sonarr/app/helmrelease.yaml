@@ -122,9 +122,11 @@ spec:
           gethomepage.dev/icon: sonarr
           gethomepage.dev/name: Sonarr
           gethomepage.dev/widget.type: ${APP}
-          gethomepage.dev/widget.url: http://${APP}.downloads.svc.cluster.local:8989
+          gethomepage.dev/widget.url: &siteMonitor http://${APP}.downloads.svc.cluster.local:8989
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_SONARR_TOKEN}}` }}"
           gethomepage.dev/widget.enableQueue: "true"
+          gethomepage.dev/siteMonitor: *siteMonitor
+
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

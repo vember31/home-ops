@@ -118,7 +118,9 @@ spec:
           gethomepage.dev/icon: gatus
           gethomepage.dev/name: Gatus
           gethomepage.dev/widget.type: ${APP}
-          gethomepage.dev/widget.url: http://${APP}.monitoring.svc.cluster.local:8080
+          gethomepage.dev/widget.url: &siteMonitor http://${APP}.monitoring.svc.cluster.local:8080
+          gethomepage.dev/siteMonitor: *siteMonitor
+
         hosts:
           - host: &host status.${SECRET_DOMAIN}
             paths:

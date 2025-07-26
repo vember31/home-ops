@@ -374,9 +374,11 @@ spec:
         gethomepage.dev/icon: grafana
         gethomepage.dev/name: Grafana
         gethomepage.dev/widget.type: ${APP}
-        gethomepage.dev/widget.url: http://${APP}.monitoring.svc.cluster.local
+        gethomepage.dev/widget.url: &siteMonitor http://${APP}.monitoring.svc.cluster.local
         gethomepage.dev/widget.username: "{{ `{{HOMEPAGE_VAR_GRAFANA_USERNAME}}` }}"
         gethomepage.dev/widget.password: "{{ `{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}` }}"
+        gethomepage.dev/siteMonitor: *siteMonitor
+
       hosts:
         - &host "grafana.local.${SECRET_DOMAIN}"
       paths:

@@ -100,6 +100,8 @@ spec:
           gethomepage.dev/group: Media
           gethomepage.dev/icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/maintainerr.svg
           gethomepage.dev/name: Maintainerr
+          gethomepage.dev/siteMonitor: http://${APP}.media.svc.cluster.local:6246
+
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

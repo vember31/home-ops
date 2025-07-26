@@ -131,8 +131,10 @@ spec:
           gethomepage.dev/icon: jellyfin
           gethomepage.dev/name: Jellyfin
           gethomepage.dev/widget.type: ${APP}
-          gethomepage.dev/widget.url: http://${APP}.media.svc.cluster.local:8096
+          gethomepage.dev/widget.url: &siteMonitor http://${APP}.media.svc.cluster.local:8096
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_JELLYFIN_TOKEN}}` }}"
+          gethomepage.dev/siteMonitor: *siteMonitor
+
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

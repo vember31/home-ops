@@ -119,8 +119,9 @@ spec:
           gethomepage.dev/icon: bazarr
           gethomepage.dev/name: Bazarr
           gethomepage.dev/widget.type: ${APP}
-          gethomepage.dev/widget.url: http://${APP}.downloads.svc.cluster.local:6767
+          gethomepage.dev/widget.url: &siteMonitor http://${APP}.downloads.svc.cluster.local:6767
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_BAZARR_TOKEN}}` }}"
+          gethomepage.dev/siteMonitor: *siteMonitor
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

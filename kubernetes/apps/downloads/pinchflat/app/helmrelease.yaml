@@ -116,6 +116,7 @@ spec:
           gethomepage.dev/group: Downloads
           gethomepage.dev/icon: pinchflat
           gethomepage.dev/name: Pinchflat
+          gethomepage.dev/siteMonitor: http://${APP}.downloads.svc.cluster.local:8945
 
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}

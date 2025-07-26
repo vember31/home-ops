@@ -127,11 +127,13 @@ spec:
           gethomepage.dev/icon: tautulli
           gethomepage.dev/name: Tautulli
           gethomepage.dev/widget.type: ${APP}
-          gethomepage.dev/widget.url: http://${APP}.media.svc.cluster.local:8181
+          gethomepage.dev/widget.url: &siteMonitor http://${APP}.media.svc.cluster.local:8181
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_TAUTULLI_TOKEN}}` }}"
           gethomepage.dev/widget.enableUser: "true"
           gethomepage.dev/widget.showEpisodeNumber: "true"
           gethomepage.dev/widget.expandOneStreamToTwoRows: "true"
+          gethomepage.dev/siteMonitor: *siteMonitor
+
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

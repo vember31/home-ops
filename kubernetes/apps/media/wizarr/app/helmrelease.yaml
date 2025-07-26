@@ -99,7 +99,7 @@ spec:
         controller: *name
         ports:
           http:
-            port: 5690
+            port: *port
 
     ingress:
       app:
@@ -113,6 +113,8 @@ spec:
           gethomepage.dev/group: Media
           gethomepage.dev/icon: wizarr.png
           gethomepage.dev/name: Wizarr
+          gethomepage.dev/siteMonitor: http://${APP}.media.svc.cluster.local:5690
+
         hosts:
           - host: &host ${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
             paths:

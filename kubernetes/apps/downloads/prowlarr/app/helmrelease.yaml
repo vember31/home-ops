@@ -124,8 +124,10 @@ spec:
           gethomepage.dev/icon: prowlarr
           gethomepage.dev/name: Prowlarr
           gethomepage.dev/widget.type: ${APP}
-          gethomepage.dev/widget.url: http://${APP}.downloads.svc.cluster.local:9696
+          gethomepage.dev/widget.url: &siteMonitor http://${APP}.downloads.svc.cluster.local:9696
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_PROWLARR_TOKEN}}` }}"
+          gethomepage.dev/siteMonitor: *siteMonitor
+
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

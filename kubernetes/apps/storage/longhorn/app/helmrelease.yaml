@@ -295,8 +295,10 @@ spec:
         gethomepage.dev/group: Storage
         gethomepage.dev/icon: longhorn
         gethomepage.dev/name: Longhorn
-        gethomepage.dev/href: https://longhorn.local.${SECRET_DOMAIN}/#/dashboard
+        gethomepage.dev/href: &href https://longhorn.local.${SECRET_DOMAIN}/#/dashboard
         gethomepage.dev/app: longhorn
+        gethomepage.dev/siteMonitor: *href
+
 
       # -- Add ingressClassName to the Ingress
       # Can replace the kubernetes.io/ingress.class annotation on v1.18+

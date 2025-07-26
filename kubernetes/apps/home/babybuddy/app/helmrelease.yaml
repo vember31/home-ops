@@ -104,6 +104,7 @@ spec:
           gethomepage.dev/group: Home
           gethomepage.dev/icon: babybuddy.png
           gethomepage.dev/name: BabyBuddy
+          gethomepage.dev/siteMonitor: http://${APP}.home.svc.cluster.local:8000
         hosts:
           - host: &host ${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
             paths:

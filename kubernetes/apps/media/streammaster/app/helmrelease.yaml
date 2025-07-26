@@ -110,6 +110,8 @@ spec:
           gethomepage.dev/group: Media
           gethomepage.dev/icon: https://carlreid.github.io/StreamMaster/assets/sm_logo.png
           gethomepage.dev/name: StreamMaster
+          gethomepage.dev/siteMonitor: http://${APP}.media.svc.cluster.local:7095
+
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

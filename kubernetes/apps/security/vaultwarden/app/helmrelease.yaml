@@ -160,6 +160,8 @@ spec:
           gethomepage.dev/group: Security
           gethomepage.dev/icon: vaultwarden.png
           gethomepage.dev/pod-selector: app.kubernetes.io/name=vaultwarden
+          gethomepage.dev/siteMonitor: http://${APP}.security.svc.cluster.local:80
+
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}
             paths:

@@ -105,6 +105,8 @@ spec:
           gethomepage.dev/group: Media
           gethomepage.dev/icon: requestrr
           gethomepage.dev/name: Requestrr
+          gethomepage.dev/siteMonitor: http://${APP}.media.svc.cluster.local:4545
+
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:

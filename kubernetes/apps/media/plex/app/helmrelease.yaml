@@ -151,9 +151,11 @@ spec:
           gethomepage.dev/name: Plex
           gethomepage.dev/href: https://${APP}.local.${SECRET_DOMAIN}${GATUS_PATH}
           gethomepage.dev/widget.type: ${APP}
-          gethomepage.dev/widget.url: http://${APP}.media.svc.cluster.local:32400
+          gethomepage.dev/widget.url: &siteMonitor http://${APP}.media.svc.cluster.local:32400
           gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_PLEX_TOKEN}}` }}"
           gethomepage.dev/widget.fields: '["streams", "movies", "tv"]'
+          gethomepage.dev/siteMonitor: *siteMonitor
+
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:
