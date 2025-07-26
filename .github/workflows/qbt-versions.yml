@@ -2,7 +2,7 @@ name: Check qbitmanage for qBittorrent compatibility
 
 on:
   schedule:
-    - cron: '0 9 * * *' # 4 AM CT
+    - cron: '0 9 * * 0' # 4 AM CT
   workflow_dispatch:
 
 permissions:
