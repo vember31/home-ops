@@ -146,7 +146,7 @@ spec:
           gethomepage.dev/group: Media
           gethomepage.dev/icon: https://github.com/dan-online/autopulse/raw/main/assets/logo.webp
           gethomepage.dev/name: Autopulse
-          gethomepage.dev/siteMonitor: http://${APP}.media.svc.cluster.local:2880
+          gethomepage.dev/siteMonitor: http://${APP}-ui.media.svc.cluster.local:2880
 
 
         hosts:
