@@ -118,6 +118,7 @@ spec:
           gethomepage.dev/group: Storage #don't want to make a separate db group
           gethomepage.dev/icon: postgres
           gethomepage.dev/name: pgAdmin
+          gethomepage.dev/siteMonitor: http://${APP}.database.svc.cluster.local:80
         hosts:
           - host: &host ${APP}.local.${SECRET_DOMAIN}
             paths:
