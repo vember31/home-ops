@@ -49,6 +49,12 @@ spec:
         cronjob:
           schedule: "35 2 * * *"
           timeZone: ${TIMEZONE}
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 1
+          ttlSecondsAfterFinished: 180  # Time to keep job resources after completion
+          backoffLimit: 0  # Prevent retries
+          activeDeadlineSeconds: 180  # Ensure the job completes in 1 minute
         containers:
           app:
             image:
