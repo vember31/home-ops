@@ -84,7 +84,7 @@ spec:
           gethomepage.dev/name: Goldilocks
           gethomepage.dev/href: https://goldilocks.local.${SECRET_DOMAIN}/namespaces
           gethomepage.dev/app: goldilocks
-          gethomepage.dev/siteMonitor: http://${APP}-dashboard.monitoring.svc.cluster.local:80
+          gethomepage.dev/siteMonitor: http://goldilocks-dashboard.monitoring.svc.cluster.local:80
 
         hosts:
           - host: &host goldilocks.local.${SECRET_DOMAIN}

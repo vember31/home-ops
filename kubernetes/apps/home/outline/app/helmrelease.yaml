@@ -137,7 +137,7 @@ spec:
           gethomepage.dev/group: Home
           gethomepage.dev/icon: outline.png
           gethomepage.dev/name: Outline
-          gethomepage.dev/siteMonitor: http://${APP}.home.svc.cluster.local:3000
+          gethomepage.dev/siteMonitor: https://${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}
 
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}
