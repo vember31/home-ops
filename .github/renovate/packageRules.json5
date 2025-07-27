@@ -17,7 +17,7 @@
       "description": "version with a v, then semver and then compatibility",
       "matchDatasources": ["docker"],
       "versioning": "regex:^v(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(-hf(?P<build>\\d+))?$",
-      "matchPackagePatterns": ["requestrr","imagemaid","qbit_manage"]
+      "matchPackagePatterns": ["requestrr","imagemaid","qbit_manage","zap2xml"]
     },
     {
       "description": "jellyfin has one rogue package that is a date that needs to be excluded. allow major with only 3 digits max",

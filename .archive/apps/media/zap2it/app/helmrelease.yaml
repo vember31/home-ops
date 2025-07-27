@@ -52,24 +52,11 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/jef/zap2xml
-              tag: v2.2.0@sha256:a864938260fc1c667b2f093f667456959c4654ff9bcf4ea336c00243c07c28b2
+              repository: ghcr.io/vember31/zap2it-docker
+              tag: latest
             env:
-              TIMESPAN: 72 #3 days
-              COUNTRY: USA
-              TZ: ${TIMEZONE}
-              OUTPUT_FILE: /recordings/xmltv.xml
-              LINEUP_ID:
-                valueFrom:
-                  secretKeyRef:
-                    name: zap2it-secret
-                    key: LINEUP_ID
-              POSTAL_CODE:
-                valueFrom:
-                  secretKeyRef:
-                    name: zap2it-secret
-                    key: ZAP2IT_ZIP
-
+              CONFIGFILE: "/data/zap2itconfig.ini"
+              OUTPUTFILE: "/recordings/xmlguide.xmltv"
             probes:
               liveness:
                 enabled: false
@@ -88,6 +75,15 @@ spec:
             runAsNonRoot: true
 
     persistence:
+      config:
+        enabled: true
+        type: secret
+        name: zap2it-secret
+        globalMounts:
+          - path: /data/zap2itconfig.ini
+            subPath: zap2itconfig.ini
+            readOnly: true
+
       recordings:
         enabled: true
         type: nfs
