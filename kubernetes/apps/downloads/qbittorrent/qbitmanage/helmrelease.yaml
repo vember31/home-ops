@@ -74,6 +74,7 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
+              QBT_RUN: true
 
             resources:
               requests:
