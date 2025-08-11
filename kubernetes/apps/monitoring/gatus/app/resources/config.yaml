@@ -34,3 +34,4 @@ endpoints:
       - "[STATUS] == 200"
     alerts:
       - type: discord
+      - minimum-reminder-interval: "3h"
