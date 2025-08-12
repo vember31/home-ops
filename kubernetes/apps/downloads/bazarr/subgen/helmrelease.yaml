@@ -56,7 +56,7 @@ spec:
           app:
             image:
               repository: mccloud/subgen
-              tag: 2025.05.8-cpu@sha256:fd1c92d2d2f41b0ff11d857e72e6e5a14c588c276ac544c252f483978e68da53
+              tag: 2025.05.8-cpu@sha256:83796130440d7048410fc02d91644efe0ef282f0ec896dd5202d1030917e150e
               pullPolicy: IfNotPresent
 
             env:
