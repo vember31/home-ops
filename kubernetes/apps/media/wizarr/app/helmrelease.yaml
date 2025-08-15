@@ -152,3 +152,9 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /.cache
+
+      etcstuff:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /etc/wizarr
