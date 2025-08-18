@@ -9,6 +9,7 @@ resources:
 
   # Flux-Kustomizations
   - ./autopulse/ks.yaml
+  - ./dispatcharr/ks.yaml
   - ./jellyfin/ks.yaml
   - ./maintainerr/ks.yaml
   - ./overseerr/ks.yaml
