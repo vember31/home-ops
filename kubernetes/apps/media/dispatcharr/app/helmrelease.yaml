@@ -134,7 +134,7 @@ spec:
             paths:
               - path: /
                 service:
-                  identifier: app
+                  identifier: dispatcharr_web
                   port: http
 
         tls: 
