@@ -123,10 +123,11 @@ spec:
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/description: 
-          gethomepage.dev/group: IPTV & Stream Management
+          gethomepage.dev/description: "IPTV & Stream Management"
+          gethomepage.dev/group: Downloads
           gethomepage.dev/icon: https://raw.githubusercontent.com/Dispatcharr/Dispatcharr/refs/heads/main/frontend/src/images/logo.png
           gethomepage.dev/name: Dispatcharr
+          gethomepage.dev/siteMonitor: http://${APP}.downloads.svc.cluster.local:9191
 
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
