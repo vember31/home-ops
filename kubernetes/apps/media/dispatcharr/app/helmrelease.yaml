@@ -100,7 +100,7 @@ spec:
 
             env: *env
             envFrom: *envFrom
-            command: ["/bash -c", "cd /app && celery -A dispatcharr worker -l info"]
+            command: ["bash -c","cd /app && celery -A dispatcharr worker -l info"]
 
             # resources:
             #   requests:
