@@ -55,16 +55,10 @@ spec:
     master:
       persistence:
         enabled: false
-      disableCommands:
-        - FLUSHALL
-        # - FLUSHDB #remove for dispatcharr
     replica:
       persistence:
         enabled: false
       replicaCount: 5 #equal to count of nodes
-      disableCommands:
-        - FLUSHALL
-        # - FLUSHDB #remove for dispatcharr
     sentinel:
       enabled: true
       masterSet: redis-master

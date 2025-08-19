@@ -77,8 +77,8 @@ spec:
 
             env: &env
               TZ: ${TIMEZONE}
-              REDIS_HOST: redis.database.svc.cluster.local
-              CELERY_BROKER_URL: redis://redis.database.svc.cluster.local:6379/0
+              REDIS_HOST: redis
+              CELERY_BROKER_URL: redis://redis:6379/0
               DISPATCHARR_LOG_LEVEL: info
             envFrom: *envFrom
 
@@ -115,6 +115,12 @@ spec:
             #   limits:
             #     memory: 500Mi
             
+          redis:
+            image:
+              repository: redis
+              tag: latest
+              pullPolicy: IfNotPresent
+
     service:
       web:
         controller: *name
