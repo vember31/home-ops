@@ -1,0 +1,105 @@
+---
+# true or false
+sonarrEnabled: true
+radarrEnabled: true
+whisparrEnabled: false
+readarrEnabled: false
+lidarrEnabled: false
+
+sonarr:
+  sonarr:
+    base_url: http://sonarr.downloads.svc.cluster.local:8989
+    api_key: !env SONARR_API_KEY
+
+    # Media Naming Configuration
+    media_naming:
+      series: default
+      season: default
+      episodes:
+        rename: true
+        standard: default
+        daily: default
+        anime: default
+
+    # Quality definition sizes
+    quality_definition:
+      qualities:
+        - quality: "HDTV-720p"
+          min: 3
+          preferred: 11.7
+          max: 28
+        - quality: "WEBRip-720p"
+          min: 3
+          preferred: 11.7
+          max: 28
+        - quality: "WEBDL-720p"
+          min: 3
+          preferred: 11.7
+          max: 28
+        - quality: "Bluray-720p"
+          min: 3
+          preferred: 11.7
+          max: 28
+        - quality: "HDTV-1080p"
+          min: 4
+          preferred: 23
+          max: 65
+        - quality: "WEBRip-1080p"
+          min: 4
+          preferred: 23
+          max: 65
+        - quality: "WEBDL-1080p"
+          min: 4
+          preferred: 23
+          max: 65
+        - quality: "Bluray-1080p"
+          min: 4
+          preferred: 23
+          max: 65
+
+radarr:
+  radarr:
+    base_url: http://radarr.downloads.svc.cluster.local:7878
+    api_key: !env RADARR_API_KEY
+
+    # Media Naming Configuration
+    media_naming:
+      folder: default
+      movie:
+        rename: true
+        standard: standard
+
+      # Quality definition sizes
+      qualities:
+        - quality: "HDTV-720p"
+          min: 0
+          preferred: 18
+          max: 34
+        - quality: "WEBRip-720p"
+          min: 0
+          preferred: 18
+          max: 34
+        - quality: "WEBDL-720p"
+          min: 0
+          preferred: 18
+          max: 34
+        - quality: "Bluray-720p"
+          min: 0
+          preferred: 18
+          max: 34
+        - quality: "HDTV-1080p"
+          min: 0
+          preferred: 25
+          max: 42
+        - quality: "WEBRip-1080p"
+          min: 0
+          preferred: 25
+          max: 42
+        - quality: "WEBDL-1080p"
+          min: 0
+          preferred: 25
+          max: 42
+        - quality: "Bluray-1080p"
+          min: 0
+          preferred: 25
+          max: 42

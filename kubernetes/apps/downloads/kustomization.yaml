@@ -10,10 +10,11 @@ resources:
   # Flux-Kustomizations
   - ./autobrr/ks.yaml
   - ./bazarr/ks.yaml
+  - ./configarr/ks.yaml
   - ./pinchflat/ks.yaml
   - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
   - ./radarr/ks.yaml
-  - ./recyclarr/ks.yaml
+  # - ./recyclarr/ks.yaml
   - ./sonarr/ks.yaml
   - ./unpackerr/ks.yaml
