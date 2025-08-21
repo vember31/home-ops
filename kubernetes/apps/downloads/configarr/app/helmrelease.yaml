@@ -105,4 +105,9 @@ spec:
         globalMounts:
           - path: /app/config/config.yml
             subPath: config.yml
-            readOnly: true    
+            readOnly: true
+
+      repos:
+        type: emptyDir
+        globalMounts:
+          - path: /app/repos
