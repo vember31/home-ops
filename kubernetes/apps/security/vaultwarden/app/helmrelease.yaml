@@ -95,7 +95,7 @@ spec:
             nameOverride: backup
             image:
               repository: ghcr.io/ttionya/vaultwarden-backup
-              tag: 1.25.0@sha256:02d38f80e2452d48391884d09b387e48e479a7c99d529f5f34f639af7b28c0fe
+              tag: 1.25.0@sha256:3d8861c2df6f8b683c8e38620145f1a9450bb93f25c61d2e9b4174373927a6db
               pullPolicy: IfNotPresent
 
             env:
