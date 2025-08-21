@@ -70,36 +70,37 @@ radarr:
         standard: standard
 
     # Quality definition sizes
-    qualities:
-      - quality: "HDTV-720p"
-        min: 0
-        preferred: 18
-        max: 34
-      - quality: "WEBRip-720p"
-        min: 0
-        preferred: 18
-        max: 34
-      - quality: "WEBDL-720p"
-        min: 0
-        preferred: 18
-        max: 34
-      - quality: "Bluray-720p"
-        min: 0
-        preferred: 18
-        max: 34
-      - quality: "HDTV-1080p"
-        min: 0
-        preferred: 25
-        max: 42
-      - quality: "WEBRip-1080p"
-        min: 0
-        preferred: 25
-        max: 42
-      - quality: "WEBDL-1080p"
-        min: 0
-        preferred: 25
-        max: 42
-      - quality: "Bluray-1080p"
-        min: 0
-        preferred: 25
-        max: 42
+    quality_definition:
+      qualities:
+        - quality: "HDTV-720p"
+          min: 0
+          preferred: 18
+          max: 34
+        - quality: "WEBRip-720p"
+          min: 0
+          preferred: 18
+          max: 34
+        - quality: "WEBDL-720p"
+          min: 0
+          preferred: 18
+          max: 34
+        - quality: "Bluray-720p"
+          min: 0
+          preferred: 18
+          max: 34
+        - quality: "HDTV-1080p"
+          min: 0
+          preferred: 25
+          max: 42
+        - quality: "WEBRip-1080p"
+          min: 0
+          preferred: 25
+          max: 42
+        - quality: "WEBDL-1080p"
+          min: 0
+          preferred: 25
+          max: 42
+        - quality: "Bluray-1080p"
+          min: 0
+          preferred: 25
+          max: 42
