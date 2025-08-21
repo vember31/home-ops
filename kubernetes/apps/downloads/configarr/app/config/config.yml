@@ -21,6 +21,11 @@ sonarr:
         daily: default
         anime: default
 
+    # Root Folder Setup
+    root_folders:
+      - /media/tv
+      - /media2/tv
+
     # Quality definition sizes
     quality_definition:
       qualities:
@@ -68,6 +73,11 @@ radarr:
       movie:
         rename: true
         standard: standard
+
+    # Root Folder Setup
+    root_folders:
+      - /media/movies
+      - /media2/movies
 
     # Quality definition sizes
     quality_definition:
