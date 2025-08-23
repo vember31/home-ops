@@ -55,7 +55,7 @@ spec:
           app:
             image:
               repository: ghcr.io/hotio/overseerr
-              tag: release-1.34.0@sha256:1501dca056e757c8d22b1b64e891fac11081b6dfb75ef28cc9c9c76ed9dbd759
+              tag: release-1.34.0@sha256:ce2ffa0a876b5cfc69c003ac4a17d1f5a20713b15e660f8987e6e1289917b653
               pullPolicy: IfNotPresent
 
             lifecycle:
