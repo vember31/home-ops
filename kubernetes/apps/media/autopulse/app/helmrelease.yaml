@@ -91,7 +91,7 @@ spec:
             nameOverride: autopulse-ui
             image:
               repository: docker.io/danonline/autopulse
-              tag: ui@sha256:46d558cfaf602645bda6759121ed88d2ab9b544f11b0666eb694695d8e9a7433
+              tag: ui@sha256:18041e310927a2408a0f002c276f7cfc76b63bbd3ee360b13f7b4ed4d06230e1
               pullPolicy: IfNotPresent
 
             env:
