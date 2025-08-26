@@ -2,7 +2,7 @@
 
 # Tautulli settings
 Tautulli:
-  URL: "http://tautulli:8181"
+  URL: "http://tautulli.media.svc.cluster.local:8181"
   APIKey: "{{ .TC_TAUTULLI_KEY }}"
   UseSelfSignedCert: false
   RefreshSeconds: 30
@@ -15,7 +15,7 @@ Discord:
   AdminIDs:
     - '{{ .TC_DISCORD_ADMIN_IDS }}' # Right-click on your profile picture -> "Copy ID"
   PostSummaryMessage: true
-  ChannelName: "tautulli-live"
+  AdminChannelName: "tautulli-live"
   EnableTermination: true #with v5.4.0
   EnableSlashCommands: true
   StatusMessage:
