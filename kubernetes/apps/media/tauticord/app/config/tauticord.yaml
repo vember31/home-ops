@@ -15,13 +15,16 @@ Discord:
   AdminIDs:
     - '{{ .TC_DISCORD_ADMIN_IDS }}' # Right-click on your profile picture -> "Copy ID"
   PostSummaryMessage: true
-  AdminChannelName: "tautulli-live"
+  AdminChannelName: 'tautulli-live'
   EnableTermination: true #with v5.4.0
   EnableSlashCommands: true
   StatusMessage:
     Enable: true
     CustomMessage: 'Plex Activity'
     ShowStreamCount: true
+  PublicChannelName: ''
+  PostRecentlyAddedMessage: false
+  
 
 # Display settings
 Display:
