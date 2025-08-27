@@ -54,10 +54,10 @@ spec:
 
         pod:
           securityContext:
-            fsGroup: 1001
-            runAsUser: 1001
-            runAsGroup: 1001
-            fsGroupChangePolicy: "OnRootMismatch"
+            fsGroup: 0
+            runAsUser: 0
+            runAsGroup: 0
+            fsGroupChangePolicy: "Always"
 
         initContainers:
           init-db:
