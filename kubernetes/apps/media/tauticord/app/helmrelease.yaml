@@ -62,7 +62,7 @@ spec:
             lifecycle:
               postStart:
                 exec:
-                  command: ["/bin/sh", "-c", "cp /config/tauticord-template.yaml /config/tauticord.yaml"]
+                  command: ["/bin/sh", "-c", "cp /template/tauticord.yaml /config/tauticord.yaml"]
 
 
             resources:
@@ -78,8 +78,8 @@ spec:
         type: secret
         name: tauticord-secret
         globalMounts:
-          - path: /config/tauticord-template.yaml
-            subPath: tauticord-template.yaml
+          - path: /template/tauticord.yaml
+            subPath: tauticord.yaml
             readOnly: true
 
       logs:
