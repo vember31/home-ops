@@ -59,6 +59,12 @@ spec:
               tag: 5.14.0@sha256:1f8a61b40a965598e1ee0bdc4c70f036286b567a1d2274d76d1b371cd7b3b970
               pullPolicy: IfNotPresent
 
+            lifecycle:
+              postStart:
+                exec:
+                  command: ["/bin/sh", "-c", "cp /config/tauticord-template.yaml /config/tauticord.yaml"]
+
+
             resources:
               limits:
                 memory: 512Mi
@@ -72,8 +78,8 @@ spec:
         type: secret
         name: tauticord-secret
         globalMounts:
-          - path: /config/tauticord.yaml
-            subPath: tauticord.yaml
+          - path: /config/tauticord-template.yaml
+            subPath: tauticord-template.yaml
             readOnly: true
 
       logs:
