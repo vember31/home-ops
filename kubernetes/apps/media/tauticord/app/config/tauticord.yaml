@@ -123,6 +123,11 @@ Stats:
           CustomName: ''
           Enable: false
           VoiceChannelID: 0
+        Seasons:
+          CustomName: ''
+          CustomEmoji: ''
+          Enable: false
+          VoiceChannelID: 0
         Tracks:
           CustomEmoji: ''
           CustomName: ''
@@ -162,6 +167,11 @@ Stats:
           CustomName: 'TV Series'
           Enable: true
           VoiceChannelID: {{ .TC_SERIES_COUNT_CHANNEL_ID }}
+        Seasons:
+          CustomName: ''
+          CustomEmoji: ''
+          Enable: true
+          VoiceChannelID: {{ .TC_SEASONS_COUNT_CHANNEL_ID }}
         Tracks:
           CustomEmoji: ''
           CustomName: ''
