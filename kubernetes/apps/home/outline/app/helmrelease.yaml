@@ -91,15 +91,6 @@ spec:
               DATABASE_CONNECTION_POOL_MAX: 10
               WEB_CONCURRENCY: 10
 
-              # don't really want to make minio public-facing currently so switched to local file storage
-              # https://github.com/outline/outline/discussions/4840
-              #
-              # FILE_STORAGE: s3
-              # AWS_REGION: us-midwest-1
-              # AWS_S3_UPLOAD_BUCKET_URL: http://${OMV_IP}:9001
-              # AWS_S3_UPLOAD_BUCKET_NAME: outline
-              # AWS_S3_FORCE_PATH_STYLE: true
-              # AWS_S3_ACL: private
             envFrom: *envFrom
             command: ["/bin/sh", "-c", "yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled"]
 
@@ -107,18 +98,22 @@ spec:
               requests:
                 cpu: 10m
               limits:
-                memory: 1Gi
+                memory: 2Gi
 
             probes:
-              liveness:
+              liveness: &probes
                 enabled: true
-              readiness:
-                enabled: true
-              startup:
-                enabled: true
+                custom: true
                 spec:
-                  failureThreshold: 30
-                  periodSeconds: 5
+                  httpGet:
+                    path: /_health
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+              startup: *probes
 
     service:
       app:
