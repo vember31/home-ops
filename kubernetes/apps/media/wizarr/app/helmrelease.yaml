@@ -65,7 +65,7 @@ spec:
           app:
             image:
               repository: ghcr.io/wizarrrr/wizarr
-              tag: 2025.8.4@sha256:1026717e3fc35d67c80394c34330fe69b9e28cdb50ead0a23cdde5b44c598c3d
+              tag: 2025.9.1@sha256:b3bf6d81a59d0d1b0fef7cb757b529012173ea084e865310e045508f4b33c2a7
               pullPolicy: IfNotPresent
 
             env:
