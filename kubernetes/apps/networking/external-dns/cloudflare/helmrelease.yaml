@@ -49,6 +49,14 @@ spec:
       # Specifies whether RBAC resources should be created
       create: true
 
+    securityContext:
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      runAsUser: 65534
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop: ["ALL"]
+
     serviceMonitor:
       enabled: true
 
@@ -59,13 +67,36 @@ spec:
             name: external-dns-cloudflare-secret
             key: CLOUDFLARE_API_TOKEN
 
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: http
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 2
+      successThreshold: 1
+
+    readinessProbe:
+      httpGet:
+        path: /healthz
+        port: http
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 6
+      successThreshold: 1
+
     service:
       port: 7979
       annotations: {}
+
     logLevel: info
     logFormat: text
+
     interval: 1m
     triggerLoopOnEvent: false
+
     namespaced: false
 
     sources:
@@ -75,17 +106,23 @@ spec:
       #- crd #externaldns doesn't make the custom resource definition so it'll error out if you put this as a source without manually defining the crd kind itself
 
     policy: upsert-only
+
+    # Specifies the registry for storing ownership and labels.
+    # Valid values are "aws-sd", "noop", "dynamodb", and "txt".
     registry: txt
+    # When using a registry other than "noop", specifies a name that
+    # uniquely identifies this instance of external-dns.
     txtOwnerId: "cf-external-dns"
+    # Specifies a prefix for the domain names of TXT records created by the "txt" registry. Optional. Mutually exclusive with `txtSuffix`.
     txtPrefix: ""
+    # Specifies a suffix for the domain names of TXT records created by the "txt" registry. Optional. Mutually exclusive with `txtPrefix`.
     txtSuffix: ""
-    
+
     provider: cloudflare
-    excludedDomains:
-      - local.${SECRET_DOMAIN}
-    annotationFilter: external-dns.alpha.kubernetes.io/exclude notin (true)
 
     extraArgs: 
       - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
       - --crd-source-kind=DNSEndpoint
       - --cloudflare-proxied #default behavior is to proxy records
+      - --annotation-filter=external-dns.alpha.kubernetes.io/exclude notin (true)
+      - --exclude-domains=local.${SECRET_DOMAIN}
