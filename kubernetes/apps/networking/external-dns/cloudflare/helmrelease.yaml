@@ -44,13 +44,10 @@ spec:
   values:
     # yaml-language-server: $schema=https://raw.githubusercontent.com/kubernetes-sigs/external-dns/55b24add18bc699958c53218d46b7d1388080f89/charts/external-dns/values.schema.json
     fullnameOverride: external-dns-cloudflare
-
     rbac:
       create: true
-
     serviceMonitor:
       enabled: true
-
     env: 
       - name: CF_API_TOKEN
         valueFrom:
@@ -63,25 +60,16 @@ spec:
     interval: 1m
     triggerLoopOnEvent: false
     namespaced: false
-
     sources:
-      #- service
       - ingress
       - traefik-proxy
-      #- crd #externaldns doesn't make the custom resource definition so it'll error out if you put this as a source without manually defining the crd kind itself
 
     policy: upsert-only
     registry: txt
     txtOwnerId: "cf-external-dns"
-
     provider: cloudflare
     excludeDomains:
       - local.${SECRET_DOMAIN}
     annotationFilter: "external-dns.alpha.kubernetes.io/exclude notin (true)"
-
     extraArgs: 
-      # - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
-      # - --crd-source-kind=DNSEndpoint
       - --cloudflare-proxied #default behavior is to proxy records
-      # - --annotation-filter=external-dns.alpha.kubernetes.io/exclude notin (true)
-      # - --exclude-domains=local.${SECRET_DOMAIN}
