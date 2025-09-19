@@ -79,7 +79,7 @@ spec:
               TZ: ${TIMEZONE}
               NODE_ENV: production
               PGSSLMODE: disable
-              REDIS_URL: ioredis://eyJkYiI6MTUsInNlbnRpbmVscyI6W3siaG9zdCI6InJlZGlzLTAucmVkaXMtaGVhZGxlc3MuZGF0YWJhc2Uuc3ZjLmNsdXN0ZXIubG9jYWwiLCJwb3J0IjoyNjM3OX0seyJob3N0IjoicmVkaXMtMS5yZWRpcy1oZWFkbGVzcy5kYXRhYmFzZS5zdmMuY2x1c3Rlci5sb2NhbCIsInBvcnQiOjI2Mzc5fSx7Imhvc3QiOiJyZWRpcy0yLnJlZGlzLWhlYWRsZXNzLmRhdGFiYXNlLnN2Yy5jbHVzdGVyLmxvY2FsIiwicG9ydCI6MjYzNzl9LHsiaG9zdCI6InJlZGlzLTMucmVkaXMtaGVhZGxlc3MuZGF0YWJhc2Uuc3ZjLmNsdXN0ZXIubG9jYWwiLCJwb3J0IjoyNjM3OX0seyJob3N0IjoicmVkaXMtNC5yZWRpcy1oZWFkbGVzcy5kYXRhYmFzZS5zdmMuY2x1c3Rlci5sb2NhbCIsInBvcnQiOjI2Mzc5fV0sIm5hbWUiOiJyZWRpcy1tYXN0ZXIifQ==
+              REDIS_URL: ioredis://ewogICJkYiI6IDE1LAogICJzZW50aW5lbHMiOiBbCiAgICB7ICJob3N0IjogInJlZGlzLXNlbnRpbmVsLmRhdGFiYXNlLnN2Yy5jbHVzdGVyLmxvY2FsIiwgInBvcnQiOiAyNjM3OSB9CiAgXSwKICAibmFtZSI6ICJyZWRpcy1tYXN0ZXIiCn0K
               URL: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
               PORT: &port 3000
 
