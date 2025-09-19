@@ -12,7 +12,7 @@ spec:
           serviceAccountName: eraser-k3s-cleaner-sa
           containers:
           - name: pod-cleaner
-            image: bitnami/kubectl:latest
+            image: alpine/kubectl:latest
             command:
             - /bin/sh
             - -c
