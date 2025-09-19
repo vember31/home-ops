@@ -51,3 +51,4 @@ spec:
       enabled: false
     sentinel:
       enabled: true
+      masterName: redis-master
