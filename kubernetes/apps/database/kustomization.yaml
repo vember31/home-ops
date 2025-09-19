@@ -10,3 +10,4 @@ resources:
   - ./cloudnative-pg/ks.yaml
   - ./pgadmin/ks.yaml
   - ./redis/ks.yaml
+  - ./redis-cloudpirates/ks.yaml
