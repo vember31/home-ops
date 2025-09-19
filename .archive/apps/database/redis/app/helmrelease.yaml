@@ -3,15 +3,20 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: redis-cloudpirates
+  name: redis
   namespace: database
 
 spec:
   interval: 30m
-  chartRef:
-    kind: OCIRepository
-    name: cloudpirates-redis
-    namespace: flux-system
+  chart:
+    spec:
+      chart: redis
+      version: 22.0.7
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami-charts
+        namespace: flux-system
+      interval: 10m
 
   install:
     timeout: 10m
@@ -43,11 +48,27 @@ spec:
   maxHistory: 1
 
   values:
-    architecture: replication
-    replicaCount: 5
     auth:
       enabled: false
-    persistence:
-      enabled: false
+      sentinel: false
+      usePasswordFiles: false
+    master:
+      persistence:
+        enabled: false
+    replica:
+      persistence:
+        enabled: false
+      replicaCount: 5 #equal to count of nodes
     sentinel:
       enabled: true
+      masterSet: redis-master
+      getMasterTimeout: 10
+      startupProbe:
+        failureThreshold: 2
+      persistence:
+        enabled: false
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        interval: 1m
