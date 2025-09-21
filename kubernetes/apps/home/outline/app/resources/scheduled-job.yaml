@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: outline-scheduled-job
+  namespace: home
+spec:
+  schedule: "0 1 * * *"  # Run daily at 1am
+  timeZone: ${TIMEZONE}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: outline-curl
+            image: curlimages/curl:8.15.0@sha256:4026b29997dc7c823b51c164b71e2b51e0fd95cce4601f78202c513d97da2922
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              curl --trace-ascii /dev/stdout "http://outline.home.svc.cluster.local:3000/api/cron.daily?token=$(UTILS_SECRET)"
+
+            env:
+            - name: UTILS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: outline-secret
+                  key: UTILS_SECRET
