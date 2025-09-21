@@ -75,7 +75,7 @@ spec:
                 spec:
                   httpGet:
                     path: /health
-                    port: 7476
+                    port: &port 7476
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
