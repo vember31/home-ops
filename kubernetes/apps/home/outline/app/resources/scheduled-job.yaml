@@ -16,7 +16,7 @@ spec:
             command: ["/bin/sh", "-c"]
             args:
             - |
-              curl --trace-ascii /dev/stdout "http://outline.home.svc.cluster.local:3000/api/cron.daily?token=$(UTILS_SECRET)"
+              curl "https://notes.vember31.xyz/api/cron.daily?token=$(UTILS_SECRET)"
 
             env:
             - name: UTILS_SECRET
