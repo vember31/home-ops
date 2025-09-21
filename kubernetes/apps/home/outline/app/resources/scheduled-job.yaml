@@ -24,3 +24,5 @@ spec:
                 secretKeyRef:
                   name: outline-secret
                   key: UTILS_SECRET
+
+          restartPolicy: OnFailure
