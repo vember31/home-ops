@@ -133,7 +133,7 @@ spec:
       upgradeChecker: true
       # -- The default number of replicas when a volume is created from the Longhorn UI.
       # For Kubernetes configuration, update the `numberOfReplicas` in the StorageClass. By default 3.
-      defaultReplicaCount: '2'
+      defaultReplicaCount: "2"
       # -- The 'storageClassName' is given to PVs and PVCs that are created for an existing Longhorn volume. The StorageClass name can also be used as a label,
       # so it is possible to use a Longhorn StorageClass to bind a workload to an existing PV without creating a Kubernetes StorageClass object.
       # By default 'longhorn-static'.
