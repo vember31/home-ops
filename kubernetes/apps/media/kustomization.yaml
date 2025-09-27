@@ -9,6 +9,7 @@ resources:
 
   # Flux-Kustomizations
   - ./autopulse/ks.yaml
+  - ./isponsorblocktv/ks.yaml
   - ./maintainerr/ks.yaml
   - ./overseerr/ks.yaml
   - ./plex/ks.yaml

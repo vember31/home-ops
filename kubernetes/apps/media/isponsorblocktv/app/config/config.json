@@ -1,0 +1,30 @@
+{
+    "devices": [
+        {
+            "screen_id": "{{ .DM_APPLETV_SCREEN_ID }}",
+            "name": "DM AppleTV",
+            "offset": 0
+        }
+    ],
+    "apikey": "",
+    "skip_categories": [
+        "music_offtopic",
+        "selfpromo",
+        "sponsor",
+        "intro",
+        "outro",
+        "interaction",
+        "exclusive_access",
+        "poi_highlight",
+        "preview",
+        "filler"
+    ],
+    "channel_whitelist": [],
+    "skip_count_tracking": true,
+    "mute_ads": true,
+    "skip_ads": true,
+    "minimum_skip_length": 1,
+    "auto_play": true,
+    "join_name": "iSponsorBlockTV",
+    "use_proxy": false
+}

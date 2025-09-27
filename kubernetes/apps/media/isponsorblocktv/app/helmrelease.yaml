@@ -1,0 +1,79 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: isponsorblocktv
+  namespace: media
+
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      ${APP}:
+        enabled: true
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+
+        containers:
+          app:
+            image:
+              repository: ghcr.io/dmunozv04/isponsorblocktv
+              tag: v2.6.0@sha256:1a1a5dd22b3ac607ecf46f7ccb8875f10002c7c05486406a5cc20e575b0b9e79
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 1Gi
+
+    persistence:
+
+      config-file:
+        type: secret
+        name: isponsorblocktv
+        globalMounts:
+          - path: /app/data/config.json
+            subPath: config.json
+            readOnly: true
