@@ -54,7 +54,7 @@ spec:
 
     # Configure Traefik static configuration
     additionalArguments: 
-      - "--log.level=DEBUG"
+      - "--log.level=INFO"
       - "--api.insecure=true"
       - "--serversTransport.insecureSkipVerify=true"
 
