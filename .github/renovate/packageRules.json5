@@ -34,7 +34,7 @@
     {
       "description": "v + date matching",
       "matchDatasources": ["docker"],
-      "versioning": "regex:^v(?P<major>\\d{4})\\.(?P<minor>\\d{1,2})\\.(?P<patch>\\d{2})(?P<build>\\d*)?$",
+      "versioning": "regex:^v(?P<major>\\d{4})\\.(?P<minor>\\d{1,2})\\.(?P<patch>\\d{1,2})(?P<build>\\d*)?$",
       "matchPackagePatterns": ["pinchflat","wizarr"]
     },
     {
