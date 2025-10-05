@@ -64,7 +64,7 @@ spec:
           app:
             image:
               repository: docker.io/danonline/autopulse
-              tag: latest-postgres@sha256:0c1393fdb5d99850aca3f60db2ab1c91f5ed4da934c8ddbf00bedf885073d959
+              tag: latest-postgres@sha256:ad306fa6d81f683684d0b23ac6ac32159685e0fdf0ebd15923ace25bc00319b4
               pullPolicy: IfNotPresent
 
             env:
