@@ -101,9 +101,10 @@ spec:
           gethomepage.dev/group: Downloads
           gethomepage.dev/icon: https://user-images.githubusercontent.com/33867119/33150262-ba172c24-cfe3-11e7-8bc0-09ac1735844c.png
           gethomepage.dev/name: Qui
+          gethomepage.dev/siteMonitor: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
 
         hosts:
-          - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+          - host: *host
             paths:
               - path: /
                 service:
