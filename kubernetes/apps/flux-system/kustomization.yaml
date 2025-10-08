@@ -8,3 +8,5 @@ resources:
   
   # Post Flux-Kustomizations
   - ./addons/ks.yaml
+  # - ./flux-instance/ks.yaml
+  # - ./flux-operator/ks.yaml

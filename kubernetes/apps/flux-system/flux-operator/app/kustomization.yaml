@@ -3,8 +3,4 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./app-template-testing.yaml
-  - ./app-template.yaml
-  - ./cloudpirates-redis.yaml
-  # - ./flux-instance.yaml
-  # - ./flux-operator.yaml
+  - ./helmrelease.yaml
