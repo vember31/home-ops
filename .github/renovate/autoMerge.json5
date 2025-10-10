@@ -8,6 +8,14 @@
       "automergeType": "pr",
       "matchUpdateTypes": ["digest"],
       "matchPackagePatterns": ["hotio","bazarr","sonarr","radarr","qbittorrent","prowlarr","autopulse"]
+    },
+    {
+      "description": ["Auto-merge anything for prometheus"],
+      "matchDatasources": ["docker"],
+      "automerge": true,
+      "automergeType": "pr",
+      "matchUpdateTypes": ["digest","patch","minor","major"],
+      "matchPackagePatterns": ["kube-prometheus-stack"]
     }
   ]
 }
