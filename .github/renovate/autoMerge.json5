@@ -11,7 +11,7 @@
     },
     {
       "description": ["Auto-merge kube-prometheus-stack Helm chart updates"],
-      "matchPackageNames": ["prometheus-community/kube-prometheus-stack"],
+      "matchPackagePatterns": ["kube-prometheus-stack"],
       "matchUpdateTypes": ["patch", "minor","major","digest"], 
       "automerge": true,
       "automergeType": "pr",
