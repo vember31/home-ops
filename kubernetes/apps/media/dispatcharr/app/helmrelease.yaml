@@ -65,13 +65,13 @@ spec:
           web:
             image:
               repository: ghcr.io/dispatcharr/dispatcharr
-              tag: 0.7.1@sha256:596437b5a4f9d7ea605fc6349c24aa0060b69f3792c3fd1990386936ff11b9cb
+              tag: 0.10.4@sha256:31242b53f369e82e92d8f5ef53f93d5686c2a8c7fbb486a1fc57d006def13401
               pullPolicy: IfNotPresent
 
             env: &env
               TZ: ${TIMEZONE}
               REDIS_HOST: redis
-              CELERY_BROKER_URL: redis://redis:6379/0
+              CELERY_BROKER_URL: redis://redis.database.svc.cluster.local:6379/0
               DISPATCHARR_LOG_LEVEL: info
             envFrom: *envFrom
 
@@ -95,12 +95,12 @@ spec:
           celery:
             image:
               repository: ghcr.io/dispatcharr/dispatcharr
-              tag: 0.7.1@sha256:596437b5a4f9d7ea605fc6349c24aa0060b69f3792c3fd1990386936ff11b9cb
+              tag: 0.10.4@sha256:31242b53f369e82e92d8f5ef53f93d5686c2a8c7fbb486a1fc57d006def13401
               pullPolicy: IfNotPresent
 
             env: *env
             envFrom: *envFrom
-            command: ["/bin/bash", "-c", "cd /app && celery -A dispatcharr worker -l info"]
+            command: ["/bin/bash", "-c", "cd /app && nice -n 5 celery -A dispatcharr worker -l info"]
 
             # resources:
             #   requests:
@@ -108,11 +108,11 @@ spec:
             #   limits:
             #     memory: 500Mi
             
-          redis:
-            image:
-              repository: redis
-              tag: latest
-              pullPolicy: IfNotPresent
+          # redis:
+          #   image:
+          #     repository: redis
+          #     tag: latest
+          #     pullPolicy: IfNotPresent
 
     service:
       web:
