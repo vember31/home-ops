@@ -10,12 +10,12 @@
       "matchPackagePatterns": ["hotio","bazarr","sonarr","radarr","qbittorrent","prowlarr","autopulse"]
     },
     {
-      "description": ["Auto-merge anything for prometheus"],
-      "matchDatasources": ["docker"],
+      "description": ["Auto-merge kube-prometheus-stack Helm chart updates"],
+      "matchPackagePatterns": ["kube-prometheus-stack"],
+      "matchUpdateTypes": ["patch", "minor","major","digest"], 
       "automerge": true,
       "automergeType": "pr",
-      "matchUpdateTypes": ["digest","patch","minor","major"],
-      "matchPackagePatterns": ["kube-prometheus-stack"]
+      "rangeStrategy": "replace"
     }
   ]
 }
