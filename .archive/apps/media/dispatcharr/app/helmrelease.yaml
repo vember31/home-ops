@@ -70,7 +70,7 @@ spec:
 
             env: &env
               TZ: ${TIMEZONE}
-              REDIS_HOST: redis
+              REDIS_HOST: redis.database.svc.cluster.local
               CELERY_BROKER_URL: redis://redis.database.svc.cluster.local:6379/0
               DISPATCHARR_LOG_LEVEL: info
             envFrom: *envFrom
