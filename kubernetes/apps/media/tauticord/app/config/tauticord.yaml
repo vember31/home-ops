@@ -168,7 +168,7 @@ Stats:
           Enable: true
           VoiceChannelID: {{ .TC_SERIES_COUNT_CHANNEL_ID }}
         Seasons:
-          CustomName: ''
+          CustomName: 'TV Seasons'
           CustomEmoji: ''
           Enable: true
           VoiceChannelID: {{ .TC_SEASONS_COUNT_CHANNEL_ID }}
