@@ -6,5 +6,5 @@ resources:
   - ./app-template-testing.yaml
   - ./app-template.yaml
   - ./cloudpirates-redis.yaml
-  # - ./flux-instance.yaml
-  # - ./flux-operator.yaml
+  - ./flux-instance.yaml
+  - ./flux-operator.yaml
