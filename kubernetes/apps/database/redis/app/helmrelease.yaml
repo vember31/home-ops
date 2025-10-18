@@ -47,6 +47,7 @@ spec:
     replicaCount: 5
     auth:
       enabled: false
+      sentinel: false
     persistence:
       enabled: false
     sentinel:
