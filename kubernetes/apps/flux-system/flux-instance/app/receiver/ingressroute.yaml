@@ -1,0 +1,22 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: flux-webhook-receiver
+  namespace: flux-system
+  annotations:
+    gethomepage.dev/enabled: "false"
+    external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+    external-dns.alpha.kubernetes.io/hostname: "flux-webhook.${SECRET_DOMAIN}"
+
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`flux-webhook.${SECRET_DOMAIN}`)
+      services:
+          name: webhook-receiver
+          port: 80
+  tls:
+    secretName: flux-webhook-tls
