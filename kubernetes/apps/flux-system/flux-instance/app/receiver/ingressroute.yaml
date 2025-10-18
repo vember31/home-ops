@@ -16,7 +16,7 @@ spec:
     - kind: Rule
       match: Host(`flux-webhook.${SECRET_DOMAIN}`)
       services:
-          name: webhook-receiver
+        - name: webhook-receiver
           port: 80
   tls:
     secretName: flux-webhook-tls
