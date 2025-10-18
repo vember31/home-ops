@@ -21,3 +21,4 @@ data:
           - type: discord
             send-on-resolved: true
             failure-threshold: 2
+            minimum-reminder-interval: "30m"
