@@ -5,6 +5,11 @@
       "matchDatasources": ["docker"],
       "matchPackagePatterns": ["postgresql"],
       "allowedVersions": "<18"
-    }
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": ["olivetin"],
+      "allowedVersions": "<3000"
+    },
   ]
 }
