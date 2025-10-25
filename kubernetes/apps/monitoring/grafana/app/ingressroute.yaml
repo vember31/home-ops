@@ -17,6 +17,7 @@ metadata:
     gethomepage.dev/icon: grafana
     gethomepage.dev/name: Grafana
     gethomepage.dev/widget.type: ${APP}
+    gethomepage.dev/widget.version: 2
     gethomepage.dev/widget.url: &siteMonitor http://${APP}.monitoring.svc.cluster.local
     gethomepage.dev/widget.username: '{{HOMEPAGE_VAR_GRAFANA_USERNAME}}'
     gethomepage.dev/widget.password: '{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}'
