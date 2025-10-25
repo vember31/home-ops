@@ -31,4 +31,4 @@ spec:
         - name: grafana
           port: 80
   tls: 
-    - secretName: grafana-tls-production
+    secretName: grafana-tls-production
