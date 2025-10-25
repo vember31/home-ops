@@ -143,12 +143,14 @@ datasources:
         uid: blocky-postgres
         access: proxy
         url: postgres-17-ro.database.svc.cluster.local:5432
-        user: "{{ .BLOCKY_POSTGRES_USER }}"
+        user: {{ .BLOCKY_POSTGRES_USER }}
         secureJsonData:
-          password: "{{ .BLOCKY_POSTGRES_PASS }}"
+          password: '{{ .BLOCKY_POSTGRES_PASS }}'
         jsonData:
           database: blocky
-          sslmode: 'disable' # disable/require/verify-ca/verify-full
+          sslmode: 'disable'
+          postgresVersion: 15000
+ 
       # - name: Loki
       #   type: loki
       #   uid: loki
