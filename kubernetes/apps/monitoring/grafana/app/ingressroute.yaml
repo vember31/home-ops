@@ -16,6 +16,7 @@ metadata:
     gethomepage.dev/group: Monitoring
     gethomepage.dev/icon: grafana
     gethomepage.dev/name: Grafana
+    gethomepage.dev/href: https://grafana.local.${SECRET_DOMAIN}
     gethomepage.dev/widget.type: ${APP}
     gethomepage.dev/widget.version: 2
     gethomepage.dev/widget.url: &siteMonitor http://${APP}.monitoring.svc.cluster.local
