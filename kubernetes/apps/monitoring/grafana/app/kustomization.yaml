@@ -2,6 +2,14 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+configMapGenerator:
+  - name: grafana-values
+    files:
+      - ./config/values.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: enabled
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
