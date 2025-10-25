@@ -335,33 +335,7 @@ serviceMonitor:
   enabled: true
 
 ingress:
-  enabled: true
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-production
-    traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
-    external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-    hajimari.io/appName: Grafana
-    hajimari.io/icon: simple-icons:grafana
-    hajimari.io/info: &description Data Visualization
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/description: *description
-    gethomepage.dev/group: Monitoring
-    gethomepage.dev/icon: grafana
-    gethomepage.dev/name: Grafana
-    gethomepage.dev/widget.type: ${APP}
-    gethomepage.dev/widget.url: &siteMonitor http://${APP}.monitoring.svc.cluster.local
-    gethomepage.dev/widget.username: "{{ "`{{HOMEPAGE_VAR_GRAFANA_USERNAME}}`" }}"
-    gethomepage.dev/widget.password: "{{ "`{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}`" }}"
-    gethomepage.dev/siteMonitor: *siteMonitor
-
-  hosts:
-    - &host "grafana.local.${SECRET_DOMAIN}"
-  paths:
-    - /
-  tls: 
-    - secretName: grafana-tls-production
-      hosts:
-        - *host
+  enabled: false #move over to an ingressroute
 
 resources:
   requests:
