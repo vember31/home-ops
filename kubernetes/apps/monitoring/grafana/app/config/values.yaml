@@ -198,7 +198,7 @@ dashboards:
           value: blocky-postgres
     blocky-postgres:
       gnetId: 17996
-      revision: 12
+      revision: 13
       datasource:
         - name: DS_BLOCKY-POSTGRESQL
           value: blocky-postgres
