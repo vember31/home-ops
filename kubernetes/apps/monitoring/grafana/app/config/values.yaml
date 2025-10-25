@@ -7,7 +7,7 @@ env:
   GF_NEWS_NEWS_FEED_ENABLED: false
   GF_PANELS_DISABLE_SANITIZE_HTML: true
   GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel
-  GF_SECURITY_COOKIE_SAMESITE: *app
+  GF_SECURITY_COOKIE_SAMESITE: ${APP}
   GF_SERVER_ROOT_URL: https://grafana.local.${SECRET_DOMAIN}
 envFromSecrets:
   - name: grafana-secret
@@ -379,4 +379,4 @@ topologySpreadConstraints:
     whenUnsatisfiable: DoNotSchedule
     labelSelector:
       matchLabels:
-        app.kubernetes.io/name: *app
+        app.kubernetes.io/name: ${APP}
