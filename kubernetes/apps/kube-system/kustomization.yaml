@@ -9,7 +9,6 @@ resources:
   # Flux-Kustomizations
   - ./external-secrets/ks.yaml
   - ./eraser/ks.yaml
-  # - ./descheduler/ks.yaml
   - ./kured/ks.yaml
   - ./kubernetes-dashboard/ks.yaml
   - ./kube-cleanup-operator/ks.yaml
