@@ -127,7 +127,7 @@ datasources:
         type: prometheus
         uid: prometheus
         access: proxy
-        url: http://prometheus-operated.monitoring.svc.cluster.local:9090
+        url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
         jsonData:
           implementation: prometheus
         isDefault: true
