@@ -56,7 +56,6 @@ spec:
     image:
       repository: us-docker.pkg.dev/fairwinds-ops/oss/goldilocks
       tag: v4.14.6
-      # image.pullPolicy -- imagePullPolicy - Highly recommended to leave this as `Always`
       pullPolicy: IfNotPresent
 
     dashboard:
