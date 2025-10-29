@@ -71,10 +71,10 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: &path /status
+                    path: /status
                     port: &port 8181
                   initialDelaySeconds: 0
-                  periodSeconds: 10
+                  periodSeconds: 30
                   timeoutSeconds: 1
                   failureThreshold: 3
               readiness: *probes
@@ -110,7 +110,7 @@ spec:
         controller: *name
         ports:
           http:
-            port: 8181
+            port: *port
 
     ingress:
       app:
