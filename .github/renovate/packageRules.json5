@@ -12,7 +12,7 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/0xerr0r/blocky"],
       "versioning": "semver-coerced"
-    }
+    },
     {
       "description": "Hotio Release Semver Packages",
       "matchDatasources": ["docker"],
