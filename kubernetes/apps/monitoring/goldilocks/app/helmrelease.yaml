@@ -53,11 +53,6 @@ spec:
       apiService:
         create: true
 
-    image:
-      repository: us-docker.pkg.dev/fairwinds-ops/oss/goldilocks
-      tag: v4.14.6
-      pullPolicy: IfNotPresent
-
     dashboard:
       basePath: null
       enabled: true
