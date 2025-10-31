@@ -8,6 +8,12 @@
       "matchPackagePatterns": ["home-operations/plex"]
     },
     {
+      "description": "Fix some Blocky tags",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/0xerr0r/blocky"],
+      "versioning": "semver-coerced"
+    },
+    {
       "description": "Hotio Release Semver Packages",
       "matchDatasources": ["docker"],
       "versioning": "regex:^release-(?<major>\\d+)\\.(?<minor>\\d+)?\\.(?<patch>\\d+)?(-(?<build>.*))?$",
