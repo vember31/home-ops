@@ -18,4 +18,3 @@ resources:
   - ./tauticord/ks.yaml
   - ./tautulli/ks.yaml
   - ./wizarr/ks.yaml
-  - ./zap2it/ks.yaml
