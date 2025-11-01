@@ -222,12 +222,12 @@ dashboards:
     kubernetes-api-server:
       # renovate: depName="Kubernetes / System / API Server"
       gnetId: 15761
-      revision: 19
+      revision: 20
       datasource: Prometheus
     kubernetes-coredns:
       # renovate: depName="Kubernetes / System / CoreDNS"
       gnetId: 15762
-      revision: 21
+      revision: 22
       datasource: Prometheus
     kubernetes-global:
       # renovate: depName="Kubernetes / Views / Global"
@@ -242,7 +242,7 @@ dashboards:
     kubernetes-nodes:
       # renovate: depName="Kubernetes / Views / Nodes"
       gnetId: 15759
-      revision: 37
+      revision: 39
       datasource: Prometheus
     kubernetes-pods:
       # renovate: depName="Kubernetes / Views / Pods"
