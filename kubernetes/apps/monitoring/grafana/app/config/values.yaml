@@ -285,7 +285,7 @@ dashboards:
     prometheus:
       # renovate: depName="Prometheus"
       gnetId: 19105
-      revision: 7
+      revision: 8
       datasource: Prometheus
   traefik:
     traefik-2.2:
