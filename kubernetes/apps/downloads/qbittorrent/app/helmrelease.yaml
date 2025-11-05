@@ -133,6 +133,8 @@ spec:
           gethomepage.dev/widget.url: &siteMonitor http://${APP}.downloads.svc.cluster.local:8080
           gethomepage.dev/widget.username: "{{ `{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}` }}"
           gethomepage.dev/widget.password: "{{ `{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}` }}"
+          gethomepage.dev/widget.enableLeechProgress: "true"
+          gethomepage.dev/widget.enableLeechSize: "true"
           gethomepage.dev/siteMonitor: *siteMonitor
 
         hosts:
