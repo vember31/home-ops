@@ -62,7 +62,7 @@ spec:
           app:
             image:
               repository: ghcr.io/raydak-labs/configarr
-              tag: 1.17.1@sha256:166d431e862297b34b6182b0db6500e800c394c1dd887496cc2510a65a33319d
+              tag: 1.17.2@sha256:ced83ae20ef0c5d32a3cbdfe5f8b8e5d595dca6d9223a928c44145fefba8547d
               pullPolicy: IfNotPresent
 
             env:
