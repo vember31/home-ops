@@ -16,16 +16,6 @@
           "mentionedUsers": ["{{ .EPICGAMES_DISCORD_USER_DM }}"]
         }
       ]
-    },
-    {
-      "email": "{{ .EPICGAMES_EMAIL_GE }}",
-      "notifiers": [
-        {
-          "type": "discord",
-          "webhookUrl": "{{ .EPICGAMES_DISCORD_WEBHOOK }}",
-          "mentionedUsers": ["{{ .EPICGAMES_DISCORD_USER_GE }}"]
-        }
-      ]
     }
   ]
 }
