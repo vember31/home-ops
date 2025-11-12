@@ -258,7 +258,7 @@ dashboards:
     longhorn:
       # renovate: depName="Longhorn"
       gnetId: 16888
-      revision: 9
+      revision: 10
       datasource: Prometheus
   media:
     exportarr:
