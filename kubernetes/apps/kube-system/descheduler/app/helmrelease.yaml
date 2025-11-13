@@ -64,9 +64,12 @@ spec:
           pluginConfig:
           - name: DefaultEvictor
             args:
-              evictSystemCriticalPods: true
-              evictFailedBarePods: true
-              evictLocalStoragePods: true
+              podProtections:
+                defaultDisabled:
+                  - PodsWithLocalStorage
+                  - DaemonSetPods
+                  - SystemCriticalPods
+                  - FailedBarePods
           - name: RemovePodsHavingTooManyRestarts
             args:
               podRestartThreshold: 10
