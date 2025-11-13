@@ -115,6 +115,9 @@ connectIPVersion: v4
 ecs:
   useAsClient: true
 
+dnssec:
+  validate: true
+
 log:
   level: info
   format: text
