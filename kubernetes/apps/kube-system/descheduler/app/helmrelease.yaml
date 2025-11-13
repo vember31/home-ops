@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: descheduler
-      version: 0.33.0
+      version: 0.34.0
       sourceRef:
         kind: HelmRepository
         name: descheduler-charts
@@ -48,8 +48,15 @@ spec:
 
   values:
 
-    replicas: 2
-    kind: Deployment
+    kind: CronJob
+    schedule: "0 6 * * *"
+    startingDeadlineSeconds: 200
+    successfulJobsHistoryLimit: 3
+    failedJobsHistoryLimit: 1
+    ttlSecondsAfterFinished: 600
+    activeDeadlineSeconds: 300
+    timeZone: ${TIMEZONE}
+
     deschedulerPolicyAPIVersion: descheduler/v1alpha2
     deschedulerPolicy:
       profiles:
@@ -62,7 +69,7 @@ spec:
               evictLocalStoragePods: true
           - name: RemovePodsHavingTooManyRestarts
             args:
-              podRestartThreshold: 5
+              podRestartThreshold: 10
               includingInitContainers: true
           - name: RemovePodsViolatingTopologySpreadConstraint
             args:
@@ -91,13 +98,13 @@ spec:
           - name: LowNodeUtilization
             args:
               thresholds:
-                cpu: 40
+                cpu: 50
                 memory: 50
                 pods: 40
               targetThresholds:
-                cpu: 75
-                memory: 75
-                pods: 50
+                cpu: 80
+                memory: 80
+                pods: 50 #this is a % of the total allocatable pods per node, which is 110 total # of pods. so "50" would mean 55 pods, aka 50% of 110.
           plugins:
             balance:
               enabled:
