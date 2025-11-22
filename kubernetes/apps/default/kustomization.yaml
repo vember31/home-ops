@@ -8,5 +8,4 @@ resources:
   
   # Post Flux-Kustomizations
   - ./homepage/ks.yaml
-  - ./mailrise/ks.yaml
   - ./olivetin/ks.yaml
