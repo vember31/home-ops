@@ -21,7 +21,7 @@ jobs:
         id: fetch_versions
         run: |
           curl -s https://raw.githubusercontent.com/StuffAnThings/qbit_manage/refs/heads/develop/SUPPORTED_VERSIONS.json > versions.json
-          VERSION=$(jq -r '.develop.qbit' versions.json | sed 's/^v//')
+          VERSION=$(jq -r '.master.qbit' versions.json | sed 's/^v//')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Generate qbittorrent-versions.json
