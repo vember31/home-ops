@@ -1,0 +1,2 @@
+# Blocklisted domains can be manually defined here
+*.html-load.com #let's see if this is chaotic or not

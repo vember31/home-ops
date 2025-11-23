@@ -161,6 +161,11 @@ spec:
 
         lists:
           type: configMap
-          name: blocky-allowlist
+          name: blocky-lists
+          items:
+            - key: allowlist.txt
+              path: allowlist.txt
+            - key: blocklist.txt
+              path: blocklist.txt
           globalMounts:
             - readOnly: true
