@@ -2,5 +2,5 @@
   "matchPackageNames": ["ghcr.io/home-operations/qbittorrent"],
   "matchDatasources": ["docker"],
   "versioning": "loose",
-  "allowedVersions": ["<=5.1.4"]
+  "allowedVersions": ["<=5.1.3"]
 }]}
