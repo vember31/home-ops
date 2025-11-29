@@ -64,7 +64,7 @@ spec:
       - ingress
       - traefik-proxy
 
-    policy: upsert-only
+    policy: sync
     registry: txt
     txtOwnerId: "cf-external-dns"
     provider: cloudflare
