@@ -8,5 +8,6 @@ resources:
   
   # Post Flux-Kustomizations
   - ./cloudnative-pg/ks.yaml
+  - ./dragonfly-operator/ks.yaml
   - ./pgadmin/ks.yaml
   - ./redis/ks.yaml
