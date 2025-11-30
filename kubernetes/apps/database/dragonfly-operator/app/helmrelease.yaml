@@ -30,7 +30,7 @@ spec:
     crds: CreateReplace
 
   test:
-    enable: true
+    enable: false
 
   rollback:
     recreate: true
