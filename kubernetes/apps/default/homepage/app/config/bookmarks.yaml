@@ -50,4 +50,4 @@
           href: https://www.msn.com/en-us/weather
     - NWS Area Forecast Discussion:
         - icon: mdi-weather-cloudy-alert
-        - href: https://forecast.weather.gov/product.php?site={{HOMEPAGE_VAR_NWS_ISSUER}}&issuedby={{HOMEPAGE_VAR_NWS_ISSUER}}&product=AFD
+          href: https://forecast.weather.gov/product.php?site={{HOMEPAGE_VAR_NWS_ISSUER}}&issuedby={{HOMEPAGE_VAR_NWS_ISSUER}}&product=AFD
