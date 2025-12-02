@@ -59,7 +59,7 @@ spec:
           app:
             image:
               repository: ghcr.io/claabs/epicgames-freegames-node
-              tag: latest@sha256:2312373160001b335850dfd69b24970437dcb5695016f65b9a5f04a198e1ab77
+              tag: latest@sha256:f3b5640cf8757693c2cf20d2b5c558c5e84b2085bdcdddd8111974602003eb48
               pullPolicy: IfNotPresent
 
             resources:
