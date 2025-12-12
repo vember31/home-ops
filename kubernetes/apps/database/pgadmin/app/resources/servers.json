@@ -12,7 +12,7 @@
       "ConnectionParameters": {
           "sslmode": "prefer",
           "connect_timeout": 10,
-          "passfile": "/pgadmin4/.pgpass"
+          "passfile": "/.pgpass"
       },
       "Tags": [
         {
