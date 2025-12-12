@@ -145,7 +145,7 @@ spec:
         name: pgadmin-secret
         items:
           - key: pgpass
-            path: pgpass
+            path: .pgpass
         globalMounts:
           - path: /pgadmin4/.pgpass
             subPath: .pgpass
