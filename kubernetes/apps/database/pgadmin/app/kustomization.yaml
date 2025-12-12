@@ -8,6 +8,8 @@ configMapGenerator:
       - servers.json=./resources/servers.json
 generatorOptions:
   disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: enabled
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
