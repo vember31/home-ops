@@ -70,7 +70,8 @@ spec:
             env:
               TZ: ${TIMEZONE}
               PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
-              PGADMIN_DISABLE_POSTFIX: "true"
+              PGADMIN_DISABLE_POSTFIX: "True"
+              PGADMIN_REPLACE_SERVERS_ON_STARTUP: "True"
             envFrom:
               - secretRef:
                   name: pgadmin-secret
