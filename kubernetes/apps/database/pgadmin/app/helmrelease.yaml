@@ -60,6 +60,28 @@ spec:
             fsGroup: 5050
             fsGroupChangePolicy: "OnRootMismatch"
 
+        initContainers:
+          init-config:
+            image:
+              repository: ghcr.io/home-operations/k8s-sidecar
+              tag: 2.1.4@sha256:438df334bf9b195efc8251967248b9b12e02192a19a65021bee1da408a670383
+            command: ["/bin/bash", "-c"]
+            args:
+              - |
+                export USER_FOLDER=$(echo "/var/lib/pgadmin/storage/$PGADMIN_DEFAULT_EMAIL" | sed 's/@/_/g')
+                echo "Creating user folder $USER_FOLDER.";
+                mkdir -p $USER_FOLDER;
+                cp /tmp/secrets/.pgpass $USER_FOLDER/.pgpass;
+                chown 5050:5050 $USER_FOLDER/.pgpass;
+                chmod 600 $USER_FOLDER/.pgpass;
+                echo "Done."
+            env:
+              PGADMIN_DEFAULT_EMAIL:
+                valueFrom:
+                  secretKeyRef:
+                    name: pgadmin-secret
+                    key: PGADMIN_DEFAULT_EMAIL
+
         containers:
           app:
             image:
@@ -147,7 +169,7 @@ spec:
           - key: pgpass
             path: .pgpass
         globalMounts:
-          - path: /pgadmin4/.pgpass
+          - path: /tmp/secrets/.pgpass
             subPath: .pgpass
 
       servers-json:
