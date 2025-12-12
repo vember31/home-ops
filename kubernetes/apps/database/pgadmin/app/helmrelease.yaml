@@ -136,20 +136,26 @@ spec:
     persistence:
 
       config:
-        enabled: true
-        suffix: config
-        type: persistentVolumeClaim
-        storageClass: longhorn
-        accessMode: ReadWriteOnce
-        size: 1Gi
-        retain: true
+        type: emptyDir
         globalMounts:
           - path: /var/lib/pgadmin
 
-      server-json:
-        type: configMap
-        name: pgadmin-configmap
+      pgpass:
+        type: secret
+        name: pgadmin-secret
+        items:
+          - key: pgpass
+            path: pgpass
+        globalMounts:
+          - path: /pgadmin4/.pgpass
+            subPath: .pgpass
+
+      severs-json:
+        type: secret
+        name: pgadmin-secret
+        items:
+          - key: servers.json
+            path: servers.json
         globalMounts:
           - path: /pgadmin4/servers.json
-            subPath: servers.json
-      
+            subPath: servers.json      
