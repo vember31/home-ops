@@ -150,7 +150,7 @@ spec:
           - path: /pgadmin4/.pgpass
             subPath: .pgpass
 
-      severs-json:
+      servers-json:
         type: secret
         name: pgadmin-secret
         items:
@@ -158,4 +158,4 @@ spec:
             path: servers.json
         globalMounts:
           - path: /pgadmin4/servers.json
-            subPath: servers.json      
+            subPath: servers.json
