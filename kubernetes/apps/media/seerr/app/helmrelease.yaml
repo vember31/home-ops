@@ -87,7 +87,7 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
-              DB_TYPE: POSTGRES
+              DB_TYPE: postgres
             envFrom: *envFrom
 
             resources:
