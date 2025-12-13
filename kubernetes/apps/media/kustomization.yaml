@@ -11,9 +11,10 @@ resources:
   - ./autopulse/ks.yaml
   - ./isponsorblocktv/ks.yaml
   - ./maintainerr/ks.yaml
-  - ./overseerr/ks.yaml
+  # - ./overseerr/ks.yaml
   - ./plex/ks.yaml
   - ./requestrr/ks.yaml
+  - ./seerr/ks.yaml
   - ./streammaster/ks.yaml
   - ./tauticord/ks.yaml
   - ./tautulli/ks.yaml
