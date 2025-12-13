@@ -75,16 +75,15 @@ spec:
                     - /bin/sh
                     - -c
                     - |
-                      chown 1000:1000 /config/settings.json && \
-                      jq -s '.[0] * .[1]' /config/settings.json /config/overrides.json > /config/tmp.json && \
-                      mv /config/tmp.json /config/settings.json && \
-                      chown 1000:1000 /config/settings.json
+                      chown 1000:1000 /app/config/settings.json && \
+                      jq -s '.[0] * .[1]' /app/config/settings.json /app/config/overrides.json > /app/config/tmp.json && \
+                      mv /app/config/tmp.json /app/config/settings.json && \
+                      chown 1000:1000 /app/config/settings.json
 
             env:
               TZ: ${TIMEZONE}
               DB_TYPE: POSTGRES
             envFrom: *envFrom
-
 
             resources:
               limits:
@@ -155,7 +154,7 @@ spec:
         size: 128Mi
         retain: false
         globalMounts:
-          - path: /config
+          - path: /app/config
             readOnly: false
 
       config-file:
