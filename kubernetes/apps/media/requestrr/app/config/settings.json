@@ -62,7 +62,7 @@
         "Overseerr": {
             "Hostname": "seerr.media.svc.cluster.local",
             "Port": 5055,
-            "ApiKey": "{{ .OVERSEERR_API_KEY }}",
+            "ApiKey": "{{ .SEERR_API_KEY }}",
             "Movies": {
                 "DefaultApiUserId": "",
                 "Categories": []

@@ -146,7 +146,7 @@ spec:
           gethomepage.dev/name: Seerr
           gethomepage.dev/widget.type: jellyseerr
           gethomepage.dev/widget.url: &siteMonitor http://${APP}.media.svc.cluster.local:5055
-          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_OVERSEERR_TOKEN}}` }}"
+          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_SEERR_TOKEN}}` }}"
           gethomepage.dev/siteMonitor: *siteMonitor
         hosts:
           - host: &host requests.${SECRET_DOMAIN}
