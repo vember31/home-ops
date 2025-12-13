@@ -60,7 +60,7 @@
             "UseTVIssue": false
         },
         "Overseerr": {
-            "Hostname": "overseerr.media.svc.cluster.local",
+            "Hostname": "seerr.media.svc.cluster.local",
             "Port": 5055,
             "ApiKey": "{{ .OVERSEERR_API_KEY }}",
             "Movies": {
