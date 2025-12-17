@@ -24,4 +24,4 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: "/health"
+      GATUS_PATH: "/health"
