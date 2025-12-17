@@ -6,7 +6,7 @@ metadata:
   name: &app tracearr
   namespace: flux-system
 spec:
-  targetNamespace: tracearr
+  targetNamespace: media
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
