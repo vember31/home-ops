@@ -97,13 +97,28 @@ spec:
                 echo "[controller] starting master tracking loop"
 
                 while true; do
-                  RESP="$(redis-cli -h "$SENTINEL_SERVICE" -p "$SENTINEL_PORT" \
-                          sentinel get-master-addr-by-name "$SENTINEL_MASTER_NAME" --csv 2>/dev/null || true)"
+                  # NOTE: --csv must come BEFORE the Redis command
+                  RESP="$(redis-cli --csv -h "$SENTINEL_SERVICE" -p "$SENTINEL_PORT" \
+                          SENTINEL get-master-addr-by-name "$SENTINEL_MASTER_NAME" 2>/dev/null || true)"
 
+                  if [ -z "$RESP" ]; then
+                    echo "[controller] empty response from sentinel"
+                    sleep 5
+                    continue
+                  fi
+
+                  # Handle error responses like: ERR wrong number of arguments ...
+                  if printf '%s' "$RESP" | grep -q '^ERR '; then
+                    echo "[controller] sentinel error: $RESP"
+                    sleep 5
+                    continue
+                  fi
+
+                  # RESP should now be something like: "10.42.0.23","6379"
                   MASTER_HOST="$(echo "$RESP" | awk -F',' '{gsub(/"/,"",$1); print $1}')"
 
                   if [ -z "$MASTER_HOST" ]; then
-                    echo "[controller] could not determine master from sentinel: $RESP"
+                    echo "[controller] could not parse master host from: $RESP"
                     sleep 5
                     continue
                   fi
@@ -144,8 +159,6 @@ spec:
 
                   sleep 5
                 done
-
-
 
     serviceAccount:
       ${APP}: {}
