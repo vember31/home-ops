@@ -1,0 +1,135 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: redis-master-controller
+  namespace: database
+
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      ${APP}:
+        enabled: true
+        type: deployment
+        serviceAccount:
+          identifier: ${APP}
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+
+        containers:
+          app:
+            image:
+              repository: redis
+              tag: latest
+              pullPolicy: IfNotPresent
+
+            env:
+              RELEASE_NAME: "redis"
+              NAMESPACE: "database"
+              SENTINEL_SERVICE: "redis-sentinel"
+              SENTINEL_PORT: "26379"
+              SENTINEL_MASTER_NAME: "redis-master"
+
+            command:
+              - /bin/sh
+              - -c
+
+            args:
+              - |
+                set -e
+
+                echo "[controller] installing kubectl + jq"
+                apk add --no-cache wget jq >/dev/null
+
+                KUBECTL_VERSION="$(wget -qO- https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
+                wget -q "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -O /usr/local/bin/kubectl
+                chmod +x /usr/local/bin/kubectl
+
+                echo "[controller] starting master tracking loop"
+
+                while true; do
+                  RESP="$(redis-cli -h "$SENTINEL_SERVICE" -p "$SENTINEL_PORT" \
+                          sentinel get-master-addr-by-name "$SENTINEL_MASTER_NAME" --csv 2>/dev/null || true)"
+
+                  MASTER_HOST="$(echo "$RESP" | awk -F',' '{gsub(/"/,"",$1); print $1}')"
+
+                  if [ -z "$MASTER_HOST" ]; then
+                    echo "[controller] could not determine master from sentinel: $RESP"
+                    sleep 5
+                    continue
+                  fi
+
+                  echo "[controller] sentinel reports master host: $MASTER_HOST"
+
+                  MASTER_POD="$(
+                    kubectl -n "$NAMESPACE" get pod -l app.kubernetes.io/instance="$RELEASE_NAME" -o json \
+                      | jq -r \
+                          --arg host "$MASTER_HOST" '
+                            .items[]
+                            | select(
+                                .status.podIP == $host
+                                or .metadata.name == $host
+                                or (.status.podIP != null and ($host | contains(.status.podIP)))
+                              )
+                            | .metadata.name
+                          ' \
+                      | head -n1
+                  )"
+
+                  if [ -z "$MASTER_POD" ]; then
+                    echo "[controller] could not map $MASTER_HOST to a redis pod"
+                    sleep 5
+                    continue
+                  fi
+
+                  echo "[controller] master pod resolved as: $MASTER_POD"
+
+                  kubectl -n "$NAMESPACE" label pod "$MASTER_POD" redis-role=master --overwrite
+
+                  for P in $(kubectl -n "$NAMESPACE" get pod -l app.kubernetes.io/instance="$RELEASE_NAME" -o json \
+                              | jq -r '.items[].metadata.name'); do
+                    if [ "$P" != "$MASTER_POD" ]; then
+                      kubectl -n "$NAMESPACE" label pod "$P" redis-role- 2>/dev/null || true
+                    fi
+                  done
+
+                  sleep 5
+                done
