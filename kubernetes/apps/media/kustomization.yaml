@@ -17,5 +17,5 @@ resources:
   - ./streammaster/ks.yaml
   - ./tauticord/ks.yaml
   - ./tautulli/ks.yaml
-  # - ./tracearr/ks.yaml
+  - ./tracearr/ks.yaml
   - ./wizarr/ks.yaml
