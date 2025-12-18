@@ -78,6 +78,7 @@ spec:
 
                 echo "[controller] installing kubectl + jq (auto-detect)"
 
+                # Detect OS and install tools
                 if command -v apt-get >/dev/null 2>&1; then
                   echo "[controller] using apt-get"
                   apt-get update
@@ -90,6 +91,7 @@ spec:
                   echo "[controller] assuming wget + jq + ca-certificates are already present."
                 fi
 
+                # Install kubectl
                 KUBECTL_VERSION="$(wget -qO- https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
                 wget -q "https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl" -O /usr/local/bin/kubectl
                 chmod +x /usr/local/bin/kubectl
@@ -97,7 +99,8 @@ spec:
                 echo "[controller] starting master tracking loop"
 
                 while true; do
-                  # --csv must be before the SENTINEL command
+
+                  # Ask Sentinel who the master is (must put --csv BEFORE SENTINEL)
                   RESP="$(redis-cli --csv -h "$SENTINEL_SERVICE" -p "$SENTINEL_PORT" \
                           SENTINEL get-master-addr-by-name "$SENTINEL_MASTER_NAME" 2>/dev/null || true)"
 
@@ -107,50 +110,48 @@ spec:
                     continue
                   fi
 
-                  if printf '%s\n' "$RESP" | grep -q '^ERR '; then
+                  if printf '%s' "$RESP" | grep -q '^ERR '; then
                     echo "[controller] sentinel error: $RESP"
                     sleep 5
                     continue
                   fi
 
-                  # e.g. RESP = "redis-4.redis-headless.database.svc.cluster.local","6379"
+                  # Expected RESP example: "redis-4.redis-headless.database.svc.cluster.local","6379"
                   MASTER_HOST="$(echo "$RESP" | awk -F',' '{gsub(/"/,"",$1); print $1}')"
 
                   if [ -z "$MASTER_HOST" ]; then
-                    echo "[controller] could not parse master host from: $RESP"
+                    echo "[controller] failed to parse master host from: $RESP"
                     sleep 5
                     continue
                   fi
 
                   echo "[controller] sentinel reports master host: $MASTER_HOST"
 
-                  # Fast path: hostname form like redis-4.redis-headless.database.svc.cluster.local
-                  MASTER_POD="$MASTER_HOST"
-                  if printf '%s\n' "$MASTER_HOST" | grep -q '\.'; then
-                    MASTER_POD="${MASTER_HOST%%.*}"
-                  fi
+                  # Derive pod name from hostname: take everything before the first dot
+                  MASTER_POD="$(printf '%s\n' "$MASTER_HOST" | cut -d'.' -f1)"
 
                   if [ -z "$MASTER_POD" ]; then
-                    echo "[controller] could not derive master pod name from host: $MASTER_HOST"
+                    echo "[controller] could not derive master pod name from: $MASTER_HOST"
                     sleep 5
                     continue
                   fi
 
                   echo "[controller] master pod resolved as: $MASTER_POD"
 
-                  # Label the master pod
+                  # Label master pod
                   kubectl -n "$NAMESPACE" label pod "$MASTER_POD" redis-role=master --overwrite || {
-                    echo "[controller] failed to label master pod $MASTER_POD"
+                    echo "[controller] failed to label master pod: $MASTER_POD"
                     sleep 5
                     continue
                   }
 
-                  # Remove label from all other pods in this release
+                  # Get list of all redis pods
                   POD_NAMES="$(
                     kubectl -n "$NAMESPACE" get pod -l app.kubernetes.io/instance="$RELEASE_NAME" -o json \
                       | jq -r '.items[].metadata.name'
                   )"
 
+                  # Remove master label from all non-master pods
                   for P in $POD_NAMES; do
                     if [ "$P" != "$MASTER_POD" ]; then
                       kubectl -n "$NAMESPACE" label pod "$P" redis-role- 2>/dev/null || true
