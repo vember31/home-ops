@@ -76,10 +76,19 @@ spec:
               - |
                 set -e
 
-                echo "[controller] installing kubectl + jq"
-                apt-get update >/dev/null
-                apt-get install -y wget jq ca-certificates >/dev/null
-                update-ca-certificates >/dev/null
+                echo "[controller] installing kubectl + jq (auto-detect)"
+
+                if command -v apt-get >/dev/null 2>&1; then
+                  echo "[controller] using apt-get"
+                  apt-get update
+                  apt-get install -y wget jq ca-certificates
+                elif command -v apk >/dev/null 2>&1; then
+                  echo "[controller] using apk"
+                  apk add --no-cache wget jq ca-certificates
+                else
+                  echo "[controller] WARNING: no supported package manager (apt-get/apk) found."
+                  echo "[controller] assuming wget + jq + ca-certificates are already present."
+                fi
 
                 KUBECTL_VERSION="$(wget -qO- https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
                 wget -q "https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl" -O /usr/local/bin/kubectl
@@ -135,6 +144,7 @@ spec:
 
                   sleep 5
                 done
+
 
 
     serviceAccount:
