@@ -97,7 +97,7 @@ spec:
                 echo "[controller] starting master tracking loop"
 
                 while true; do
-                  # NOTE: --csv must come BEFORE the Redis command
+                  # --csv must be before the SENTINEL command
                   RESP="$(redis-cli --csv -h "$SENTINEL_SERVICE" -p "$SENTINEL_PORT" \
                           SENTINEL get-master-addr-by-name "$SENTINEL_MASTER_NAME" 2>/dev/null || true)"
 
@@ -107,14 +107,13 @@ spec:
                     continue
                   fi
 
-                  # Handle error responses like: ERR wrong number of arguments ...
-                  if printf '%s' "$RESP" | grep -q '^ERR '; then
+                  if printf '%s\n' "$RESP" | grep -q '^ERR '; then
                     echo "[controller] sentinel error: $RESP"
                     sleep 5
                     continue
                   fi
 
-                  # RESP should now be something like: "10.42.0.23","6379"
+                  # e.g. RESP = "redis-4.redis-headless.database.svc.cluster.local","6379"
                   MASTER_HOST="$(echo "$RESP" | awk -F',' '{gsub(/"/,"",$1); print $1}')"
 
                   if [ -z "$MASTER_HOST" ]; then
@@ -125,33 +124,34 @@ spec:
 
                   echo "[controller] sentinel reports master host: $MASTER_HOST"
 
-                  MASTER_POD="$(
-                    kubectl -n "$NAMESPACE" get pod -l app.kubernetes.io/instance="$RELEASE_NAME" -o json \
-                      | jq -r \
-                          --arg host "$MASTER_HOST" '
-                            .items[]
-                            | select(
-                                .status.podIP == $host
-                                or .metadata.name == $host
-                                or (.status.podIP != null and ($host | contains(.status.podIP)))
-                              )
-                            | .metadata.name
-                          ' \
-                      | head -n1
-                  )"
+                  # Fast path: hostname form like redis-4.redis-headless.database.svc.cluster.local
+                  MASTER_POD="$MASTER_HOST"
+                  if printf '%s\n' "$MASTER_HOST" | grep -q '\.'; then
+                    MASTER_POD="${MASTER_HOST%%.*}"
+                  fi
 
                   if [ -z "$MASTER_POD" ]; then
-                    echo "[controller] could not map $MASTER_HOST to a redis pod"
+                    echo "[controller] could not derive master pod name from host: $MASTER_HOST"
                     sleep 5
                     continue
                   fi
 
                   echo "[controller] master pod resolved as: $MASTER_POD"
 
-                  kubectl -n "$NAMESPACE" label pod "$MASTER_POD" redis-role=master --overwrite
+                  # Label the master pod
+                  kubectl -n "$NAMESPACE" label pod "$MASTER_POD" redis-role=master --overwrite || {
+                    echo "[controller] failed to label master pod $MASTER_POD"
+                    sleep 5
+                    continue
+                  }
 
-                  for P in $(kubectl -n "$NAMESPACE" get pod -l app.kubernetes.io/instance="$RELEASE_NAME" -o json \
-                              | jq -r '.items[].metadata.name'); do
+                  # Remove label from all other pods in this release
+                  POD_NAMES="$(
+                    kubectl -n "$NAMESPACE" get pod -l app.kubernetes.io/instance="$RELEASE_NAME" -o json \
+                      | jq -r '.items[].metadata.name'
+                  )"
+
+                  for P in $POD_NAMES; do
                     if [ "$P" != "$MASTER_POD" ]; then
                       kubectl -n "$NAMESPACE" label pod "$P" redis-role- 2>/dev/null || true
                     fi
@@ -159,6 +159,7 @@ spec:
 
                   sleep 5
                 done
+
 
     serviceAccount:
       ${APP}: {}
