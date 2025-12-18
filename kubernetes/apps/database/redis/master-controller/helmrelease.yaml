@@ -133,3 +133,6 @@ spec:
 
                   sleep 5
                 done
+
+    serviceAccount:
+      ${APP}: {}
