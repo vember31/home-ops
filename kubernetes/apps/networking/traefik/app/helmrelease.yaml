@@ -90,10 +90,6 @@ spec:
         maxVersion: VersionTLS13
         sniStrict: true
 
-    # experimental:
-    #   plugins:
-    #     enabled: false #this will need to be flipped back to 'true' after traefik v26 if i use plugins
-
     rbac:
       enabled: true
 
@@ -110,7 +106,4 @@ spec:
       kubernetesIngress:
         enabled: true
         allowExternalNameServices: true
-        allowCrossNamespace: true
         ingressClass: traefik
-        ingressEndpoint:
-          ip: "${TRAEFIK_IP}"
