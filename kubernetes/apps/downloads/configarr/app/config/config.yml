@@ -73,14 +73,14 @@ sonarr:
           remove_failed_downloads: false
           tags: []
           fields:
-            host: qbittorrent
+            host: "qbittorrent.downloads.svc.cluster.local"
             port: 8080
             use_ssl: false
             url_base: /
-            username: admin
-            password: {{ .QBITTORRENT_PASSWORD }}
-            tv_category: sonarr
-            tv_imported_category: sonarr-complete
+            username: "admin"
+            password: "{{ .QBITTORRENT_PASSWORD }}"
+            tv_category: "sonarr"
+            tv_imported_category: "sonarr-complete"
       update_password: true
       delete_unmanaged:
         enabled: true
@@ -157,14 +157,14 @@ radarr:
           remove_failed_downloads: false
           tags: []
           fields:
-            host: qbittorrent
+            host: "qbittorrent.downloads.svc.cluster.local"
             port: 8080
             use_ssl: false
             url_base: /
-            username: admin
-            password: {{ .QBITTORRENT_PASSWORD }}
-            movie_category: radarr
-            movie_imported_category: radarr-complete
+            username: "admin"
+            password: "{{ .QBITTORRENT_PASSWORD }}"
+            movie_category: "radarr"
+            movie_imported_category: "radarr-complete"
       update_password: true
       delete_unmanaged:
         enabled: true
