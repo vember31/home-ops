@@ -78,7 +78,7 @@ sonarr:
             use_ssl: false
             url_base: /
             username: "admin"
-            password: "{{ .QBITTORRENT_PASSWORD }}"
+            password: !env QBITTORRENT_PASSWORD
             tv_category: "sonarr"
             tv_imported_category: "sonarr-complete"
       update_password: true
