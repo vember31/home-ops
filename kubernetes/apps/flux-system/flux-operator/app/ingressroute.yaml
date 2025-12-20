@@ -1,0 +1,26 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: networking
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/href: &href https://flux.local.${SECRET_DOMAIN}
+    gethomepage.dev/description: "GitOps Management"
+    gethomepage.dev/group: Resources
+    gethomepage.dev/icon: flux-cd
+    gethomepage.dev/name: Flux Operator
+    gethomepage.dev/siteMonitor: *href
+
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`flux.local.${SECRET_DOMAIN}`)
+      services:
+        - name: flux-operator
+          port: 9080
+  tls:
+    secretName: flux-operator-tls

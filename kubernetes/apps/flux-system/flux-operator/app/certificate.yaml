@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: flux-operator-tls
+  namespace: flux-system
+spec:
+  secretName: flux-operator-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "flux.local.${SECRET_DOMAIN}"
+  dnsNames:
+    - "flux.local.${SECRET_DOMAIN}"
