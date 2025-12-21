@@ -1,27 +1,20 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  # - angelnu.yaml
-  - bitnami.yaml
   - bjw-s.yaml
-  # - botkube.yaml
   - cloudnative-pg.yaml
-  # - crowdsec.yaml
   - descheduler.yaml
-  - emberstack.yaml
   - eraser.yaml
   - external-dns.yaml
   - external-secrets.yaml
   - fairwinds.yaml
   - grafana.yaml
-  - hajimari.yaml
   - jetstack.yaml
   - kubereboot.yaml
   - kubernetes-dashboard.yaml
   - longhorn.yaml
   - lwolf.yaml
   - metallb.yaml
-  #- mojo2600.yaml
   - prometheus-community.yaml
   - stakater.yaml
   - traefik-charts.yaml
