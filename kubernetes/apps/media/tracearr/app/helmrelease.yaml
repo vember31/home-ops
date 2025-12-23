@@ -65,7 +65,7 @@ spec:
           app:
             image:
               repository: ghcr.io/connorgallopo/tracearr
-              tag: 1.3.9@sha256:a4eff5cb7555e3e7239ca3b72dbc3ab9bd26c99791246ca3a6bb339ef79e04eb
+              tag: 1.3.9@sha256:adca195a31deaa1286a50665ceda3252c83e9e0c90b0171dedda278cac71199a
               pullPolicy: IfNotPresent
 
             env:
