@@ -56,7 +56,7 @@ spec:
           app:
             image:
               repository: ghcr.io/hotio/unpackerr
-              tag: release-0.14.5@sha256:10969b87da1982418a06b1c95b14cf5714511d0949e45d5471ba1f68f5d758d8
+              tag: release-0.14.5@sha256:de3cd7db13afb6e0730c739a68c07151645a89decbd8b1f061f119382ac57158
               pullPolicy: IfNotPresent
 
             env:
