@@ -102,7 +102,7 @@
    "isDefault": true,
    "syncEnabled": true,
    "preventSearch": true,
-   "tagRequests": false,
+   "tagRequests": true,
    "id": 0
   }
  ],
@@ -124,7 +124,7 @@
    "enableSeasonFolders": true,
    "syncEnabled": true,
    "preventSearch": true,
-   "tagRequests": false,
+   "tagRequests": true,
    "id": 0
   }
  ],
