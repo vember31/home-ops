@@ -8,6 +8,7 @@ resources:
   - ./namespace.yaml
 
   # Flux-Kustomizations
+  - ./agregarr/ks.yaml
   - ./autopulse/ks.yaml
   - ./isponsorblocktv/ks.yaml
   - ./maintainerr/ks.yaml

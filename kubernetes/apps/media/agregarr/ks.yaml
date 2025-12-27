@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app autopulse
+  name: &app agregarr
   namespace: flux-system
 spec:
   targetNamespace: media
@@ -12,7 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: plex
-  path: ./kubernetes/apps/media/autopulse/app
+  path: ./kubernetes/apps/media/agregarr/app
   prune: true
   sourceRef:
     kind: GitRepository
