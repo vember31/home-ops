@@ -96,7 +96,7 @@ spec:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/description: "Plex Collection Management"
           gethomepage.dev/group: Media
-          gethomepage.dev/icon: sh-Agregarr
+          gethomepage.dev/icon: sh-agregarr
           gethomepage.dev/name: Agregarr
 
         hosts:
