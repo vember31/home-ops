@@ -72,13 +72,14 @@ spec:
               TZ: ${TIMEZONE}
               CORS_ORIGIN: https://tracearr.local.${SECRET_DOMAIN}
               PORT: &port 3000
+              TRUST_PROXY: true
             envFrom: *envFrom
 
             resources:
               requests:
                 cpu: 10m
               limits:
-                memory: 1Gi
+                memory: 512Mi
 
             securityContext:
               allowPrivilegeEscalation: false
