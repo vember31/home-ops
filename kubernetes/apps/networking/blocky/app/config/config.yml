@@ -121,7 +121,7 @@ ecs:
   useAsClient: true
 
 dnssec:
-  validate: true
+  validate: false
 
 log:
   level: info
