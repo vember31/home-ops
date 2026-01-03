@@ -4,7 +4,7 @@ metadata:
   name: filesystem-trim
   namespace: storage
 spec:
-  cron: "0 8 * * *" #UTC
+  cron: "0 7 * * *" #UTC
   task: "filesystem-trim"
   groups:
   - default

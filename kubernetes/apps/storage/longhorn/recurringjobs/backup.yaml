@@ -4,7 +4,7 @@ metadata:
   name: backup
   namespace: storage
 spec:
-  cron: "10 8 * * *" #UTC
+  cron: "10 7 * * *" #UTC
   task: "backup"
   groups:
   - default
