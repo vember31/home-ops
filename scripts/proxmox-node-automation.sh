@@ -1,0 +1,219 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+############################
+# USER-EDITABLE VARIABLES #
+############################
+
+# Discord webhook for notifications.
+# Leave empty ("") if you want to fill it in later.
+DISCORD_WEBHOOK_URL=""
+
+# Timer schedule (EDIT PER NODE if desired)
+TIMER_ONCALENDAR="Sun *-*-* 03:45:00"
+
+############################
+# INTERNAL SETTINGS       #
+############################
+
+CONF="/etc/pve-auto-upgrade.conf"
+SCRIPT="/usr/local/sbin/pve-auto-upgrade-reboot.sh"
+LOGFILE="/var/log/pve-auto-upgrade.log"
+SERVICE="/etc/systemd/system/pve-auto-upgrade-reboot.service"
+TIMER="/etc/systemd/system/pve-auto-upgrade-reboot.timer"
+
+need_root() {
+  if [[ "${EUID}" -ne 0 ]]; then
+    echo "Please run as root."
+    exit 1
+  fi
+}
+
+install_conf() {
+  cat > "$CONF" <<EOF
+# Root-only config for Proxmox auto upgrades
+# Managed by install-pve-auto-upgrade.sh
+
+DISCORD_WEBHOOK_URL="${DISCORD_WEBHOOK_URL}"
+
+# Optional override (defaults to hostname -s)
+NODE_NAME=""
+EOF
+
+  chmod 600 "$CONF"
+  chown root:root "$CONF"
+  echo "Installed $CONF"
+}
+
+install_script() {
+  cat > "$SCRIPT" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+export DEBIAN_FRONTEND=noninteractive
+
+LOGFILE="/var/log/pve-auto-upgrade.log"
+CONF="/etc/pve-auto-upgrade.conf"
+
+# Load config
+if [[ -f "$CONF" ]]; then
+  # shellcheck disable=SC1090
+  source "$CONF"
+fi
+
+NODE_NAME="${NODE_NAME:-}"
+if [[ -z "$NODE_NAME" ]]; then
+  NODE_NAME="$(hostname -s)"
+fi
+
+DISCORD_WEBHOOK_URL="${DISCORD_WEBHOOK_URL:-}"
+
+log() {
+  local msg="[$(date --iso-8601=seconds)] $*"
+  echo "$msg" | tee -a "$LOGFILE"
+  logger -t pve-auto-upgrade "$*"
+}
+
+discord_post() {
+  local text="$1"
+  [[ -z "${DISCORD_WEBHOOK_URL}" ]] && return 0
+
+  if (( ${#text} > 1900 )); then
+    text="\${text:0:1900}…"
+  fi
+
+  text="\${text//\\\\/\\\\\\\\}"
+  text="\${text//\"/\\\\\"}"
+
+  curl -fsSL -X POST \
+    -H "Content-Type: application/json" \
+    -d "{\"content\":\"\${text}\"}" \
+    "\$DISCORD_WEBHOOK_URL" >/dev/null || true
+}
+
+reboot_required() {
+  if [[ -f /var/run/reboot-required ]]; then
+    return 0
+  fi
+
+  local running newest_boot newest_ver
+  running="\$(uname -r)"
+
+  newest_boot="\$(ls -1 /boot/vmlinuz-* 2>/dev/null | sort -V | tail -n 1 || true)"
+  if [[ -n "\$newest_boot" ]]; then
+    newest_ver="\${newest_boot#/boot/vmlinuz-}"
+    if [[ "\$newest_ver" != "\$running" ]]; then
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
+main() {
+  log "=== START upgrade on \${NODE_NAME} ==="
+  discord_post "🔧 **\${NODE_NAME}**: starting Proxmox upgrades (apt full-upgrade)…"
+
+  apt-get update 2>&1 | tee -a "\$LOGFILE"
+
+  apt-get -y \
+    -o Dpkg::Options::="--force-confdef" \
+    -o Dpkg::Options::="--force-confold" \
+    full-upgrade 2>&1 | tee -a "\$LOGFILE"
+
+  apt-get -y autoremove --purge 2>&1 | tee -a "\$LOGFILE"
+
+  sync
+
+  if reboot_required; then
+    log "Reboot required -> rebooting now."
+    discord_post "✅ **\${NODE_NAME}**: upgrades applied. 🔁 Reboot required — rebooting now."
+    systemctl reboot
+  else
+    log "No reboot required."
+    discord_post "✅ **\${NODE_NAME}**: upgrades applied. No reboot required."
+  fi
+
+  log "=== END upgrade on \${NODE_NAME} ==="
+}
+
+main "\$@"
+EOF
+
+  chmod 755 "$SCRIPT"
+  chown root:root "$SCRIPT"
+  echo "Installed $SCRIPT"
+}
+
+install_logfile() {
+  touch "$LOGFILE"
+  chmod 640 "$LOGFILE"
+  if getent group adm >/dev/null 2>&1; then
+    chown root:adm "$LOGFILE"
+  else
+    chown root:root "$LOGFILE"
+  fi
+  echo "Prepared $LOGFILE"
+}
+
+install_service() {
+  cat > "$SERVICE" <<EOF
+[Unit]
+Description=Proxmox automatic full-upgrade + Discord logging + reboot-if-needed
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-$CONF
+ExecStart=$SCRIPT
+EOF
+
+  chmod 644 "$SERVICE"
+  chown root:root "$SERVICE"
+  echo "Installed $SERVICE"
+}
+
+install_timer() {
+  cat > "$TIMER" <<EOF
+[Unit]
+Description=Nightly Proxmox upgrade + reboot-if-needed
+
+[Timer]
+OnCalendar=$TIMER_ONCALENDAR
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
+  chmod 644 "$TIMER"
+  chown root:root "$TIMER"
+  echo "Installed $TIMER"
+}
+
+enable_units() {
+  systemctl daemon-reload
+  systemctl enable --now pve-auto-upgrade-reboot.timer
+
+  echo
+  systemctl list-timers --all | grep pve-auto-upgrade-reboot || true
+  echo
+  echo "Next steps:"
+  echo "  - Verify DISCORD_WEBHOOK_URL in $CONF"
+  echo "  - Adjust OnCalendar in $TIMER per node (15 min stagger)"
+  echo "  - systemctl restart pve-auto-upgrade-reboot.timer"
+  echo "  - Optional test: systemctl start pve-auto-upgrade-reboot.service"
+}
+
+main() {
+  need_root
+  install_conf
+  install_script
+  install_logfile
+  install_service
+  install_timer
+  enable_units
+}
+
+main "$@"
