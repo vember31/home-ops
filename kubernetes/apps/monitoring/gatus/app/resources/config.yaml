@@ -35,3 +35,8 @@ endpoints:
     alerts:
       - type: discord
       - minimum-reminder-interval: "3h"
+maintenance:
+  start: 03:00
+  duration: 1h
+  timezone: "${TIMEZONE}
+  every: [Sunday]
