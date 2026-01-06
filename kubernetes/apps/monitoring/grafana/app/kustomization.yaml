@@ -11,6 +11,7 @@ generatorOptions:
   annotations:
     kustomize.toolkit.fluxcd.io/substitute: enabled
 resources:
+  - ./certificate.yaml
   - ./externalsecret.yaml
   - ./helmrelease.yaml
   - ./ingressroute.yaml

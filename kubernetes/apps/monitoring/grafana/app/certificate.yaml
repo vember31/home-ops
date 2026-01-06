@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-tls-production
+  namespace: flux-system
+spec:
+  secretName: grafana-tls-production
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "grafana.local.${SECRET_DOMAIN}"
+  dnsNames:
+    - "grafana.local.${SECRET_DOMAIN}"
