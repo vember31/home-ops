@@ -92,7 +92,6 @@ spec:
               WEB_CONCURRENCY: 10
 
             envFrom: *envFrom
-            command: ["/bin/sh", "-c", "yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled"]
 
             resources:
               requests:
