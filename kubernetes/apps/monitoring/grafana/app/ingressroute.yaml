@@ -5,7 +5,6 @@ metadata:
   name: grafana
   namespace: monitoring
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-production
     traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
     external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
     hajimari.io/appName: Grafana
