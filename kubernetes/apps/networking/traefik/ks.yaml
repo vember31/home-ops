@@ -1,27 +1,4 @@
 ---
-# Note that this is to apply traefik crds and doesn't read any files from this repo - the gitrepository source is different
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: &app traefik-crds
-  namespace: flux-system
-spec:
-  targetNamespace: networking
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: traefik-crds
-  path: ./traefik-crds/crds-files/traefik
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: traefik-crds
-  wait: true
-  interval: 30m
-  retryInterval: 1m
-  timeout: 5m
-
-
----
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -35,7 +12,6 @@ spec:
   dependsOn:
     - name: metallb
     - name: external-secrets
-    - name: traefik-crds
   path: ./kubernetes/apps/networking/traefik/app
   prune: true
   sourceRef:
