@@ -57,6 +57,8 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
+              UPDATE_IPV4: true
+              UPDATE_IPV6: false
               CF_APITOKEN:
                 valueFrom:
                   secretKeyRef:
