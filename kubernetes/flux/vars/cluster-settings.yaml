@@ -15,7 +15,7 @@ data:
   BLOCKY_IP: "192.168.10.22"
   K3S_LB_IP: "192.168.2.8"
   PLEX_IP: "192.168.10.21"
-  VALHEIM_IP: "192.168.10.23"
+  QBT_IP: "192.168.10.23"
 
   # external service IPs
   GATEWAY_IP: "192.168.2.1"

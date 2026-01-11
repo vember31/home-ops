@@ -75,7 +75,6 @@ spec:
             env:
               TZ: ${TIMEZONE}
               QBT_WEBUI_PORT: &port 8080
-
             resources:
               requests:
                 cpu: 100m
@@ -109,11 +108,25 @@ spec:
                   - ALL
 
     service:
-      app:
+      webui:
         controller: *name
         ports:
           http:
             port: *port
+      bittorrent:
+        controller: *name
+        type: LoadBalancer
+        annotations:
+          metallb.io/loadBalancerIPs: "${QBT_IP}"
+        ports:
+          bittorrent-tcp:
+            port: &btport 50413
+            protocol: TCP
+            targetPort: *btport
+          bittorrent-udp:
+            port: *btport
+            protocol: UDP
+            targetPort: *btport
 
     ingress:
       app:
@@ -142,7 +155,7 @@ spec:
             paths:
               - path: /
                 service:
-                  identifier: app
+                  identifier: webui
                   port: http
 
         tls: 
