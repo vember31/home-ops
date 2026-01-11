@@ -114,7 +114,7 @@ spec:
         annotations:
           metallb.io/loadBalancerIPs: "${QBT_IP}"
         ports:
-          webui:
+          http:
             port: *port
           bittorrent-tcp:
             port: &btport 50413
