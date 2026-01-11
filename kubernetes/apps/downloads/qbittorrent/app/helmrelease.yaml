@@ -110,15 +110,12 @@ spec:
     service:
       app:
         controller: *name
-        ports:
-          http:
-            port: *port
-      bittorrent:
-        controller: *name
         type: LoadBalancer
         annotations:
           metallb.io/loadBalancerIPs: "${QBT_IP}"
         ports:
+          webui:
+            port: *port
           bittorrent-tcp:
             port: &btport 50413
             protocol: TCP
