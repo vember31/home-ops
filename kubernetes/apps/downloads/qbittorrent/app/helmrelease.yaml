@@ -108,7 +108,7 @@ spec:
                   - ALL
 
     service:
-      webui:
+      app:
         controller: *name
         ports:
           http:
@@ -155,7 +155,7 @@ spec:
             paths:
               - path: /
                 service:
-                  identifier: webui
+                  identifier: app
                   port: http
 
         tls: 
