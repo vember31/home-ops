@@ -204,6 +204,11 @@ dashboards:
       datasource:
         - name: DS_BLOCKY-POSTGRESQL
           value: blocky-postgres
+    blocky-postgres-DM:
+      url: https://raw.githubusercontent.com/vember31/home-ops/refs/heads/main/kubernetes/apps/monitoring/grafana/app/dashboards/blocky-postgres.json
+      datasource:
+        - name: DS_POSTGRES
+          value: blocky-postgres
   flux:
     flux-cluster:
       url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/cluster.json
