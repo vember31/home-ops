@@ -64,7 +64,7 @@ spec:
           init-config:
             image:
               repository: ghcr.io/home-operations/k8s-sidecar
-              tag: 2.3.0
+              tag: 2.4.0
             command: ["/bin/bash", "-c"]
             args:
               - |
