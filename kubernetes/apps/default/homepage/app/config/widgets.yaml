@@ -4,9 +4,8 @@
     focus: true
     target: _blank
     showSearchSuggestions: true
-# - greeting:
-#     text_size: xl
-#     text: Welcome to your Home Dashboard
+- logo:
+    icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/kite-kubernetes.png
 - kubernetes:
     cluster:
       cpu: true
@@ -37,3 +36,7 @@
     total: true
     labels: true
     nodes: true
+- unifi_console:
+    url: https://${GATEWAY_IP}
+    username: "{{HOMEPAGE_VAR_UNIFI_USERNAME}}"
+    password: "{{HOMEPAGE_VAR_UNIFI_PASSWORD}}"
