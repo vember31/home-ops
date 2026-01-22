@@ -42,7 +42,7 @@ spec:
           init-config:
             dependsOn: init-db
             image: &configSyncImage
-              repository: ghcr.io/kiwigrid/k8s-sidecar
+              repository: ghcr.io/home-operations/k8s-sidecar
               tag: 2.4.0
             env:
               FOLDER: /config
