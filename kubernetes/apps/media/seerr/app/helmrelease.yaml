@@ -64,7 +64,7 @@ spec:
           merge-config:
             image:
               repository: ghcr.io/home-operations/k8s-sidecar
-              tag: 2.4.0
+              tag: 2.5.0
             command:
               - /bin/sh
               - -c
