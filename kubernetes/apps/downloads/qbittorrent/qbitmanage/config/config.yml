@@ -67,7 +67,6 @@ share_limits:
     max_seeding_time: 60d
     min_seeding_time: 30d
     max_ratio: 10 #i guess this can't be 'no limit' of -1. rare to be above 10
-    last_active: 1d
     limit_upload_speed: 0
     enable_group_upload_speed: false
     cleanup: true
