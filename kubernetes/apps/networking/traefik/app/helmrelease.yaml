@@ -60,15 +60,17 @@ spec:
 
     ports:
       web:
-        redirections:
-          entryPoint:
-            to: websecure
-            scheme: https
-            permanent: true
+        http:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+              permanent: true
       websecure:
-        tls:
-          enabled: true
-          options: "default"
+        http:
+          tls:
+            enabled: true
+            options: "default"
       metrics:
         port: 9100
         expose: 
