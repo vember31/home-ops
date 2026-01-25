@@ -52,7 +52,7 @@ spec:
             nameOverride: cloudflare-ddns
             image:
               repository: ghcr.io/hotio/cloudflareddns
-              tag: latest@sha256:26425eae5faf5633fb5c60a94681d901b1c2ea98093cb102f4d60a8844526c2b
+              tag: latest@sha256:aa928841c8d7ce183359aa6d1c05079242021552ffab59e6e6d6d4de68f79ecc
               pullPolicy: IfNotPresent
 
             env:
