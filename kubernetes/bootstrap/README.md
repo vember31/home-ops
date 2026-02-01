@@ -32,13 +32,15 @@ curl -fL https://get.k3s.io | K3S_TOKEN=${SERVER_TOKEN} \
 The below will add new server nodes to the cluster.  It should be created in `/etc/rancher/k3s/config.yaml` on the new server and can be copied from an existing server node. The directory may need to be made first via `mkdir -p /etc/rancher/k3s`.
 ```
 server: https://k3s.[secret domain]:6443
-token: [token that will be included]
+token: [token from server node of the node where you did cluster-init]
 tls-san:
   - 192.168.2.8
   - k3s.[secret domain]
 disable:
   - traefik
   - servicelb
+flannel-backend: none
+disable-network-policy: true
 etcd-expose-metrics: true
 kube-controller-manager-arg:
   - "bind-address=0.0.0.0"
@@ -49,7 +51,7 @@ kube-scheduler-arg:
 ```
 Once the config file is present, run the following command to install k3s:
 ```
-curl -sfL https://get.k3s.io | sh -
+curl -sfL https://get.k3s.io | sh -s server
 ```
 
 
