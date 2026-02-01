@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - ./app-template-testing.yaml
   - ./app-template.yaml
+  - ./cilium.yaml
   - ./cloudpirates-redis.yaml
   - ./flux-instance.yaml
   - ./flux-operator.yaml
