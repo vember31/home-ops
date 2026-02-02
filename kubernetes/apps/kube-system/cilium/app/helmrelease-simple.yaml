@@ -1,0 +1,73 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cilium
+  namespace: kube-system
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: cilium
+    namespace: flux-system
+
+  interval: 1h
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+    kubeProxyReplacement: false
+    ipam:
+      mode: cluster-pool
+      operator:
+        clusterPoolIPv4PodCIDRList:
+          - 10.42.0.0/16
+    devices:
+      - ens18
+    bpf:
+      masquerade: false
+    bgpControlPlane:
+      enabled: false
+    l2announcements:
+      enabled: false
+    cni:
+      exclusive: true
+    rollOutCiliumPods: true
+    updateStrategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+    hubble:
+      enabled: true
+      relay:
+        enabled: true
+      ui:
+        enabled: false
+    operator:
+    replicas: 1
