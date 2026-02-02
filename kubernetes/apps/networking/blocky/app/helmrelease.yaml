@@ -118,6 +118,7 @@ spec:
           type: LoadBalancer
           annotations:
             metallb.io/loadBalancerIPs: "${BLOCKY_IP}"
+            lbipam.cilium.io/ips: "${BLOCKY_IP}"
           externalTrafficPolicy: Local #switch back to Local now that MetalLB is deployed in BGP mode
           ports:
             dns-tcp:
