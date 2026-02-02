@@ -70,4 +70,5 @@ spec:
       ui:
         enabled: false
     operator:
-    replicas: 1
+      enabled: true
+      replicas: 1
