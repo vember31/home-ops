@@ -66,10 +66,14 @@ spec:
             gethomepage.dev/enabled: "true"
             gethomepage.dev/description: "Networking Observability"
             gethomepage.dev/group: Networking
-            gethomepage.dev/icon: sh-cilium
-            gethomepage.dev/name: Cilium
+            gethomepage.dev/icon: sh-hubble
+            gethomepage.dev/name: Cilium Hubble
           hosts:
             - &host "cilium.local.${SECRET_DOMAIN}"
+          tls: 
+          - secretName: ${GATUS_SUBDOMAIN}-tls-production
+            hosts:
+              - *host
     ipam:
       mode: cluster-pool
       operator:
