@@ -53,7 +53,7 @@ spec:
     bpf:
       masquerade: false
     bgpControlPlane:
-      enabled: false
+      enabled: true
     l2announcements:
       enabled: false
     cni:
