@@ -107,7 +107,7 @@ spec:
         controller: *name
         type: LoadBalancer
         annotations:
-          lbipam.cilium.io/ips: "${QBT_IP}"
+          metallb.io/loadbalancerIPs: "${QBT_IP}"
         externalTrafficPolicy: Local # Preserve public source IPs, otherwise it looks like it comes from within the cluster
         ports:
           http:

@@ -129,7 +129,7 @@ spec:
         type: LoadBalancer
         externalTrafficPolicy: Local
         annotations:
-          lbipam.cilium.io/ips: "${PLEX_IP}"
+          metallb.io/loadbalancerIPs: "${PLEX_IP}"
         ports:
           http:
             port: 32400
