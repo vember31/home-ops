@@ -54,9 +54,3 @@ spec:
       enabled: true
       masterName: redis-master
       downAfterMilliseconds: 10000
-      failoverTimeout: 180000
-      redisShutdownWaitFailover: true  # Redis waits for failover before shutdown
-      preStop:
-        enabled: true  # Sentinel waits for failover before terminating
-    # Required for graceful failover during helm upgrades
-    terminationGracePeriodSeconds: 60
