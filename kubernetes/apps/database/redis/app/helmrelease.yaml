@@ -53,3 +53,8 @@ spec:
     sentinel:
       enabled: true
       masterName: redis-master
+      downAfterMilliseconds: 10000
+      livenessProbe:
+        periodSeconds: 60
+        timeoutSeconds: 15
+        initialDelaySeconds: 60
