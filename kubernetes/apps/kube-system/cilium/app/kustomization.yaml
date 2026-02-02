@@ -4,5 +4,5 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./helmrelease.yaml
-  # .3- ./networking.yaml
+  - ./networking.yaml
   - ../../../../templates/gatus/internal
