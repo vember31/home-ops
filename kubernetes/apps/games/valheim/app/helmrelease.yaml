@@ -95,7 +95,7 @@ spec:
         controller: *name
         type: LoadBalancer
         annotations:
-          metallb.io/loadBalancerIPs: "${VALHEIM_IP}"
+          lbipam.cilium.io/ips: "${VALHEIM_IP}"
         ports:
           steam1:
             port: 2456

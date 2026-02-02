@@ -11,6 +11,5 @@ resources:
   - ./cloudflare-ddns/ks.yaml
   - ./error-pages/ks.yaml
   - ./external-dns/ks.yaml
-  - ./metallb/ks.yaml
   - ./traefik/ks.yaml
 
