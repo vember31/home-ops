@@ -59,6 +59,8 @@ spec:
       enabled: false
     cni:
       exclusive: true
+    envoy:
+      enabled: false
     rollOutCiliumPods: true
     updateStrategy:
       type: RollingUpdate
