@@ -108,8 +108,7 @@ spec:
         type: LoadBalancer
         loadBalancerClass: io.cilium/bgp-control-plane
         annotations:
-          # metallb.io/loadBalancerIPs: "${QBT_IP}"
-          lbipam.cilium.io/ips: "192.168.10.130"
+          lbipam.cilium.io/ips: "${QBT_IP}"
         externalTrafficPolicy: Local # Preserve public source IPs, otherwise it looks like it comes from within the cluster
         ports:
           http:

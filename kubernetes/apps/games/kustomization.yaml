@@ -8,4 +8,3 @@ resources:
   
   # Post Flux-Kustomizations
   - ./epicgames-free/ks.yaml
-  # - ./valheim/ks.yaml

@@ -127,9 +127,10 @@ spec:
       app:
         controller: *name
         type: LoadBalancer
+        loadBalancerClass: io.cilium/bgp-control-plane
         externalTrafficPolicy: Local
         annotations:
-          metallb.io/loadBalancerIPs: "${PLEX_IP}"
+          lbipam.cilium.io/ips: "${PLEX_IP}"
         ports:
           http:
             port: 32400

@@ -116,9 +116,10 @@ spec:
         dns:
           controller: *name
           type: LoadBalancer
+          loadBalancerClass: io.cilium/bgp-control-plane
           annotations:
-            metallb.io/loadBalancerIPs: "${BLOCKY_IP}"
-          externalTrafficPolicy: Local #switch back to Local now that MetalLB is deployed in BGP mode
+            lbipam.cilium.io/ips: "${BLOCKY_IP}"
+          externalTrafficPolicy: Local
           ports:
             dns-tcp:
               enabled: true

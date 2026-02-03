@@ -84,7 +84,8 @@ spec:
       type: LoadBalancer
       spec: 
         loadBalancerIP: "${TRAEFIK_IP}"
-        externalTrafficPolicy: Local #for ipallowlisting detection. 
+        externalTrafficPolicy: Local
+        loadBalancerClass: io.cilium/bgp-control-plane 
 
     tlsOptions:
       default:
