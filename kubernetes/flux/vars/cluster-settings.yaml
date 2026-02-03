@@ -35,7 +35,7 @@ data:
   IOT_CIDR: "192.168.4.0/24"
   CLUSTER_CIDR: "10.42.0.0/16"
   SERVICE_CIDR: "10.43.0.0/16"
-  METALLB_CIDR: "192.168.10.0/24"
+  LB_CIDR: "192.168.10.0/24"
   VPN_CIDR: "192.168.13.0/24"
 
   # network gateways
