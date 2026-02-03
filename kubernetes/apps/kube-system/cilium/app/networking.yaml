@@ -1,13 +1,13 @@
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumloadbalancerippool_v2.json
-apiVersion: cilium.io/v2
-kind: CiliumLoadBalancerIPPool
-metadata:
-  name: pool
-spec:
-  allowFirstLastIPs: "No"
-  blocks:
-    - cidr: 192.168.10.128/25
+# ---
+# # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumloadbalancerippool_v2.json
+# apiVersion: cilium.io/v2
+# kind: CiliumLoadBalancerIPPool
+# metadata:
+#   name: pool
+# spec:
+#   allowFirstLastIPs: "No"
+#   blocks:
+#     - cidr: 192.168.10.128/25
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumbgpadvertisement_v2.json
 apiVersion: cilium.io/v2
