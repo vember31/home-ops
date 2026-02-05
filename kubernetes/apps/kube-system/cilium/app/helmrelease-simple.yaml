@@ -125,7 +125,7 @@ spec:
             gethomepage.dev/icon: sh-hubble
             gethomepage.dev/name: Hubble
           hosts:
-            - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+            - &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
           tls: 
           - secretName: ${GATUS_SUBDOMAIN}-tls-production
             hosts:
