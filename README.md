@@ -40,7 +40,6 @@ This cluster is [k3s](https://k3s.io/) provisioned atop Ubuntu Server VMs, which
 - [kured](https://github.com/kubereboot/kured): Kubernetes daemonset that performs safe automatic node reboots when the need to do so is indicated by the package management system of the underlying OS
 - [kube-prometheus-stack](https://github.com/prometheus-operator/kube-prometheus): Prometheus, Grafana, Alertmanager & Thanos, bundled into one helm chart for high-availability observability & monitoring
 - [longhorn](https://github.com/longhorn/longhorn): distributed block storage for Kubernetes volume persistence
-- [metal-lb](https://github.com/metallb/metallb): internal Kubernetes load-balancing plugin
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller): automated, rolling k3s version upgrades
 - [traefik](https://github.com/traefik/traefik): ingress controller for Kubernetes, acting as a modern HTTP reverse proxy and load balancer
 

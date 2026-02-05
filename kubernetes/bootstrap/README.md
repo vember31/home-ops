@@ -41,6 +41,7 @@ disable:
   - servicelb
 flannel-backend: none
 disable-network-policy: true
+disable-kube-proxy: true
 etcd-expose-metrics: true
 kube-controller-manager-arg:
   - "bind-address=0.0.0.0"
