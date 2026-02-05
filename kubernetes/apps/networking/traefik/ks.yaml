@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app traefik
+  name: traefik
   namespace: flux-system
 spec:
   targetNamespace: networking
@@ -10,7 +10,6 @@ spec:
     labels:
       app.kubernetes.io/name: traefik
   dependsOn:
-    - name: metallb
     - name: external-secrets
   path: ./kubernetes/apps/networking/traefik/app
   prune: true
@@ -26,7 +25,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app traefik-dashboard
+  name: traefik-dashboard
   namespace: flux-system
 spec:
   targetNamespace: networking
@@ -49,7 +48,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app traefik-certificates
+  name: traefik-certificates
   namespace: flux-system
 spec:
   targetNamespace: networking
@@ -72,7 +71,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app traefik-middlewares
+  name: traefik-middlewares
   namespace: flux-system
 spec:
   targetNamespace: networking
@@ -95,7 +94,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app traefik-metrics
+  name: traefik-metrics
   namespace: flux-system
 spec:
   targetNamespace: networking
