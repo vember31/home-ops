@@ -42,36 +42,58 @@ spec:
   maxHistory: 1
 
   values:
+
+    # Native routing support
+    routingMode: native
+    ipv4NativeRoutingCIDR: ${POD_CIDR}
+    autoDirectNodeRoutes: true
+
     kubeProxyReplacement: false
-    defaultLBServiceIPAM: "none"
+
+    # ipam
+    defaultLBServiceIPAM: "none" # prevents auto-assignment of LB IPs unless spec.loadBalancerClass is explicitly defined
     ipam:
       mode: cluster-pool
       operator:
         clusterPoolIPv4PodCIDRList:
-          - 10.42.0.0/16
+          - ${POD_CIDR}
+
     devices:
       - ens18
+
     bpf:
       masquerade: false
+    
+    # bgp
     bgpControlPlane:
       enabled: true
     l2announcements:
       enabled: false
+
+    # keep just to cilium 
     cni:
       exclusive: true
+
+     # envoy / l7 
     envoy:
       enabled: false
+    
+    # rollouts
     rollOutCiliumPods: true
     updateStrategy:
       type: RollingUpdate
       rollingUpdate:
         maxUnavailable: 1
+
+    # hubble
     hubble:
       enabled: true
       relay:
         enabled: true
       ui:
         enabled: false
+
+    # operator
     operator:
       enabled: true
       replicas: 1

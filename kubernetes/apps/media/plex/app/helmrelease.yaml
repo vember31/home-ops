@@ -83,7 +83,7 @@ spec:
             env:
               TZ: ${TIMEZONE}
               ADVERTISE_IP: "https://plex.local.${SECRET_DOMAIN},http://${PLEX_IP}:32400"
-              ALLOWED_NETWORKS: "${SECURE_CIDR},${GUEST_CIDR},${IOT_CIDR},${CLUSTER_CIDR},${SERVICE_CIDR}"
+              ALLOWED_NETWORKS: "${SECURE_CIDR},${GUEST_CIDR},${IOT_CIDR},${POD_CIDR},${SERVICE_CIDR}"
               PLEX_UID: "1000"
               PLEX_GID: "1000"
             

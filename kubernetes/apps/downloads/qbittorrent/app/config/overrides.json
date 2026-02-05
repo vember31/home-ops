@@ -1,5 +1,5 @@
 {
-  "bypass_auth_subnet_whitelist": "${SECURE_CIDR}\n${CLUSTER_CIDR}\n${SERVICE_CIDR}\n${VPN_CIDR}",
+  "bypass_auth_subnet_whitelist": "${SECURE_CIDR}\n${POD_CIDR}\n${SERVICE_CIDR}\n${VPN_CIDR}",
   "bypass_auth_subnet_whitelist_enabled": true,
   "bypass_local_auth": true,
   "listen_port": 50413,

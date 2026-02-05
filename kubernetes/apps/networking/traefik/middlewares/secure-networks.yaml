@@ -8,6 +8,6 @@ spec:
   ipAllowList:
     sourceRange:
       - ${SECURE_CIDR}
-      - ${CLUSTER_CIDR}
+      - ${POD_CIDR}
       - ${SERVICE_CIDR}
       - ${VPN_CIDR}
