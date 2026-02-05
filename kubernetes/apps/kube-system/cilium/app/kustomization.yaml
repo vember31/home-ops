@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - ./helmrelease-simple.yaml
   - ./networking.yaml
+  - ../../../../templates/gatus/internal

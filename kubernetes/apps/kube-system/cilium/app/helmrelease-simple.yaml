@@ -89,7 +89,7 @@ spec:
 
     # hubble
     hubble:
-      enabled: false
+      enabled: true
       metrics:
         enabled:
         - dns:query
@@ -104,12 +104,32 @@ spec:
         dashboards:
           enabled: true
       relay:
-        enabled: false
+        enabled: true
         rollOutPods: true
         prometheus:
           enabled: true
           serviceMonitor:
             enabled: true
+      ui:
+        enabled: true
+        rollOutPods: true
+        ingress:
+          enabled: true
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt-production
+            external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+            traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+            gethomepage.dev/enabled: "true"
+            gethomepage.dev/description: "Network Observability"
+            gethomepage.dev/group: Networking
+            gethomepage.dev/icon: sh-hubble
+            gethomepage.dev/name: Hubble
+          hosts:
+            - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+          tls: 
+          - secretName: ${GATUS_SUBDOMAIN}-tls-production
+            hosts:
+              - *host
 
     # operator
     operator:
