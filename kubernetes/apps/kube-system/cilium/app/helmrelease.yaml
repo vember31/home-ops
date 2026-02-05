@@ -42,49 +42,102 @@ spec:
   maxHistory: 1
 
   values:
+
+    # Native routing support
+    routingMode: native
+    ipv4NativeRoutingCIDR: ${POD_CIDR}
     autoDirectNodeRoutes: true
+
+    # kube-proxy
+    kubeProxyReplacement: true
+    kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+
+    # ipam
+    defaultLBServiceIPAM: "none" # prevents auto-assignment of LB IPs unless spec.loadBalancerClass is explicitly defined
+    ipam:
+      mode: cluster-pool
+      operator:
+        clusterPoolIPv4PodCIDRList:
+          - ${POD_CIDR}
+
+    devices:
+      - ens18
+
+    # Bandwidth management
     bandwidthManager:
       enabled: true
       bbr: true
-    devices: ens18
+
+    # BPF features
     bpf:
-      datapathMode: netkit
-      masquerade: true
+      datapathMode: netkit  # Kernel 6.8+ feature
+      masquerade: true 
       preallocateMaps: true
-      tproxy: true
     bpfClockProbe: true
-    bgpControlPlane:
-      enabled: true
-    cni:
-      exclusive: true
-    dashboards:
-      enabled: true
-    enableIPv4BIGTCP: false
+
+    # Big TCP for better throughput
+    enableIPv4BIGTCP: true  # Kernel 5.19+ feature
+
+    # Better routing
     endpointRoutes:
       enabled: true
+
+    # Path MTU discovery
+    pmtuDiscovery:
+      enabled: true
+
+    # Load balancer optimizations
+    loadBalancer:
+      algorithm: maglev
+      mode: dsr
+      serviceTopology: true
+
+    # Local redirect policies
+    localRedirectPolicies:
+      enabled: true
+
+    # bgp
+    bgpControlPlane:
+      enabled: true
+    l2announcements:
+      enabled: false
+
+    # keep just to cilium 
+    cni:
+      exclusive: true
+
+     # envoy / l7 
     envoy:
       enabled: false
+    
+    # rollouts
+    rollOutCiliumPods: true
+    updateStrategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+
+    # hubble
     hubble:
       enabled: true
       metrics:
         enabled:
-          - dns:query
-          - drop
-          - tcp
-          - flow
-          - port-distribution
-          - icmp
-          - http
+        - dns:query
+        - drop
+        - tcp
+        - flow
+        - port-distribution
+        - icmp
+        - http
         serviceMonitor:
           enabled: true
         dashboards:
           enabled: true
-          annotations:
-            grafana_folder: Cilium
       relay:
         enabled: true
         rollOutPods: true
         prometheus:
+          enabled: true
           serviceMonitor:
             enabled: true
       ui:
@@ -97,69 +150,58 @@ spec:
             external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
             traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
             gethomepage.dev/enabled: "true"
-            gethomepage.dev/description: "Networking Observability"
+            gethomepage.dev/description: "Network Observability"
             gethomepage.dev/group: Networking
             gethomepage.dev/icon: sh-hubble
-            gethomepage.dev/name: Cilium Hubble
+            gethomepage.dev/name: Hubble
           hosts:
-            - &host "cilium.local.${SECRET_DOMAIN}"
+            - &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
           tls: 
           - secretName: ${GATUS_SUBDOMAIN}-tls-production
             hosts:
               - *host
-    ipam:
-      mode: cluster-pool
-      operator:
-        clusterPoolIPv4PodCIDRList:
-          - 10.42.0.0/16
-    ipv4NativeRoutingCIDR: 10.42.0.0/16
-    kubeProxyReplacement: false
-    l2announcements:
-      enabled: false
-    loadBalancer:
-      algorithm: maglev
-      mode: dsr
-      serviceTopology: true
-    localRedirectPolicies:
-      enabled: true
+
+    # operator
     operator:
-      dashboards:
-        enabled: true
+      enabled: true
+      replicas: 2
+      rollOutPods: true
       prometheus:
         enabled: true
         serviceMonitor:
           enabled: true
-      replicas: 2
-      rollOutPods: true
-    pmtuDiscovery:
-      enabled: true
+      dashboards:
+        enabled: true
+
+    # metrics
     prometheus:
       enabled: true
       serviceMonitor:
         enabled: true
         trustCRDsExist: true
-    rollOutCiliumPods: true
-    routingMode: native
-    securityContext:
-      capabilities:
-        ciliumAgent:
-          - CHOWN
-          - KILL
-          - NET_ADMIN
-          - NET_RAW
-          - IPC_LOCK
-          - SYS_ADMIN
-          - SYS_RESOURCE
-          - PERFMON
-          - BPF
-          - DAC_OVERRIDE
-          - FOWNER
-          - SETGID
-          - SETUID
-        cleanCiliumState:
-          - NET_ADMIN
-          - SYS_ADMIN
-          - SYS_RESOURCE
-    socketLB:
+    
+    # grafana dashboard support
+    dashboards:
       enabled: true
-      hostNamespaceOnly: true
+
+# Security capabilities
+securityContext:
+  capabilities:
+    ciliumAgent:
+      - CHOWN
+      - KILL
+      - NET_ADMIN
+      - NET_RAW
+      - IPC_LOCK
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - PERFMON
+      - BPF
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    cleanCiliumState:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
