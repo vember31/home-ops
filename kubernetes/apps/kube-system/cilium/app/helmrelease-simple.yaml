@@ -48,7 +48,9 @@ spec:
     ipv4NativeRoutingCIDR: ${POD_CIDR}
     autoDirectNodeRoutes: true
 
-    kubeProxyReplacement: false
+    # kube-proxy
+    kubeProxyReplacement: true
+    kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 
     # ipam
     defaultLBServiceIPAM: "none" # prevents auto-assignment of LB IPs unless spec.loadBalancerClass is explicitly defined
@@ -87,13 +89,47 @@ spec:
 
     # hubble
     hubble:
-      enabled: true
+      enabled: false
+      metrics:
+        enabled:
+        - dns:query
+        - drop
+        - tcp
+        - flow
+        - port-distribution
+        - icmp
+        - http
+        serviceMonitor:
+          enabled: true
+        dashboards:
+          enabled: true
       relay:
-        enabled: true
-      ui:
         enabled: false
+        rollOutPods: true
+        prometheus:
+          enabled: true
+          serviceMonitor:
+            enabled: true
 
     # operator
     operator:
       enabled: true
-      replicas: 1
+      replicas: 2
+      rollOutPods: true
+      prometheus:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+      dashboards:
+        enabled: true
+
+    # metrics
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        trustCRDsExist: true
+    
+    # grafana dashboard support
+    dashboards:
+      enabled: true
