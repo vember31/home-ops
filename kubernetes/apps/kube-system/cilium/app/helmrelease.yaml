@@ -70,7 +70,7 @@ spec:
 
     # BPF features
     bpf:
-      # datapathMode: netkit  # Kernel 6.8+ feature
+      datapathMode: veth  # 'netkit' is a Kernel 6.8+ feature. Super finnicky at least with k3s and broke the cluster a couple of times. veth is stable.
       masquerade: true 
       preallocateMaps: true
     bpfClockProbe: true
