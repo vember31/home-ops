@@ -51,6 +51,8 @@ spec:
     # kube-proxy
     kubeProxyReplacement: true
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+    k8sServiceHost: 127.0.0.1
+    k8sServicePort: 6443
 
     # ipam
     defaultLBServiceIPAM: "none" # prevents auto-assignment of LB IPs unless spec.loadBalancerClass is explicitly defined
