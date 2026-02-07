@@ -79,7 +79,7 @@ spec:
               TZ: ${TIMEZONE}
               NODE_ENV: production
               PGSSLMODE: disable
-              REDIS_URL: ioredis://ewogICJkYiI6IDE1LAogICJzZW50aW5lbHMiOiBbCiAgICB7ICJob3N0IjogInJlZGlzLXNlbnRpbmVsLmRhdGFiYXNlLnN2Yy5jbHVzdGVyLmxvY2FsIiwgInBvcnQiOiAyNjM3OSB9CiAgXSwKICAibmFtZSI6ICJyZWRpcy1tYXN0ZXIiCn0K
+              REDIS_URL: redis://dragonfly.database.svc.cluster.local:6379/15
               URL: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
               PORT: &port 3000
 

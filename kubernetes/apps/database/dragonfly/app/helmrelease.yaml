@@ -42,7 +42,7 @@ spec:
   maxHistory: 1
 
   values:
-    replicaCount: 2 #operator pods
+    replicaCount: 1 #operator pods
     crds:
       install: true
       keep: false
