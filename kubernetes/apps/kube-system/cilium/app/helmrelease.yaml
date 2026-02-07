@@ -154,7 +154,7 @@ spec:
             gethomepage.dev/enabled: "true"
             gethomepage.dev/description: "Network Observability"
             gethomepage.dev/group: Networking
-            gethomepage.dev/icon: "sh-cilium hubble"
+            gethomepage.dev/icon: "sh-cilium-hubble"
             gethomepage.dev/name: Hubble
           hosts:
             - &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
