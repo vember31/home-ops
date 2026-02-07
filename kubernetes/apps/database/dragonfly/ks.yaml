@@ -48,6 +48,6 @@ spec:
   timeout: 5m
   postBuild:
     substitute:
-      APP: *app
+      APP: "dragonfly"
       GATUS_PORT: "6379"
       GATUS_NAMESPACE: *namespace
