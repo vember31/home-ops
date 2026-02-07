@@ -6,7 +6,7 @@ metadata:
   name: dragonfly
 spec:
   image: ghcr.io/dragonflydb/dragonfly:v1.36.0
-  replicas: 5 # set to the number of nodes in the cluster
+  replicas: 3 # set to the number of compatible nodes in the cluster
   env:
     - name: MAX_MEMORY
       valueFrom:
@@ -32,3 +32,12 @@ spec:
       labelSelector:
         matchLabels:
           app.kubernetes.io/part-of: dragonfly
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: cpu-features
+            operator: In
+            values:
+            - avx2
