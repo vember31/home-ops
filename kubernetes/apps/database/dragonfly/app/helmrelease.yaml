@@ -1,0 +1,53 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: dragonfly-operator
+  namespace: database
+
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: dragonfly-operator
+    namespace: flux-system
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+    replicaCount: 5 # nodes in the cluster
+    crds:
+      install: true
+      keep: false
+    serviceMonitor:
+      enabled: true
+    grafanaDashboard:
+      enabled: true
+      folder: database
