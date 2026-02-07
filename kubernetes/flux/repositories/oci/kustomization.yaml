@@ -7,6 +7,5 @@ resources:
   - ./app-template.yaml
   - ./cilium.yaml
   - ./cloudpirates-redis.yaml
-  - ./dragonfly-operator.yaml
   - ./flux-instance.yaml
   - ./flux-operator.yaml
