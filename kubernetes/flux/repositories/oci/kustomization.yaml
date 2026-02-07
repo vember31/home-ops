@@ -9,3 +9,4 @@ resources:
   - ./dragonfly-operator.yaml
   - ./flux-instance.yaml
   - ./flux-operator.yaml
+  - ./node-feature-discovery.yaml
