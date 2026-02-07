@@ -13,7 +13,6 @@ resources:
   - kubereboot.yaml
   - longhorn.yaml
   - lwolf.yaml
-  - metallb.yaml
   - prometheus-community.yaml
   - stakater.yaml
   - traefik-charts.yaml
