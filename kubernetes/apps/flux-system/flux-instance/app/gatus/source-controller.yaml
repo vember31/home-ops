@@ -10,7 +10,7 @@ data:
     endpoints:
       - name: "Flux Source Controller"
         group: internal-backend
-        url: "tcp://source-controller.flux-system.svc.cluster.local"
+        url: "tcp://source-controller.flux-system.svc.cluster.local:9090"
         interval: 1m
         conditions:
           - "[CONNECTED] == true"
