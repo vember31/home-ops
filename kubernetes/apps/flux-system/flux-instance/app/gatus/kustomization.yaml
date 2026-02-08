@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - flux-operator-ui.yaml
   - source-controller.yaml
+  - webhook-receiver.yaml
