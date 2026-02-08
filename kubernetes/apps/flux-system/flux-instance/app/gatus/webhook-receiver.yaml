@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "flux-source-controller-gatus-ep"
+  labels:
+    gatus.io/enabled: "true"
+data:
+  config.yaml: |
+    endpoints:
+      - name: "Flux Webhook Controller"
+        group: internal-backend
+        url: "tcp://webhook-receiver.flux-system.svc.cluster.local"
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"
+        alerts:
+          - type: discord
+            send-on-resolved: true
+            failure-threshold: 2
