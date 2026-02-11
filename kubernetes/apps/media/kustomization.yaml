@@ -10,6 +10,7 @@ resources:
   # Flux-Kustomizations
   - ./agregarr/ks.yaml
   - ./autopulse/ks.yaml
+  - ./dispatcharr/ks.yaml
   - ./isponsorblocktv/ks.yaml
   - ./maintainerr/ks.yaml
   - ./plex/ks.yaml
