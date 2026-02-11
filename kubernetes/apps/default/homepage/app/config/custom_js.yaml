@@ -1,4 +1,3 @@
-# renovate: ignore
 // Function to set theme-mode in localStorage
 // Local theme is found if you hit F12, go to Application tab, and then browse what's in the 'local storage'
 function setThemeMode() {
