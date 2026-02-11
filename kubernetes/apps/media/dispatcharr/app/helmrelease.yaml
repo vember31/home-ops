@@ -129,7 +129,12 @@ spec:
           gethomepage.dev/group: Media
           gethomepage.dev/icon: https://raw.githubusercontent.com/Dispatcharr/Dispatcharr/refs/heads/main/frontend/src/images/logo.png
           gethomepage.dev/name: Dispatcharr
-          gethomepage.dev/siteMonitor: http://${APP}.downloads.svc.cluster.local:9191
+          gethomepage.dev/siteMonitor: &url http://${APP}.media.svc.cluster.local:9191
+          gethomepage.dev/widget.type: dispatcharr
+          gethomepage.dev/widget.url: *url
+          gethomepage.dev/widget.username: "{{ `{{HOMEPAGE_VAR_DISPATCHARR_USERNAME}}` }}"
+          gethomepage.dev/widget.password: "{{ `{{HOMEPAGE_VAR_DISPATCHARR_PASSWORD}}` }}"
+          gethomepage.dev/widget.enableActiveStreams: "true"
 
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
