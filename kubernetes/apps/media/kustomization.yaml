@@ -16,7 +16,6 @@ resources:
   - ./plex/ks.yaml
   - ./requestrr/ks.yaml
   - ./seerr/ks.yaml
-  - ./streammaster/ks.yaml
   - ./tauticord/ks.yaml
   - ./tautulli/ks.yaml
   - ./tracearr/ks.yaml
