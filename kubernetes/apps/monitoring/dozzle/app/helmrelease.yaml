@@ -58,7 +58,7 @@ spec:
           app:
             image:
               repository: amir20/dozzle
-              tag: v10.0.0@sha256:844c310771c00254f9928f9dfdf7dc4c8a10acddb8c3b616944b617c890c3325
+              tag: v10.0.1@sha256:0b40e62a9469c1c0186394e31ad887fa044d9ff6ac1180b1a03c64cd4dd198cd
               pullPolicy: IfNotPresent
 
             env:
