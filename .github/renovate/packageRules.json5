@@ -17,7 +17,7 @@
       "description": "Hotio Release Semver Packages",
       "matchDatasources": ["docker"],
       "versioning": "regex:^release-(?<major>\\d+)\\.(?<minor>\\d+)?\\.(?<patch>\\d+)?(-(?<build>.*))?$",
-      "matchPackagePatterns": ["hotio/tautulli", "autoscan", "unpackerr"]
+      "matchPackagePatterns": ["hotio/tautulli"]
     },
     {
       "description": "version with a v, then semver and then compatibility",
