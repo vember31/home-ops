@@ -156,5 +156,5 @@ spec:
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce
-        size: 128Mi
+        size: 256Mi
         retain: true
