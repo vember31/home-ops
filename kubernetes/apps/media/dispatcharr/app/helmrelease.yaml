@@ -77,11 +77,11 @@ spec:
               DISPATCHARR_LOG_LEVEL: info
             envFrom: *envFrom
 
-            # resources:
-            #   requests:
-            #     cpu: 10m
-            #   limits:
-            #     memory: 500Mi
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 1.5Gi
 
             probes:
               liveness:
@@ -104,11 +104,11 @@ spec:
             envFrom: *envFrom
             command: ["/app/docker/entrypoint.celery.sh"]
 
-            # resources:
-            #   requests:
-            #     cpu: 10m
-            #   limits:
-            #     memory: 500Mi
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 512Mi
             
     service:
       web:
