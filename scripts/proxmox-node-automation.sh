@@ -153,13 +153,31 @@ check_services() {
   return 0
 }
 
+notify_pending_upgrades() {
+  local upgradable count pkg_names
+  upgradable="\$(apt list --upgradable 2>/dev/null | grep -v '^Listing' || true)"
+  count="\$(echo "\$upgradable" | grep -c '/' || true)"
+
+  if [[ "\$count" -eq 0 ]]; then
+    log "No packages to upgrade. Exiting."
+    discord_post "✅ **\${NODE_NAME}**: no packages to upgrade. Nothing to do."
+    exit 0
+  fi
+
+  pkg_names="\$(echo "\$upgradable" | cut -d'/' -f1 | tr '\n' ' ' | xargs)"
+  log "Pending upgrades (\${count}): \${pkg_names}"
+  discord_post "📦 **\${NODE_NAME}**: \${count} package(s) to upgrade: \${pkg_names}"
+}
+
 main() {
   trap 'on_error \$LINENO' ERR
 
   log "=== START upgrade on \${NODE_NAME} ==="
-  discord_post "🔧 **\${NODE_NAME}**: starting Proxmox upgrades (apt upgrade)…"
+  discord_post "🔧 **\${NODE_NAME}**: checking for Proxmox upgrades…"
 
   apt-get update 2>&1 | tee -a "\$LOGFILE"
+
+  notify_pending_upgrades
 
   apt-get -y \
     -o Dpkg::Options::="--force-confdef" \
