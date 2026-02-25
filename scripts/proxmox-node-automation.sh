@@ -18,9 +18,12 @@ TIMER_ONCALENDAR="Sun *-*-* 03:45:00"
 
 CONF="/etc/pve-auto-upgrade.conf"
 SCRIPT="/usr/local/sbin/pve-auto-upgrade-reboot.sh"
+POST_REBOOT_SCRIPT="/usr/local/sbin/pve-auto-upgrade-post-reboot.sh"
 LOGFILE="/var/log/pve-auto-upgrade.log"
 SERVICE="/etc/systemd/system/pve-auto-upgrade-reboot.service"
+POST_REBOOT_SERVICE="/etc/systemd/system/pve-auto-upgrade-post-reboot.service"
 TIMER="/etc/systemd/system/pve-auto-upgrade-reboot.timer"
+REBOOT_FLAG="/var/lib/pve-auto-upgrade/reboot-pending"
 
 need_root() {
   if [[ "${EUID}" -ne 0 ]]; then
@@ -51,9 +54,15 @@ install_script() {
 set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
+# Suppress needrestart from automatically restarting services mid-apt;
+# we handle service health explicitly after the upgrade.
+export NEEDRESTART_SUSPEND=1
 
 LOGFILE="/var/log/pve-auto-upgrade.log"
 CONF="/etc/pve-auto-upgrade.conf"
+
+# Critical Proxmox services to verify are active after upgrade
+PVE_SERVICES=(pve-cluster corosync pve-manager qemu-server)
 
 # Load config
 if [[ -f "$CONF" ]]; then
@@ -91,6 +100,13 @@ discord_post() {
     "\$DISCORD_WEBHOOK_URL" >/dev/null || true
 }
 
+on_error() {
+  local exit_code=$?
+  local line=$1
+  log "ERROR: script failed at line \${line} (exit \${exit_code})"
+  discord_post "❌ **\${NODE_NAME}**: upgrade script failed at line \${line} (exit \${exit_code}) — manual inspection required."
+}
+
 reboot_required() {
   if [[ -f /var/run/reboot-required ]]; then
     return 0
@@ -110,24 +126,58 @@ reboot_required() {
   return 1
 }
 
+check_services() {
+  local failed=()
+  for svc in "\${PVE_SERVICES[@]}"; do
+    # Skip services that aren't installed on this node
+    if ! systemctl list-unit-files "\${svc}.service" &>/dev/null; then
+      continue
+    fi
+    if ! systemctl is-active --quiet "\${svc}.service"; then
+      log "WARNING: \${svc} is not active after upgrade — attempting restart"
+      systemctl restart "\${svc}.service" 2>&1 | tee -a "\$LOGFILE" || true
+      sleep 3
+      if ! systemctl is-active --quiet "\${svc}.service"; then
+        failed+=("\${svc}")
+        log "ERROR: \${svc} failed to restart"
+      else
+        log "\${svc} recovered after restart"
+      fi
+    fi
+  done
+
+  if (( \${#failed[@]} > 0 )); then
+    discord_post "⚠️ **\${NODE_NAME}**: upgrades applied but these services failed to restart: \${failed[*]} — check logs."
+    return 1
+  fi
+  return 0
+}
+
 main() {
+  trap 'on_error \$LINENO' ERR
+
   log "=== START upgrade on \${NODE_NAME} ==="
-  discord_post "🔧 **\${NODE_NAME}**: starting Proxmox upgrades (apt full-upgrade)…"
+  discord_post "🔧 **\${NODE_NAME}**: starting Proxmox upgrades (apt upgrade)…"
 
   apt-get update 2>&1 | tee -a "\$LOGFILE"
 
   apt-get -y \
     -o Dpkg::Options::="--force-confdef" \
     -o Dpkg::Options::="--force-confold" \
-    full-upgrade 2>&1 | tee -a "\$LOGFILE"
+    upgrade 2>&1 | tee -a "\$LOGFILE"
 
   apt-get -y autoremove --purge 2>&1 | tee -a "\$LOGFILE"
 
   sync
 
+  check_services
+
   if reboot_required; then
     log "Reboot required -> rebooting now."
     discord_post "✅ **\${NODE_NAME}**: upgrades applied. 🔁 Reboot required — rebooting now."
+    mkdir -p /var/lib/pve-auto-upgrade
+    touch /var/lib/pve-auto-upgrade/reboot-pending
+    sync
     systemctl reboot
   else
     log "No reboot required."
@@ -145,6 +195,95 @@ EOF
   echo "Installed $SCRIPT"
 }
 
+install_post_reboot_script() {
+  cat > "$POST_REBOOT_SCRIPT" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+REBOOT_FLAG="/var/lib/pve-auto-upgrade/reboot-pending"
+CONF="/etc/pve-auto-upgrade.conf"
+LOGFILE="/var/log/pve-auto-upgrade.log"
+
+PVE_SERVICES=(pve-cluster corosync pve-manager qemu-server)
+
+# Nothing to do if this boot wasn't triggered by the upgrade script
+[[ -f "$REBOOT_FLAG" ]] || exit 0
+
+# Load config
+if [[ -f "$CONF" ]]; then
+  # shellcheck disable=SC1090
+  source "$CONF"
+fi
+
+NODE_NAME="${NODE_NAME:-}"
+if [[ -z "$NODE_NAME" ]]; then
+  NODE_NAME="$(hostname -s)"
+fi
+
+DISCORD_WEBHOOK_URL="${DISCORD_WEBHOOK_URL:-}"
+
+log() {
+  local msg="[$(date --iso-8601=seconds)] $*"
+  echo "$msg" | tee -a "$LOGFILE"
+  logger -t pve-auto-upgrade "$*"
+}
+
+discord_post() {
+  local text="$1"
+  [[ -z "${DISCORD_WEBHOOK_URL}" ]] && return 0
+
+  if (( ${#text} > 1900 )); then
+    text="${text:0:1900}…"
+  fi
+
+  text="${text//\\/\\\\}"
+  text="${text//\"/\\\"}"
+
+  curl -fsSL -X POST \
+    -H "Content-Type: application/json" \
+    -d "{\"content\":\"${text}\"}" \
+    "$DISCORD_WEBHOOK_URL" >/dev/null || true
+}
+
+main() {
+  log "=== POST-REBOOT check on ${NODE_NAME} ==="
+
+  # Remove flag immediately so a crash below doesn't loop on next boot
+  rm -f "$REBOOT_FLAG"
+
+  # Give services a moment to finish starting up
+  sleep 20
+
+  local failed=()
+  for svc in "${PVE_SERVICES[@]}"; do
+    if ! systemctl list-unit-files "${svc}.service" &>/dev/null; then
+      continue
+    fi
+    if ! systemctl is-active --quiet "${svc}.service"; then
+      failed+=("${svc}")
+      log "WARNING: ${svc} is not active after reboot"
+    fi
+  done
+
+  if (( ${#failed[@]} > 0 )); then
+    log "Post-reboot: degraded services: ${failed[*]}"
+    discord_post "⚠️ **${NODE_NAME}**: reboot complete but these services are not running: ${failed[*]} — manual inspection required."
+  else
+    log "Post-reboot: all services healthy."
+    discord_post "✅ **${NODE_NAME}**: reboot complete. All Proxmox services healthy."
+  fi
+
+  log "=== END POST-REBOOT check on ${NODE_NAME} ==="
+}
+
+main "$@"
+EOF
+
+  chmod 755 "$POST_REBOOT_SCRIPT"
+  chown root:root "$POST_REBOOT_SCRIPT"
+  echo "Installed $POST_REBOOT_SCRIPT"
+}
+
 install_logfile() {
   touch "$LOGFILE"
   chmod 640 "$LOGFILE"
@@ -154,12 +293,25 @@ install_logfile() {
     chown root:root "$LOGFILE"
   fi
   echo "Prepared $LOGFILE"
+
+  # Install logrotate config to keep log from growing unbounded
+  cat > /etc/logrotate.d/pve-auto-upgrade <<LREOF
+$LOGFILE {
+  weekly
+  rotate 8
+  compress
+  delaycompress
+  missingok
+  notifempty
+}
+LREOF
+  echo "Installed logrotate config for $LOGFILE"
 }
 
 install_service() {
   cat > "$SERVICE" <<EOF
 [Unit]
-Description=Proxmox automatic full-upgrade + Discord logging + reboot-if-needed
+Description=Proxmox automatic upgrade + Discord logging + reboot-if-needed
 Wants=network-online.target
 After=network-online.target
 
@@ -172,6 +324,27 @@ EOF
   chmod 644 "$SERVICE"
   chown root:root "$SERVICE"
   echo "Installed $SERVICE"
+}
+
+install_post_reboot_service() {
+  cat > "$POST_REBOOT_SERVICE" <<EOF
+[Unit]
+Description=Proxmox post-upgrade reboot completion check + Discord notification
+After=network-online.target multi-user.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-$CONF
+ExecStart=$POST_REBOOT_SCRIPT
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  chmod 644 "$POST_REBOOT_SERVICE"
+  chown root:root "$POST_REBOOT_SERVICE"
+  echo "Installed $POST_REBOOT_SERVICE"
 }
 
 install_timer() {
@@ -195,6 +368,7 @@ EOF
 enable_units() {
   systemctl daemon-reload
   systemctl enable --now pve-auto-upgrade-reboot.timer
+  systemctl enable pve-auto-upgrade-post-reboot.service
 
   echo
   systemctl list-timers --all | grep pve-auto-upgrade-reboot || true
@@ -210,8 +384,10 @@ main() {
   need_root
   install_conf
   install_script
+  install_post_reboot_script
   install_logfile
   install_service
+  install_post_reboot_service
   install_timer
   enable_units
 }
