@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   namespace: flux-system
   name: cluster-settings
+  labels:
+    reconcile.fluxcd.io/watch: Enabled
 data:
   # general variables
   CLUSTER_NAME: "home-ops"

@@ -107,19 +107,11 @@ spec:
             target:
               kind: Deployment
               name: helm-controller
-          - # Controller-level SOPS decryption
-            patch: |-
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --sops-age-secret=sops-age-secret
-            target:
-              kind: Deployment
-              name: kustomize-controller
           - # Watch configmaps and secrets attached to HelmReleases and Kustomizations
             patch: |-
               - op: add
                 path: /spec/template/spec/containers/0/args/-
-                value: --watch-configs-label-selector=owner!=helm
+                value: --watch-configs-label-selector=reconcile.fluxcd.io/watch=Enabled
             target:
               kind: Deployment
               name: (helm-controller|kustomize-controller)
