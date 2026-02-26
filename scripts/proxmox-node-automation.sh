@@ -83,28 +83,36 @@ log() {
   logger -t pve-auto-upgrade "$*"
 }
 
-discord_post() {
-  local text="$1"
+discord_embed() {
+  local title="$1"
+  local description="$2"
+  local color="$3"
   [[ -z "${DISCORD_WEBHOOK_URL}" ]] && return 0
 
-  if (( ${#text} > 1900 )); then
-    text="\${text:0:1900}…"
+  if (( ${#description} > 4000 )); then
+    description="${description:0:4000}…"
   fi
 
-  text="\${text//\\\\/\\\\\\\\}"
-  text="\${text//\"/\\\\\"}"
+  title="${title//\\/\\\\}"
+  title="${title//\"/\\\"}"
+  description="${description//\\/\\\\}"
+  description="${description//\"/\\\"}"
+  description="${description//$'\n'/\\n}"
+
+  local timestamp
+  timestamp="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
 
   curl -fsSL -X POST \
     -H "Content-Type: application/json" \
-    -d "{\"content\":\"\${text}\"}" \
-    "\$DISCORD_WEBHOOK_URL" >/dev/null || true
+    -d "{\"embeds\":[{\"title\":\"${title}\",\"description\":\"${description}\",\"color\":${color},\"footer\":{\"text\":\"${NODE_NAME}\"},\"timestamp\":\"${timestamp}\"}]}" \
+    "$DISCORD_WEBHOOK_URL" >/dev/null || true
 }
 
 on_error() {
   local exit_code=$?
   local line=$1
-  log "ERROR: script failed at line \${line} (exit \${exit_code})"
-  discord_post "❌ **\${NODE_NAME}**: upgrade script failed at line \${line} (exit \${exit_code}) — manual inspection required."
+  log "ERROR: script failed at line ${line} (exit ${exit_code})"
+  discord_embed "❌ Upgrade Failed" "**${NODE_NAME}** — script failed at line ${line} (exit ${exit_code}). Manual inspection required." 15158332
 }
 
 reboot_required() {
@@ -113,12 +121,12 @@ reboot_required() {
   fi
 
   local running newest_boot newest_ver
-  running="\$(uname -r)"
+  running="$(uname -r)"
 
-  newest_boot="\$(ls -1 /boot/vmlinuz-* 2>/dev/null | sort -V | tail -n 1 || true)"
-  if [[ -n "\$newest_boot" ]]; then
-    newest_ver="\${newest_boot#/boot/vmlinuz-}"
-    if [[ "\$newest_ver" != "\$running" ]]; then
+  newest_boot="$(ls -1 /boot/vmlinuz-* 2>/dev/null | sort -V | tail -n 1 || true)"
+  if [[ -n "$newest_boot" ]]; then
+    newest_ver="${newest_boot#/boot/vmlinuz-}"
+    if [[ "$newest_ver" != "$running" ]]; then
       return 0
     fi
   fi
@@ -128,26 +136,26 @@ reboot_required() {
 
 check_services() {
   local failed=()
-  for svc in "\${PVE_SERVICES[@]}"; do
+  for svc in "${PVE_SERVICES[@]}"; do
     # Skip services that aren't installed on this node
-    if ! systemctl list-unit-files "\${svc}.service" &>/dev/null; then
+    if ! systemctl list-unit-files "${svc}.service" &>/dev/null; then
       continue
     fi
-    if ! systemctl is-active --quiet "\${svc}.service"; then
-      log "WARNING: \${svc} is not active after upgrade — attempting restart"
-      systemctl restart "\${svc}.service" 2>&1 | tee -a "\$LOGFILE" || true
+    if ! systemctl is-active --quiet "${svc}.service"; then
+      log "WARNING: ${svc} is not active after upgrade — attempting restart"
+      systemctl restart "${svc}.service" 2>&1 | tee -a "$LOGFILE" || true
       sleep 3
-      if ! systemctl is-active --quiet "\${svc}.service"; then
-        failed+=("\${svc}")
-        log "ERROR: \${svc} failed to restart"
+      if ! systemctl is-active --quiet "${svc}.service"; then
+        failed+=("${svc}")
+        log "ERROR: ${svc} failed to restart"
       else
-        log "\${svc} recovered after restart"
+        log "${svc} recovered after restart"
       fi
     fi
   done
 
-  if (( \${#failed[@]} > 0 )); then
-    discord_post "⚠️ **\${NODE_NAME}**: upgrades applied but these services failed to restart: \${failed[*]} — check logs."
+  if (( ${#failed[@]} > 0 )); then
+    discord_embed "⚠️ Service Failure After Upgrade" "**${NODE_NAME}** — failed to restart: ${failed[*]}. Check logs." 15105570
     return 1
   fi
   return 0
@@ -155,36 +163,36 @@ check_services() {
 
 notify_pending_upgrades() {
   local upgradable count pkg_names
-  upgradable="\$(apt list --upgradable 2>/dev/null | grep -v '^Listing' || true)"
-  count="\$(echo "\$upgradable" | grep -c '/' || true)"
+  upgradable="$(apt list --upgradable 2>/dev/null | grep -v '^Listing' || true)"
+  count="$(echo "$upgradable" | grep -c '/' || true)"
 
-  if [[ "\$count" -eq 0 ]]; then
+  if [[ "$count" -eq 0 ]]; then
     log "No packages to upgrade. Exiting."
-    discord_post "✅ **\${NODE_NAME}**: no packages to upgrade. Nothing to do."
+    discord_embed "✅ Up to Date" "**${NODE_NAME}** — no packages to upgrade." 3066993
     exit 0
   fi
 
-  pkg_names="\$(echo "\$upgradable" | cut -d'/' -f1 | tr '\n' ' ' | xargs)"
-  log "Pending upgrades (\${count}): \${pkg_names}"
-  discord_post "📦 **\${NODE_NAME}**: \${count} package(s) to upgrade: \${pkg_names}"
+  pkg_names="$(echo "$upgradable" | cut -d'/' -f1 | tr '\n' ' ' | xargs)"
+  log "Pending upgrades (${count}): ${pkg_names}"
+  discord_embed "📦 Updates Available" "**${NODE_NAME}** — ${count} package(s) to upgrade:"$'\n'"${pkg_names}" 15844367
 }
 
 main() {
-  trap 'on_error \$LINENO' ERR
+  trap 'on_error $LINENO' ERR
 
-  log "=== START upgrade on \${NODE_NAME} ==="
-  discord_post "🔧 **\${NODE_NAME}**: checking for Proxmox upgrades…"
+  log "=== START upgrade on ${NODE_NAME} ==="
+  discord_embed "🔧 Checking for Upgrades" "Running apt update on **${NODE_NAME}**…" 3447003
 
-  apt-get update 2>&1 | tee -a "\$LOGFILE"
+  apt-get update 2>&1 | tee -a "$LOGFILE"
 
   notify_pending_upgrades
 
   apt-get -y \
     -o Dpkg::Options::="--force-confdef" \
     -o Dpkg::Options::="--force-confold" \
-    upgrade 2>&1 | tee -a "\$LOGFILE"
+    upgrade 2>&1 | tee -a "$LOGFILE"
 
-  apt-get -y autoremove --purge 2>&1 | tee -a "\$LOGFILE"
+  apt-get -y autoremove --purge 2>&1 | tee -a "$LOGFILE"
 
   sync
 
@@ -192,20 +200,20 @@ main() {
 
   if reboot_required; then
     log "Reboot required -> rebooting now."
-    discord_post "✅ **\${NODE_NAME}**: upgrades applied. 🔁 Reboot required — rebooting now."
+    discord_embed "🔁 Upgrade Complete — Rebooting" "**${NODE_NAME}** — upgrades applied. Rebooting now…" 15105570
     mkdir -p /var/lib/pve-auto-upgrade
     touch /var/lib/pve-auto-upgrade/reboot-pending
     sync
     systemctl reboot
   else
     log "No reboot required."
-    discord_post "✅ **\${NODE_NAME}**: upgrades applied. No reboot required."
+    discord_embed "✅ Upgrade Complete" "**${NODE_NAME}** — upgrades applied. No reboot required." 3066993
   fi
 
-  log "=== END upgrade on \${NODE_NAME} ==="
+  log "=== END upgrade on ${NODE_NAME} ==="
 }
 
-main "\$@"
+main "$@"
 EOF
 
   chmod 755 "$SCRIPT"
@@ -246,20 +254,28 @@ log() {
   logger -t pve-auto-upgrade "$*"
 }
 
-discord_post() {
-  local text="$1"
+discord_embed() {
+  local title="$1"
+  local description="$2"
+  local color="$3"
   [[ -z "${DISCORD_WEBHOOK_URL}" ]] && return 0
 
-  if (( ${#text} > 1900 )); then
-    text="${text:0:1900}…"
+  if (( ${#description} > 4000 )); then
+    description="${description:0:4000}…"
   fi
 
-  text="${text//\\/\\\\}"
-  text="${text//\"/\\\"}"
+  title="${title//\\/\\\\}"
+  title="${title//\"/\\\"}"
+  description="${description//\\/\\\\}"
+  description="${description//\"/\\\"}"
+  description="${description//$'\n'/\\n}"
+
+  local timestamp
+  timestamp="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
 
   curl -fsSL -X POST \
     -H "Content-Type: application/json" \
-    -d "{\"content\":\"${text}\"}" \
+    -d "{\"embeds\":[{\"title\":\"${title}\",\"description\":\"${description}\",\"color\":${color},\"footer\":{\"text\":\"${NODE_NAME}\"},\"timestamp\":\"${timestamp}\"}]}" \
     "$DISCORD_WEBHOOK_URL" >/dev/null || true
 }
 
@@ -285,10 +301,10 @@ main() {
 
   if (( ${#failed[@]} > 0 )); then
     log "Post-reboot: degraded services: ${failed[*]}"
-    discord_post "⚠️ **${NODE_NAME}**: reboot complete but these services are not running: ${failed[*]} — manual inspection required."
+    discord_embed "⚠️ Reboot Complete — Service Issues" "**${NODE_NAME}** — services not running: ${failed[*]}. Manual inspection required." 15158332
   else
     log "Post-reboot: all services healthy."
-    discord_post "✅ **${NODE_NAME}**: reboot complete. All Proxmox services healthy."
+    discord_embed "✅ Reboot Complete" "**${NODE_NAME}** — all Proxmox services healthy." 3066993
   fi
 
   log "=== END POST-REBOOT check on ${NODE_NAME} ==="
