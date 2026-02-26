@@ -56,7 +56,7 @@ spec:
           app:
             image:
               repository: jorenn92/maintainerr
-              tag: 2.27.0@sha256:de0b2c299977d937aeed7c119685b61f02f6e069f0e416d9e86c096397d52d24
+              tag: 2.27.0@sha256:4d07ffaf673f7703bcead8e67f2a9f4fbd5e6bb4d43e4c7c8f81bb45844c8e1b
               pullPolicy: IfNotPresent
 
             env:
