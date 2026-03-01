@@ -10,10 +10,10 @@ data:
     endpoints:
       - name: cilium
         group: internal-backend
-        url: "kubernetes://kube-system/daemonsets/cilium"
+        url: "tcp://hubble-relay.kube-system.svc.cluster.local:80"
         interval: 1m
         conditions:
-          - "[PODS_READY] == [PODS_DESIRED]"
+          - "[CONNECTED] == true"
         alerts:
           - type: discord
             send-on-resolved: true
