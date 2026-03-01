@@ -190,7 +190,7 @@ main() {
   apt-get -y \
     -o Dpkg::Options::="--force-confdef" \
     -o Dpkg::Options::="--force-confold" \
-    upgrade 2>&1 | tee -a "$LOGFILE"
+    full-upgrade 2>&1 | tee -a "$LOGFILE"
 
   apt-get -y autoremove --purge 2>&1 | tee -a "$LOGFILE"
 
