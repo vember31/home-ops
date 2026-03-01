@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cilium-gatus-ep
+  labels:
+    gatus.io/enabled: "true"
+data:
+  config.yaml: |
+    endpoints:
+      - name: cilium
+        group: internal-backend
+        url: "kubernetes://kube-system/daemonsets/cilium"
+        interval: 1m
+        conditions:
+          - "[PODS_READY] == [PODS_DESIRED]"
+        alerts:
+          - type: discord
+            send-on-resolved: true
+            failure-threshold: 2
+            minimum-reminder-interval: "3h"

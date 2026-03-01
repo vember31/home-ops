@@ -6,4 +6,5 @@ resources:
   - ./helmrelease.yaml
   - ./config
   - ./kube-api.yaml
-  - ../../../../templates/gatus/internal
+  - ./gatus.yaml
+  - ./hubble-gatus.yaml
