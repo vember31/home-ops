@@ -65,7 +65,7 @@ share_limits:
       - radarr-complete
       - prowlarr
     max_seeding_time: 60d
-    min_seeding_time: 30d
+    # min_seeding_time: 30d
     max_ratio: -1
     limit_upload_speed: 0
     enable_group_upload_speed: false
