@@ -4,6 +4,4 @@ kind: Kustomization
 resources:
   - ./cluster-v17.yaml
   - ./externalsecret.yaml
-  - ./gatus.yaml
-  - ./prometheusrule.yaml
-  - ./scheduledbackup.yaml
+  - ./resources
