@@ -10,7 +10,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: HostRegexp(`{host:.+}`)
+      match: HostRegexp(`.+`)
       priority: 1
       services:
         - kind: Service
