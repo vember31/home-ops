@@ -56,7 +56,7 @@ spec:
         maxParallel: 8
       destinationPath: s3://cloudnative-pg/
       endpointURL: http://${OMV_IP}:9000
-      # Note: serverName version needs to be inclemented
+      # Note: serverName version needs to be incremented
       # when recovering from an existing cnpg cluster
       serverName: postgres18-v1
       s3Credentials:
@@ -75,7 +75,7 @@ spec:
         databases: ["*"]
         roles: ["*"]
         source:
-          externalCluster: &previousCluster postgres17-v1 #this might not matter. using servername.
+          externalCluster: &previousCluster postgres17 #this might not matter. using servername.
   externalClusters:
     - name: *previousCluster
       connectionParameters:
