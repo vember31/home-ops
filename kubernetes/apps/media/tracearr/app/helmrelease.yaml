@@ -44,11 +44,11 @@ spec:
 
   values:
 
-    # configMaps:
-    #   tracearr-initdb:
-    #     data:
-    #       tracearr.sql: |
-    #         CREATE EXTENSION IF NOT EXISTS "timescaledb";
+    configMaps:
+      tracearr-initdb:
+        data:
+          tracearr.sql: |
+            CREATE EXTENSION IF NOT EXISTS "timescaledb";
 
     controllers:
       ${APP}:
@@ -158,11 +158,11 @@ spec:
                 subPath: cache
               - path: /tmp
                 subPath: tmp
-      # initdb:
-      #   type: configMap
-      #   identifier: tracearr-initdb
-      #   advancedMounts:
-      #     ${APP}:
-      #       initdb:
-      #         - path: /initdb
+      initdb:
+        type: configMap
+        identifier: tracearr-initdb
+        advancedMounts:
+          ${APP}:
+            initdb:
+              - path: /initdb
       
