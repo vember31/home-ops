@@ -1,0 +1,87 @@
+---
+# yaml-language-server: $schema=https://github.com/datreeio/CRDs-catalog/raw/refs/heads/main/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-18
+
+spec:
+  instances: 3
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.3-standard-trixie
+  primaryUpdateStrategy: unsupervised
+
+  storage:
+    size: 10Gi
+    storageClass: local-path
+  
+  superuserSecret:
+    name: cloudnative-pg-secret
+  enableSuperuserAccess: true
+
+  postgresql:
+    extensions:
+      - name: timescaledb
+        image:
+          reference: ghcr.io/vember31/timescaledb:2.25.2
+    parameters:
+      max_connections: "200"
+      shared_buffers: 256MB
+      max_locks_per_transaction: '128'
+      timescaledb.max_background_workers: '32'
+      timescaledb.max_tuples_decompressed_per_dml_transaction: '0'
+      timescaledb.telemetry_level: 'off'
+    shared_preload_libraries:
+      - timescaledb
+ 
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: true
+  
+  resources:
+    requests:
+      cpu: 500m
+    limits:
+      memory: 4Gi
+  
+  monitoring:
+    enablePodMonitor: true
+  
+  backup:
+    retentionPolicy: 30d
+    barmanObjectStore:
+      data:
+        compression: bzip2
+      wal:
+        compression: bzip2
+        maxParallel: 8
+      destinationPath: s3://cloudnative-pg/
+      endpointURL: http://${OMV_IP}:9000
+      # Note: serverName version needs to be inclemented
+      # when recovering from an existing cnpg cluster
+      serverName: postgres18-v1
+      s3Credentials:
+        accessKeyId:
+          name: cloudnative-pg-secret
+          key: minio-access-key-id
+        secretAccessKey:
+          name: cloudnative-pg-secret
+          key: minio-secret-access-key
+
+  # The below is intended for upgrades. Read the readme for documentation about how to perform this upgrade going forward
+  bootstrap:
+    initdb:
+      import:
+        type: monolith
+        databases: ["*"]
+        roles: ["*"]
+        source:
+          externalCluster: &previousCluster postgres17-v1 #this might not matter. using servername.
+  externalClusters:
+    - name: *previousCluster
+      connectionParameters:
+        host: postgres-17-rw.database.svc.cluster.local #service of the previous cluster
+        user: postgres
+        dbname: postgres
+      password:
+        name: cloudnative-pg-secret
+        key: password
