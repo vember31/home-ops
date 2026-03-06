@@ -1,7 +1,7 @@
 {
   "Servers": {
     "1": {
-      "Name": "postgres-v17",
+      "Name": "cnpg-postgres18",
       "Group": "Kubernetes",
       "Host": "postgres-18-rw.database.svc.cluster.local",
       "Port": 5432,
