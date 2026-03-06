@@ -163,6 +163,6 @@ spec:
         identifier: tracearr-initdb
         advancedMounts:
           ${APP}:
-            initdb:
+            init-db:
               - path: /initdb
       
