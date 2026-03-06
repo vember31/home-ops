@@ -44,11 +44,15 @@ spec:
 
   values:
 
+    # ref: https://github.com/connorgallopo/Tracearr/blob/main/docker/init-timescale.sql
+    # this may be duplicative but just in case.
     configMaps:
       tracearr-initdb:
         data:
           tracearr.sql: |
-            CREATE EXTENSION IF NOT EXISTS "timescaledb";
+            CREATE EXTENSION IF NOT EXISTS timescaledb;
+            CREATE EXTENSION IF NOT EXISTS timescaledb_toolkit;
+            CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
     controllers:
       ${APP}:

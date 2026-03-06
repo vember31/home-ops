@@ -23,6 +23,9 @@ spec:
       - name: timescaledb
         image:
           reference: ghcr.io/vember31/timescaledb:2.25.2
+      - name: timescaledb-toolkit
+        image:
+          reference: ghcr.io/vember31/timescaledb-toolkit:1.22.0
     parameters:
       max_connections: "200"
       shared_buffers: 256MB
