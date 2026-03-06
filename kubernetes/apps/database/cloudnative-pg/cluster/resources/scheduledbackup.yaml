@@ -9,4 +9,4 @@ spec:
   immediate: true
   backupOwnerReference: self
   cluster:
-    name: postgres-17
+    name: postgres-18

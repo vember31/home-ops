@@ -142,7 +142,7 @@ datasources:
         type: postgres
         uid: blocky-postgres
         access: proxy
-        url: postgres-17-ro.database.svc.cluster.local:5432
+        url: postgres-18-ro.database.svc.cluster.local:5432
         user: {{ .BLOCKY_POSTGRES_USER }}
         secureJsonData:
           password: '{{ .BLOCKY_POSTGRES_PASS }}'

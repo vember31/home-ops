@@ -67,21 +67,21 @@ spec:
           name: cloudnative-pg-secret
           key: minio-secret-access-key
 
-  # The below is intended for upgrades. Read the readme for documentation about how to perform this upgrade going forward
-  bootstrap:
-    initdb:
-      import:
-        type: monolith
-        databases: ["*"]
-        roles: ["*"]
-        source:
-          externalCluster: &previousCluster postgres17 #this might not matter. using servername.
-  externalClusters:
-    - name: *previousCluster
-      connectionParameters:
-        host: postgres-17-rw.database.svc.cluster.local #service of the previous cluster
-        user: postgres
-        dbname: postgres
-      password:
-        name: cloudnative-pg-secret
-        key: password
+  # # The below is intended for upgrades. Read the readme for documentation about how to perform this upgrade going forward
+  # bootstrap:
+  #   initdb:
+  #     import:
+  #       type: monolith
+  #       databases: ["*"]
+  #       roles: ["*"]
+  #       source:
+  #         externalCluster: &previousCluster postgres17 #this might not matter. using servername.
+  # externalClusters:
+  #   - name: *previousCluster
+  #     connectionParameters:
+  #       host: postgres-18-rw.database.svc.cluster.local #service of the previous cluster
+  #       user: postgres
+  #       dbname: postgres
+  #     password:
+  #       name: cloudnative-pg-secret
+  #       key: password

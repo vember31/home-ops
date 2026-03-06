@@ -1,17 +1,19 @@
 # Upgrading PostgreSQL Major Versions
 ### This is a multiple-step process that, at the high-level, consists of:
 
-1. Creating a net-new cluster on the new version of postgres, which utilizes the monolith import strategy to pull all databases and users from the previous postgres cluster. This will create new services/endpoints (e.g. `postgres-17-rw.databsae.svc.cluster.local`)
+1. Creating a net-new cluster on the new version of postgres, which utilizes the monolith import strategy to pull all databases and users from the previous postgres cluster. This will create new services/endpoints (e.g. `postgres-18-rw.databsae.svc.cluster.local`)
 2. Updating all services to point to the new postgres cluster
 3. Updating the postgres-init image to be for the new version
 4. Updating Renovate to allow updates to the new version
 5. Ensuring the scheduledbackup resource is updated to point to the new cluster
 6. Removing the previous postgres cluster
 
+Overall, expect this upgrade process to take roughly 10-15 minutes.
+
 #### Step 1 instructions
 1. Create a new cluster##.yaml file within the 'cluster' folder. 
 2. Copy the contents of the previous `cluster##.yaml` into the new `cluster##.yaml`
-3. Update the `name`, `ImageName`, `serverName` fields to the new version. Use the old cluster##.yaml file to know how to do this.
+3. Update the `name`, `ImageName`, `serverName` fields to the new version. Use the old cluster##.yaml file to know how to do this. `serverName` can be an arbitrary value and is only used within the new cluster##.yaml file and doesn't need to reference something from the last one. For example, when upgrading from pg17 to 18, it was fine for me to name it as 'postgres17'.
 4. Be sure to include the below YAML at the bottom of the new cluster##.yaml file. This will be responsible for creating the new database based on the content from the previous database. The `previousVersion` should be the serverName that represents the previous cluster.
 ```
    # The below is intended for upgrades. Read the readme for documentation about how to perform this upgrade going forward
@@ -26,7 +28,7 @@
    externalClusters:
      - name: *previousCluster
        connectionParameters:
-         host: postgres-17-rw.database.svc.cluster.local #service of the previous cluster
+         host: postgres-18-rw.database.svc.cluster.local #service of the previous cluster
          user: postgres
          dbname: postgres
        password:
@@ -48,7 +50,11 @@ Update `.github/renovate/allowedVersions.json5` to increment to the next version
 #### Step 5 Instructions
 Update `scheduledbackup.yaml` to reference the name of the new cluster.
 
+#### Step 6 Instructions
+Comment out the boostrap block in the new cluster##.yaml.
+
 ### ---Right here is a good time to commit changes from steps 2-6---
 
-#### Step 6 Instructions
+#### Step 7 Instructions
 Delete the old `cluster##.yaml` and update `kustomization.yaml` to not reference the old `cluster##.yaml`.  Commit.
+
