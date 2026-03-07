@@ -84,9 +84,9 @@ spec:
                   httpGet:
                     path: /health
                     port: &port 6767
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
+                  initialDelaySeconds: 10
+                  periodSeconds: 30
+                  timeoutSeconds: 10
                   failureThreshold: 3
               readiness: *probes
 
