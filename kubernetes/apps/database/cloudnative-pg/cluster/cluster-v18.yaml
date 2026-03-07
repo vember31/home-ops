@@ -49,26 +49,11 @@ spec:
   monitoring:
     enablePodMonitor: true
   
-  backup:
-    retentionPolicy: 30d
-    barmanObjectStore:
-      data:
-        compression: bzip2
-      wal:
-        compression: bzip2
-        maxParallel: 8
-      destinationPath: s3://cloudnative-pg/
-      endpointURL: http://${OMV_IP}:9000
-      # Note: serverName version needs to be incremented
-      # when recovering from an existing cnpg cluster
-      serverName: postgres18-v1
-      s3Credentials:
-        accessKeyId:
-          name: cloudnative-pg-secret
-          key: minio-access-key-id
-        secretAccessKey:
-          name: cloudnative-pg-secret
-          key: minio-secret-access-key
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: postgres-18-backup
 
   # # The below is intended for upgrades. Read the readme for documentation about how to perform this upgrade going forward
   # bootstrap:
