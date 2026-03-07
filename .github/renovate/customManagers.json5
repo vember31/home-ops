@@ -29,7 +29,7 @@
         "imageName:\\s+(?<depName>\\S+):(?<currentValue>[^\\s]+)"
       ],
       "datasourceTemplate": "docker",
-      "versioningTemplate": "loose"
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)-standard-trixie$"
     }
   ]
 }
