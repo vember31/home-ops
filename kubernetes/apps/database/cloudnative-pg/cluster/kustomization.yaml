@@ -4,5 +4,4 @@ kind: Kustomization
 resources:
   - ./cluster-v18.yaml
   - ./externalsecret.yaml
-  - ./objectstore.yaml
   - ./resources
