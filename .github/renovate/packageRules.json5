@@ -56,10 +56,10 @@
       "matchPackagePatterns": ["k3s"]
     },
     {
-      "description": "CNPG PostgreSQL - only standard-trixie images",
+      "description": "CNPG PostgreSQL - only trixie images",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/cloudnative-pg/postgresql"],
-      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)-standard-trixie$"
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)-trixie$"
     }
   ]
 }
