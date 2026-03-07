@@ -7,7 +7,7 @@ spec:
   interval: 30m
   chartRef:
     kind: OCIRepository
-    name: plugin-barman-cloud
+    name: cloudnative-pg
     namespace: flux-system
   install:
     remediation:
