@@ -8,7 +8,9 @@ resources:
   - ./cilium.yaml
   - ./cloudnative-pg.yaml
   - ./dragonfly-operator.yaml
+  - ./fluent-bit.yaml
   - ./flux-instance.yaml
   - ./flux-operator.yaml
   - ./node-feature-discovery.yaml
   - ./plugin-barman-cloud.yaml
+  - ./victoria-logs.yaml

@@ -12,9 +12,11 @@ resources:
 
   # Flux-Kustomizations
   - ./dozzle/ks.yaml
+  - ./fluent-bit/ks.yaml
   - ./gatus/ks.yaml
   - ./goldilocks/ks.yaml
   - ./grafana/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
   - ./unpoller/ks.yaml
+  - ./victoria-logs/ks.yaml
   - ./vpa/ks.yaml

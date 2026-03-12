@@ -99,6 +99,14 @@ dashboardProviders:
       #   editable: true
       #   options:
       #     path: /var/lib/grafana/dashboards/thanos
+      - name: victoria-logs
+        orgId: 1
+        folder: VictoriaLogs
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/victoria-logs
       - name: traefik
         orgId: 1
         folder: Traefik
@@ -120,6 +128,7 @@ datasources:
     apiVersion: 1
     deleteDatasources:
       - { name: Alertmanager, orgId: 1 }
+      - { name: VictoriaLogs, orgId: 1 }
       # - { name: Loki, orgId: 1 }
       - { name: Prometheus, orgId: 1 }
     datasources:
@@ -151,6 +160,12 @@ datasources:
           sslmode: 'disable'
           postgresVersion: 15000
  
+      - name: VictoriaLogs
+        type: victoriametrics-victorialogs-datasource
+        uid: victorialogs
+        access: proxy
+        url: http://victoria-logs.monitoring.svc.cluster.local:9428
+
       # - name: Loki
       #   type: loki
       #   uid: loki
@@ -332,6 +347,7 @@ plugins:
   - natel-discrete-panel
   - pr0ps-trackmap-panel
   - vonage-status-panel
+  - victoriametrics-victorialogs-datasource
 
 serviceMonitor:
   enabled: true

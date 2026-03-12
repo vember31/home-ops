@@ -1,0 +1,80 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: victoria-logs
+  namespace: monitoring
+
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: victoria-logs
+    namespace: flux-system
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+    
+  maxHistory: 1
+
+  values:
+    fullnameOverride: victoria-logs
+    server:
+      persistentVolume:
+        enabled: true
+        storageClassName: local-path
+        size: 10Gi
+      retentionPeriod: 7d
+      ingress:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: "LogAggregation"
+          gethomepage.dev/group: Monitoring
+          gethomepage.dev/icon: sh-VictoriaMetrics
+          gethomepage.dev/name: VictoriaLogs
+          gethomepage.dev/siteMonitor: http://${APP}.monitoring.svc.cluster.local:9428
+        hosts:
+          - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+
+        tls: 
+         - secretName: ${APP}-tls-production
+           hosts:
+             - *host
+
+      serviceMonitor:
+        enabled: true
+    dashboards:
+      enabled: true
