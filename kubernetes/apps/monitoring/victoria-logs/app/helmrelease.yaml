@@ -65,9 +65,6 @@ spec:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
             paths:
               - path: /
-                service:
-                  identifier: app
-                  port: http
 
         tls: 
          - secretName: ${APP}-tls-production
