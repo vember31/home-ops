@@ -161,7 +161,7 @@ datasources:
           postgresVersion: 15000
  
       - name: VictoriaLogs
-        type: victoriametrics-victorialogs-datasource
+        type: victoriametrics-logs-datasource
         uid: victorialogs
         access: proxy
         url: http://victoria-logs.monitoring.svc.cluster.local:9428
@@ -347,7 +347,7 @@ plugins:
   - natel-discrete-panel
   - pr0ps-trackmap-panel
   - vonage-status-panel
-  - victoriametrics-victorialogs-datasource
+  - victoriametrics-logs-datasource
 
 serviceMonitor:
   enabled: true
