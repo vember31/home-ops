@@ -10,8 +10,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  dependsOn:
-    - name: fluent-bit
   path: ./kubernetes/apps/monitoring/victoria-logs/app
   prune: true
   sourceRef:

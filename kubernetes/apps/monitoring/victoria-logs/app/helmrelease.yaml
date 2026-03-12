@@ -62,11 +62,12 @@ spec:
           gethomepage.dev/name: VictoriaLogs
           gethomepage.dev/siteMonitor: http://${APP}.monitoring.svc.cluster.local:9428
         hosts:
-          - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
-            paths:
-              - path: /
+          - name: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+            path: 
+              - /
+            port: http
 
-        tls: 
+        tls:
          - secretName: ${APP}-tls-production
            hosts:
              - *host
