@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Configuration
-QBT_HOST="qbittorrent.downloads.svc.cluster.local"
+QBT_HOST="localhost"
 QBT_PORT="8080"
 QBT_USER="${QBITTORRENT_USERNAME}"
 QBT_PASS="${QBITTORRENT_PASSWORD}"
