@@ -4,9 +4,9 @@ set -euo pipefail
 # Configuration
 QBT_HOST="qbittorrent.downloads.svc.cluster.local"
 QBT_PORT="8080"
-QBT_USER="{{ .QBITTORRENT_USERNAME }}"
-QBT_PASS="{{ .QBITTORRENT_PASSWORD }}"
-OVERRIDES_FILE="/config/overrides.json"
+QBT_USER="${QBITTORRENT_USERNAME}"
+QBT_PASS="${QBITTORRENT_PASSWORD}"
+OVERRIDES_FILE="/scripts/overrides.json"
 MAX_RETRIES=30
 RETRY_DELAY=2
 
@@ -50,13 +50,6 @@ if [ ! -f "$OVERRIDES_FILE" ]; then
 fi
 
 log "Reading overrides from $OVERRIDES_FILE"
-
-# Validate JSON
-if ! jq empty "$OVERRIDES_FILE" 2>/dev/null; then
-    log "ERROR: Invalid JSON in $OVERRIDES_FILE"
-    exit 1
-fi
-
 log "Applying preferences to qBittorrent..."
 
 # Apply preferences using the API

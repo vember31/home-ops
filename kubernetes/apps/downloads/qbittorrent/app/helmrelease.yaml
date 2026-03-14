@@ -70,6 +70,17 @@ spec:
             env:
               TZ: ${TIMEZONE}
               QBT_WEBUI_PORT: &port 8080
+            envFrom:
+              - secretRef:
+                  name: qbittorrent-secret
+
+            lifecycle:
+              postStart:
+                exec:
+                  command:
+                    - /bin/bash
+                    - /scripts/apply-preferences.sh
+
             resources:
               requests:
                 cpu: 100m
@@ -169,13 +180,31 @@ spec:
         retain: true
         globalMounts: []
 
-      config-file:
+      overrides:
         type: configMap
         name: qbt-configmap
+        advancedMounts:
+          ${APP}:
+            app:
+              - path: /scripts/overrides.json
+                subPath: overrides.json
+                readOnly: true
+
+      scripts:
+        type: configMap
+        name: qbt-scripts-configmap
+        defaultMode: 0755
+        advancedMounts:
+          ${APP}:
+            app:
+              - path: /scripts/apply-preferences.sh
+                subPath: apply-preferences.sh
+                readOnly: true
+
+      tmp:
+        type: emptyDir
         globalMounts:
-          - path: /template/qBittorrent.conf
-            subPath: qBittorrent.conf
-            readOnly: true
+          - path: /tmp
 
       downloads:
         enabled: true

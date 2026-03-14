@@ -3,13 +3,22 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 configMapGenerator:
+  # Flux variable substitution enabled — only include files with ${VAR} placeholders
   - name: qbt-configmap
     files:
-      - config/qBittorrent.conf
-generatorOptions:
-  disableNameSuffixHash: true
-  annotations:
-    kustomize.toolkit.fluxcd.io/substitute: enabled
+      - config/overrides.json
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        kustomize.toolkit.fluxcd.io/substitute: enabled
+  # No substitution — script uses shell ${VAR} syntax that must not be mangled
+  - name: qbt-scripts-configmap
+    files:
+      - config/apply-preferences.sh
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
