@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+exec > >(tee /tmp/apply-preferences.log) 2>&1
+
 # Configuration
 QBT_HOST="localhost"
 QBT_PORT="8080"
