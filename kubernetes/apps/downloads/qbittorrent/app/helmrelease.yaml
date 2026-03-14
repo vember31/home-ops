@@ -48,7 +48,8 @@ spec:
       ${APP}:
         enabled: true
         type: deployment
-        annotations: {}
+        annotations:
+          reloader.stakater.com/auto: "true"
         replicas: 1
 
         # Controller-specific overrides for `defaultPodOptions` keys

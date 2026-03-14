@@ -21,8 +21,8 @@
   "pex": true,
   "encryption": 0,
 
-  "max_connec": 500,
-  "max_connec_per_torrent": 350,
+  "max_connec": 200,
+  "max_connec_per_torrent": 100,
   "max_uploads": 50,
   "max_uploads_per_torrent": 20,
 
