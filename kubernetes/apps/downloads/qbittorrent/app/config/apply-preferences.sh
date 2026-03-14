@@ -58,8 +58,7 @@ log "Applying preferences to qBittorrent..."
 # The setPreferences endpoint expects JSON with key-value pairs
 RESPONSE=$(curl -s -b "$COOKIE_JAR" \
     -X POST \
-    -H "Content-Type: application/json" \
-    -d "json=$(cat "$OVERRIDES_FILE")" \
+    --data-urlencode "json@${OVERRIDES_FILE}" \
     "http://${QBT_HOST}:${QBT_PORT}/api/v2/app/setPreferences")
 
 # Check if the request was successful
