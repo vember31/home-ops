@@ -92,20 +92,17 @@ spec:
                 enabled: true
                 custom: true
                 spec:
-                  httpGet:  #commenting this in case i blow things up
-                    path: /identity
-                    port: &port 32400
-                  # exec:
-                  #   command: 
-                  #     - /bin/sh
-                  #     - /probes/liveness.sh
-                  #     - "32400"
-                  #     - "identity"
-                  #     - "/media/tv" #check omv1
-                  #     - "/media2/tv" #check omv2
+                  exec:
+                    command:
+                      - /bin/sh
+                      - /probes/liveness.sh
+                      - "32400"
+                      - "identity"
+                      - "/media/tv"
+                      - "/media2/tv"
                   initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
+                  periodSeconds: 30
+                  timeoutSeconds: 10
                   failureThreshold: 3
               readiness: *probes
               startup:
