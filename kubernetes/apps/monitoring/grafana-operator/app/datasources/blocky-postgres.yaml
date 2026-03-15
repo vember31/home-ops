@@ -24,6 +24,9 @@ spec:
     uid: blocky-postgres
     access: proxy
     url: postgres-18-ro.database.svc.cluster.local:5432
+    user: ""
+    secureJsonData:
+      password: ""
     jsonData:
       database: blocky
       sslmode: disable
