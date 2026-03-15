@@ -137,7 +137,14 @@ spec:
           gethomepage.dev/group: Media
           gethomepage.dev/icon: https://github.com/connorgallopo/Tracearr/blob/945ffc416a05ba63faa1962aed5bbaba912e5e5b/apps/web/public/images/banner.png?raw=true
           gethomepage.dev/name: Tracearr
-          gethomepage.dev/siteMonitor: http://tracearr.media.svc.cluster.local:3000
+          gethomepage.dev/siteMonitor: &url http://tracearr.media.svc.cluster.local:3000
+          gethomepage.dev/widget.type: tracearr
+          gethomepage.dev/widget.url: *url
+          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_TRACEARR_TOKEN}}` }}"
+          gethomepage.dev/widget.view: "both"
+          gethomepage.dev/widget.enableUser: "true"
+          gethomepage.dev/widget.showEpisodeNumber: "true"
+          gethomepage.dev/widget.expandOneStreamToTwoRows: "true"
 
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
