@@ -7,15 +7,21 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: grafana
+  valuesFrom:
+    - targetPath: datasource.secureJsonData.password
+      valueFrom:
+        secretKeyRef:
+          name: grafana-secret
+          key: BLOCKY_POSTGRES_PASS
   datasource:
     name: Blocky-Postgres
     type: postgres
     uid: blocky-postgres
     access: proxy
     url: postgres-18-ro.database.svc.cluster.local:5432
-    user: ${BLOCKY_POSTGRES_USER}
+    user: blocky
     secureJsonData:
-      password: ${BLOCKY_POSTGRES_PASS}
+      password: ""
     jsonData:
       database: blocky
       sslmode: disable
