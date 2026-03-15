@@ -136,9 +136,9 @@ datasources:
         type: prometheus
         uid: prometheus
         access: proxy
-        url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+        url: http://vmsingle-victoria-metrics-k8s-stack.monitoring.svc.cluster.local:8428
         jsonData:
-          implementation: prometheus
+          implementation: victoriametrics
         isDefault: true
       - name: Alertmanager
         type: alertmanager

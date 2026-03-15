@@ -14,3 +14,4 @@ resources:
   - ./node-feature-discovery.yaml
   - ./plugin-barman-cloud.yaml
   - ./victoria-logs.yaml
+  - ./victoria-metrics-k8s-stack.yaml
