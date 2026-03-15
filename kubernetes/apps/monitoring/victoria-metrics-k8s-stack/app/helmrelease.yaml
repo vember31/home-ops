@@ -89,15 +89,12 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
-          hajimari.io/appName: Prometheus
-          hajimari.io/icon: simple-icons:prometheus
-          hajimari.io/info: Cluster Data Aggregation
         hosts:
-          - &promhost prometheus.local.${SECRET_DOMAIN}
+          - &vmhost victoria-metrics.local.${SECRET_DOMAIN}
         tls:
-          - secretName: prometheus-tls-production
+          - secretName: victoria-metrics-tls-production
             hosts:
-              - *promhost
+              - *vmhost
 
     vmagent:
       enabled: true
@@ -134,9 +131,6 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
-          hajimari.io/appName: Alert Manager
-          hajimari.io/icon: mingcute:alert-fill
-          hajimari.io/info: Cluster Alert Management
         hosts:
           - &amhost alertmanager.local.${SECRET_DOMAIN}
         tls:
