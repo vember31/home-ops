@@ -18,8 +18,7 @@ spec:
       scheme: https
       bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
       tlsConfig:
-        caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        serverName: kubernetes
+        insecureSkipVerify: true
       metricRelabelConfigs:
         # Remove duplicate labels provided by k3s
         - action: keep
@@ -59,8 +58,7 @@ spec:
       scheme: https
       bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
       tlsConfig:
-        caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        serverName: kubernetes
+        insecureSkipVerify: true
       metricRelabelConfigs:
         # Remove duplicate labels provided by k3s
         - action: keep
