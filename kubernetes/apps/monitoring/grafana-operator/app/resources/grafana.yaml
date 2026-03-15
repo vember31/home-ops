@@ -18,6 +18,8 @@ spec:
       org_role: Viewer
       hide_version: "false"
     security:
+      admin_user: ${GF_SECURITY_ADMIN_USER}
+      admin_password: ${GF_SECURITY_ADMIN_PASSWORD}
       cookie_secure: "true"
       cookie_samesite: grafana
     analytics:
