@@ -80,11 +80,15 @@ spec:
     #   limits:
     #     memory: 128Mi
 
-    # webhook:
-    #   # -- Specifies whether a webhook deployment be created.
-    #   create: false
-    #   certManager:
-    #     enabled: false
+    webhook:
+      certManager:
+        enabled: true
+        addInjectorAnnotations: true
+        cert:
+          issuerRef:
+            name: selfsigned
+            kind: ClusterIssuer
+            group: cert-manager.io
 
-    # certController:
-    #   create: false
+    certController:
+      create: false
