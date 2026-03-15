@@ -47,5 +47,9 @@ spec:
     substitute:
       APP: grafana
     substituteFrom:
+      - kind: ConfigMap
+        name: cluster-settings
+      - kind: Secret
+        name: cluster-secrets
       - kind: Secret
         name: grafana-secret
