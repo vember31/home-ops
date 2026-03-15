@@ -191,16 +191,25 @@ spec:
 
     nodeExporter:
       enabled: true
+      vmScrape:
+        spec:
+          endpoints:
+            - port: metrics
+              relabelConfigs:
+                - action: replace
+                  regex: (.*)
+                  replacement: $1
+                  sourceLabels:
+                    - __meta_kubernetes_pod_node_name
+                  targetLabel: kubernetes_node
+              metricRelabelConfigs:
+                - action: drop
+                  regex: /var/lib/kubelet/pods.+
+                  sourceLabels:
+                    - mountpoint
 
     prometheus-node-exporter:
       fullnameOverride: node-exporter
       prometheus:
         monitor:
-          enabled: true
-          relabelings:
-            - action: replace
-              regex: (.*)
-              replacement: $1
-              sourceLabels:
-                - __meta_kubernetes_pod_node_name
-              targetLabel: kubernetes_node
+          enabled: false
