@@ -9,6 +9,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: cert-manager-issuers-internal
   path: ./kubernetes/apps/kube-system/external-secrets/app
   prune: true
   sourceRef:

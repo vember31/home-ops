@@ -22,9 +22,31 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: cert-manager-issuers-internal
+  namespace: flux-system
+spec:
+  targetNamespace: cert-manager
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: "cert-manager-issuers-internal"
+  dependsOn:
+    - name: cert-manager
+  path: ./kubernetes/apps/cert-manager/cert-manager/issuers-internal
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: cert-manager-issuers
   namespace: flux-system
-  labels: 
+  labels:
     substitution.flux.home.arpa/disabled: "true" #don't do a sub here so we can bring in secret values
 spec:
   targetNamespace: cert-manager
@@ -49,7 +71,6 @@ spec:
         name: cert-manager-secret
       - kind: ConfigMap
         name: cluster-settings
-
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
