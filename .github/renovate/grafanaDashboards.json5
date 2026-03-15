@@ -18,9 +18,9 @@
         "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
       ],
       "matchStrings": [
-        "depName=\"(?<depName>.*)\"\\n(?<indentation>\\s+)grafanaComDashboardId: (?<packageName>\\d+)\\n\\s+grafanaComRevision: (?<currentValue>\\d+)"
+        "depName=\"(?<depName>.*)\"\\n(?<indentation>\\s+)grafanaCom:\\n\\s+id: (?<packageName>\\d+)\\n\\s+revision: (?<currentValue>\\d+)"
       ],
-      "autoReplaceStringTemplate": "depName=\"{{{depName}}}\"\n{{{indentation}}}grafanaComDashboardId: {{{packageName}}}\n{{{indentation}}}grafanaComRevision: {{{newValue}}}",
+      "autoReplaceStringTemplate": "depName=\"{{{depName}}}\"\n{{{indentation}}}grafanaCom:\n{{{indentation}}}  id: {{{packageName}}}\n{{{indentation}}}  revision: {{{newValue}}}",
       "datasourceTemplate": "custom.grafana-dashboards",
       "versioningTemplate": "regex:^(?<major>\\d+)$"
     }

@@ -10,8 +10,9 @@ spec:
   folderRef: grafana-folder-blocky
   resyncPeriod: 30m
   # renovate: depName="blocky"
-  grafanaComDashboardId: 13768
-  grafanaComRevision: 7
+  grafanaCom:
+    id: 13768
+    revision: 7
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics

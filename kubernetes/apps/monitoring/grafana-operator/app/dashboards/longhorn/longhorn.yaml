@@ -10,8 +10,9 @@ spec:
   folderRef: grafana-folder-longhorn
   resyncPeriod: 30m
   # renovate: depName="Longhorn"
-  grafanaComDashboardId: 16888
-  grafanaComRevision: 11
+  grafanaCom:
+    id: 16888
+    revision: 11
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics

@@ -9,8 +9,9 @@ spec:
       dashboards: grafana
   folderRef: grafana-folder-kubernetes
   resyncPeriod: 30m
-  grafanaComDashboardId: 16450
-  grafanaComRevision: 3
+  grafanaCom:
+    id: 16450
+    revision: 3
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics

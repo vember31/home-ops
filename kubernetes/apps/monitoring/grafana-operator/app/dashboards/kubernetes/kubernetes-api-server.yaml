@@ -10,8 +10,9 @@ spec:
   folderRef: grafana-folder-kubernetes
   resyncPeriod: 30m
   # renovate: depName="Kubernetes / System / API Server"
-  grafanaComDashboardId: 15761
-  grafanaComRevision: 20
+  grafanaCom:
+    id: 15761
+    revision: 20
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics

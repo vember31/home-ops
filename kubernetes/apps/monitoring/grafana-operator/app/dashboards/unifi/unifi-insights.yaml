@@ -10,8 +10,9 @@ spec:
   folderRef: grafana-folder-unifi
   resyncPeriod: 30m
   # renovate: depName="UniFi-Poller: Client Insights - Prometheus"
-  grafanaComDashboardId: 11315
-  grafanaComRevision: 9
+  grafanaCom:
+    id: 11315
+    revision: 9
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics

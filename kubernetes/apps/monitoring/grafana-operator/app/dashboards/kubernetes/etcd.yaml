@@ -10,8 +10,9 @@ spec:
   folderRef: grafana-folder-kubernetes
   resyncPeriod: 30m
   # renovate: depName="etcd"
-  grafanaComDashboardId: 3070
-  grafanaComRevision: 3
+  grafanaCom:
+    id: 3070
+    revision: 3
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics

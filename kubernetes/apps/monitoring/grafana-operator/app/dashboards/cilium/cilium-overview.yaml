@@ -10,8 +10,9 @@ spec:
   folderRef: grafana-folder-cilium
   resyncPeriod: 30m
   # renovate: depName="Cilium v1.12 Agent Metrics"
-  grafanaComDashboardId: 16611
-  grafanaComRevision: 1
+  grafanaCom:
+    id: 16611
+    revision: 1
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics

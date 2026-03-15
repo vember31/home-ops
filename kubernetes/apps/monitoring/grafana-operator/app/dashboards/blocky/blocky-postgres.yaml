@@ -9,8 +9,9 @@ spec:
       dashboards: grafana
   folderRef: grafana-folder-blocky
   resyncPeriod: 30m
-  grafanaComDashboardId: 17996
-  grafanaComRevision: 13
+  grafanaCom:
+    id: 17996
+    revision: 13
   datasources:
     - inputName: DS_BLOCKY-POSTGRESQL
       datasourceName: Blocky-Postgres

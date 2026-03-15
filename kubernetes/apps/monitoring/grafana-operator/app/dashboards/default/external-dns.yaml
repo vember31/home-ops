@@ -9,8 +9,9 @@ spec:
       dashboards: grafana
   resyncPeriod: 30m
   # renovate: depName="External-dns"
-  grafanaComDashboardId: 15038
-  grafanaComRevision: 3
+  grafanaCom:
+    id: 15038
+    revision: 3
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics

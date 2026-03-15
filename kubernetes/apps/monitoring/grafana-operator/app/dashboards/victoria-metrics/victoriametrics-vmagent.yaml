@@ -10,8 +10,9 @@ spec:
   folderRef: grafana-folder-victoria-metrics
   resyncPeriod: 30m
   # renovate: depName="VictoriaMetrics - vmagent"
-  grafanaComDashboardId: 12683
-  grafanaComRevision: 21
+  grafanaCom:
+    id: 12683
+    revision: 21
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics
