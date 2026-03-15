@@ -5,5 +5,6 @@ resources:
   - ./grafana.yaml
   - ./certificate.yaml
   - ./externalsecret.yaml
+  - ./externalsecret-admin.yaml
   - ./ingressroute.yaml
   - ./vmservicescrape.yaml

@@ -7,7 +7,6 @@ metadata:
     dashboards: grafana
     folders: grafana
 spec:
-  disableDefaultAdminSecret: true
   config:
     log:
       mode: console
