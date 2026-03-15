@@ -52,7 +52,9 @@ spec:
 
     victoria-metrics-operator:
       enabled: true
-      fullnameOverride: vm-operator
+      admissionWebhooks:
+        enabled: false
+      cleanupCRD: false
       affinity: &affinity
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
