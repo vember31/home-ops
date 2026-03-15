@@ -1,0 +1,68 @@
+---
+# VMStaticScrape resources for control plane components
+# These replace the chart's built-in Endpoints-based scraping which is broken on k8s v1.35+
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  name: kube-controller-manager
+  namespace: monitoring
+spec:
+  jobName: kube-controller-manager
+  targetEndpoints:
+    - targets:
+        - "192.168.2.11:10257"
+        - "192.168.2.12:10257"
+        - "192.168.2.13:10257"
+        - "192.168.2.14:10257"
+        - "192.168.2.15:10257"
+      scheme: https
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      tlsConfig:
+        caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        serverName: kubernetes
+      metricRelabelConfigs:
+        # Remove duplicate labels provided by k3s
+        - action: keep
+          sourceLabels: ["__name__"]
+          regex: "(apiserver_audit|apiserver_client|apiserver_delegated|apiserver_envelope|apiserver_storage|apiserver_webhooks|attachdetach_controller|authenticated_user|authentication|cronjob_controller|disabled_metric|endpoint_slice|ephemeral_volume|garbagecollector_controller|get_token|go|hidden_metric|job_controller|kubernetes_build|kubernetes_feature|leader_election|node_collector|node_ipam|process_cpu|process_max|process_open|process_resident|process_start|process_virtual|pv_collector|registered_metric|replicaset_controller|rest_client|retroactive_storageclass|root_ca|running_managed|scrape_duration|scrape_samples|scrape_series|service_controller|storage_count|storage_operation|ttl_after|volume_operation|workqueue)_(.+)"
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  name: kube-etcd
+  namespace: monitoring
+spec:
+  jobName: kube-etcd
+  targetEndpoints:
+    - targets:
+        - "192.168.2.11:2381"
+        - "192.168.2.12:2381"
+        - "192.168.2.13:2381"
+        - "192.168.2.14:2381"
+        - "192.168.2.15:2381"
+      scheme: http
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  name: kube-scheduler
+  namespace: monitoring
+spec:
+  jobName: kube-scheduler
+  targetEndpoints:
+    - targets:
+        - "192.168.2.11:10259"
+        - "192.168.2.12:10259"
+        - "192.168.2.13:10259"
+        - "192.168.2.14:10259"
+        - "192.168.2.15:10259"
+      scheme: https
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      tlsConfig:
+        caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        serverName: kubernetes
+      metricRelabelConfigs:
+        # Remove duplicate labels provided by k3s
+        - action: keep
+          sourceLabels: ["__name__"]
+          regex: "(apiserver_audit|apiserver_client|apiserver_delegated|apiserver_envelope|apiserver_storage|apiserver_webhooks|authenticated_user|authentication|disabled_metric|go|hidden_metric|kubernetes_build|kubernetes_feature|leader_election|process_cpu|process_max|process_open|process_resident|process_start|process_virtual|registered_metric|rest_client|scheduler|scrape_duration|scrape_samples|scrape_series|workqueue)_(.+)"
