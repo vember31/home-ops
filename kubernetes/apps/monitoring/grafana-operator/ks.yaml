@@ -46,3 +46,6 @@ spec:
   postBuild:
     substitute:
       APP: grafana
+    substituteFrom:
+      - kind: Secret
+        name: grafana-secret
