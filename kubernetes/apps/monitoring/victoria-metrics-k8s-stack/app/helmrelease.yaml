@@ -191,7 +191,7 @@ spec:
 
     nodeExporter:
       enabled: true
-      vmScrape:
+      vmServiceScrape:
         spec:
           endpoints:
             - port: metrics
