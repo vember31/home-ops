@@ -83,14 +83,22 @@ dashboardProviders:
         editable: true
         options:
           path: /var/lib/grafana/dashboards/media
-      - name: prometheus
+      - name: victoria-metrics
         orgId: 1
-        folder: Prometheus
+        folder: Victoria Metrics
         type: file
         disableDeletion: false
         editable: true
         options:
-          path: /var/lib/grafana/dashboards/prometheus
+          path: /var/lib/grafana/dashboards/victoria-metrics
+      - name: cilium
+        orgId: 1
+        folder: Cilium
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/cilium
       # - name: thanos
       #   orgId: 1
       #   folder: Thanos
@@ -274,6 +282,11 @@ dashboards:
       gnetId: 11454
       revision: 14
       datasource: Prometheus
+    etcd:
+      # renovate: depName="etcd"
+      gnetId: 3070
+      revision: 3
+      datasource: Prometheus
   longhorn:
     longhorn:
       # renovate: depName="Longhorn"
@@ -298,11 +311,27 @@ dashboards:
       datasource:
         - name: DS_PROMETHEUS
           value: Prometheus
-  prometheus:
-    prometheus:
-      # renovate: depName="Prometheus"
-      gnetId: 19105
-      revision: 8
+  victoria-metrics:
+    victoriametrics-single:
+      # renovate: depName="VictoriaMetrics - single-node"
+      gnetId: 10229
+      revision: 37
+      datasource: Prometheus
+    victoriametrics-vmagent:
+      # renovate: depName="VictoriaMetrics - vmagent"
+      gnetId: 12683
+      revision: 21
+      datasource: Prometheus
+  cilium:
+    cilium-overview:
+      # renovate: depName="Cilium v1.12 Agent Metrics"
+      gnetId: 16611
+      revision: 1
+      datasource: Prometheus
+    cilium-hubble:
+      # renovate: depName="Cilium v1.12 Hubble Metrics"
+      gnetId: 16613
+      revision: 1
       datasource: Prometheus
   traefik:
     traefik-2.2:
