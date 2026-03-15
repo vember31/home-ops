@@ -52,6 +52,7 @@ spec:
 
     victoria-metrics-operator:
       enabled: true
+      fullnameOverride: vm-operator
       affinity: &affinity
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
