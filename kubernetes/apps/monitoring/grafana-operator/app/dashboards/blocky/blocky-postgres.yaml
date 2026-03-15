@@ -1,0 +1,16 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: grafana-dash-blocky-postgres
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folderRef: grafana-folder-blocky
+  resyncPeriod: 30m
+  grafanaComDashboardId: 17996
+  grafanaComRevision: 13
+  datasources:
+    - inputName: DS_BLOCKY-POSTGRESQL
+      datasourceName: Blocky-Postgres

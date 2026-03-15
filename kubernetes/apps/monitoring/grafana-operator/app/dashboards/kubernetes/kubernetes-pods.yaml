@@ -1,0 +1,17 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: grafana-dash-kubernetes-pods
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folderRef: grafana-folder-kubernetes
+  resyncPeriod: 30m
+  # renovate: depName="Kubernetes / Views / Pods"
+  grafanaComDashboardId: 15760
+  grafanaComRevision: 37
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics

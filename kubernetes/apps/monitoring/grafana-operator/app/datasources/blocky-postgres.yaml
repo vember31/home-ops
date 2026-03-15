@@ -1,0 +1,30 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: grafana-ds-blocky-postgres
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  valuesFrom:
+    - targetPath: datasource.user
+      valueFrom:
+        secretKeyRef:
+          name: grafana-secret
+          key: BLOCKY_POSTGRES_USER
+    - targetPath: datasource.secureJsonData.password
+      valueFrom:
+        secretKeyRef:
+          name: grafana-secret
+          key: BLOCKY_POSTGRES_PASS
+  datasource:
+    name: Blocky-Postgres
+    type: postgres
+    uid: blocky-postgres
+    access: proxy
+    url: postgres-18-ro.database.svc.cluster.local:5432
+    jsonData:
+      database: blocky
+      sslmode: disable
+      postgresVersion: 15000

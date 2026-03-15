@@ -1,0 +1,8 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./folder.yaml
+  - ./exportarr.yaml
+  - ./qbittorrent-exporter.yaml
+  - ./unpackerr.yaml

@@ -1,0 +1,17 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: grafana-dash-victoriametrics-single
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folderRef: grafana-folder-victoria-metrics
+  resyncPeriod: 30m
+  # renovate: depName="VictoriaMetrics - single-node"
+  grafanaComDashboardId: 10229
+  grafanaComRevision: 37
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics

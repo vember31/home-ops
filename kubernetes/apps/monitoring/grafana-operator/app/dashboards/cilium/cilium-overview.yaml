@@ -1,0 +1,17 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: grafana-dash-cilium-overview
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folderRef: grafana-folder-cilium
+  resyncPeriod: 30m
+  # renovate: depName="Cilium v1.12 Agent Metrics"
+  grafanaComDashboardId: 16611
+  grafanaComRevision: 1
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics

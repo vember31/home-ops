@@ -1,0 +1,76 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  name: grafana
+  labels:
+    dashboards: grafana
+    folders: grafana
+spec:
+  config:
+    log:
+      mode: console
+    server:
+      root_url: https://grafana.local.${SECRET_DOMAIN}
+    auth.anonymous:
+      enabled: "true"
+      org_name: Main Org.
+      org_role: Viewer
+      hide_version: "false"
+    security:
+      cookie_secure: "true"
+      cookie_samesite: grafana
+    analytics:
+      check_for_updates: "false"
+      check_for_plugin_updates: "false"
+      reporting_enabled: "false"
+    explore:
+      enabled: "true"
+    feature_toggles:
+      enable: publicDashboards
+    news:
+      news_feed_enabled: "false"
+    panels:
+      disable_sanitize_html: "true"
+    plugins:
+      allow_loading_unsigned_plugins: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel
+    date_formats:
+      use_browser_locale: "true"
+      default_timezone: ${TIMEZONE}
+  deployment:
+    spec:
+      replicas: 1
+      template:
+        spec:
+          containers:
+            - name: grafana
+              envFrom:
+                - secretRef:
+                    name: grafana-secret
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: grafana
+  resources:
+    requests:
+      cpu: 100m
+    limits:
+      memory: 256Mi
+  service:
+    spec:
+      ports:
+        - name: grafana
+          port: 80
+          targetPort: 3000
+          protocol: TCP
+  plugins:
+    - name: grafana-clock-panel
+    - name: grafana-piechart-panel
+    - name: grafana-worldmap-panel
+    - name: natel-discrete-panel
+    - name: pr0ps-trackmap-panel
+    - name: vonage-status-panel
+    - name: victoriametrics-logs-datasource

@@ -11,6 +11,7 @@ resources:
   - ./fluent-bit.yaml
   - ./flux-instance.yaml
   - ./flux-operator.yaml
+  - ./grafana-operator.yaml
   - ./node-feature-discovery.yaml
   - ./plugin-barman-cloud.yaml
   - ./victoria-logs.yaml

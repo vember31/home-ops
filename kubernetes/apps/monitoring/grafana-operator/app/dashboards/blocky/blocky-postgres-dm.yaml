@@ -1,0 +1,15 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: grafana-dash-blocky-postgres-dm
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folderRef: grafana-folder-blocky
+  resyncPeriod: 30m
+  url: https://raw.githubusercontent.com/vember31/home-ops/refs/heads/main/kubernetes/apps/monitoring/grafana-operator/app/dashboards/blocky/blocky-postgres.json
+  datasources:
+    - inputName: DS_POSTGRES
+      datasourceName: Blocky-Postgres
