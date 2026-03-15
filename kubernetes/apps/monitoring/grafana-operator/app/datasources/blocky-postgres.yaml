@@ -8,7 +8,7 @@ spec:
     matchLabels:
       dashboards: grafana
   valuesFrom:
-    - targetPath: datasource.secureJsonData.password
+    - targetPath: "secureJsonData.password"
       valueFrom:
         secretKeyRef:
           name: grafana-secret
@@ -21,7 +21,7 @@ spec:
     url: postgres-18-ro.database.svc.cluster.local:5432
     user: blocky
     secureJsonData:
-      password: ""
+      password: $${BLOCKY_POSTGRES_PASS}
     jsonData:
       database: blocky
       sslmode: disable
