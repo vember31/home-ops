@@ -164,6 +164,19 @@ spec:
 
     kubelet:
       enabled: true
+      vmScrape:
+        spec:
+          relabelConfigs:
+            - action: labelmap
+              regex: __meta_kubernetes_node_label_(.+)
+            # Drop node-feature-discovery CPU feature labels to stay under
+            # vmsingle's maxLabelsPerTimeseries=30 limit (NFD adds 40+ labels)
+            - action: labeldrop
+              regex: feature_node_kubernetes_io_.*
+            - sourceLabels: [__metrics_path__]
+              targetLabel: metrics_path
+            - targetLabel: job
+              replacement: kubelet
 
     # Disabled: chart creates v1 Endpoints resources which are broken on k8s v1.35+
     # These targets are scraped via VMStaticScrape resources instead
