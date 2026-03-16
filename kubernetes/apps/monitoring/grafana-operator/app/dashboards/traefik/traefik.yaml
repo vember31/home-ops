@@ -10,8 +10,8 @@ spec:
   folderRef: grafana-folder-traefik
   resyncPeriod: 30m
   grafanaCom:
-    id: 12250
+    id: 17346
     revision: 1
   datasources:
-    - inputName: DS_TRAEFIK
+    - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics
