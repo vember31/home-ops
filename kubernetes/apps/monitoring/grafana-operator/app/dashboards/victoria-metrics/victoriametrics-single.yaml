@@ -12,7 +12,7 @@ spec:
   # renovate: depName="VictoriaMetrics - single-node"
   grafanaCom:
     id: 10229
-    revision: 37
+    revision: 51
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics
