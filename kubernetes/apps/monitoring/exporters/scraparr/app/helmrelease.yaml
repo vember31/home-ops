@@ -78,20 +78,9 @@ spec:
               PROWLARR_URL: http://prowlarr.downloads.svc.cluster.local:9696
               BAZARR_URL: http://bazarr.downloads.svc.cluster.local:6767
               JELLYSEERR_URL: http://seerr.media.svc.cluster.local:5055
-              JELLYSEERR_API_KEY:
-                valueFrom:
-                  secretKeyRef:
-                    name: seerr
-                    key: SEERR_API_KEY
             envFrom:
               - secretRef:
-                  name: sonarr
-              - secretRef:
-                  name: radarr
-              - secretRef:
-                  name: prowlarr
-              - secretRef:
-                  name: bazarr
+                  name: scraparr-secret
 
             probes:
               liveness: &probes
