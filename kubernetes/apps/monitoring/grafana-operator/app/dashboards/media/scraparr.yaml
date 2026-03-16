@@ -15,3 +15,5 @@ spec:
   datasources:
     - inputName: DS_MIMIR
       datasourceName: VictoriaMetrics
+    - inputName: datasource
+      datasourceName: VictoriaMetrics
