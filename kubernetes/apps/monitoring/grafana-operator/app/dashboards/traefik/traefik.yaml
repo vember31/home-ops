@@ -13,5 +13,5 @@ spec:
     id: 12250
     revision: 1
   datasources:
-    - inputName: DS_PROMETHEUS
+    - inputName: DS_TRAEFIK
       datasourceName: VictoriaMetrics
