@@ -6,4 +6,3 @@ resources:
   - ./victorialogs-single-node.yaml
   - ./victorialogs-explorer.yaml
   - ./victorialogs-internal-state.yaml
-  - ./victorialogs-simple.yaml
