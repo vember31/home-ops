@@ -1,0 +1,18 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: grafana-dash-victorialogs-internal-state
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folderRef: grafana-folder-victoria-logs
+  resyncPeriod: 30m
+  # renovate: depName="VictoriaLogs - Internal State"
+  grafanaCom:
+    id: 24585
+    revision: 1
+  datasources:
+    - inputName: DS_VICTORIALOGS
+      datasourceName: VictoriaLogs
