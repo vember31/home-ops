@@ -47,10 +47,6 @@ spec:
   maxHistory: 1
 
   values:
-    image:
-      longhorn:
-        instanceManager:
-          tag: v1.11.0-hotfix-2 #def is master-head. This is a hotfix image for v1.11.0, which includes the fix for a memory leak
 
     persistence:
       defaultClassReplicaCount: 2
