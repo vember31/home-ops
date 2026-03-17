@@ -8,9 +8,4 @@ spec:
     matchLabels:
       dashboards: grafana
   resyncPeriod: 30m
-  grafanaCom:
-    id: 11001
-    revision: 1
-  datasources:
-    - inputName: Datasource
-      datasourceName: VictoriaMetrics
+  url: https://raw.githubusercontent.com/vember31/home-ops/refs/heads/main/kubernetes/apps/monitoring/grafana-operator/app/dashboards/default/cert-manager.json
