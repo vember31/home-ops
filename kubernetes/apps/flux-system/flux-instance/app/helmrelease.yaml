@@ -123,3 +123,11 @@ spec:
             target:
               kind: Deployment
               name: kustomize-controller
+          - # Enable resource info metrics for Flux cluster stats dashboard
+            patch: |-
+              - op: add
+                path: /spec/template/spec/containers/0/args/-
+                value: --feature-gates=ResourceInfoMetrics=true
+            target:
+              kind: Deployment
+              name: (kustomize-controller|helm-controller|source-controller|notification-controller)
