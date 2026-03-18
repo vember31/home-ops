@@ -84,21 +84,22 @@ spec:
           wildcard pod_name
           operation lift
           nested_under kubernetes
-          add_prefix k_
+          add_prefix kubernetes.
 
         [FILTER]
           name nest
           match kubernetes.*
           operation lift
-          nested_under k_labels
-          add_prefix k_labels_
+          nested_under kubernetes.labels
+          add_prefix kubernetes.pod_labels.
 
         [FILTER]
           name modify
           match kubernetes.*
-          rename k_labels_app.kubernetes.io/name app
-          rename k_labels_app app
-          rename k_labels_k8s-app app
+          rename kubernetes.namespace_name kubernetes.pod_namespace
+          rename kubernetes.pod_labels.app.kubernetes.io/name app
+          rename kubernetes.pod_labels.app app
+          rename kubernetes.pod_labels.k8s-app app
 
       customParsers: |-
         [PARSER]
@@ -114,7 +115,7 @@ spec:
           Match kubernetes.*
           host victoria-logs-server.monitoring.svc.cluster.local
           port 9428
-          uri /insert/jsonline?_stream_fields=stream,k_namespace_name,k_pod_name,app&_msg_field=log&_time_field=date
+          uri /insert/jsonline?_stream_fields=stream,kubernetes.pod_namespace,kubernetes.pod_name,app&_msg_field=log&_time_field=date
           format json_lines
           json_date_format iso8601
           compress gzip
