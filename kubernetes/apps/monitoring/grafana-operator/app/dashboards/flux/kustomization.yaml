@@ -5,4 +5,3 @@ resources:
   - ./folder.yaml
   - ./flux-cluster.yaml
   - ./flux-control-plane.yaml
-  - ./flux-logs.yaml
