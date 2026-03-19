@@ -33,15 +33,16 @@ This cluster is [k3s](https://k3s.io/) provisioned atop Ubuntu Server VMs, which
 ### Core Components
 
 - [cert-manager](https://cert-manager.io/docs/): manages SSL X509 certificates for all http-based services
+- [cilium](https://github.com/cilium/cilium): eBPF-based networking, observability, and security for Kubernetes
 - [cloudnative-pg](https://cloudnative-pg.io): high-availability PostgreSQL database built for Kubernetes
-- [eraser](https://github.com/eraser-dev/eraser): removes non-running images from all nodes
 - [external-dns](https://github.com/kubernetes-sigs/external-dns): automatically syncs DNS records from cluster ingresses to a DNS provider (Cloudflare)
 - [external-secrets](https://github.com/external-secrets/external-secrets/): managed Kubernetes secrets using Gitlab CI/CD variables
 - [kured](https://github.com/kubereboot/kured): Kubernetes daemonset that performs safe automatic node reboots when the need to do so is indicated by the package management system of the underlying OS
-- [kube-prometheus-stack](https://github.com/prometheus-operator/kube-prometheus): Prometheus, Grafana, Alertmanager & Thanos, bundled into one helm chart for high-availability observability & monitoring
 - [longhorn](https://github.com/longhorn/longhorn): distributed block storage for Kubernetes volume persistence
 - [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller): automated, rolling k3s version upgrades
 - [traefik](https://github.com/traefik/traefik): ingress controller for Kubernetes, acting as a modern HTTP reverse proxy and load balancer
+- [VictoriaLogs](https://github.com/VictoriaMetrics/VictoriaMetrics/tree/master/app/victoria-logs): log management and exploration engine optimized for high performance and low resource usage
+- [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics): fast, scalable, and cost-effective time series database and monitoring solution
 
 ### GitOps
 
