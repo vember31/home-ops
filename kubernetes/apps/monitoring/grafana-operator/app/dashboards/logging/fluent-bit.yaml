@@ -9,10 +9,7 @@ spec:
       dashboards: grafana
   folderRef: grafana-folder-logging
   resyncPeriod: 30m
-  # renovate: depName="Fluent Bit"
-  grafanaCom:
-    id: 7752
-    revision: 6
+  url: https://raw.githubusercontent.com/fluent/fluent-bit-docs/master/monitoring/dashboard.json
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics
