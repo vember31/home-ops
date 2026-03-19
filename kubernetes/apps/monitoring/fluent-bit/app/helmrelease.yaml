@@ -121,9 +121,7 @@ spec:
           compress gzip
 
     dashboards:
-      enabled: true
-      annotations:
-        grafana_folder: monitoring
-        
+      enabled: false
+
     serviceMonitor:
       enabled: true

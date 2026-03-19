@@ -49,5 +49,4 @@ spec:
     serviceMonitor:
       enabled: true
     grafanaDashboard:
-      enabled: true
-      folder: database
+      enabled: false

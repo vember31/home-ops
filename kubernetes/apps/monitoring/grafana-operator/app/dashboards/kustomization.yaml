@@ -4,12 +4,14 @@ kind: Kustomization
 resources:
   - ./default
   - ./blocky
+  - ./cilium
+  - ./database
   - ./flux
   - ./kubernetes
+  - ./logging
   - ./longhorn
   - ./media
-  - ./victoria-metrics
-  - ./cilium
   - ./traefik
   - ./unifi
   - ./victoria-logs
+  - ./victoria-metrics
