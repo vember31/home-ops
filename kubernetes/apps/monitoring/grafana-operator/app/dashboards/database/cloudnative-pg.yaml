@@ -9,10 +9,7 @@ spec:
       dashboards: grafana
   folderRef: grafana-folder-database
   resyncPeriod: 30m
-  # renovate: depName="CloudNativePG"
-  grafanaCom:
-    id: 20417
-    revision: 3
+  url: https://raw.githubusercontent.com/cloudnative-pg/grafana-dashboards/main/charts/cluster/grafana-dashboard.json
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics

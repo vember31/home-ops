@@ -9,10 +9,7 @@ spec:
       dashboards: grafana
   folderRef: grafana-folder-database
   resyncPeriod: 30m
-  # renovate: depName="Dragonfly"
-  grafanaCom:
-    id: 18427
-    revision: 1
+  url: https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/main/monitoring/grafana-dashboard.json
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics
