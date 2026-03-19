@@ -5,14 +5,28 @@ Install packages:
 ```
 sudo apt install nfs-common open-iscsi qemu-guest-agent unattended-upgrades
 ```
-Configure Unattended Upgrades:
+Configure Unattended Upgrades and enable OS package upgrades:
 ```
-sudo dpkg-reconfigure -plow unattended-upgrades
+sudo dpkg-reconfigure -plow unattended-upgrades && sudo sed -i 's|//\s*"\${distro_id}:\${distro_codename}-updates";|"\${distro_id}:\${distro_codename}-updates";|' /etc/apt/apt.conf.d/50unattended-upgrades
 ```
-Permit OS package upgrades by removing the `\\` from the 2nd line listed below:
+
+### Configure Multipath (Longhorn)
+Blacklist all devices from multipath so it doesn't interfere with Longhorn:
 ```
-sudo nano /etc/apt/apt.conf.d/50unattended-upgrades
-"${distro_id}:${distro_codename}-updates";
+sudo bash -c 'cat > /etc/multipath.conf <<EOF
+blacklist {
+    devnode "^sd[a-z0-9]+"
+}
+EOF' && sudo systemctl restart multipathd && sudo multipath -F
+```
+
+### Set Environment Variables
+Define these before running the remaining commands:
+```
+export SECRET_DOMAIN="example.com"
+export K3S_TOKEN="[token from the node where you ran cluster-init]"
+export GITLAB_PAT="[Gitlab PAT for external-secrets]"
+export GITHUB_TOKEN="[GitHub PAT for Flux]"
 ```
 
 ### Install k3s on all nodes
@@ -20,22 +34,23 @@ sudo nano /etc/apt/apt.conf.d/50unattended-upgrades
 
 The below will init a new cluster:
 ```
-curl -fL https://get.k3s.io | K3S_TOKEN=${SERVER_TOKEN} \
+curl -fL https://get.k3s.io | K3S_TOKEN=${K3S_TOKEN} \
     sh -s - \
     --cluster-init
     --disable servicelb \
     --disable traefik \
-    --server https://k3s.[secret domain]:6443 \
+    --server https://k3s.${SECRET_DOMAIN}:6443 \
     --tls-san "[ip address of new k3s VM node]" \
     --tls-san "[dns address of new k3s VM node]"
 ```
-The below will add new server nodes to the cluster.  It should be created in `/etc/rancher/k3s/config.yaml` on the new server and can be copied from an existing server node. The directory may need to be made first via `mkdir -p /etc/rancher/k3s`.
+The below will write the k3s config and install k3s on a new server node:
 ```
-server: https://k3s.[secret domain]:6443
-token: [token from server node of the node where you did cluster-init]
+sudo mkdir -p /etc/rancher/k3s && sudo bash -c "cat > /etc/rancher/k3s/config.yaml <<EOF
+server: https://k3s.${SECRET_DOMAIN}:6443
+token: ${K3S_TOKEN}
 tls-san:
   - 192.168.2.8
-  - k3s.[secret domain]
+  - k3s.${SECRET_DOMAIN}
 disable:
   - traefik
   - servicelb
@@ -44,43 +59,31 @@ disable-network-policy: true
 disable-kube-proxy: true
 etcd-expose-metrics: true
 kube-controller-manager-arg:
-  - "bind-address=0.0.0.0"
+  - \"bind-address=0.0.0.0\"
 kube-proxy-arg:
-  - "metrics-bind-address=0.0.0.0"
+  - \"metrics-bind-address=0.0.0.0\"
 kube-scheduler-arg:
-  - "bind-address=0.0.0.0"
+  - \"bind-address=0.0.0.0\"
+EOF" && curl -sfL https://get.k3s.io | sh -s server
 ```
-Once the config file is present, run the following command to install k3s:
-```
-curl -sfL https://get.k3s.io | sh -s server
-```
-
 
 ### Secret Preparation
-Create the following gitlab-secret.yaml, and save it to any location, to prepare for external-secrets:
-
+Create and apply the gitlab secret for external-secrets:
 ```
+kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
   name: gitlab-secret
   namespace: kube-system
 data:
-  token: [fill in Gitlab PAT]
+  token: $(echo -n "${GITLAB_PAT}" | base64)
 type: Opaque
+EOF
 ```
-
-Then apply the file to the cluster:
-```kubectl apply -f gitlab-secret.yaml```
 
 ### Install Flux
 *This only has to be performed once for the full cluster*
-
-First, export the Github PAT:
-```
-export GITHUB_TOKEN=[GITHUB PAT]
-```
-Next, boostrap the cluster:
 ```
 flux bootstrap github \
   --token-auth \
