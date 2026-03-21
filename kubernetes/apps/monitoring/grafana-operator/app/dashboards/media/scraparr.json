@@ -944,7 +944,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-blues"
+            "mode": "fixed",
+            "fixedColor": "blue"
           },
           "thresholds": {
             "mode": "absolute",
@@ -979,7 +980,7 @@
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
-        "valueMode": "color"
+        "valueMode": "text"
       },
       "title": "Episode Quality Profile",
       "type": "bargauge",
@@ -1003,7 +1004,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-blues"
+            "mode": "fixed",
+            "fixedColor": "blue"
           },
           "thresholds": {
             "mode": "absolute",
@@ -1038,7 +1040,7 @@
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
-        "valueMode": "color"
+        "valueMode": "text"
       },
       "title": "Movie Quality Profile",
       "type": "bargauge",
@@ -1352,7 +1354,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-purples"
+            "mode": "fixed",
+            "fixedColor": "blue"
           },
           "thresholds": {
             "mode": "absolute",
@@ -1387,7 +1390,7 @@
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
-        "valueMode": "color"
+        "valueMode": "text"
       },
       "title": "TV Show Genres",
       "type": "bargauge",
@@ -1411,7 +1414,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-purples"
+            "mode": "fixed",
+            "fixedColor": "blue"
           },
           "thresholds": {
             "mode": "absolute",
@@ -1446,7 +1450,7 @@
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
-        "valueMode": "color"
+        "valueMode": "text"
       },
       "title": "Movie Genres",
       "type": "bargauge",
@@ -1803,7 +1807,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "prowlarr_indexer_status{job=~\"$job\", alias=\"$prowlarr\"}",
+          "expr": "prowlarr_indexer_healthy{job=~\"$job\", alias=\"$prowlarr\"}",
           "legendFormat": "",
           "refId": "A",
           "instant": true,
@@ -1819,16 +1823,15 @@
               "__name__": true,
               "alias": true,
               "instance": true,
-              "job": true,
-              "Value": true
+              "job": true
             },
             "renameByName": {
               "indexer": "Indexer",
-              "status": "Status"
+              "Value": "Status"
             },
             "indexByName": {
               "indexer": 0,
-              "status": 1
+              "Value": 1
             }
           }
         }
@@ -2425,8 +2428,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
-        "w": 6,
+        "h": 8,
+        "w": 8,
         "x": 12,
         "y": 46
       },
@@ -2441,8 +2444,8 @@
           "values": false
         },
         "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
+          "displayMode": "list",
+          "placement": "right",
           "values": [
             "value",
             "percent"
@@ -2464,7 +2467,8 @@
           "expr": "jellyseerr_request_tv{job=~\"$job\", alias=\"$seerr\"} or overseerr_request_tv{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "TV",
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "range": false
         },
         {
           "datasource": {
@@ -2474,7 +2478,8 @@
           "expr": "jellyseerr_request_movie{job=~\"$job\", alias=\"$seerr\"} or overseerr_request_movie{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "Movies",
           "refId": "B",
-          "instant": true
+          "instant": true,
+          "range": false
         }
       ]
     },
@@ -2502,8 +2507,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 18,
+        "w": 4,
+        "x": 20,
         "y": 46
       },
       "id": 42,
@@ -2543,7 +2548,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-greens"
+            "mode": "fixed",
+            "fixedColor": "blue"
           },
           "thresholds": {
             "mode": "absolute",
@@ -2561,7 +2567,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 50
+        "y": 54
       },
       "id": 43,
       "options": {
@@ -2578,7 +2584,7 @@
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
-        "valueMode": "color"
+        "valueMode": "text"
       },
       "title": "Requests per User",
       "type": "bargauge",
@@ -2620,7 +2626,7 @@
         "h": 6,
         "w": 4,
         "x": 12,
-        "y": 50
+        "y": 54
       },
       "id": 44,
       "options": {
@@ -2685,7 +2691,7 @@
         "h": 6,
         "w": 4,
         "x": 16,
-        "y": 50
+        "y": 54
       },
       "id": 45,
       "options": {
@@ -2724,7 +2730,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-reds"
+            "mode": "fixed",
+            "fixedColor": "blue"
           },
           "thresholds": {
             "mode": "absolute",
@@ -2742,7 +2749,7 @@
         "h": 6,
         "w": 4,
         "x": 20,
-        "y": 50
+        "y": 54
       },
       "id": 46,
       "options": {
@@ -2759,7 +2766,7 @@
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
-        "valueMode": "color"
+        "valueMode": "text"
       },
       "title": "Issue Types",
       "type": "bargauge",
@@ -2781,7 +2788,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 57
+        "y": 61
       },
       "id": 47,
       "title": "\u2699\ufe0f Service Details",
@@ -2823,7 +2830,7 @@
         "h": 3,
         "w": 5,
         "x": 0,
-        "y": 58
+        "y": 62
       },
       "id": 48,
       "options": {
@@ -2889,7 +2896,7 @@
         "h": 3,
         "w": 5,
         "x": 5,
-        "y": 58
+        "y": 62
       },
       "id": 49,
       "options": {
@@ -2955,7 +2962,7 @@
         "h": 3,
         "w": 5,
         "x": 10,
-        "y": 58
+        "y": 62
       },
       "id": 50,
       "options": {
@@ -3021,7 +3028,7 @@
         "h": 3,
         "w": 5,
         "x": 15,
-        "y": 58
+        "y": 62
       },
       "id": 51,
       "options": {
@@ -3087,7 +3094,7 @@
         "h": 3,
         "w": 4,
         "x": 20,
-        "y": 58
+        "y": 62
       },
       "id": 52,
       "options": {
