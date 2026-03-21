@@ -18,6 +18,6 @@ resources:
   - ./grafana-operator/ks.yaml
   - ./victoria-metrics-k8s-stack/ks.yaml
   - ./unpoller/ks.yaml
-  - ./vlagent/ks.yaml
+  # - ./vlagent/ks.yaml  # archived — higher RAM usage than fluent-bit at this cluster's scale
   - ./victoria-logs/ks.yaml
   - ./vpa/ks.yaml
