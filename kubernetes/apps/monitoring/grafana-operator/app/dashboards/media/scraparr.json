@@ -1185,7 +1185,7 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value"
+        "textMode": "value_and_name"
       },
       "title": "Sonarr Free Space",
       "type": "stat",
@@ -1196,7 +1196,7 @@
             "uid": "${datasource}"
           },
           "expr": "sonarr_free_disk_size{job=~\"$job\", alias=\"$sonarr\"}",
-          "legendFormat": "",
+          "legendFormat": "{{path}}",
           "refId": "A"
         }
       ]
@@ -1317,7 +1317,7 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value"
+        "textMode": "value_and_name"
       },
       "title": "Radarr Free Space",
       "type": "stat",
@@ -1328,7 +1328,7 @@
             "uid": "${datasource}"
           },
           "expr": "radarr_free_disk_size{job=~\"$job\", alias=\"$radarr\"}",
-          "legendFormat": "",
+          "legendFormat": "{{path}}",
           "refId": "A"
         }
       ]
