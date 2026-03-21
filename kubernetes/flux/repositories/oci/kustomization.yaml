@@ -14,6 +14,5 @@ resources:
   - ./grafana-operator.yaml
   - ./node-feature-discovery.yaml
   - ./plugin-barman-cloud.yaml
-  # - ./victoria-logs-collector.yaml  # archived — used by vlagent
   - ./victoria-logs.yaml
   - ./victoria-metrics-k8s-stack.yaml
