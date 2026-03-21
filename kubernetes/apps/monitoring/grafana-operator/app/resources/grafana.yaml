@@ -34,6 +34,8 @@ spec:
       disable_sanitize_html: "true"
     plugins:
       allow_loading_unsigned_plugins: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel,victoriametrics-logs-datasource
+    users:
+      default_theme: system
     date_formats:
       use_browser_locale: "true"
       default_timezone: ${TIMEZONE}
