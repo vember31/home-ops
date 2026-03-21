@@ -9,11 +9,4 @@ spec:
       dashboards: grafana
   folderRef: grafana-folder-media
   resyncPeriod: 30m
-  grafanaCom:
-    id: 22934
-    revision: 8
-  datasources:
-    - inputName: DS_MIMIR
-      datasourceName: VictoriaMetrics
-    - inputName: datasource
-      datasourceName: VictoriaMetrics
+  url: https://raw.githubusercontent.com/vember31/home-ops/refs/heads/main/kubernetes/apps/monitoring/grafana-operator/app/dashboards/media/scraparr.json
