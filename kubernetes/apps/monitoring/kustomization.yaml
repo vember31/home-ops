@@ -18,5 +18,6 @@ resources:
   - ./grafana-operator/ks.yaml
   - ./victoria-metrics-k8s-stack/ks.yaml
   - ./unpoller/ks.yaml
+  - ./vlagent/ks.yaml
   - ./victoria-logs/ks.yaml
   - ./vpa/ks.yaml
