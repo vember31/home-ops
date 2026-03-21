@@ -397,7 +397,7 @@
         },
         "textMode": "auto"
       },
-      "title": "Jellyseerr",
+      "title": "Seerr",
       "type": "stat",
       "targets": [
         {
@@ -966,7 +966,7 @@
       },
       "id": 14,
       "options": {
-        "displayMode": "gradient",
+        "displayMode": "basic",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -1025,7 +1025,7 @@
       },
       "id": 15,
       "options": {
-        "displayMode": "gradient",
+        "displayMode": "basic",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -1079,7 +1079,7 @@
           },
           "unit": "bytes",
           "thresholds": {
-            "mode": "percentage",
+            "mode": "absolute",
             "steps": [
               {
                 "color": "green",
@@ -1087,16 +1087,14 @@
               },
               {
                 "color": "yellow",
-                "value": 80
+                "value": 1000000000000
               },
               {
                 "color": "red",
-                "value": 90
+                "value": 2000000000000
               }
             ]
-          },
-          "max": null,
-          "min": 0
+          }
         },
         "overrides": []
       },
@@ -1108,6 +1106,10 @@
       },
       "id": 17,
       "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -1115,12 +1117,10 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "title": "Sonarr Disk Usage",
-      "type": "gauge",
+      "title": "Sonarr Used Space",
+      "type": "stat",
       "targets": [
         {
           "datasource": {
@@ -1128,18 +1128,8 @@
             "uid": "${datasource}"
           },
           "expr": "sonarr_disk_size_total{job=~\"$job\", alias=\"$sonarr\"}",
-          "legendFormat": "",
+          "legendFormat": "Used",
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "sonarr_disk_size_total{job=~\"$job\", alias=\"$sonarr\"} + sonarr_free_disk_size{job=~\"$job\", alias=\"$sonarr\"}",
-          "legendFormat": "__max",
-          "refId": "B",
-          "hide": true
         }
       ]
     },
@@ -1193,7 +1183,7 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "value"
       },
       "title": "Sonarr Free Space",
       "type": "stat",
@@ -1221,7 +1211,7 @@
           },
           "unit": "bytes",
           "thresholds": {
-            "mode": "percentage",
+            "mode": "absolute",
             "steps": [
               {
                 "color": "green",
@@ -1229,16 +1219,14 @@
               },
               {
                 "color": "yellow",
-                "value": 80
+                "value": 1000000000000
               },
               {
                 "color": "red",
-                "value": 90
+                "value": 2000000000000
               }
             ]
-          },
-          "max": null,
-          "min": 0
+          }
         },
         "overrides": []
       },
@@ -1250,6 +1238,10 @@
       },
       "id": 19,
       "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -1257,12 +1249,10 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "title": "Radarr Disk Usage",
-      "type": "gauge",
+      "title": "Radarr Used Space",
+      "type": "stat",
       "targets": [
         {
           "datasource": {
@@ -1270,18 +1260,8 @@
             "uid": "${datasource}"
           },
           "expr": "radarr_disk_size_total{job=~\"$job\", alias=\"$radarr\"}",
-          "legendFormat": "",
+          "legendFormat": "Used",
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "radarr_disk_size_total{job=~\"$job\", alias=\"$radarr\"} + radarr_free_disk_size{job=~\"$job\", alias=\"$radarr\"}",
-          "legendFormat": "__max",
-          "refId": "B",
-          "hide": true
         }
       ]
     },
@@ -1335,7 +1315,7 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "value"
       },
       "title": "Radarr Free Space",
       "type": "stat",
@@ -1394,7 +1374,7 @@
       },
       "id": 22,
       "options": {
-        "displayMode": "gradient",
+        "displayMode": "basic",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -1453,7 +1433,7 @@
       },
       "id": 23,
       "options": {
-        "displayMode": "gradient",
+        "displayMode": "basic",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -1823,7 +1803,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "prowlarr_indexer_healthy{job=~\"$job\", alias=\"$prowlarr\"}",
+          "expr": "prowlarr_indexer_status{job=~\"$job\", alias=\"$prowlarr\"}",
           "legendFormat": "",
           "refId": "A",
           "instant": true,
@@ -1839,11 +1819,16 @@
               "__name__": true,
               "alias": true,
               "instance": true,
-              "job": true
+              "job": true,
+              "Value": true
             },
             "renameByName": {
-              "Value": "Status",
-              "indexer": "Indexer"
+              "indexer": "Indexer",
+              "status": "Status"
+            },
+            "indexByName": {
+              "indexer": 0,
+              "status": 1
             }
           }
         }
@@ -2251,7 +2236,7 @@
         "y": 45
       },
       "id": 37,
-      "title": "\ud83c\udfac Jellyseerr Requests",
+      "title": "\ud83c\udfac Seerr Requests",
       "type": "row",
       "panels": []
     },
@@ -2478,7 +2463,8 @@
           },
           "expr": "jellyseerr_request_tv{job=~\"$job\", alias=\"$seerr\"} or overseerr_request_tv{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "TV",
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         },
         {
           "datasource": {
@@ -2487,7 +2473,8 @@
           },
           "expr": "jellyseerr_request_movie{job=~\"$job\", alias=\"$seerr\"} or overseerr_request_movie{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "Movies",
-          "refId": "B"
+          "refId": "B",
+          "instant": true
         }
       ]
     },
@@ -2578,7 +2565,7 @@
       },
       "id": 43,
       "options": {
-        "displayMode": "gradient",
+        "displayMode": "basic",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -2759,7 +2746,7 @@
       },
       "id": 46,
       "options": {
-        "displayMode": "gradient",
+        "displayMode": "basic",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -3117,7 +3104,7 @@
         },
         "textMode": "auto"
       },
-      "title": "Jellyseerr Scrape",
+      "title": "Seerr Scrape",
       "type": "stat",
       "targets": [
         {
@@ -3289,7 +3276,7 @@
         "definition": "label_values(jellyseerr_last_scrape{job=~\"$job\"}, alias)",
         "hide": 0,
         "includeAll": false,
-        "label": "Jellyseerr",
+        "label": "Seerr",
         "multi": false,
         "name": "seerr",
         "options": [],
