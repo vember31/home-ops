@@ -405,7 +405,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "scraparr_services_up{job=~\"$job\", scraparr_services=\"seerr\", alias=\"$seerr\"}",
+          "expr": "scraparr_services_up{job=~\"$job\", scraparr_services=~\"seerr|jellyseerr\", alias=\"$seerr\"}",
           "legendFormat": "",
           "refId": "A"
         }
