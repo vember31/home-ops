@@ -1,0 +1,85 @@
+name: Update Cloudflare proxy IPs
+
+on:
+  schedule:
+    - cron: '0 10 * * 1' # 5 AM CT every Monday
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-cloudflare-ips:
+    runs-on: ubuntu-latest
+    env:
+      FILE_PATH: kubernetes/apps/networking/traefik/middlewares/cloudflare-ips.yaml
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Fetch and update Cloudflare IPs
+        run: |
+          IPV4=$(curl -sf https://www.cloudflare.com/ips-v4/)
+          IPV6=$(curl -sf https://www.cloudflare.com/ips-v6/)
+
+          if [ -z "$IPV4" ] || [ -z "$IPV6" ]; then
+            echo "Failed to fetch Cloudflare IPs"
+            exit 1
+          fi
+
+          # Write the manifest header
+          {
+            echo "---"
+            echo "apiVersion: traefik.io/v1alpha1"
+            echo "kind: Middleware"
+            echo "metadata:"
+            echo "  name: cloudflare-ips"
+            echo "  namespace: networking"
+            echo "spec:"
+            echo "  ipAllowList:"
+            echo "    sourceRange:"
+          } > "$FILE_PATH"
+
+          # Add Cloudflare IPv4 ranges
+          while IFS= read -r cidr; do
+            [ -n "$cidr" ] && echo "      - $cidr" >> "$FILE_PATH"
+          done <<< "$IPV4"
+
+          # Add Cloudflare IPv6 ranges
+          while IFS= read -r cidr; do
+            [ -n "$cidr" ] && echo "      - $cidr" >> "$FILE_PATH"
+          done <<< "$IPV6"
+
+          # Add internal CIDRs
+          {
+            echo '      - ${SECURE_CIDR} #for supporting an internal redirect for vaultwarden'
+            echo '      - ${VPN_CIDR} #for supporting an internal redirect for vaultwarden'
+            echo '      - ${GUEST_CIDR} #for supporting an internal redirect for vaultwarden'
+          } >> "$FILE_PATH"
+
+      - name: Create PR if changed
+        run: |
+          if git diff --quiet "$FILE_PATH"; then
+            echo "No changes detected"
+            exit 0
+          fi
+
+          BRANCH="automated/cloudflare-ips-update"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add "$FILE_PATH"
+          git commit -m "chore(networking): update Cloudflare proxy IPs"
+          git push -u origin "$BRANCH" --force
+
+          # Create PR if one doesn't already exist
+          EXISTING_PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
+          if [ -z "$EXISTING_PR" ]; then
+            gh pr create \
+              --title "chore(networking): update Cloudflare proxy IPs" \
+              --body "Automated update of Cloudflare proxy IP ranges from https://www.cloudflare.com/ips/" \
+              --label "automated"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
