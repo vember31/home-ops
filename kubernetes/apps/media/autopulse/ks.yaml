@@ -12,6 +12,8 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: plex
+    - name: cloudnative-pg-cluster
+    - name: external-secrets-stores
   path: ./kubernetes/apps/media/autopulse/app
   prune: true
   sourceRef:

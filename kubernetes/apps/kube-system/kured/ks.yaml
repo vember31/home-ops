@@ -10,7 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: external-secrets
+    - name: external-secrets-stores
   path: ./kubernetes/apps/kube-system/kured/app
   prune: true
   sourceRef:

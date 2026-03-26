@@ -11,6 +11,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: victoria-metrics-k8s-stack
+    - name: external-secrets-stores
   path: ./kubernetes/apps/monitoring/unpoller/app
   prune: true
   sourceRef:

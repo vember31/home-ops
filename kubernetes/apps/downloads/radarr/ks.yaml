@@ -10,11 +10,10 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: traefik
-    - name: cert-manager
     - name: longhorn
     - name: qbittorrent
     - name: autopulse
+    - name: external-secrets-stores
   path: ./kubernetes/apps/downloads/radarr/app
   prune: true
   sourceRef:

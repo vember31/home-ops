@@ -12,6 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: plex
+    - name: longhorn
   path: ./kubernetes/apps/media/agregarr/app
   prune: true
   sourceRef:

@@ -37,6 +37,8 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: cloudnative-pg
+    - name: external-secrets-stores
+    - name: plugin-barman-cloud
   path: ./kubernetes/apps/database/cloudnative-pg/cluster
   prune: true
   sourceRef:

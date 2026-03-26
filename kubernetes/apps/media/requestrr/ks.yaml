@@ -11,8 +11,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  # dependsOn:
-  #   - name: **OPTIONAL**
+  dependsOn:
+    - name: external-secrets-stores
+    - name: longhorn
   path: ./kubernetes/apps/media/requestrr/app
   prune: true
   sourceRef:

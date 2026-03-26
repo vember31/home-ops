@@ -11,7 +11,10 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: cloudnative-pg
+    - name: cloudnative-pg-cluster
+    - name: dragonfly-cluster
+    - name: external-secrets-stores
+    - name: longhorn
   path: ./kubernetes/apps/home/outline/app
   prune: true
   sourceRef:

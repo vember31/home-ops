@@ -16,6 +16,7 @@ spec:
     - name: prowlarr
     - name: bazarr
     - name: seerr
+    - name: external-secrets-stores
   path: ./kubernetes/apps/monitoring/exporters/scraparr/app
   prune: true
   sourceRef:

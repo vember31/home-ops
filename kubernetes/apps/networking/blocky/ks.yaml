@@ -9,8 +9,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  # dependsOn:
-  #   - name: **OPTIONAL**
+  dependsOn:
+    - name: cloudnative-pg-cluster
+    - name: external-secrets-stores
   path: ./kubernetes/apps/networking/blocky/app
   prune: true
   sourceRef:

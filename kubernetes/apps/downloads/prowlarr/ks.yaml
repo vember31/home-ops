@@ -10,9 +10,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: traefik
-    - name: cert-manager
     - name: longhorn
+    - name: external-secrets-stores
   path: ./kubernetes/apps/downloads/prowlarr/app
   prune: true
   sourceRef:

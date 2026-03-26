@@ -11,7 +11,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: traefik
+    - name: external-secrets-stores
+    - name: longhorn
   path: ./kubernetes/apps/security/vaultwarden/app
   prune: true
   sourceRef:

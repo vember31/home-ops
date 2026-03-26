@@ -33,6 +33,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: longhorn
   path: ./kubernetes/apps/storage/longhorn/recurringjobs
   prune: true
   sourceRef:

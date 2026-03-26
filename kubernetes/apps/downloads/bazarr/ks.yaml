@@ -9,6 +9,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: longhorn
   path: ./kubernetes/apps/downloads/bazarr/app
   prune: true
   sourceRef:
@@ -59,6 +61,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: bazarr
   path: ./kubernetes/apps/downloads/bazarr/subgen
   prune: true
   sourceRef:

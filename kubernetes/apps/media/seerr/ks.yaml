@@ -13,6 +13,8 @@ spec:
     - name: sonarr
     - name: radarr
     - name: longhorn
+    - name: cloudnative-pg-cluster
+    - name: external-secrets-stores
   path: ./kubernetes/apps/media/seerr/app
   prune: true
   sourceRef:

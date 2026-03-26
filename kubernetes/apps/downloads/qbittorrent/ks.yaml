@@ -11,6 +11,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: longhorn
+    - name: external-secrets-stores
   path: ./kubernetes/apps/downloads/qbittorrent/app
   prune: true
   sourceRef:
@@ -37,6 +38,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: qbittorrent
+    - name: external-secrets-stores
   path: ./kubernetes/apps/downloads/qbittorrent/qbitmanage
   prune: true
   sourceRef:
