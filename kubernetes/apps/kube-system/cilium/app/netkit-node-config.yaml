@@ -1,5 +1,5 @@
 ---
-apiVersion: cilium.io/v2alpha1
+apiVersion: cilium.io/v2
 kind: CiliumNodeConfig
 metadata:
   name: netkit-enabled
@@ -9,4 +9,4 @@ spec:
     matchLabels:
       cilium.io/datapath-mode: netkit
   defaults:
-    bpf-datapath-mode: netkit
+    datapath-mode: netkit
