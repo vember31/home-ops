@@ -78,8 +78,7 @@ jobs:
           if [ -z "$EXISTING_PR" ]; then
             gh pr create \
               --title "chore(networking): update Cloudflare proxy IPs" \
-              --body "Automated update of Cloudflare proxy IP ranges from https://www.cloudflare.com/ips/" \
-              --label "automated"
+              --body "Automated update of Cloudflare proxy IP ranges from https://www.cloudflare.com/ips/"
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
