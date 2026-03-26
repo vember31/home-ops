@@ -1,0 +1,12 @@
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumNodeConfig
+metadata:
+  name: netkit-enabled
+  namespace: kube-system
+spec:
+  nodeSelector:
+    matchLabels:
+      cilium.io/datapath-mode: netkit
+  defaults:
+    bpf-datapath-mode: netkit
