@@ -77,7 +77,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) as queries \nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')",
+          "rawSql": "SELECT COUNT(*) as queries \nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
           "refId": "A",
           "sql": {
             "columns": [
@@ -156,7 +156,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) as blocked \nFROM log_entries \nWHERE reason LIKE 'BLOCKED%' \n  AND request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')",
+          "rawSql": "SELECT COUNT(*) as blocked \nFROM log_entries \nWHERE reason LIKE 'BLOCKED%' \n  AND request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
           "refId": "A"
         }
       ],
@@ -226,7 +226,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ROUND((COUNT(*) FILTER (WHERE reason LIKE 'BLOCKED%')::numeric / NULLIF(COUNT(*), 0) * 100), 2) as percent_blocked\nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')",
+          "rawSql": "SELECT \n  ROUND((COUNT(*) FILTER (WHERE reason LIKE 'BLOCKED%')::numeric / NULLIF(COUNT(*), 0) * 100), 2) as percent_blocked\nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
           "refId": "A"
         }
       ],
@@ -288,7 +288,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(DISTINCT question_name) as domains \nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')",
+          "rawSql": "SELECT COUNT(DISTINCT question_name) as domains \nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
           "refId": "A"
         }
       ],
@@ -412,7 +412,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  $__timeGroup(request_ts, '1m') AS time,\n  COUNT(*) FILTER (WHERE reason NOT LIKE 'BLOCKED%') as \"Allowed\",\n  COUNT(*) FILTER (WHERE reason LIKE 'BLOCKED%') as \"Blocked\"\nFROM log_entries\nWHERE $__timeFilter(request_ts)\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT \n  $__timeGroup(request_ts, '1m') AS time,\n  COUNT(*) FILTER (WHERE reason NOT LIKE 'BLOCKED%') as \"Allowed\",\n  COUNT(*) FILTER (WHERE reason LIKE 'BLOCKED%') as \"Blocked\"\nFROM log_entries\nWHERE $__timeFilter(request_ts)\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY 1\nORDER BY 1",
           "refId": "A"
         }
       ],
@@ -484,7 +484,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  question_type as \"Query Type\",\n  COUNT(*) as count\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\nGROUP BY question_type\nORDER BY count DESC\nLIMIT 10",
+          "rawSql": "SELECT \n  question_type as \"Query Type\",\n  COUNT(*) as count\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY question_type\nORDER BY count DESC\nLIMIT 10",
           "refId": "A"
         }
       ],
@@ -556,7 +556,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  response_type as \"Response Type\",\n  COUNT(*) as count\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\nGROUP BY response_type\nORDER BY count DESC",
+          "rawSql": "SELECT \n  response_type as \"Response Type\",\n  COUNT(*) as count\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY response_type\nORDER BY count DESC",
           "refId": "A"
         }
       ],
@@ -607,32 +607,15 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Client IP"
+              "options": "Domain"
             },
             "properties": [
               {
                 "id": "links",
                 "value": [
                   {
-                    "title": "View queries from ${__value.text}",
-                    "url": "/d/${__dashboard.uid}?viewPanel=13&var-client_filter=${__value.text}"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Client Name"
-            },
-            "properties": [
-              {
-                "id": "links",
-                "value": [
-                  {
-                    "title": "View queries from ${__value.text}",
-                    "url": "/d/${__dashboard.uid}?viewPanel=13&var-client_filter=${__value.text}"
+                    "title": "View queries for ${__value.text}",
+                    "url": "/d/${__dashboard.uid}?viewPanel=13&var-domain_filter=${__value.text}"
                   }
                 ]
               }
@@ -669,67 +652,12 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  question_name as \"Domain\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND reason NOT LIKE 'BLOCKED%'\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\nGROUP BY question_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
+          "rawSql": "SELECT \n  question_name as \"Domain\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND reason NOT LIKE 'BLOCKED%'\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY question_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
           "refId": "A"
         }
       ],
       "title": "Top Permitted Domains",
-      "type": "table",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "left",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Queries"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 100
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Domain"
-            },
-            "properties": [
-              {
-                "id": "links",
-                "value": [
-                  {
-                    "title": "View queries for ${__value.text}",
-                    "url": "/d/${__dashboard.uid}?viewPanel=13&var-domain_filter=${__value.text}"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
+      "type": "table"
     },
     {
       "datasource": {
@@ -769,6 +697,23 @@
               {
                 "id": "custom.width",
                 "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Domain"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "View queries for ${__value.text}",
+                    "url": "/d/${__dashboard.uid}?viewPanel=13&var-domain_filter=${__value.text}"
+                  }
+                ]
               }
             ]
           }
@@ -803,146 +748,18 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  question_name as \"Domain\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND reason LIKE 'BLOCKED%'\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\nGROUP BY question_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
+          "rawSql": "SELECT \n  question_name as \"Domain\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND reason LIKE 'BLOCKED%'\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY question_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
           "refId": "A"
         }
       ],
       "title": "Top Blocked Domains",
-      "type": "table",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "left",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Queries"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 100
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Domain"
-            },
-            "properties": [
-              {
-                "id": "links",
-                "value": [
-                  {
-                    "title": "View queries for ${__value.text}",
-                    "url": "/d/${__dashboard.uid}?viewPanel=13&var-domain_filter=${__value.text}"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
+      "type": "table"
     },
     {
       "datasource": {
         "type": "postgres",
         "uid": "${DS_POSTGRES}"
       },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "left",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Queries"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 100
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 28
-      },
-      "id": 10,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true
-      },
-      "pluginVersion": "10.0.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "${DS_POSTGRES}"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT \n  client_ip as \"Client IP\",\n  client_name as \"Client Name\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\nGROUP BY client_ip, client_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
-          "refId": "A"
-        }
-      ],
-      "title": "Top Clients",
-      "type": "table",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1014,58 +831,14 @@
             ]
           }
         ]
-      }
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "${DS_POSTGRES}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "left",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "orange",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Queries"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 100
-              }
-            ]
-          }
-        ]
       },
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 8,
+        "x": 0,
         "y": 28
       },
-      "id": 11,
+      "id": 10,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1088,12 +861,18 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  reason as \"Block Reason\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\nGROUP BY reason\nORDER BY \"Queries\" DESC",
+          "rawSql": "SELECT \n  client_ip as \"Client IP\",\n  client_name as \"Client Name\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY client_ip, client_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
           "refId": "A"
         }
       ],
-      "title": "Query Reasons",
-      "type": "table",
+      "title": "Top Clients",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "${DS_POSTGRES}"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1148,7 +927,42 @@
             ]
           }
         ]
-      }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 28
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "${DS_POSTGRES}"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  reason as \"Block Reason\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY reason\nORDER BY \"Queries\" DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Query Reasons",
+      "type": "table"
     },
     {
       "datasource": {
@@ -1238,7 +1052,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  hostname as \"Hostname\",\n  COUNT(*) as \"Queries\",\n  ROUND(AVG(duration_ms)::numeric, 2) as \"Avg Duration\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND hostname IS NOT NULL\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\nGROUP BY hostname\nORDER BY \"Queries\" DESC\nLIMIT 10",
+          "rawSql": "SELECT \n  hostname as \"Hostname\",\n  COUNT(*) as \"Queries\",\n  ROUND(AVG(duration_ms)::numeric, 2) as \"Avg Duration\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND hostname IS NOT NULL\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY hostname\nORDER BY \"Queries\" DESC\nLIMIT 10",
           "refId": "A"
         }
       ],
@@ -1339,7 +1153,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  request_ts as \"Time\",\n  client_ip as \"Client IP\",\n  client_name as \"Client Name\",\n  question_name as \"Domain\",\n  question_type as \"Type\",\n  response_type as \"Response\",\n  reason as \"Reason\",\n  duration_ms as \"Duration\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('${client_filter}' = '' OR client_ip = '${client_filter}' OR client_name = '${client_filter}')\n  AND ('${domain_filter}' = '' OR question_name = '${domain_filter}')\n  AND ('${reason_filter}' = '' OR reason = '${reason_filter}')\nORDER BY request_ts DESC\nLIMIT 1000",
+          "rawSql": "SELECT \n  request_ts as \"Time\",\n  client_ip as \"Client IP\",\n  client_name as \"Client Name\",\n  question_name as \"Domain\",\n  question_type as \"Type\",\n  response_type as \"Response\",\n  reason as \"Reason\",\n  duration_ms as \"Duration\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\n  AND ('${client_filter}' = '' OR client_ip = '${client_filter}' OR client_name = '${client_filter}')\n  AND ('${domain_filter}' = '' OR question_name = '${domain_filter}')\n  AND ('${reason_filter}' = '' OR reason = '${reason_filter}')\nORDER BY request_ts DESC\nLIMIT 1000",
           "refId": "A"
         }
       ],
@@ -1396,6 +1210,32 @@
         "query": "",
         "skipUrlSync": false,
         "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "No",
+          "value": "false"
+        },
+        "description": "Exclude .local.vember31.xyz domains and 10.42.x.x Kubernetes clients",
+        "hide": 0,
+        "label": "Exclude Internal",
+        "name": "exclude_internal",
+        "options": [
+          {
+            "selected": true,
+            "text": "No",
+            "value": "false"
+          },
+          {
+            "selected": false,
+            "text": "Yes",
+            "value": "true"
+          }
+        ],
+        "query": "false : No, true : Yes",
+        "skipUrlSync": false,
+        "type": "custom"
       },
       {
         "current": {
