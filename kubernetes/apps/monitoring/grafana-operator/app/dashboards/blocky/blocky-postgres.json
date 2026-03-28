@@ -77,7 +77,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) as queries \nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
+          "rawSql": "SELECT COUNT(*) as queries \nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
           "refId": "A",
           "sql": {
             "columns": [
@@ -156,7 +156,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(*) as blocked \nFROM log_entries \nWHERE reason LIKE 'BLOCKED%' \n  AND request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
+          "rawSql": "SELECT COUNT(*) as blocked \nFROM log_entries \nWHERE reason LIKE 'BLOCKED%' \n  AND request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
           "refId": "A"
         }
       ],
@@ -226,7 +226,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  ROUND((COUNT(*) FILTER (WHERE reason LIKE 'BLOCKED%')::numeric / NULLIF(COUNT(*), 0) * 100), 2) as percent_blocked\nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
+          "rawSql": "SELECT \n  ROUND((COUNT(*) FILTER (WHERE reason LIKE 'BLOCKED%')::numeric / NULLIF(COUNT(*), 0) * 100), 2) as percent_blocked\nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
           "refId": "A"
         }
       ],
@@ -288,7 +288,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT COUNT(DISTINCT question_name) as domains \nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
+          "rawSql": "SELECT COUNT(DISTINCT question_name) as domains \nFROM log_entries \nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))",
           "refId": "A"
         }
       ],
@@ -412,7 +412,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  $__timeGroup(request_ts, '1m') AS time,\n  COUNT(*) FILTER (WHERE reason NOT LIKE 'BLOCKED%') as \"Allowed\",\n  COUNT(*) FILTER (WHERE reason LIKE 'BLOCKED%') as \"Blocked\"\nFROM log_entries\nWHERE $__timeFilter(request_ts)\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT \n  $__timeGroup(request_ts, '1m') AS time,\n  COUNT(*) FILTER (WHERE reason NOT LIKE 'BLOCKED%') as \"Allowed\",\n  COUNT(*) FILTER (WHERE reason LIKE 'BLOCKED%') as \"Blocked\"\nFROM log_entries\nWHERE $__timeFilter(request_ts)\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY 1\nORDER BY 1",
           "refId": "A"
         }
       ],
@@ -484,7 +484,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  question_type as \"Query Type\",\n  COUNT(*) as count\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY question_type\nORDER BY count DESC\nLIMIT 10",
+          "rawSql": "SELECT \n  question_type as \"Query Type\",\n  COUNT(*) as count\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY question_type\nORDER BY count DESC\nLIMIT 10",
           "refId": "A"
         }
       ],
@@ -556,7 +556,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  response_type as \"Response Type\",\n  COUNT(*) as count\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY response_type\nORDER BY count DESC",
+          "rawSql": "SELECT \n  response_type as \"Response Type\",\n  COUNT(*) as count\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY response_type\nORDER BY count DESC",
           "refId": "A"
         }
       ],
@@ -652,7 +652,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  question_name as \"Domain\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND reason NOT LIKE 'BLOCKED%'\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY question_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
+          "rawSql": "SELECT \n  question_name as \"Domain\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND reason NOT LIKE 'BLOCKED%'\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY question_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
           "refId": "A"
         }
       ],
@@ -748,7 +748,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  question_name as \"Domain\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND reason LIKE 'BLOCKED%'\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY question_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
+          "rawSql": "SELECT \n  question_name as \"Domain\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND reason LIKE 'BLOCKED%'\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY question_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
           "refId": "A"
         }
       ],
@@ -861,7 +861,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  client_ip as \"Client IP\",\n  client_name as \"Client Name\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY client_ip, client_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
+          "rawSql": "SELECT \n  client_ip as \"Client IP\",\n  client_name as \"Client Name\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY client_ip, client_name\nORDER BY \"Queries\" DESC\nLIMIT 10",
           "refId": "A"
         }
       ],
@@ -957,7 +957,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  reason as \"Block Reason\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY reason\nORDER BY \"Queries\" DESC",
+          "rawSql": "SELECT \n  reason as \"Block Reason\",\n  COUNT(*) as \"Queries\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY reason\nORDER BY \"Queries\" DESC",
           "refId": "A"
         }
       ],
@@ -1052,7 +1052,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  hostname as \"Hostname\",\n  COUNT(*) as \"Queries\",\n  ROUND(AVG(duration_ms)::numeric, 2) as \"Avg Duration\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND hostname IS NOT NULL\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY hostname\nORDER BY \"Queries\" DESC\nLIMIT 10",
+          "rawSql": "SELECT \n  hostname as \"Hostname\",\n  COUNT(*) as \"Queries\",\n  ROUND(AVG(duration_ms)::numeric, 2) as \"Avg Duration\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND hostname IS NOT NULL\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\nGROUP BY hostname\nORDER BY \"Queries\" DESC\nLIMIT 10",
           "refId": "A"
         }
       ],
@@ -1153,7 +1153,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  request_ts as \"Time\",\n  client_ip as \"Client IP\",\n  client_name as \"Client Name\",\n  question_name as \"Domain\",\n  question_type as \"Type\",\n  response_type as \"Response\",\n  reason as \"Reason\",\n  duration_ms as \"Duration\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'true' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\n  AND ('${client_filter}' = '' OR client_ip = '${client_filter}' OR client_name = '${client_filter}')\n  AND ('${domain_filter}' = '' OR question_name = '${domain_filter}')\n  AND ('${reason_filter}' = '' OR reason = '${reason_filter}')\nORDER BY request_ts DESC\nLIMIT 1000",
+          "rawSql": "SELECT \n  request_ts as \"Time\",\n  client_ip as \"Client IP\",\n  client_name as \"Client Name\",\n  question_name as \"Domain\",\n  question_type as \"Type\",\n  response_type as \"Response\",\n  reason as \"Reason\",\n  duration_ms as \"Duration\"\nFROM log_entries\nWHERE request_ts >= $__timeFrom()::timestamptz AND request_ts <= $__timeTo()::timestamptz\n  AND ('[[exclude_domain]]' = '' OR question_name !~ '[[exclude_domain]]')\n  AND ('[[exclude_internal]]' != 'Yes' OR (question_name NOT LIKE '%.local.vember31.xyz' AND client_ip NOT LIKE '10.42.%'))\n  AND ('${client_filter}' = '' OR client_ip = '${client_filter}' OR client_name = '${client_filter}')\n  AND ('${domain_filter}' = '' OR question_name = '${domain_filter}')\n  AND ('${reason_filter}' = '' OR reason = '${reason_filter}')\nORDER BY request_ts DESC\nLIMIT 1000",
           "refId": "A"
         }
       ],
@@ -1215,7 +1215,7 @@
         "current": {
           "selected": true,
           "text": "No",
-          "value": "false"
+          "value": "No"
         },
         "description": "Exclude .local.vember31.xyz domains and 10.42.x.x Kubernetes clients",
         "hide": 0,
@@ -1225,15 +1225,15 @@
           {
             "selected": true,
             "text": "No",
-            "value": "false"
+            "value": "No"
           },
           {
             "selected": false,
             "text": "Yes",
-            "value": "true"
+            "value": "Yes"
           }
         ],
-        "query": "false : No, true : Yes",
+        "query": "No,Yes",
         "skipUrlSync": false,
         "type": "custom"
       },
