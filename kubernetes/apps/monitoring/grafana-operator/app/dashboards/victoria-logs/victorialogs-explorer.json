@@ -62,7 +62,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": null,
   "links": [
     {
       "asDropdown": false,
@@ -463,7 +462,5 @@
   "timezone": "browser",
   "title": "VictoriaLogs Explorer",
   "uid": "bdpzp3w3jkt8ga",
-  "version": 2,
-  "weekStart": "",
-  "gnetId": 22759
+  "weekStart": ""
 }
