@@ -98,7 +98,7 @@ spec:
               
       serviceMonitor:
         app:
-          serviceName: app
+          serviceName: blocky-app
           endpoints:
             - port: http
               scheme: http
