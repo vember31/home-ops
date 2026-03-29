@@ -9,10 +9,7 @@ spec:
       dashboards: grafana
   folderRef: grafana-folder-victoria-logs
   resyncPeriod: 30m
-  # renovate: depName="VictoriaLogs Explorer"
-  grafanaCom:
-    id: 22759
-    revision: 9
+  url: https://raw.githubusercontent.com/vember31/home-ops/refs/heads/main/kubernetes/apps/monitoring/grafana-operator/app/dashboards/victoria-logs/victorialogs-explorer.json
   datasources:
     - inputName: DS_VICTORIALOGS
       datasourceName: VictoriaLogs
