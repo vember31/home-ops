@@ -12,3 +12,4 @@ resources:
   - ./kubernetes-pods.yaml
   - ./kubernetes-volumes.yaml
   - ./etcd.yaml
+  - ./node-exporter-full.yaml

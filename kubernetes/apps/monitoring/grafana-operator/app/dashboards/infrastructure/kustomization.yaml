@@ -2,8 +2,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - ./folder.yaml
   - ./cert-manager.yaml
   - ./external-dns.yaml
   - ./external-secrets.yaml
   - ./gatus.yaml
-  - ./node-exporter-full.yaml

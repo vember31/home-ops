@@ -1,0 +1,10 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: grafana-folder-infrastructure
+spec:
+  instanceSelector:
+    matchLabels:
+      folders: grafana
+  title: Infrastructure
