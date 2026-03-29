@@ -13,3 +13,5 @@ spec:
   datasources:
     - inputName: DS_POSTGRES
       datasourceName: Blocky-Postgres
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics
