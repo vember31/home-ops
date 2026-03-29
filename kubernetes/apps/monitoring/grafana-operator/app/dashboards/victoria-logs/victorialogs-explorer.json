@@ -73,7 +73,7 @@
       "title": "View In Explore",
       "tooltip": "",
       "type": "link",
-      "url": "/explore?orgId=1&left={\"datasource\":\"$DS_VICTORIALOGS\",\"queries\":[{\"expr\":\"_stream: {kubernetes.container_name=~\\\"$container\\\"} kubernetes.pod_labels.app.kubernetes.io/instance:=\\\"$app\\\" $query\"}]}"
+      "url": "/explore?orgId=1&left={\"datasource\":\"$DS_VICTORIALOGS\",\"queries\":[{\"expr\":\"_stream: {kubernetes.pod_namespace=\\\"$namespace\\\"} kubernetes.container_name:~\\\"$container\\\" kubernetes.pod_labels.app.kubernetes.io/instance:=\\\"$app\\\" $query\"}]}"
     },
     {
       "asDropdown": false,
@@ -180,7 +180,7 @@
             "uid": "${DS_VICTORIALOGS}"
           },
           "editorMode": "code",
-          "expr": "_stream: {kubernetes.container_name=~\"$container\", kubernetes.pod_namespace=\"$namespace\"} kubernetes.pod_labels.app.kubernetes.io/instance:=\"$app\" $query | stats count()",
+          "expr": "_stream: {kubernetes.pod_namespace=\"$namespace\"} kubernetes.container_name:~\"$container\" kubernetes.pod_labels.app.kubernetes.io/instance:=\"$app\" $query | stats count()",
           "legendFormat": "${namespace} ${container}",
           "queryType": "statsRange",
           "refId": "A"
@@ -246,7 +246,7 @@
             "uid": "${DS_VICTORIALOGS}"
           },
           "editorMode": "code",
-          "expr": "_stream: {kubernetes.container_name=~\"$container\", kubernetes.pod_namespace=\"$namespace\"} kubernetes.pod_labels.app.kubernetes.io/instance:=\"$app\" $query | stats by (\"$count_by\") count() c | sort by (c desc) | limit 50",
+          "expr": "_stream: {kubernetes.pod_namespace=\"$namespace\"} kubernetes.container_name:~\"$container\" kubernetes.pod_labels.app.kubernetes.io/instance:=\"$app\" $query | stats by (\"$count_by\") count() c | sort by (c desc) | limit 50",
           "legendFormat": "{{$count_by}}",
           "queryType": "stats",
           "refId": "A"
@@ -286,7 +286,7 @@
             "uid": "${DS_VICTORIALOGS}"
           },
           "editorMode": "code",
-          "expr": "_stream: {kubernetes.container_name=~\"$container\", kubernetes.pod_namespace=\"$namespace\"} kubernetes.pod_labels.app.kubernetes.io/instance:=\"$app\" $query | sort desc | limit $limit",
+          "expr": "_stream: {kubernetes.pod_namespace=\"$namespace\"} kubernetes.container_name:~\"$container\" kubernetes.pod_labels.app.kubernetes.io/instance:=\"$app\" $query | sort desc | limit $limit",
           "queryType": "range",
           "refId": "A"
         }
