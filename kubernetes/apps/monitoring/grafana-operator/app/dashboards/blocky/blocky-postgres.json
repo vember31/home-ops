@@ -1277,8 +1277,8 @@
       {
         "current": {
           "selected": true,
-          "text": "No",
-          "value": "No"
+          "text": "Yes",
+          "value": "Yes"
         },
         "description": "Exclude .local.vember31.xyz domains and 10.42.x.x Kubernetes clients",
         "hide": 0,
@@ -1286,12 +1286,12 @@
         "name": "exclude_internal",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "No",
             "value": "No"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "Yes",
             "value": "Yes"
           }
@@ -1385,6 +1385,6 @@
   "timezone": "",
   "title": "Blocky DNS - PiHole Style",
   "uid": "blocky-dns-pihole",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }
