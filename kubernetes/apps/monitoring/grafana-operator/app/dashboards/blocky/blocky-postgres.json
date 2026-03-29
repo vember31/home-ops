@@ -348,7 +348,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(blocky_denylist_cache_entries)",
+          "expr": "sum(max by (group) (blocky_denylist_cache_entries))",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
@@ -1385,6 +1385,6 @@
   "timezone": "",
   "title": "Blocky DNS - PiHole Style",
   "uid": "blocky-dns-pihole",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }
