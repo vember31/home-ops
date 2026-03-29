@@ -9,4 +9,5 @@ spec:
       dashboards: grafana
   folderRef: grafana-folder-infrastructure
   resyncPeriod: 30m
+  # forked from grafana.com: id=11001 - check for upstream changes before merging
   url: https://raw.githubusercontent.com/vember31/home-ops/refs/heads/main/kubernetes/apps/monitoring/grafana-operator/app/dashboards/infrastructure/cert-manager.json
