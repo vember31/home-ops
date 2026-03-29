@@ -17,11 +17,23 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "id": null,
   "links": [],
   "liveNow": false,
   "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "title": "Overview",
+      "type": "row"
+    },
     {
       "datasource": {
         "type": "postgres",
@@ -37,7 +49,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
               }
             ]
@@ -50,7 +62,7 @@
         "h": 4,
         "w": 5,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "id": 1,
       "options": {
@@ -129,7 +141,7 @@
         "h": 4,
         "w": 5,
         "x": 5,
-        "y": 0
+        "y": 1
       },
       "id": 2,
       "options": {
@@ -201,7 +213,7 @@
         "h": 4,
         "w": 4,
         "x": 10,
-        "y": 0
+        "y": 1
       },
       "id": 3,
       "options": {
@@ -261,7 +273,7 @@
         "h": 4,
         "w": 5,
         "x": 14,
-        "y": 0
+        "y": 1
       },
       "id": 4,
       "options": {
@@ -310,7 +322,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "purple",
                 "value": null
               }
             ]
@@ -323,7 +335,7 @@
         "h": 4,
         "w": 5,
         "x": 19,
-        "y": 0
+        "y": 1
       },
       "id": 15,
       "options": {
@@ -359,6 +371,18 @@
       "type": "stat"
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 101,
+      "title": "Query Trends",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "postgres",
         "uid": "${DS_POSTGRES}"
@@ -375,8 +399,8 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
+            "fillOpacity": 25,
+            "gradientMode": "opacity",
             "hideFrom": {
               "tooltip": false,
               "viz": false,
@@ -447,7 +471,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 4
+        "y": 6
       },
       "id": 5,
       "options": {
@@ -462,7 +486,7 @@
         },
         "tooltip": {
           "mode": "multi",
-          "sort": "none"
+          "sort": "desc"
         }
       },
       "pluginVersion": "10.0.0",
@@ -481,6 +505,18 @@
       ],
       "title": "Queries Over Time",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 102,
+      "title": "Query Breakdown",
+      "type": "row"
     },
     {
       "datasource": {
@@ -507,7 +543,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 15
       },
       "id": 6,
       "options": {
@@ -524,7 +560,7 @@
             "percent"
           ]
         },
-        "pieType": "pie",
+        "pieType": "donut",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -579,7 +615,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 15
       },
       "id": 7,
       "options": {
@@ -596,7 +632,7 @@
             "percent"
           ]
         },
-        "pieType": "pie",
+        "pieType": "donut",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -625,6 +661,18 @@
       ],
       "title": "Response Types",
       "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 103,
+      "title": "Top Lists",
+      "type": "row"
     },
     {
       "datasource": {
@@ -664,6 +712,14 @@
               {
                 "id": "custom.width",
                 "value": 100
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic",
+                  "valueDisplayMode": "text"
+                }
               }
             ]
           },
@@ -690,7 +746,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 20
+        "y": 24
       },
       "id": 8,
       "options": {
@@ -760,6 +816,14 @@
               {
                 "id": "custom.width",
                 "value": 100
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic",
+                  "valueDisplayMode": "text"
+                }
               }
             ]
           },
@@ -786,7 +850,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 20
+        "y": 24
       },
       "id": 9,
       "options": {
@@ -856,6 +920,14 @@
               {
                 "id": "custom.width",
                 "value": 100
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic",
+                  "valueDisplayMode": "text"
+                }
               }
             ]
           },
@@ -899,7 +971,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 28
+        "y": 32
       },
       "id": 10,
       "options": {
@@ -969,6 +1041,14 @@
               {
                 "id": "custom.width",
                 "value": 100
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic",
+                  "valueDisplayMode": "text"
+                }
               }
             ]
           },
@@ -995,7 +1075,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 28
+        "y": 32
       },
       "id": 11,
       "options": {
@@ -1081,6 +1161,14 @@
               {
                 "id": "custom.width",
                 "value": 100
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic",
+                  "valueDisplayMode": "text"
+                }
               }
             ]
           }
@@ -1090,7 +1178,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 28
+        "y": 32
       },
       "id": 12,
       "options": {
@@ -1121,6 +1209,18 @@
       ],
       "title": "Top Hostnames (Upstream)",
       "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 104,
+      "title": "Query Log",
+      "type": "row"
     },
     {
       "datasource": {
@@ -1178,6 +1278,110 @@
                 "value": "ms"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Response"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "RESOLVED": {
+                        "color": "green",
+                        "index": 0
+                      },
+                      "CACHED": {
+                        "color": "blue",
+                        "index": 1
+                      },
+                      "CONDITIONAL": {
+                        "color": "light-blue",
+                        "index": 2
+                      },
+                      "NOTFOUND": {
+                        "color": "orange",
+                        "index": 3
+                      },
+                      "REFUSED": {
+                        "color": "yellow",
+                        "index": 4
+                      },
+                      "ERROR": {
+                        "color": "red",
+                        "index": 5
+                      }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "BLOCKED.*",
+                      "result": {
+                        "color": "red",
+                        "index": 6
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reason"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "RESOLVED": {
+                        "color": "green",
+                        "index": 0
+                      },
+                      "CACHED": {
+                        "color": "blue",
+                        "index": 1
+                      },
+                      "CONDITIONAL": {
+                        "color": "light-blue",
+                        "index": 2
+                      }
+                    }
+                  },
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "BLOCKED.*",
+                      "result": {
+                        "color": "red",
+                        "index": 3
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
           }
         ]
       },
@@ -1185,7 +1389,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 41
       },
       "id": 13,
       "options": {
@@ -1385,6 +1589,6 @@
   "timezone": "",
   "title": "Blocky DNS - PiHole Style",
   "uid": "blocky-dns-pihole",
-  "version": 4,
+  "version": 5,
   "weekStart": ""
 }
