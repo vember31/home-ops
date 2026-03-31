@@ -41,6 +41,7 @@ tls-san:
 disable:
   - traefik
   - servicelb
+  - coredns
 flannel-backend: none
 disable-network-policy: true
 disable-kube-proxy: true
@@ -62,6 +63,7 @@ tls-san:
 disable:
   - traefik
   - servicelb
+  - coredns
 flannel-backend: none
 disable-network-policy: true
 disable-kube-proxy: true
