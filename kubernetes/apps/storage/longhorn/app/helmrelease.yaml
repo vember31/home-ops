@@ -55,11 +55,17 @@ spec:
     helmPreUpgradeCheckerJob:
       enabled: true
 
+    longhornManager:
+      updateStrategy:
+        rollingUpdate:
+          maxUnavailable: 1
+
     defaultSettings:
       upgradeChecker: true
       defaultReplicaCount: "2"
       autoDeletePodWhenVolumeDetachedUnexpectedly: true
-      disableSchedulingOnCordonedNode: delete-both-statefulset-and-deployment-pod
+      disableSchedulingOnCordonedNode: "true"
+      nodeDrainPolicy: delete-both-statefulset-and-deployment-pod
       allowCollectingLonghornUsageMetrics: true
 
     ingress:
