@@ -68,7 +68,10 @@ spec:
               runAsGroup: 1000
               fsGroup: 1000
               fsGroupChangePolicy: OnRootMismatch
+              allowPrivilegeEscalation: false
               seccompProfile: { type: RuntimeDefault }
+              capabilities:
+                drop: [ALL]
 
             resources:
               requests:
@@ -130,7 +133,10 @@ spec:
 
 
             securityContext:
-              fsGroup: 1000
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
+              allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
 
             resources:
