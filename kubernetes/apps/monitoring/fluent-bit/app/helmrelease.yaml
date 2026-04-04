@@ -72,6 +72,7 @@ spec:
           name kubernetes
           match kubernetes.*
           merge_log on
+          keep_log on
           kube_tag_prefix kubernetes.var.log.containers.
           k8s-logging.parser on
           k8s-logging.exclude on
