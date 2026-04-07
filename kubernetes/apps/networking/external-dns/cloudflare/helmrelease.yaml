@@ -73,4 +73,4 @@ spec:
     annotationFilter: "external-dns.alpha.kubernetes.io/exclude notin (true)"
     extraArgs:
       - --cloudflare-proxied #default behavior is to proxy records
-      - --cloudflare-zones-per-page=5
+      - --cloudflare-dns-records-per-page=100
