@@ -57,7 +57,7 @@ spec:
 
     logLevel: info
     logFormat: text
-    interval: 1m
+    interval: 10m #reduce API calls to reduce likelihood of crashes https://github.com/kubernetes-sigs/external-dns/issues/5225
     triggerLoopOnEvent: false
     namespaced: false
     sources:
@@ -71,5 +71,6 @@ spec:
     excludeDomains:
       - local.${SECRET_DOMAIN}
     annotationFilter: "external-dns.alpha.kubernetes.io/exclude notin (true)"
-    extraArgs: 
+    extraArgs:
       - --cloudflare-proxied #default behavior is to proxy records
+      - --cloudflare-zones-per-page=5
