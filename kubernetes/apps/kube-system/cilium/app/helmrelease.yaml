@@ -138,6 +138,13 @@ spec:
       relay:
         enabled: true
         rollOutPods: true
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
         prometheus:
           enabled: true
           serviceMonitor:
@@ -145,6 +152,22 @@ spec:
       ui:
         enabled: true
         rollOutPods: true
+        backend:
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
+        frontend:
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
         ingress:
           enabled: true
           annotations:
@@ -176,6 +199,13 @@ spec:
       enabled: true
       replicas: 2
       rollOutPods: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
       prometheus:
         enabled: true
         serviceMonitor:
