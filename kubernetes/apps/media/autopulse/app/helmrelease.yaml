@@ -141,16 +141,12 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
-          gethomepage.dev/enabled: "true"
+          gethomepage.dev/enabled: "false"
           gethomepage.dev/description: "*Arr / Plex Bridge"
           gethomepage.dev/group: Media
           gethomepage.dev/icon: https://github.com/dan-online/autopulse/raw/main/assets/logo.webp
           gethomepage.dev/name: Autopulse
           gethomepage.dev/siteMonitor: http://${APP}-ui.media.svc.cluster.local:2880
-          gethomepage.dev/widget.type: customapi
-          gethomepage.dev/widget.url: http://autopulse-app.media.svc.cluster.local:2875/stats
-          gethomepage.dev/widget.refreshInterval: "30000"
-          gethomepage.dev/widget.mappings: '[{"field":"stats.processed","label":"Processed","format":"number"},{"field":"stats.pending","label":"Pending","format":"number"},{"field":"stats.failed","label":"Failed","format":"number"},{"field":"stats.retrying","label":"Retrying","format":"number"}]'
 
 
         hosts:
