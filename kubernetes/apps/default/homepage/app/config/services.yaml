@@ -158,6 +158,28 @@
               label: Episodes Pending
               format: number
 
+    - Wizarr:
+        href: https://wizarr.${SECRET_DOMAIN}
+        icon: wizarr.png
+        description: Media Invite Management
+        siteMonitor: http://wizarr.media.svc.cluster.local:5690
+        widget:
+          type: customapi
+          url: http://wizarr.media.svc.cluster.local:5690/api/status
+          refreshInterval: 60000
+          headers:
+            X-API-Key: "{{HOMEPAGE_VAR_WIZARR_TOKEN}}"
+          mappings:
+            - field: total_users
+              label: Users
+              format: number
+            - field: pending_invitations
+              label: Invites Pending
+              format: number
+            - field: expired_invitations
+              label: Invites Expired
+              format: number
+
 - Storage:
     - MinIO:
         href: http://${OMV_IP}:9001
