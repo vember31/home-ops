@@ -44,6 +44,13 @@ spec:
   values:
     fullnameOverride: victoria-logs
     server:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
       persistentVolume:
         enabled: true
         storageClassName: local-path

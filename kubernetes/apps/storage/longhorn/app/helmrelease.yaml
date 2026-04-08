@@ -59,6 +59,31 @@ spec:
       updateStrategy:
         rollingUpdate:
           maxUnavailable: 1
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
+
+    longhornUI:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 8Mi
+        limits:
+          cpu: 50m
+          memory: 32Mi
+
+    longhornDriver:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 50m
+          memory: 64Mi
 
     defaultSettings:
       upgradeChecker: true

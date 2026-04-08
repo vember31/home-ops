@@ -55,6 +55,13 @@ spec:
             name: external-dns-cloudflare-secret
             key: CLOUDFLARE_API_TOKEN
 
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 50m
+        memory: 64Mi
     logLevel: info
     logFormat: text
     interval: 10m #reduce API calls to reduce likelihood of crashes https://github.com/kubernetes-sigs/external-dns/issues/5225
