@@ -65,30 +65,6 @@
           password: {{HOMEPAGE_VAR_PVE_1_SECRET}}
           node: pve4
 
-- Media:
-    - Autopulse:
-        href: https://autopulse.local.${SECRET_DOMAIN}
-        icon: https://github.com/dan-online/autopulse/raw/main/assets/logo.webp
-        description: "*Arr / Plex Bridge"
-        siteMonitor: http://autopulse-ui.media.svc.cluster.local:2880
-        widget:
-          type: customapi
-          url: http://autopulse-app.media.svc.cluster.local:2875/stats
-          refreshInterval: 30000
-          mappings:
-            - field: stats.processed
-              label: Processed
-              format: number
-            - field: stats.pending
-              label: Pending
-              format: number
-            - field: stats.failed
-              label: Failed
-              format: number
-            - field: stats.retrying
-              label: Retrying
-              format: number
-
 - Networking:
     - Adguard:
         href: http://${ADGUARD_LXC_IP}
@@ -114,6 +90,30 @@
         href: https://${UNVR_IP}/protect
         icon: unifi-protect.png
         description: Home Security
+
+- Media:
+    - Autopulse:
+        href: https://autopulse.local.${SECRET_DOMAIN}
+        icon: https://github.com/dan-online/autopulse/raw/main/assets/logo.webp
+        description: "*Arr / Plex Bridge"
+        siteMonitor: http://autopulse-ui.media.svc.cluster.local:2880
+        widget:
+          type: customapi
+          url: http://autopulse-app.media.svc.cluster.local:2875/stats
+          refreshInterval: 30000
+          mappings:
+            - field: stats.processed
+              label: Processed
+              format: number
+            - field: stats.pending
+              label: Pending
+              format: number
+            - field: stats.failed
+              label: Failed
+              format: number
+            - field: stats.retrying
+              label: Retrying
+              format: number
 
 - Storage:
     - MinIO:
