@@ -141,7 +141,7 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
-          gethomepage.dev/enabled: "true"
+          gethomepage.dev/enabled: "false"
           gethomepage.dev/description: "*Arr / Plex Bridge"
           gethomepage.dev/group: Media
           gethomepage.dev/icon: https://github.com/dan-online/autopulse/raw/main/assets/logo.webp
