@@ -114,6 +114,25 @@
             - field: stats.retrying
               label: Retrying
               format: number
+    - Maintainerr:
+        href: https://maintainerr.local.${SECRET_DOMAIN}
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/maintainerr.svg
+        description: Media Cleanup Tool
+        siteMonitor: http://maintainerr.media.svc.cluster.local:6246
+        widget:
+          type: customapi
+          url: http://maintainerr.media.svc.cluster.local:6246/api/collections
+          refreshInterval: 60000
+          mappings:
+            - field: "1.mediaCount"
+              label: Movies Pending
+              format: number
+            - field: "2.mediaCount"
+              label: TV Shows Pending
+              format: number
+            - field: "0.mediaCount"
+              label: Episodes Pending
+              format: number
 
 - Storage:
     - MinIO:
