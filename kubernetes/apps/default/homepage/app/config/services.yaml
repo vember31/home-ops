@@ -99,23 +99,20 @@
         siteMonitor: http://agregarr.media.svc.cluster.local:7171
         widget:
           type: customapi
-          url: http://agregarr.media.svc.cluster.local:7171/api/v1/status
-          refreshInterval: 300000
+          url: http://agregarr.media.svc.cluster.local:7171/api/v1/settings/main
+          refreshInterval: 60000
+          headers:
+            X-Api-Key: "{{HOMEPAGE_VAR_AGREGARR_TOKEN}}"
           mappings:
-            - field: version
-              label: Version
-              format: text
-            - field: updateAvailable
-              label: Update
-              format: text
-              remap:
-                - value: false
-                  to: Up to date
-                - value: true
-                  to: Available
-            - field: commitsBehind
-              label: Behind
+            - field: syncCounter
+              label: Total Syncs
               format: number
+            - field: lastGlobalSyncAt
+              label: Last Full Sync
+              format: relativeDate
+            - field: lastCollectionsQuickSyncAt
+              label: Last Quick Sync
+              format: relativeDate
     - Autopulse:
         href: https://autopulse.local.${SECRET_DOMAIN}
         icon: https://github.com/dan-online/autopulse/raw/main/assets/logo.webp
@@ -170,14 +167,17 @@
           headers:
             X-API-Key: "{{HOMEPAGE_VAR_WIZARR_TOKEN}}"
           mappings:
-            - field: total_users
+            - field: users
               label: Users
               format: number
-            - field: pending_invitations
-              label: Invites Pending
+            - field: invites
+              label: Invites
               format: number
-            - field: expired_invitations
-              label: Invites Expired
+            - field: pending
+              label: Pending
+              format: number
+            - field: expired
+              label: Expired
               format: number
 
 - Storage:
