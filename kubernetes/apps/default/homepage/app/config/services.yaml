@@ -92,6 +92,30 @@
         description: Home Security
 
 - Media:
+    - Agregarr:
+        href: https://agregarr.local.${SECRET_DOMAIN}
+        icon: sh-agregarr
+        description: Plex Collection Management
+        siteMonitor: http://agregarr.media.svc.cluster.local:7171
+        widget:
+          type: customapi
+          url: http://agregarr.media.svc.cluster.local:7171/api/v1/status
+          refreshInterval: 300000
+          mappings:
+            - field: version
+              label: Version
+              format: text
+            - field: updateAvailable
+              label: Update
+              format: text
+              remap:
+                - value: false
+                  to: Up to date
+                - value: true
+                  to: Available
+            - field: commitsBehind
+              label: Behind
+              format: number
     - Autopulse:
         href: https://autopulse.local.${SECRET_DOMAIN}
         icon: https://github.com/dan-online/autopulse/raw/main/assets/logo.webp
