@@ -11,18 +11,12 @@
   ],
   "__elements": {},
   "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "11.5.1"
-    },
-    {
-      "type": "panel",
-      "id": "logs",
-      "name": "Logs",
-      "version": ""
-    },
+    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "11.5.1" },
+    { "type": "panel", "id": "logs", "name": "Logs", "version": "" },
+    { "type": "panel", "id": "piechart", "name": "Pie chart", "version": "" },
+    { "type": "panel", "id": "stat", "name": "Stat", "version": "" },
+    { "type": "panel", "id": "table", "name": "Table", "version": "" },
+    { "type": "panel", "id": "timeseries", "name": "Time Series", "version": "" },
     {
       "type": "datasource",
       "id": "victoriametrics-logs-datasource",
@@ -46,41 +40,450 @@
   "description": "Kubernetes Events stream powered by VictoriaLogs",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "links": [],
   "panels": [
     {
-      "datasource": {
-        "type": "victoriametrics-logs-datasource",
-        "uid": "${DS_VICTORIALOGS}"
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 10,
+      "title": "Overview",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
       },
-      "gridPos": { "h": 24, "w": 24, "x": 0, "y": 0 },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 1 },
       "id": 1,
       "options": {
-        "dedupStrategy": "none",
-        "enableLogDetails": true,
-        "prettifyLogMessage": false,
-        "showLabels": true,
-        "showCommonLabels": false,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["sum"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "title": "Event Stream",
-      "type": "logs",
+      "pluginVersion": "11.5.1",
       "targets": [
         {
-          "datasource": {
-            "type": "victoriametrics-logs-datasource",
-            "uid": "${DS_VICTORIALOGS}"
-          },
-          "expr": "{namespace=~\"$namespace\", type=~\"$type\", reason!=\"\"} | sort desc | limit 500",
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+          "editorMode": "code",
+          "expr": "{type=\"Warning\", namespace=~\"$namespace\"} | stats count()",
+          "legendFormat": "Warnings",
+          "queryType": "statsRange",
           "refId": "A"
         }
-      ]
+      ],
+      "title": "Warning Events",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["sum"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.5.1",
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+          "editorMode": "code",
+          "expr": "{type=\"Normal\", namespace=~\"$namespace\"} | stats count()",
+          "legendFormat": "Normal",
+          "queryType": "statsRange",
+          "refId": "A"
+        }
+      ],
+      "title": "Normal Events",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "blue", "mode": "fixed" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "blue", "value": null }]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["sum"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.5.1",
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+          "editorMode": "code",
+          "expr": "{reason!=\"\", namespace=~\"$namespace\"} | stats count()",
+          "legendFormat": "Total",
+          "queryType": "statsRange",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Events",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 11,
+      "title": "Activity",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "bars",
+            "fillOpacity": 70,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Warning" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Normal" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": ["sum"],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "11.5.1",
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+          "editorMode": "code",
+          "expr": "{type=\"Warning\", namespace=~\"$namespace\"} | stats count()",
+          "legendFormat": "Warning",
+          "queryType": "statsRange",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+          "editorMode": "code",
+          "expr": "{type=\"Normal\", namespace=~\"$namespace\"} | stats count()",
+          "legendFormat": "Normal",
+          "queryType": "statsRange",
+          "refId": "B"
+        }
+      ],
+      "title": "Events Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 6 },
+      "id": 5,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["value", "percent"]
+        },
+        "pieType": "donut",
+        "tooltip": { "hideZeros": true, "mode": "single", "sort": "desc" }
+      },
+      "pluginVersion": "11.5.1",
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+          "editorMode": "code",
+          "expr": "{reason!=\"\", namespace=~\"$namespace\", type=~\"$type\"} | stats by (namespace) count() c | sort by (c desc) | limit 20",
+          "legendFormat": "{{namespace}}",
+          "queryType": "stats",
+          "refId": "A"
+        }
+      ],
+      "title": "By Namespace",
+      "type": "piechart"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 6 },
+      "id": 6,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["value", "percent"]
+        },
+        "pieType": "donut",
+        "tooltip": { "hideZeros": true, "mode": "single", "sort": "desc" }
+      },
+      "pluginVersion": "11.5.1",
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+          "editorMode": "code",
+          "expr": "{reason!=\"\", namespace=~\"$namespace\", type=~\"$type\"} | stats by (reason) count() c | sort by (c desc) | limit 20",
+          "legendFormat": "{{reason}}",
+          "queryType": "stats",
+          "refId": "A"
+        }
+      ],
+      "title": "By Reason",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 12,
+      "title": "Event Summary",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "left",
+            "cellOptions": { "type": "auto" },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "type" },
+            "properties": [
+              { "id": "displayName", "value": "Type" },
+              { "id": "custom.width", "value": 100 },
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "Warning": { "text": "Warning", "color": "red", "index": 0 },
+                      "Normal": { "text": "Normal", "color": "green", "index": 1 }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "namespace" },
+            "properties": [
+              { "id": "displayName", "value": "Namespace" },
+              { "id": "custom.width", "value": 150 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "kind" },
+            "properties": [
+              { "id": "displayName", "value": "Kind" },
+              { "id": "custom.width", "value": 100 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "object_name" },
+            "properties": [
+              { "id": "displayName", "value": "Object" },
+              { "id": "custom.width", "value": 300 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "reason" },
+            "properties": [
+              { "id": "displayName", "value": "Reason" },
+              { "id": "custom.width", "value": 160 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "c" },
+            "properties": [
+              { "id": "displayName", "value": "Count" },
+              { "id": "custom.width", "value": 80 },
+              { "id": "custom.align", "value": "center" }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 15 },
+      "id": 7,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Count", "desc": true }]
+      },
+      "pluginVersion": "11.5.1",
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+          "editorMode": "code",
+          "expr": "{namespace=~\"$namespace\", type=~\"$type\", reason!=\"\"} | stats by (type, namespace, kind, object_name, reason) count() c | sort by (c desc) | limit 200",
+          "queryType": "stats",
+          "refId": "A"
+        }
+      ],
+      "title": "Distinct Events",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
+      "id": 13,
+      "title": "Live Stream",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "gridPos": { "h": 20, "w": 24, "x": 0, "y": 28 },
+      "id": 8,
+      "options": {
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": false,
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "pluginVersion": "11.5.1",
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+          "editorMode": "code",
+          "expr": "{namespace=~\"$namespace\", type=~\"$type\", reason!=\"\"} | sort desc | limit $limit",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Live Event Stream",
+      "type": "logs"
     }
   ],
-  "schemaVersion": 39,
+  "refresh": "10s",
+  "schemaVersion": 40,
   "tags": ["kubernetes", "events"],
   "templating": {
     "list": [
@@ -100,7 +503,9 @@
         "options": [],
         "query": {
           "field": "namespace",
+          "limit": 100,
           "query": "{reason!=\"\"}",
+          "refId": "VictoriaLogsVariableQueryEditor-VariableQuery",
           "type": "fieldValue"
         },
         "refresh": 2,
@@ -121,13 +526,29 @@
         ],
         "query": "All : .*,Warning : Warning,Normal : Normal",
         "type": "custom"
+      },
+      {
+        "current": { "selected": true, "text": "100", "value": "100" },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Limit",
+        "multi": false,
+        "name": "limit",
+        "options": [
+          { "selected": true, "text": "100", "value": "100" },
+          { "selected": false, "text": "250", "value": "250" },
+          { "selected": false, "text": "500", "value": "500" },
+          { "selected": false, "text": "1000", "value": "1000" }
+        ],
+        "query": "100,250,500,1000",
+        "type": "custom"
       }
     ]
   },
-  "time": { "from": "now-1h", "to": "now" },
+  "time": { "from": "now-3h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
   "title": "Kubernetes Events",
   "uid": "kubernetes-events",
-  "version": 1
+  "version": 3
 }
