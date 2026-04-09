@@ -455,7 +455,7 @@
         {
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
           "editorMode": "code",
-          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | uniq by (\"metadata.uid\") | fields type, \"source.component\", \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", _msg, count, lastTimestamp | sort desc | limit $limit",
+          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | fields type, \"source.component\", \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", _msg, count, lastTimestamp | sort desc | limit $limit",
           "queryType": "range",
           "refId": "A"
         }
