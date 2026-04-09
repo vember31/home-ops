@@ -389,68 +389,7 @@
         "showHeader": true
       },
       "pluginVersion": "11.5.1",
-      "transformations": [
-        {
-          "id": "extractFields",
-          "options": {
-            "source": "labels"
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "labels": true,
-              "id": true,
-              "tsNs": true,
-              "detected_level": true,
-              "severity": true,
-              "Line": true,
-              "metadata.uid": true,
-              "metadata.name": true,
-              "metadata.namespace": true,
-              "metadata.resourceVersion": true,
-              "metadata.creationTimestamp": true,
-              "metadata.managedFields": true,
-              "metadata.uid": true,
-              "involvedObject.apiVersion": true,
-              "involvedObject.fieldPath": true,
-              "involvedObject.resourceVersion": true,
-              "involvedObject.uid": true,
-              "apiVersion": true,
-              "kind": true,
-              "reportingComponent": true,
-              "reportingInstance": true,
-              "source.host": true,
-              "action": true,
-              "eventTime": true,
-              "firstTimestamp": true
-            },
-            "renameByName": {
-              "Time": "Time",
-              "type": "Type",
-              "source.component": "Source",
-              "involvedObject.namespace": "Namespace",
-              "involvedObject.kind": "Kind",
-              "involvedObject.name": "Object",
-              "body": "Message",
-              "count": "Count",
-              "lastTimestamp": "Last Seen"
-            },
-            "indexByName": {
-              "Time": 0,
-              "type": 1,
-              "source.component": 2,
-              "involvedObject.namespace": 3,
-              "involvedObject.kind": 4,
-              "involvedObject.name": 5,
-              "body": 6,
-              "count": 7,
-              "lastTimestamp": 8
-            }
-          }
-        }
-      ],
+      "transformations": [],
       "targets": [
         {
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
