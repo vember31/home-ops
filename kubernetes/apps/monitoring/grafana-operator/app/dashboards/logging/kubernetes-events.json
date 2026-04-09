@@ -330,8 +330,16 @@
         },
         "overrides": [
           {
+            "matcher": { "id": "byName", "options": "_time" },
+            "properties": [
+              { "id": "displayName", "value": "Time" },
+              { "id": "custom.width", "value": 170 }
+            ]
+          },
+          {
             "matcher": { "id": "byName", "options": "type" },
             "properties": [
+              { "id": "displayName", "value": "Type" },
               { "id": "custom.width", "value": 90 },
               { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } },
               {
@@ -350,34 +358,59 @@
           },
           {
             "matcher": { "id": "byName", "options": "source.component" },
-            "properties": [{ "id": "custom.width", "value": 160 }]
+            "properties": [
+              { "id": "displayName", "value": "Source" },
+              { "id": "custom.width", "value": 170 }
+            ]
           },
           {
             "matcher": { "id": "byName", "options": "involvedObject.namespace" },
-            "properties": [{ "id": "custom.width", "value": 130 }]
+            "properties": [
+              { "id": "displayName", "value": "Namespace" },
+              { "id": "custom.width", "value": 130 }
+            ]
           },
           {
             "matcher": { "id": "byName", "options": "involvedObject.kind" },
-            "properties": [{ "id": "custom.width", "value": 100 }]
+            "properties": [
+              { "id": "displayName", "value": "Kind" },
+              { "id": "custom.width", "value": 100 }
+            ]
           },
           {
             "matcher": { "id": "byName", "options": "involvedObject.name" },
-            "properties": [{ "id": "custom.width", "value": 220 }]
+            "properties": [
+              { "id": "displayName", "value": "Object" },
+              { "id": "custom.width", "value": 220 }
+            ]
           },
           {
-            "matcher": { "id": "byName", "options": "body" },
-            "properties": [{ "id": "custom.minWidth", "value": 300 }]
+            "matcher": { "id": "byName", "options": "_msg" },
+            "properties": [
+              { "id": "displayName", "value": "Message" },
+              { "id": "custom.minWidth", "value": 300 }
+            ]
           },
           {
             "matcher": { "id": "byName", "options": "count" },
             "properties": [
+              { "id": "displayName", "value": "Count" },
               { "id": "custom.width", "value": 70 },
               { "id": "custom.align", "value": "center" }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "lastTimestamp" },
-            "properties": [{ "id": "custom.width", "value": 180 }]
+            "properties": [
+              { "id": "displayName", "value": "Last Seen" },
+              { "id": "custom.width", "value": 180 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "hits" },
+            "properties": [
+              { "id": "custom.hidden", "value": true }
+            ]
           }
         ]
       },
@@ -389,23 +422,13 @@
         "showHeader": true
       },
       "pluginVersion": "11.5.1",
-      "transformations": [
-        {
-          "id": "extractFields",
-          "options": {
-            "source": "labels",
-            "format": "json",
-            "keepTime": false,
-            "replace": true
-          }
-        }
-      ],
+      "transformations": [],
       "targets": [
         {
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
           "editorMode": "code",
-          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | fields type, \"source.component\", \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", _msg, count, lastTimestamp | sort desc | limit $limit",
-          "queryType": "range",
+          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | stats by (_time, type, \"source.component\", \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", _msg, count, lastTimestamp) count() hits | sort by (_time desc) | limit $limit",
+          "queryType": "stats",
           "refId": "A"
         }
       ],
