@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./folder.yaml
   - ./fluent-bit.yaml
+  - ./kubernetes-events.yaml

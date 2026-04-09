@@ -1,0 +1,15 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: grafana-dash-kubernetes-events
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folderRef: grafana-folder-logging
+  resyncPeriod: 30m
+  url: https://raw.githubusercontent.com/vember31/home-ops/refs/heads/main/kubernetes/apps/monitoring/grafana-operator/app/dashboards/logging/kubernetes-events.json
+  datasources:
+    - inputName: DS_VICTORIALOGS
+      datasourceName: VictoriaLogs

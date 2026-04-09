@@ -76,6 +76,13 @@ spec:
 
       filters: |-
         [FILTER]
+          name    modify
+          match   k8s_events
+          rename  involvedObject.namespace namespace
+          rename  involvedObject.kind      kind
+          rename  involvedObject.name      object_name
+
+        [FILTER]
           name kubernetes
           match kubernetes.*
           merge_log on
