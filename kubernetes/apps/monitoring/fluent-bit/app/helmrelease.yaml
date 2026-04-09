@@ -76,6 +76,11 @@ spec:
 
       filters: |-
         [FILTER]
+          name    grep
+          match   k8s_events
+          exclude message already present on machine
+
+        [FILTER]
           name    modify
           match   k8s_events
           rename  involvedObject.namespace namespace
