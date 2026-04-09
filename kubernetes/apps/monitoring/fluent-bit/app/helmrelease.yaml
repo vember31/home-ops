@@ -81,13 +81,6 @@ spec:
           exclude message already present on machine
 
         [FILTER]
-          name    modify
-          match   k8s_events
-          rename  involvedObject.namespace namespace
-          rename  involvedObject.kind      kind
-          rename  involvedObject.name      object_name
-
-        [FILTER]
           name kubernetes
           match kubernetes.*
           merge_log on
@@ -145,7 +138,7 @@ spec:
           match             k8s_events
           host              victoria-logs-server.monitoring.svc.cluster.local
           port              9428
-          uri               /insert/jsonline?_stream_fields=namespace,type,reason&_msg_field=message&_time_field=date
+          uri               /insert/jsonline?_stream_fields=type,reason&_msg_field=message&_time_field=date
           format            json_lines
           json_date_format  iso8601
           compress          gzip
