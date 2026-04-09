@@ -422,13 +422,52 @@
         "showHeader": true
       },
       "pluginVersion": "11.5.1",
-      "transformations": [],
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "id": true,
+              "tsNs": true,
+              "detected_level": true,
+              "severity": true,
+              "Line": true
+            },
+            "renameByName": {
+              "Time": "Time",
+              "body": "Message",
+              "type": "Type",
+              "source.component": "Source",
+              "involvedObject.namespace": "Namespace",
+              "involvedObject.kind": "Kind",
+              "involvedObject.name": "Object",
+              "count": "Count",
+              "lastTimestamp": "Last Seen"
+            },
+            "indexByName": {
+              "Time": 0,
+              "type": 1,
+              "source.component": 2,
+              "involvedObject.namespace": 3,
+              "involvedObject.kind": 4,
+              "involvedObject.name": 5,
+              "body": 6,
+              "count": 7,
+              "lastTimestamp": 8
+            }
+          }
+        }
+      ],
       "targets": [
         {
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
           "editorMode": "code",
-          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | stats by (_time, type, \"source.component\", \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", _msg, count, lastTimestamp) count() hits | sort by (_time desc) | limit $limit",
-          "queryType": "stats",
+          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | fields type, \"source.component\", \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", _msg, count, lastTimestamp | sort desc | limit $limit",
+          "queryType": "range",
           "refId": "A"
         }
       ],
