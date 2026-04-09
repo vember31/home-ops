@@ -9,7 +9,7 @@ spec:
       dashboards: grafana
   folderRef: grafana-folder-logging
   resyncPeriod: 5m
-  url: https://raw.githubusercontent.com/vember31/home-ops/refs/heads/main/kubernetes/apps/monitoring/grafana-operator/app/dashboards/logging/kubernetes-events.json
+  url: https://raw.githubusercontent.com/vember31/home-ops/main/kubernetes/apps/monitoring/grafana-operator/app/dashboards/logging/kubernetes-events.json
   datasources:
     - inputName: DS_VICTORIALOGS
       datasourceName: VictoriaLogs
