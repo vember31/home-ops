@@ -332,7 +332,6 @@
           {
             "matcher": { "id": "byName", "options": "type" },
             "properties": [
-              { "id": "displayName", "value": "Type" },
               { "id": "custom.width", "value": 90 },
               { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } },
               {
@@ -351,53 +350,34 @@
           },
           {
             "matcher": { "id": "byName", "options": "source.component" },
-            "properties": [
-              { "id": "displayName", "value": "Source" },
-              { "id": "custom.width", "value": 160 }
-            ]
+            "properties": [{ "id": "custom.width", "value": 160 }]
           },
           {
             "matcher": { "id": "byName", "options": "involvedObject.namespace" },
-            "properties": [
-              { "id": "displayName", "value": "Namespace" },
-              { "id": "custom.width", "value": 130 }
-            ]
+            "properties": [{ "id": "custom.width", "value": 130 }]
           },
           {
             "matcher": { "id": "byName", "options": "involvedObject.kind" },
-            "properties": [
-              { "id": "displayName", "value": "Kind" },
-              { "id": "custom.width", "value": 100 }
-            ]
+            "properties": [{ "id": "custom.width", "value": 100 }]
           },
           {
             "matcher": { "id": "byName", "options": "involvedObject.name" },
-            "properties": [
-              { "id": "displayName", "value": "Object" },
-              { "id": "custom.width", "value": 220 }
-            ]
+            "properties": [{ "id": "custom.width", "value": 220 }]
           },
           {
-            "matcher": { "id": "byName", "options": "_msg" },
-            "properties": [
-              { "id": "displayName", "value": "Message" },
-              { "id": "custom.minWidth", "value": 300 }
-            ]
+            "matcher": { "id": "byName", "options": "body" },
+            "properties": [{ "id": "custom.minWidth", "value": 300 }]
           },
           {
             "matcher": { "id": "byName", "options": "count" },
             "properties": [
-              { "id": "displayName", "value": "Count" },
               { "id": "custom.width", "value": 70 },
               { "id": "custom.align", "value": "center" }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "lastTimestamp" },
-            "properties": [
-              { "id": "displayName", "value": "Last Seen" },
-              { "id": "custom.width", "value": 180 }
-            ]
+            "properties": [{ "id": "custom.width", "value": 180 }]
           }
         ]
       },
@@ -409,11 +389,73 @@
         "showHeader": true
       },
       "pluginVersion": "11.5.1",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "source": "labels"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "labels": true,
+              "id": true,
+              "tsNs": true,
+              "detected_level": true,
+              "severity": true,
+              "Line": true,
+              "metadata.uid": true,
+              "metadata.name": true,
+              "metadata.namespace": true,
+              "metadata.resourceVersion": true,
+              "metadata.creationTimestamp": true,
+              "metadata.managedFields": true,
+              "metadata.uid": true,
+              "involvedObject.apiVersion": true,
+              "involvedObject.fieldPath": true,
+              "involvedObject.resourceVersion": true,
+              "involvedObject.uid": true,
+              "apiVersion": true,
+              "kind": true,
+              "reportingComponent": true,
+              "reportingInstance": true,
+              "source.host": true,
+              "action": true,
+              "eventTime": true,
+              "firstTimestamp": true
+            },
+            "renameByName": {
+              "Time": "Time",
+              "type": "Type",
+              "source.component": "Source",
+              "involvedObject.namespace": "Namespace",
+              "involvedObject.kind": "Kind",
+              "involvedObject.name": "Object",
+              "body": "Message",
+              "count": "Count",
+              "lastTimestamp": "Last Seen"
+            },
+            "indexByName": {
+              "Time": 0,
+              "type": 1,
+              "source.component": 2,
+              "involvedObject.namespace": 3,
+              "involvedObject.kind": 4,
+              "involvedObject.name": 5,
+              "body": 6,
+              "count": 7,
+              "lastTimestamp": 8
+            }
+          }
+        }
+      ],
       "targets": [
         {
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
           "editorMode": "code",
-          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | fields type, \"source.component\", \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", _msg, count, lastTimestamp | sort desc | limit $limit",
+          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | uniq by (\"metadata.uid\") | fields type, \"source.component\", \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", _msg, count, lastTimestamp | sort desc | limit $limit",
           "queryType": "range",
           "refId": "A"
         }
