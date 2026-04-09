@@ -266,7 +266,7 @@
         {
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
           "editorMode": "code",
-          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | stats by (involvedObject.namespace) count() c | sort by (c desc) | limit 20",
+          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | stats by (\"involvedObject.namespace\") count() c | sort by (c desc) | limit 20",
           "legendFormat": "{{involvedObject.namespace}}",
           "queryType": "stats",
           "refId": "A"
@@ -384,20 +384,6 @@
               { "id": "custom.width", "value": 70 },
               { "id": "custom.align", "value": "center" }
             ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "last_seen" },
-            "properties": [
-              { "id": "displayName", "value": "Last Seen" },
-              { "id": "custom.width", "value": 180 }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "message" },
-            "properties": [
-              { "id": "displayName", "value": "Message" },
-              { "id": "custom.minWidth", "value": 300 }
-            ]
           }
         ]
       },
@@ -407,14 +393,14 @@
         "cellHeight": "sm",
         "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
         "showHeader": true,
-        "sortBy": [{ "displayName": "Last Seen", "desc": true }]
+        "sortBy": [{ "displayName": "Count", "desc": true }]
       },
       "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
           "editorMode": "code",
-          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | stats by (type, involvedObject.namespace, involvedObject.kind, involvedObject.name, reason) count() c, last(_time) as last_seen, last(_msg) as message | sort by (last_seen desc) | limit $limit",
+          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | stats by (type, \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", reason) count() c | sort by (c desc) | limit $limit",
           "queryType": "stats",
           "refId": "A"
         }
