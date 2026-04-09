@@ -389,7 +389,17 @@
         "showHeader": true
       },
       "pluginVersion": "11.5.1",
-      "transformations": [],
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "source": "labels",
+            "format": "json",
+            "keepTime": false,
+            "replace": true
+          }
+        }
+      ],
       "targets": [
         {
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
