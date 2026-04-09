@@ -333,7 +333,7 @@
             "matcher": { "id": "byName", "options": "type" },
             "properties": [
               { "id": "displayName", "value": "Type" },
-              { "id": "custom.width", "value": 100 },
+              { "id": "custom.width", "value": 90 },
               { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } },
               {
                 "id": "mappings",
@@ -350,39 +350,53 @@
             ]
           },
           {
+            "matcher": { "id": "byName", "options": "source.component" },
+            "properties": [
+              { "id": "displayName", "value": "Source" },
+              { "id": "custom.width", "value": 160 }
+            ]
+          },
+          {
             "matcher": { "id": "byName", "options": "involvedObject.namespace" },
             "properties": [
               { "id": "displayName", "value": "Namespace" },
-              { "id": "custom.width", "value": 140 }
+              { "id": "custom.width", "value": 130 }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "involvedObject.kind" },
             "properties": [
               { "id": "displayName", "value": "Kind" },
-              { "id": "custom.width", "value": 90 }
+              { "id": "custom.width", "value": 100 }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "involvedObject.name" },
             "properties": [
               { "id": "displayName", "value": "Object" },
-              { "id": "custom.width", "value": 260 }
+              { "id": "custom.width", "value": 220 }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "reason" },
+            "matcher": { "id": "byName", "options": "_msg" },
             "properties": [
-              { "id": "displayName", "value": "Reason" },
-              { "id": "custom.width", "value": 140 }
+              { "id": "displayName", "value": "Message" },
+              { "id": "custom.minWidth", "value": 300 }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "c" },
+            "matcher": { "id": "byName", "options": "count" },
             "properties": [
               { "id": "displayName", "value": "Count" },
               { "id": "custom.width", "value": 70 },
               { "id": "custom.align", "value": "center" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "lastTimestamp" },
+            "properties": [
+              { "id": "displayName", "value": "Last Seen" },
+              { "id": "custom.width", "value": 180 }
             ]
           }
         ]
@@ -392,16 +406,15 @@
       "options": {
         "cellHeight": "sm",
         "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
-        "showHeader": true,
-        "sortBy": [{ "displayName": "Count", "desc": true }]
+        "showHeader": true
       },
       "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
           "editorMode": "code",
-          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | stats by (type, \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", reason) count() c | sort by (c desc) | limit $limit",
-          "queryType": "stats",
+          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | fields type, \"source.component\", \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", _msg, count, lastTimestamp | sort desc | limit $limit",
+          "queryType": "range",
           "refId": "A"
         }
       ],
