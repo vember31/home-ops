@@ -70,7 +70,7 @@
       "id": 1,
       "options": {
         "colorMode": "background",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
@@ -108,7 +108,7 @@
       "id": 2,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
@@ -146,7 +146,7 @@
       "id": 3,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
@@ -267,7 +267,7 @@
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
           "editorMode": "code",
           "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | stats by (\"involvedObject.namespace\") count() c | sort by (c desc) | limit 20",
-          "legendFormat": "{{involvedObject.namespace}}",
+          "legendFormat": "",
           "queryType": "stats",
           "refId": "A"
         }
