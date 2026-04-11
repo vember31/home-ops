@@ -288,7 +288,7 @@
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
           "editorMode": "code",
           "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | stats by (\"involvedObject.namespace\") count() c | sort by (c desc) | limit 20",
-          "legendFormat": "",
+          "legendFormat": "{{involvedObject.namespace}}",
           "queryType": "stats",
           "refId": "A"
         }
