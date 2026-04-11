@@ -391,7 +391,7 @@
           },
           {
             "matcher": { "id": "byName", "options": "Time" },
-            "properties": [{ "id": "custom.width", "value": 170 }]
+            "properties": [{ "id": "custom.width", "value": 110 }, { "id": "unit", "value": "dateTimeFromNow" }]
           }
         ]
       },
