@@ -427,7 +427,8 @@
               "id": true,
               "tsNs": true,
               "labels": true,
-              "Line": true
+              "Line": true,
+              "detected_level": true
             },
             "indexByName": {
               "Time": 0,
