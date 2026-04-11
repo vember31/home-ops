@@ -386,7 +386,7 @@
             "properties": [{ "id": "custom.width", "value": 160 }, { "id": "displayName", "value": "source" }]
           },
           {
-            "matcher": { "id": "byName", "options": "body" },
+            "matcher": { "id": "byName", "options": "Line" },
             "properties": [{ "id": "displayName", "value": "message" }]
           },
           {
@@ -427,7 +427,6 @@
               "id": true,
               "tsNs": true,
               "labels": true,
-              "Line": true,
               "detected_level": true
             },
             "indexByName": {
@@ -438,7 +437,7 @@
               "involvedObject.namespace": 4,
               "involvedObject.kind": 5,
               "involvedObject.name": 6,
-              "body": 7
+              "Line": 7
             }
           }
         }
