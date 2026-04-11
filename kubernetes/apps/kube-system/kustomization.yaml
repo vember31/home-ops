@@ -12,6 +12,7 @@ resources:
   - ./descheduler/ks.yaml
   - ./external-secrets/ks.yaml
   - ./eraser/ks.yaml
+  - ./etcd-defrag/ks.yaml
   - ./kube-cleanup-operator/ks.yaml
   - ./kured/ks.yaml
   - ./node-feature-discovery/ks.yaml

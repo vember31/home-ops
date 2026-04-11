@@ -51,6 +51,7 @@ Every app follows the same pattern: `kubernetes/apps/<namespace>/<app-name>/`
 2. **`app/helmrelease.yaml`** — HelmRelease defining the chart, version, and values.
 3. **`app/kustomization.yaml`** — Kustomize resource list. Often includes `externalsecret.yaml`, gatus templates, configMapGenerators.
 4. **`app/externalsecret.yaml`** — Pulls secrets from GitLab via `gitlab-secret-store` ClusterSecretStore.
+5. **Namespace-level `kustomization.yaml`** — The `kustomization.yaml` at `kubernetes/apps/<namespace>/kustomization.yaml` must include a reference to the new app's `ks.yaml` (e.g., `- ./my-app/ks.yaml`). **This is required for Flux to discover the app.**
 
 Templates live in `kubernetes/templates/yaml-templates/` — use them as starting points.
 
