@@ -68,6 +68,13 @@
       },
       "gridPos": { "h": 4, "w": 8, "x": 0, "y": 1 },
       "id": 1,
+      "links": [
+        {
+          "title": "Filter to Warnings",
+          "url": "/d/kubernetes-events/kubernetes-events?var-type=Warning&${__url_time_range}&var-namespace=${namespace}&var-limit=${limit}",
+          "targetBlank": false
+        }
+      ],
       "options": {
         "colorMode": "background",
         "graphMode": "none",
@@ -106,6 +113,13 @@
       },
       "gridPos": { "h": 4, "w": 8, "x": 8, "y": 1 },
       "id": 2,
+      "links": [
+        {
+          "title": "Filter to Normal",
+          "url": "/d/kubernetes-events/kubernetes-events?var-type=Normal&${__url_time_range}&var-namespace=${namespace}&var-limit=${limit}",
+          "targetBlank": false
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -144,6 +158,13 @@
       },
       "gridPos": { "h": 4, "w": 8, "x": 16, "y": 1 },
       "id": 3,
+      "links": [
+        {
+          "title": "Show All Events",
+          "url": "/d/kubernetes-events/kubernetes-events?var-type=.*&${__url_time_range}&var-namespace=${namespace}&var-limit=${limit}",
+          "targetBlank": false
+        }
+      ],
       "options": {
         "colorMode": "value",
         "graphMode": "none",
@@ -316,31 +337,80 @@
     },
     {
       "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "filterable": true,
+            "inspect": true
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "type" },
+            "properties": [
+              { "id": "custom.width", "value": 80 },
+              {
+                "id": "custom.cellOptions",
+                "value": { "type": "color-text" }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  { "type": "value", "options": { "Warning": { "color": "red", "index": 0 }, "Normal": { "color": "green", "index": 1 } } }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "reason" },
+            "properties": [{ "id": "custom.width", "value": 160 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "involvedObject.namespace" },
+            "properties": [{ "id": "custom.width", "value": 130 }, { "id": "displayName", "value": "namespace" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "involvedObject.name" },
+            "properties": [{ "id": "custom.width", "value": 240 }, { "id": "displayName", "value": "object" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "involvedObject.kind" },
+            "properties": [{ "id": "custom.width", "value": 120 }, { "id": "displayName", "value": "kind" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "events" },
+            "properties": [{ "id": "custom.width", "value": 70 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "_msg" },
+            "properties": [{ "id": "displayName", "value": "message" }]
+          }
+        ]
+      },
       "gridPos": { "h": 20, "w": 24, "x": 0, "y": 23 },
       "id": 7,
       "options": {
-        "dedupStrategy": "signature",
-        "enableInfiniteScrolling": false,
-        "enableLogDetails": true,
-        "prettifyLogMessage": false,
-        "showCommonLabels": false,
-        "showLabels": true,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": false
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": { "enablePagination": true },
+        "sortBy": [{ "displayName": "events", "desc": true }]
       },
       "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
           "editorMode": "code",
-          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | sort desc | limit $limit",
-          "queryType": "range",
+          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | stats by (type, reason, \"involvedObject.namespace\", \"involvedObject.name\", \"involvedObject.kind\", _msg) count() events | sort by (events desc) | limit $limit",
+          "queryType": "stats",
           "refId": "A"
         }
       ],
       "title": "Events",
-      "type": "logs"
+      "type": "table"
     }
   ],
   "refresh": "10s",
