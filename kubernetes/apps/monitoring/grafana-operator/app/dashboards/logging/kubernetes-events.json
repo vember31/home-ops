@@ -343,7 +343,7 @@
             "align": "auto",
             "cellOptions": { "type": "auto" },
             "filterable": true,
-            "inspect": true
+            "inspect": false
           },
           "mappings": [],
           "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
@@ -367,7 +367,7 @@
           },
           {
             "matcher": { "id": "byName", "options": "reason" },
-            "properties": [{ "id": "custom.width", "value": 160 }]
+            "properties": [{ "id": "custom.width", "value": 150 }]
           },
           {
             "matcher": { "id": "byName", "options": "involvedObject.namespace" },
@@ -375,19 +375,23 @@
           },
           {
             "matcher": { "id": "byName", "options": "involvedObject.name" },
-            "properties": [{ "id": "custom.width", "value": 240 }, { "id": "displayName", "value": "object" }]
+            "properties": [{ "id": "custom.width", "value": 220 }, { "id": "displayName", "value": "object" }]
           },
           {
             "matcher": { "id": "byName", "options": "involvedObject.kind" },
-            "properties": [{ "id": "custom.width", "value": 120 }, { "id": "displayName", "value": "kind" }]
+            "properties": [{ "id": "custom.width", "value": 100 }, { "id": "displayName", "value": "kind" }]
           },
           {
-            "matcher": { "id": "byName", "options": "events" },
-            "properties": [{ "id": "custom.width", "value": 70 }]
+            "matcher": { "id": "byName", "options": "source.component" },
+            "properties": [{ "id": "custom.width", "value": 160 }, { "id": "displayName", "value": "source" }]
           },
           {
-            "matcher": { "id": "byName", "options": "_msg" },
+            "matcher": { "id": "byName", "options": "body" },
             "properties": [{ "id": "displayName", "value": "message" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Time" },
+            "properties": [{ "id": "custom.width", "value": 170 }]
           }
         ]
       },
@@ -397,16 +401,45 @@
         "showHeader": true,
         "cellHeight": "sm",
         "footer": { "enablePagination": true },
-        "sortBy": [{ "displayName": "events", "desc": true }]
+        "sortBy": []
       },
       "pluginVersion": "11.5.1",
       "targets": [
         {
           "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
           "editorMode": "code",
-          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | stats by (type, reason, \"involvedObject.namespace\", \"involvedObject.name\", \"involvedObject.kind\", _msg) count() events | sort by (events desc) | limit $limit",
-          "queryType": "stats",
+          "expr": "{reason!=\"\", type=~\"$type\"} involvedObject.namespace:~\"$namespace\" | fields _time, type, reason, \"involvedObject.namespace\", \"involvedObject.kind\", \"involvedObject.name\", \"source.component\", _msg | sort desc | limit $limit",
+          "queryType": "range",
           "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "source": "labels"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "id": true,
+              "tsNs": true,
+              "labels": true,
+              "Line": true
+            },
+            "indexByName": {
+              "Time": 0,
+              "type": 1,
+              "reason": 2,
+              "source.component": 3,
+              "involvedObject.namespace": 4,
+              "involvedObject.kind": 5,
+              "involvedObject.name": 6,
+              "body": 7
+            }
+          }
         }
       ],
       "title": "Events",
