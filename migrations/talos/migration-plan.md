@@ -7,9 +7,9 @@
 
 Migrate from k3s (on Ubuntu VMs in Proxmox) to Talos Linux — an immutable, API-managed OS purpose-built for Kubernetes. No SSH, no shell, no package manager. Everything managed through `talosctl` and declarative machine configs.
 
-**Strategy**: Parallel cluster (blue-green). Both clusters run simultaneously with their own permanent IPs. Cutover is just DNS/DHCP/BGP changes — no re-IP dance. The k3s cluster stays untouched on `main` branch until decommissioned.
+**Strategy**: Single-swing with planned downtime (a few hours). k3s VMs are shut down, Talos VMs are provisioned with new IPs on the same Proxmox hosts, then Flux bootstraps and data is restored from backups. k3s VMs remain powered off (not deleted) for 1-2 weeks as a rollback safety net. Talos uses a distinct IP scheme from k3s so both sets of VMs can coexist on the network without conflicts during the soak period.
 
-**Git isolation**: A `talos` branch holds all Talos-specific changes during the parallel phase. Talos cluster's FluxInstance syncs from the `talos` branch. At cutover, merge `talos` → `main`.
+**Git**: All Talos-specific changes go directly to `main`. No parallel branch needed since k3s is fully shut down before Talos is brought up.
 
 ---
 
@@ -43,28 +43,43 @@ Migrate from k3s (on Ubuntu VMs in Proxmox) to Talos Linux — an immutable, API
 
 ## IP Scheme
 
-### Secure VLAN (192.168.2.0/24)
+### Secure VLAN (192.168.2.0/24) — Section Layout
 
-| Resource | k3s (current) | Talos (permanent) |
+The subnet is divided into logical decade-based sections. Post-migration, the `.10-.19` section will be renumbered for Proxmox hosts (see [Phase 6](#phase-6-post-migration-ip-cleanup)).
+
+| Section | Range | Purpose |
+|---|---|---|
+| Network infra | `.1 – .9` | Gateway (`.1`), switches, APs, future network devices |
+| Proxmox hosts | `.10 – .19` | PVE hypervisors (renumbered post-migration; `.11-.15` reserved for legacy k3s during soak) |
+| Storage | `.20 – .29` | NAS / storage appliances |
+| Services | `.30 – .39` | LXC containers, standalone VMs, misc services |
+| Kubernetes | `.40 – .49` | Talos VIP + nodes |
+| Reserved | `.50 – .99` | Future expansion |
+
+### Secure VLAN (192.168.2.0/24) — Node IPs
+
+| Resource | k3s (powered off) | Talos (permanent) |
 |---|---|---|
 | Node 1 | 192.168.2.11 | 192.168.2.41 |
 | Node 2 | 192.168.2.12 | 192.168.2.42 |
 | Node 3 | 192.168.2.13 | 192.168.2.43 |
 | Node 4 | 192.168.2.14 | 192.168.2.44 |
 | Node 5 | 192.168.2.15 | 192.168.2.45 |
-| Talos VIP (internal/bootstrap only) | N/A | 192.168.2.40 |
+| VIP (internal/bootstrap only) | 192.168.2.8 (HAProxy, dead) | 192.168.2.40 |
 
 ### LB VLAN (192.168.10.0/24)
 
-| Resource | k3s (current) | Talos (permanent) |
-|---|---|---|
-| Traefik | 192.168.10.20 | 192.168.10.40 |
-| Plex | 192.168.10.21 | 192.168.10.41 |
-| Blocky | 192.168.10.22 | 192.168.10.42 |
-| qBittorrent | 192.168.10.23 | 192.168.10.43 |
-| K8s API LB | 192.168.10.100 | 192.168.10.50 |
+Services are grouped starting at `.10`, leaving `.1` for the VLAN gateway and room below for future use. Old k3s IPs (`.20-.23`, `.100`) are freed after decommission.
 
-The Talos VIP (192.168.2.40) is only used for node-to-node bootstrap before Cilium is running. External `kubectl` access continues through the Cilium BGP-advertised K8s API LB, same as today.
+| Resource | k3s (powered off) | Talos (permanent) |
+|---|---|---|
+| K8s API LB | 192.168.10.100 | 192.168.10.10 |
+| Traefik | 192.168.10.20 | 192.168.10.11 |
+| Blocky | 192.168.10.22 | 192.168.10.12 |
+| Plex | 192.168.10.21 | 192.168.10.13 |
+| qBittorrent | 192.168.10.23 | 192.168.10.14 |
+
+The Talos VIP (192.168.2.40) is only used for node-to-node bootstrap before Cilium is running. External `kubectl` access continues through the Cilium BGP-advertised K8s API LB.
 
 ---
 
@@ -134,11 +149,11 @@ All changes below happen on this branch. k3s keeps running on `main` untouched.
 ```yaml
 # kubernetes/flux/vars/cluster-settings.yaml
 # Rename comment from "k3s-based IPs" to "k8s service IPs"
-TRAEFIK_IP: "192.168.10.40"
-BLOCKY_IP: "192.168.10.42"
-K8S_LB_IP: "192.168.10.50"    # renamed from K3S_LB_IP
-PLEX_IP: "192.168.10.41"
-QBT_IP: "192.168.10.43"
+K8S_LB_IP: "192.168.10.10"    # renamed from K3S_LB_IP
+TRAEFIK_IP: "192.168.10.11"
+BLOCKY_IP: "192.168.10.12"
+PLEX_IP: "192.168.10.13"
+QBT_IP: "192.168.10.14"
 ```
 
 All HelmReleases reference these via Flux substitution (`${TRAEFIK_IP}`, etc.), so the IP change propagates automatically to all apps.
@@ -401,7 +416,7 @@ This is the brief window where traffic moves from k3s to Talos.
 
 ### 4.2 Switch DNS/DHCP
 
-- **DHCP on UDM**: Point clients' DNS server from `192.168.10.22` (old Blocky) to `192.168.10.42` (new Blocky)
+- **DHCP on UDM**: Point clients' DNS server from `192.168.10.22` (old Blocky) to `192.168.10.12` (new Blocky)
 - **AdGuard Home**: If it forwards to Blocky, update to the new IP
 
 ### 4.3 Update Router BGP
@@ -469,6 +484,59 @@ talosctl services --nodes 192.168.2.41        # service status
 talosctl dashboard --nodes 192.168.2.41       # TUI dashboard
 talosctl read /var/log/... --nodes 192.168.2.41  # read files
 ```
+
+---
+
+## Phase 6: Post-Migration IP Cleanup
+
+Once the k3s VMs are confirmed deleted (after the soak period), clean up the remaining IP sprawl. These are all independent DHCP reservation + VM/LXC network config changes — no k8s involvement.
+
+### 6.1 Renumber Proxmox Hosts
+
+The `.10-.19` section is now free for PVE hosts. Update DHCP reservations on the UDM and the network config on each Proxmox host.
+
+| Host | Current IP | Target IP |
+|---|---|---|
+| PVE-1 | 192.168.2.3 | 192.168.2.10 |
+| PVE-2 | 192.168.2.10 | 192.168.2.11 |
+| PVE-3 | 192.168.2.2 | 192.168.2.12 |
+| PVE-4 | 192.168.2.18 | 192.168.2.13 |
+
+> Note: PVE-2 is currently at `.10` — renumber it last to avoid stepping on the target IP of PVE-1.
+
+### 6.2 Relocate Infrastructure Services
+
+| Device | Current IP | Target IP | Section |
+|---|---|---|---|
+| OMV | 192.168.2.9 | 192.168.2.20 | Storage |
+| OMV2 | 192.168.2.19 | 192.168.2.21 | Storage |
+| AdGuard Home | 192.168.2.4 | 192.168.2.30 | Services |
+| Vaultwarden | 192.168.2.150 | 192.168.2.31 | Services |
+| UNVR | 192.168.2.189 | 192.168.2.32 | Services |
+
+### 6.3 Update cluster-settings.yaml
+
+After renumbering, update the external service IPs in `kubernetes/flux/vars/cluster-settings.yaml`:
+
+```yaml
+ADGUARD_LXC_IP: "192.168.2.30"
+OMV_IP: "192.168.2.20"
+OMV2_IP: "192.168.2.21"
+PVE_1: "192.168.2.10"
+PVE_2: "192.168.2.11"
+PVE_3: "192.168.2.12"
+PVE_4: "192.168.2.13"
+VAULTWARDEN_IP: "192.168.2.31"
+UNVR_IP: "192.168.2.32"
+```
+
+Also remove `GATEWAY_IP` / `SECURE_GATEWAY` duplication — they're the same value (`192.168.2.1`), keep only one.
+
+### 6.4 Remove Dead Config
+
+- `configs/haproxy/` — HAProxy config, no longer in use since Cilium BGP handles API LB
+- `configs/keepalived/` — Keepalived config, same reason
+- The old HAProxy VIP (`192.168.2.8`) was a DHCP reservation — remove it from UDM
 
 ---
 
