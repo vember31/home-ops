@@ -99,7 +99,11 @@ spec:
                       - "32400"
                       - "identity"
                       - "/media/tv"
+                      - "/media/movies"
+                      - "/media/recordings"
+                      - "/media/videos"
                       - "/media2/tv"
+                      - "/media2/movies"
                   initialDelaySeconds: 0
                   periodSeconds: 30
                   timeoutSeconds: 10
