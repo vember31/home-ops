@@ -1,0 +1,72 @@
+---
+# OMV - /export/media
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv-media-downloads
+spec:
+  capacity:
+    storage: 16Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.2
+    - nconnect=16
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  nfs:
+    server: ${OMV_IP}
+    path: /export/media
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv-media
+  namespace: downloads
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv-media-downloads
+  resources:
+    requests:
+      storage: 16Ti
+---
+# OMV2 - /export
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv2-downloads
+spec:
+  capacity:
+    storage: 4Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.2
+    - nconnect=16
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  nfs:
+    server: ${OMV2_IP}
+    path: /export
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv2
+  namespace: downloads
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv2-downloads
+  resources:
+    requests:
+      storage: 4Ti

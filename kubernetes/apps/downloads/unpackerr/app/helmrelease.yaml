@@ -140,9 +140,8 @@ spec:
 
       media:
         enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media 
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv-media
         globalMounts:
           - path: /media/
 

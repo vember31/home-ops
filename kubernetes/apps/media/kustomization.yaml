@@ -7,6 +7,9 @@ resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
 
+  # NFS PV/PVC definitions
+  - ./nfs-volumes.yaml
+
   # Flux-Kustomizations
   - ./agregarr/ks.yaml
   - ./autopulse/ks.yaml

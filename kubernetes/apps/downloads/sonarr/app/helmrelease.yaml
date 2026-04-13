@@ -153,17 +153,16 @@ spec:
 
       media:
         enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media 
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv-media
         globalMounts:
           - path: /media/
 
       # old hard drive in old server
       tv2:
         enabled: true
-        type: nfs
-        server: ${OMV2_IP}
-        path: /export/tv
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv2
         globalMounts:
           - path: /media2/tv
+            subPath: tv

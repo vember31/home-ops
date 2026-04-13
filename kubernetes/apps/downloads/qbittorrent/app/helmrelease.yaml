@@ -209,9 +209,9 @@ spec:
 
       downloads:
         enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/downloads
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv-media
         globalMounts:
           - path: /media/downloads
+            subPath: downloads
       
