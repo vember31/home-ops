@@ -19,7 +19,7 @@ spec:
     - wsize=1048576
   nfs:
     server: ${OMV_IP}
-    path: /export/media
+    path: /media
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -55,7 +55,7 @@ spec:
     - wsize=1048576
   nfs:
     server: ${OMV2_IP}
-    path: /export
+    path: /
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
