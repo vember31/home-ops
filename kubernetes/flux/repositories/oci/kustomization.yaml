@@ -6,6 +6,7 @@ resources:
   - ./app-template-testing.yaml
   - ./app-template.yaml
   - ./cilium.yaml
+  - ./csi-driver-nfs.yaml
   - ./cloudnative-pg.yaml
   - ./coredns.yaml
   - ./dragonfly-operator.yaml
