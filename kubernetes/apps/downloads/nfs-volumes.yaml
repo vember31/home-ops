@@ -17,9 +17,12 @@ spec:
     - noatime
     - rsize=1048576
     - wsize=1048576
-  nfs:
-    server: ${OMV_IP}
-    path: /media
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv-media-downloads
+    volumeAttributes:
+      server: ${OMV_IP}
+      share: /media
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -53,9 +56,12 @@ spec:
     - noatime
     - rsize=1048576
     - wsize=1048576
-  nfs:
-    server: ${OMV2_IP}
-    path: /
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv2-downloads
+    volumeAttributes:
+      server: ${OMV2_IP}
+      share: /
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
