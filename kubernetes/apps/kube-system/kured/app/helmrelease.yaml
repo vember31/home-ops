@@ -33,7 +33,6 @@ spec:
     enable: true
   rollback:
     recreate: true
-    force: true
     cleanupOnFail: true
   uninstall:
     keepHistory: false
