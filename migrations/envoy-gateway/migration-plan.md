@@ -67,7 +67,7 @@ Migrate from Traefik (IngressRoute CRDs + Ingress resources) to Envoy Gateway wi
 |---|---|
 | Default TLS options (min 1.2, max 1.3, sniStrict) | `ClientTrafficPolicy` on Gateway with TLS settings |
 | HTTP → HTTPS redirect via entrypoint | Gateway listener config or `HTTPRouteFilter` redirect |
-| cert-manager annotation on Ingress | cert-manager annotation on Gateway or Certificate resources |
+| cert-manager annotation on Ingress | cert-manager annotation on Gateway — auto-issues per-app certs from HTTPRoute hostnames |
 
 ### Key Architecture Difference
 
@@ -125,9 +125,9 @@ spec:
       port: 443
       tls:
         mode: Terminate
-        certificateRefs:
-          - kind: Secret
-            name: wildcard-tls  # or per-listener certs
+        # certificateRefs are automatically managed by cert-manager's Gateway API integration.
+        # cert-manager watches HTTPRoute hostnames attached to this Gateway and issues
+        # per-app certs (matching the current Ingress-based approach).
   infrastructure:
     annotations:
       lbipam.cilium.io/ips: "192.168.10.24"  # temporary parallel IP
@@ -296,8 +296,8 @@ Key differences:
 - `ingress:` → `route:`
 - Traefik annotations removed
 - `external-dns` target changes from `traefik.local.` to `envoy.local.` (temporary, then to final Envoy IP)
-- `cert-manager` annotation moves to the Gateway resource (not per-route)
-- `tls:` section removed (Gateway handles TLS termination)
+- `cert-manager` annotation lives on the Gateway resource — cert-manager auto-issues per-app certs based on HTTPRoute hostnames (same per-app cert approach as today, just driven by the Gateway instead of per-Ingress annotations)
+- `tls:` section removed from HelmRelease values (Gateway handles TLS termination)
 - `hosts:` → `hostnames:`
 - `paths:` → `rules:` with `matches:`
 
