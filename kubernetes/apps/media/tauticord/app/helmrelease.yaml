@@ -54,8 +54,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/nwithan8/tauticord
-              tag: 5.16.0@sha256:6ff0d95c609c25d3e0a46f45cf0fbb5d96c8c71b13650db3949dab3f764b56f1
+              repository: codeberg.org/nwithan8/tauticord
+              tag: 6.0.1@sha256:470f99de894e3d93e08ed0f7f505e54a102ba56a90fd39f86043a63a22aeefd7
               pullPolicy: IfNotPresent
 
             lifecycle:
