@@ -77,7 +77,7 @@ spec:
               - --key=/etc/etcd/tls/server-client.key
               - --cluster
               - --defrag-rule
-              - "dbQuotaUsage > 0.8 || dbSize - dbSizeInUse > 200*1024*1024"
+              - "dbQuotaUsage > 0.8 || dbSize - dbSizeInUse > 50*1024*1024"
               - --move-leader
               - --wait-between-defrags=30s
               - --etcd-storage-quota-bytes=2147483648
