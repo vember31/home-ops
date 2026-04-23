@@ -59,7 +59,7 @@ spec:
       ${APP}:
         type: cronjob
         cronjob:
-          schedule: "30 4 * * 6"
+          schedule: "30 23 * * *"
           timeZone: ${TIMEZONE}
           concurrencyPolicy: Forbid
           successfulJobsHistory: 1
