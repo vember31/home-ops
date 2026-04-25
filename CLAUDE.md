@@ -104,7 +104,55 @@ Automated dependency management with modular config in `.github/renovate/`:
 - **Custom managers**: Regex-based detection for Helm, Docker, GitHub releases, Grafana dashboards
 - **Special versioning**: k3s (`+k3s1` suffix), CNPG images (`-trixie` suffix), date-based versions
 
+## Cluster Access
+
+SSH into nodes directly via the secure subnet. Nodes 11–15:
+
+```
+ssh <user>@192.168.2.11   # node 1
+ssh <user>@192.168.2.12   # node 2
+ssh <user>@192.168.2.13   # node 3
+ssh <user>@192.168.2.14   # node 4
+ssh <user>@192.168.2.15   # node 5
+```
+
+(`<user>` is the local admin account — not committed here for privacy.)
+
 ## Common Tasks
+
+### Checking etcd fragmentation
+
+Port-forward to VictoriaMetrics and query the two key metrics:
+
+```bash
+kubectl port-forward svc/vmsingle-victoria-metrics-k8s-stack 8428:8428 -n monitoring &
+sleep 3
+
+curl -s "http://localhost:8428/api/v1/query" \
+  --data-urlencode "query=etcd_mvcc_db_total_size_in_bytes" > /tmp/etcd_total.json
+curl -s "http://localhost:8428/api/v1/query" \
+  --data-urlencode "query=etcd_mvcc_db_total_size_in_use_in_bytes" > /tmp/etcd_inuse.json
+
+kill %1
+
+python3 << 'EOF'
+import json
+total_data = json.load(open('/tmp/etcd_total.json'))
+inuse_data = json.load(open('/tmp/etcd_inuse.json'))
+inuse_map = {r['metric']['instance']: float(r['value'][1]) for r in inuse_data['data']['result']}
+print(f"{'Instance':<22} {'Total':>10} {'In-Use':>10} {'Fragment':>10} {'Frag%':>7}")
+print("-" * 65)
+for r in sorted(total_data['data']['result'], key=lambda x: x['metric']['instance']):
+    inst = r['metric']['instance']
+    total = float(r['value'][1])
+    inuse = inuse_map.get(inst, 0)
+    frag = total - inuse
+    pct = (frag / total * 100) if total > 0 else 0
+    print(f"{inst:<22} {total/1024/1024:>9.1f}M {inuse/1024/1024:>9.1f}M {frag/1024/1024:>9.1f}M {pct:>6.1f}%")
+EOF
+```
+
+**What to look for**: Fragmentation (absolute bytes) is the defrag trigger — threshold is **50 MB**. Fragmentation % of 40–50% is normal mid-cycle; it spikes before the nightly defrag (23:30 CT) and drops immediately after. The `etcd-defrag` CronJob in `kube-system` handles this automatically.
 
 ### Finding an app's config
 ```
