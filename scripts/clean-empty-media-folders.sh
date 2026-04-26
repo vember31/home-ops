@@ -4,6 +4,10 @@
 # no video files (they may have subtitles, nfo, etc. but no actual video).
 # Supports running locally or over SSH with user/password (requires sshpass).
 #
+# Scans two levels deep:
+#   - If a top-level folder (show/movie) has no video anywhere inside, delete the whole thing.
+#   - If a top-level folder has some video, scan its subfolders (seasons) and delete empty ones.
+#
 # Usage:
 #   ./clean-empty-media-folders.sh [OPTIONS] [/path/to/media]
 #
@@ -14,10 +18,10 @@
 #   --password <pass>     SSH password (requires sshpass to be installed)
 #
 # Examples:
-#   ./clean-empty-media-folders.sh                                         # local, report
-#   ./clean-empty-media-folders.sh --delete /media                         # local, delete
-#   ./clean-empty-media-folders.sh --host 192.168.2.9 --user root /media   # SSH, report
-#   ./clean-empty-media-folders.sh --host 192.168.2.9 --user root --password secret --delete /media
+#   ./clean-empty-media-folders.sh                                                      # local, report
+#   ./clean-empty-media-folders.sh --delete /media                                      # local, delete
+#   ./clean-empty-media-folders.sh --host 192.168.2.9 --user root /export/media        # SSH, report
+#   ./clean-empty-media-folders.sh --host 192.168.2.9 --user root --delete /export/media
 
 DELETE=false
 MEDIA_DIR="/media"
@@ -98,22 +102,40 @@ echo "Scanning: $MEDIA_DIR"
 echo "Mode: $( [ "$DELETE" = true ] && echo "DELETE" || echo "report only" )"
 echo "---"
 
-found=0
-while IFS= read -r dir; do
-  if ! has_video "$dir"; then
-    echo "$dir"
-    (( found++ ))
+removed=0
+would_remove=0
+
+while IFS= read -r top_dir; do
+  if ! has_video "$top_dir"; then
+    # No video anywhere in this show/movie folder — remove the whole thing
+    echo "[whole folder] $top_dir"
     if [ "$DELETE" = true ]; then
-      rm -rf "$dir"
+      rm -rf "$top_dir"
+      (( removed++ ))
+    else
+      (( would_remove++ ))
     fi
+  else
+    # Has video somewhere — check each subfolder (season) individually
+    while IFS= read -r sub_dir; do
+      if ! has_video "$sub_dir"; then
+        echo "[empty subfolder] $sub_dir"
+        if [ "$DELETE" = true ]; then
+          rm -rf "$sub_dir"
+          (( removed++ ))
+        else
+          (( would_remove++ ))
+        fi
+      fi
+    done < <(find "$top_dir" -mindepth 1 -maxdepth 1 -type d | sort)
   fi
 done < <(find "$MEDIA_DIR" -mindepth 1 -maxdepth 1 -type d | sort)
 
 echo "---"
 if [ "$DELETE" = true ]; then
-  echo "Removed $found folder(s)."
+  echo "Removed $removed folder(s)."
 else
-  echo "Found $found folder(s) with no video files. Run with --delete to remove them."
+  echo "Found $would_remove folder(s) with no video files. Run with --delete to remove them."
 fi
 REMOTE
 )
