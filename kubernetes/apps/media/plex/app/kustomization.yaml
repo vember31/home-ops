@@ -12,4 +12,4 @@ generatorOptions:
     kustomize.toolkit.fluxcd.io/substitute: disabled
 resources:
   - ./helmrelease.yaml
-  - ../../../../templates/gatus/internal
+  - ./resources/gatus.yaml
