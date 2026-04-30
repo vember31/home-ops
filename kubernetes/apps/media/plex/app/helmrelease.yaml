@@ -202,58 +202,51 @@ spec:
       tv:
         enabled: true
         type: persistentVolumeClaim
-        existingClaim: nfs-omv-media
+        existingClaim: nfs-omv-media-tv
         globalMounts:
           - path: /media/tv
-            subPath: tv
             readOnly: true
 
       movies:
         enabled: true
         type: persistentVolumeClaim
-        existingClaim: nfs-omv-media
+        existingClaim: nfs-omv-media-movies
         globalMounts:
           - path: /media/movies
-            subPath: movies
             readOnly: true
 
       # live tv recordings
       recordings:
         enabled: true
         type: persistentVolumeClaim
-        existingClaim: nfs-omv-media
+        existingClaim: nfs-omv-media-recordings
         globalMounts:
           - path: /media/recordings
-            subPath: recordings
             readOnly: false
 
       # old hard drive in old server
       movies2:
         enabled: true
         type: persistentVolumeClaim
-        existingClaim: nfs-omv2
+        existingClaim: nfs-omv2-media-movies
         globalMounts:
           - path: /media2/movies
-            subPath: movies
             readOnly: true
 
       # old hard drive in old server
       tv2:
         enabled: true
         type: persistentVolumeClaim
-        existingClaim: nfs-omv2
+        existingClaim: nfs-omv2-media-tv
         globalMounts:
           - path: /media2/tv
-            subPath: tv
             readOnly: true
 
       # vids and stuff
       videos:
         enabled: true
         type: persistentVolumeClaim
-        existingClaim: nfs-omv-media
+        existingClaim: nfs-omv-media-videos
         globalMounts:
           - path: /media/videos
-            subPath: videos
             readOnly: false
-

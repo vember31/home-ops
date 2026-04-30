@@ -157,6 +157,4 @@ spec:
         type: persistentVolumeClaim
         existingClaim: nfs-omv-media
         globalMounts:
-          - path: /media/downloads
-            subPath: downloads
-      
+          - path: /media

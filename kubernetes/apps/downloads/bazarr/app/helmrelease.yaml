@@ -153,21 +153,12 @@ spec:
         globalMounts:
           - path: /media/
 
-      tv2:
+      media2:
         enabled: true
         type: persistentVolumeClaim
         existingClaim: nfs-omv2
         globalMounts:
-          - path: /media2/tv
-            subPath: tv
-
-      movies2:
-        enabled: true
-        type: persistentVolumeClaim
-        existingClaim: nfs-omv2
-        globalMounts:
-          - path: /media2/movies
-            subPath: movies
+          - path: /media2
 
       tmp:
         type: emptyDir
@@ -179,9 +170,8 @@ spec:
 
       add-ons:
         type: emptyDir
-        
+
       cache:
         type: emptyDir
         globalMounts:
           - path: /config/cache
-      

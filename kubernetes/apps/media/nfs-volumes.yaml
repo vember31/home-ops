@@ -38,6 +38,162 @@ spec:
     requests:
       storage: 16Ti
 ---
+# OMV - /export/media/tv
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv-media-tv
+spec:
+  capacity:
+    storage: 16Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.2
+    - nconnect=16
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv-media-tv
+    volumeAttributes:
+      server: ${OMV_IP}
+      share: /media/tv
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv-media-tv
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv-media-tv
+  resources:
+    requests:
+      storage: 16Ti
+---
+# OMV - /export/media/movies
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv-media-movies
+spec:
+  capacity:
+    storage: 16Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.2
+    - nconnect=16
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv-media-movies
+    volumeAttributes:
+      server: ${OMV_IP}
+      share: /media/movies
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv-media-movies
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv-media-movies
+  resources:
+    requests:
+      storage: 16Ti
+---
+# OMV - /export/media/recordings
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv-media-recordings
+spec:
+  capacity:
+    storage: 16Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.2
+    - nconnect=16
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv-media-recordings
+    volumeAttributes:
+      server: ${OMV_IP}
+      share: /media/recordings
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv-media-recordings
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv-media-recordings
+  resources:
+    requests:
+      storage: 16Ti
+---
+# OMV - /export/media/videos
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv-media-videos
+spec:
+  capacity:
+    storage: 16Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.2
+    - nconnect=16
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv-media-videos
+    volumeAttributes:
+      server: ${OMV_IP}
+      share: /media/videos
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv-media-videos
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv-media-videos
+  resources:
+    requests:
+      storage: 16Ti
+---
 # OMV2 - /export
 apiVersion: v1
 kind: PersistentVolume
@@ -73,6 +229,84 @@ spec:
     - ReadWriteMany
   storageClassName: ""
   volumeName: nfs-omv2-media
+  resources:
+    requests:
+      storage: 4Ti
+---
+# OMV2 - /export/tv
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv2-media-tv
+spec:
+  capacity:
+    storage: 4Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.2
+    - nconnect=16
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv2-media-tv
+    volumeAttributes:
+      server: ${OMV2_IP}
+      share: /tv
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv2-media-tv
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv2-media-tv
+  resources:
+    requests:
+      storage: 4Ti
+---
+# OMV2 - /export/movies
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv2-media-movies
+spec:
+  capacity:
+    storage: 4Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.2
+    - nconnect=16
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv2-media-movies
+    volumeAttributes:
+      server: ${OMV2_IP}
+      share: /movies
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv2-media-movies
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv2-media-movies
   resources:
     requests:
       storage: 4Ti
