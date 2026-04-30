@@ -19,14 +19,6 @@ alerting:
       send-on-resolved: true
       failure-threshold: 5
       success-threshold: 2
-  discord-plex:
-    webhook-url: {{ .GATUS_PLEX_DISCORD_WEBHOOK }}
-    title: ":helmet_with_white_cross: Gatus"
-    default-alert:
-      description: health-check failed
-      send-on-resolved: true
-      failure-threshold: 5
-      success-threshold: 2
 connectivity:
   checker:
     target: 1.1.1.1:53

@@ -21,7 +21,9 @@ data:
             send-on-resolved: true
             failure-threshold: 2
             minimum-reminder-interval: "3h"
-          - type: discord-plex
+          - type: discord
+            provider-override:
+              webhook-url: "$${GATUS_PLEX_DISCORD_WEBHOOK}"
             send-on-resolved: true
             failure-threshold: 2
             minimum-reminder-interval: "3h"
