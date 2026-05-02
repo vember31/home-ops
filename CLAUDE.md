@@ -154,6 +154,15 @@ EOF
 
 **What to look for**: Fragmentation (absolute bytes) is the defrag trigger — threshold is **50 MB**. Fragmentation % of 40–50% is normal mid-cycle; it spikes before the nightly defrag (23:30 CT) and drops immediately after. The `etcd-defrag` CronJob in `kube-system` handles this automatically.
 
+### Debugging cluster outages
+
+See `docs/runbooks/cluster-investigation.md` for ready-to-run queries covering:
+- etcd WAL fsync latency (start here — slow etcd cascades into everything)
+- Node iowait across all nodes (known chronic baseline: node3 ~29%, node4 ~43%)
+- VictoriaLogs app log queries
+- Redis/Dragonfly, CNPG leader election, Flux upgrade, API server signals
+- Node → IP mapping and port-forward quick-start
+
 ### Finding an app's config
 ```
 kubernetes/apps/<namespace>/<app-name>/app/helmrelease.yaml
