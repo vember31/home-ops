@@ -42,8 +42,8 @@ spec:
         containers:
           app:
             image:
-              repository: docker.io/rancher/kubectl
-              tag: v1.36.0
+              repository: docker.io/alpine/kubectl
+              tag: latest
               pullPolicy: IfNotPresent
             command:
               - /bin/sh
