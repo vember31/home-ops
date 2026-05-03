@@ -5,7 +5,8 @@ kind: Kustomization
 resources:
   # Pre Flux-Kustomizations
   - ./namespace.yaml
-  
+
   # Post Flux-Kustomizations
   - ./csi-driver-nfs/ks.yaml
   - ./longhorn/ks.yaml
+  - ./nfs-watcher/ks.yaml
