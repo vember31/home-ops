@@ -59,6 +59,7 @@ spec:
               PROBE_TIMEOUT_SECONDS: "8"
               FAILURES_BEFORE_RESTART: "2"
               COOLDOWN_SECONDS: "900"
+              SUMMARY_INTERVAL_SECONDS: "3600"
             resources:
               requests:
                 cpu: 10m

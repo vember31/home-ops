@@ -6,12 +6,48 @@ WATCH_INTERVAL_SECONDS="${WATCH_INTERVAL_SECONDS:-120}"
 PROBE_TIMEOUT_SECONDS="${PROBE_TIMEOUT_SECONDS:-8}"
 FAILURES_BEFORE_RESTART="${FAILURES_BEFORE_RESTART:-2}"
 COOLDOWN_SECONDS="${COOLDOWN_SECONDS:-900}"
+SUMMARY_INTERVAL_SECONDS="${SUMMARY_INTERVAL_SECONDS:-3600}"
 STATE_DIR="${STATE_DIR:-/tmp/nfs-watcher}"
 
 mkdir -p "$STATE_DIR"
 
 log() {
     printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >&2
+}
+
+read_number_file() {
+    file="$1"
+    default="${2:-0}"
+    value="$default"
+
+    if [ -f "$file" ]; then
+        value="$(cat "$file" 2>/dev/null || echo "$default")"
+    fi
+
+    case "$value" in
+        ''|*[!0-9]*)
+            value="$default"
+            ;;
+    esac
+
+    printf '%s\n' "$value"
+}
+
+log_summary() {
+    mount_count="$1"
+    controller_count="$2"
+    failed_mount_count="$3"
+    failed_controller_count="$4"
+    last_summary_file="${STATE_DIR}/last_summary"
+    now="$(date +%s)"
+
+    [ "$SUMMARY_INTERVAL_SECONDS" -gt 0 ] || return 0
+
+    last_summary="$(read_number_file "$last_summary_file" 0)"
+    if [ "$((now - last_summary))" -ge "$SUMMARY_INTERVAL_SECONDS" ]; then
+        log "summary node=${NODE_NAME} mounts=${mount_count} controllers=${controller_count} failed_mounts=${failed_mount_count} failed_controllers=${failed_controller_count}"
+        echo "$now" > "$last_summary_file"
+    fi
 }
 
 state_key() {
@@ -125,12 +161,10 @@ restart_target() {
     last_restart_file="${STATE_DIR}/${key}.last_restart"
     now="$(date +%s)"
 
-    if [ -f "$last_restart_file" ]; then
-        last_restart="$(cat "$last_restart_file" 2>/dev/null || echo 0)"
-        if [ "$((now - last_restart))" -lt "$COOLDOWN_SECONDS" ]; then
-            log "cooldown active for ${namespace}/${kind}/${name}; skipping restart after: ${reason}"
-            return 0
-        fi
+    last_restart="$(read_number_file "$last_restart_file" 0)"
+    if [ "$last_restart" -gt 0 ] && [ "$((now - last_restart))" -lt "$COOLDOWN_SECONDS" ]; then
+        log "cooldown active for ${namespace}/${kind}/${name}; skipping restart after: ${reason}"
+        return 0
     fi
 
     stamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -162,8 +196,11 @@ check_mounts() {
 
     mounts="$(list_nfs_mounts || true)"
     if [ -z "$mounts" ]; then
+        log_summary 0 0 0 0
         return 0
     fi
+
+    mount_count="$(printf '%s\n' "$mounts" | awk 'NF { count++ } END { print count + 0 }')"
 
     printf '%s\n' "$mounts" | while IFS='|' read -r uid mount_path fs source; do
         [ -n "$uid" ] || continue
@@ -194,8 +231,13 @@ EOF
     done
 
     if [ ! -s "$seen_file" ]; then
+        log_summary "$mount_count" 0 0 0
         return 0
     fi
+
+    controller_count="$(sort -u "$seen_file" | awk 'NF { count++ } END { print count + 0 }')"
+    failed_mount_count="$(awk 'NF { count++ } END { print count + 0 }' "$bad_file")"
+    failed_controller_count="$(awk -F '|' 'NF { key = $1 "|" $2 "|" $3; seen[key] = 1 } END { for (key in seen) count++; print count + 0 }' "$bad_file")"
 
     sort -u "$seen_file" | while IFS='|' read -r namespace kind name; do
         [ -n "$namespace" ] || continue
@@ -204,14 +246,15 @@ EOF
 
         matching_bad="$(awk -F '|' -v ns="$namespace" -v kind="$kind" -v name="$name" '$1 == ns && $2 == kind && $3 == name { print $4 }' "$bad_file" | tr '\n' ';')"
         if [ -z "$matching_bad" ]; then
+            previous_failures="$(read_number_file "$failures_file" 0)"
+            if [ "$previous_failures" -gt 0 ]; then
+                log "NFS probe recovered for ${namespace}/${kind}/${name} after failures=${previous_failures}"
+            fi
             echo 0 > "$failures_file"
             continue
         fi
 
-        failures=0
-        if [ -f "$failures_file" ]; then
-            failures="$(cat "$failures_file" 2>/dev/null || echo 0)"
-        fi
+        failures="$(read_number_file "$failures_file" 0)"
         failures="$((failures + 1))"
         echo "$failures" > "$failures_file"
 
@@ -221,9 +264,11 @@ EOF
             restart_target "$namespace" "$kind" "$name" "$matching_bad"
         fi
     done
+
+    log_summary "$mount_count" "$controller_count" "$failed_mount_count" "$failed_controller_count"
 }
 
-log "starting nfs-watcher on node ${NODE_NAME}"
+log "starting nfs-watcher on node ${NODE_NAME}; interval=${WATCH_INTERVAL_SECONDS}s probe_timeout=${PROBE_TIMEOUT_SECONDS}s failures_before_restart=${FAILURES_BEFORE_RESTART} cooldown=${COOLDOWN_SECONDS}s summary_interval=${SUMMARY_INTERVAL_SECONDS}s"
 
 while true; do
     check_mounts
