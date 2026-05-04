@@ -55,7 +55,7 @@ spec:
           app:
             image:
               repository: tarampampam/error-pages
-              tag: 4.0.0@sha256:19989c478e900898cd556befc71bb71c5c0d2eae11678b26b8cac3df0c6805fb
+              tag: 4.1.0@sha256:6adb80319c2f5cfa99d5b43888202ec34e1099f8cc036a5ca5ab1cca96503920
               pullPolicy: IfNotPresent
 
             env:
