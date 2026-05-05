@@ -42,6 +42,8 @@ spec:
   maxHistory: 1
 
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: true
 
     controllers:
       ${APP}:
@@ -50,8 +52,6 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         replicas: 1
-        serviceAccount:
-          identifier: ${APP}
 
         containers:
           app:
@@ -115,6 +115,3 @@ spec:
          - secretName: ${APP}-tls-production
            hosts:
              - *host
-
-    serviceAccount:
-      ${APP}: {}
