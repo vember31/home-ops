@@ -49,6 +49,8 @@ spec:
       olivetin:
         enabled: true
         type: deployment
+        serviceAccount:
+          identifier: ${APP}
         annotations:
           reloader.stakater.com/auto: "true"
         replicas: 1
@@ -133,6 +135,9 @@ spec:
          - secretName: olivetin-tls-production
            hosts:
              - *host
+
+    serviceAccount:
+      ${APP}: {}
 
     persistence:
       config:

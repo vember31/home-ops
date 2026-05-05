@@ -31,6 +31,8 @@ spec:
     controllers:
       ${APP}:
         type: daemonset
+        serviceAccount:
+          identifier: ${APP}
         pod:
           securityContext:
             runAsUser: 0
@@ -72,6 +74,9 @@ spec:
               readOnlyRootFilesystem: true
               capabilities:
                 drop: ["ALL"]
+
+    serviceAccount:
+      ${APP}: {}
 
     persistence:
       config:

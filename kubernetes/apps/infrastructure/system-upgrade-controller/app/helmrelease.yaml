@@ -48,6 +48,8 @@ spec:
     controllers:
       ${APP}:
         strategy: RollingUpdate
+        serviceAccount:
+          identifier: system-upgrade-controller
         containers:
           app:
             image:
@@ -126,3 +128,6 @@ spec:
         globalMounts:
           - path: /etc/ca-certificates
             readOnly: true
+
+    serviceAccount:
+      system-upgrade-controller: {}
