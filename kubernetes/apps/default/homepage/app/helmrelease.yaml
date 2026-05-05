@@ -42,6 +42,8 @@ spec:
   maxHistory: 1
 
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: true
 
     controllers:
       ${APP}:
@@ -50,8 +52,6 @@ spec:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
-        serviceAccount:
-          identifier: ${APP}
         containers:
           app:
             image:
@@ -109,9 +109,6 @@ spec:
         ports:
           http:
             port: *port
-
-    serviceAccount:
-      ${APP}: {}
 
     ingress:
       app:

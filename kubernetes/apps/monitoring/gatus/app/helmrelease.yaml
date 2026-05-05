@@ -25,12 +25,13 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: true
+
     controllers:
       ${APP}:
         annotations:
           reloader.stakater.com/auto: "true"
-        serviceAccount:
-          identifier: ${APP}
         initContainers:
           init-db:
             image:
@@ -133,9 +134,6 @@ spec:
          - secretName: ${APP}-tls-production
            hosts:
              - *host
-
-    serviceAccount:
-      gatus: {}
 
     persistence:
       config:
