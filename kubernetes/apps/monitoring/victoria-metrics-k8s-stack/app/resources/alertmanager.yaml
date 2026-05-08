@@ -5,17 +5,12 @@ route:
   group_by: ["alertname", "job"]
   group_interval: 10m
   group_wait: 1m
-  receiver: discord
+  receiver: "null"
   repeat_interval: 12h
   routes:
-    - receiver: "null"
-      matchers:
-        - severity = "none"
-        - alertname =~ "InfoInhibitor|Watchdog"
     - receiver: discord
-      continue: true
       matchers:
-        - severity = "critical"
+        - severity =~ "warning|critical"
 inhibit_rules:
   - equal: ["alertname", "namespace"]
     source_matchers:
