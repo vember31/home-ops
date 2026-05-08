@@ -107,7 +107,7 @@ spec:
             cpu: 100m
             memory: 200Mi
           limits:
-            cpu: 500m
+            cpu: 1000m
             memory: 500Mi
 
     vmalert:
