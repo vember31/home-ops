@@ -51,6 +51,9 @@ spec:
       dashboard:
         enabled: false
 
+    api:
+      disableDashboardAd: true
+
     # Configure Traefik static configuration
     additionalArguments: 
       - "--log.level=INFO"
