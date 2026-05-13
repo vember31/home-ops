@@ -27,6 +27,9 @@
     - TorrentLeech:
         - abbr: TL
           href: https://torrentleech.org
+    - SeedPool:
+        - abbr: SP
+          href: https://seedpool.org
     - Audionews:
         - abbr: AN
           href: https://audionews.org
