@@ -1,5 +1,4 @@
 ---
-
 blocking:
   loading:
     downloads:
@@ -141,11 +140,11 @@ queryLog:
   logRetentionDays: 7
 
 bootstrapDns:
-  - upstream: tcp-tls:security.cloudflare-dns.com
+  - upstream: quic:dns.adguard-dns.com
     ips:
     - 1.1.1.1
     - 9.9.9.9
-  - upstream: tcp-tls:dns11.quad9.net
+  - upstream: tcp-tls:security.cloudflare-dns.com
     ips:
     - 1.1.1.1
     - 9.9.9.9
@@ -154,8 +153,8 @@ upstreams:
   strategy: strict
   groups:
     default:
+      - quic:dns.adguard-dns.com
       - tcp-tls:security.cloudflare-dns.com:853
-      - tcp-tls:dns11.quad9.net:853
 
 redis:
   required: false
