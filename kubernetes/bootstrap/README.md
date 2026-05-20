@@ -1,6 +1,16 @@
 # Cluster Bootstrap Procedures
 The documentation here will guide from preparing a Debian or Ubuntu-based node, to having k3s setup.
 ## Node Preparation
+### Configure UDP buffers for QUIC
+Blocky uses DNS-over-QUIC upstreams, so each node needs larger UDP socket buffers than the Linux defaults:
+```
+sudo tee /etc/sysctl.d/99-quic.conf >/dev/null <<EOF
+net.core.rmem_max=7500000
+net.core.wmem_max=7500000
+EOF
+sudo sysctl --system
+```
+
 Install packages:
 ```
 sudo apt install nfs-common open-iscsi qemu-guest-agent unattended-upgrades
