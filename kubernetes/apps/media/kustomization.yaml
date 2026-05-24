@@ -13,6 +13,7 @@ resources:
   # Flux-Kustomizations
   - ./agregarr/ks.yaml
   - ./autopulse/ks.yaml
+  - ./bookboss/ks.yaml
   - ./dispatcharr/ks.yaml
   - ./isponsorblocktv/ks.yaml
   - ./maintainerr/ks.yaml
