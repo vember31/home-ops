@@ -1,3 +1,4 @@
+---
 servers:
   plex-k3s:
     token: {{ .PLEX_TOKEN }}

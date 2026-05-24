@@ -37,7 +37,7 @@ spec:
 
   uninstall:
     keepHistory: false
-    
+
   maxHistory: 1
 
   values:
@@ -156,7 +156,7 @@ spec:
                   identifier: ui
                   port: http
 
-        tls: 
+        tls:
          - secretName: ${APP}-tls-production
            hosts:
              - *host
@@ -167,8 +167,8 @@ spec:
         type: secret
         name: autopulse-secret
         advancedMounts:
-          ${APP}: 
-            app: 
+          ${APP}:
+            app:
               - path: /app/config.yaml
                 readOnly: true
                 subPath: config.yaml

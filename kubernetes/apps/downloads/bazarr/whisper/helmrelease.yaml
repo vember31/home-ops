@@ -38,7 +38,7 @@ spec:
 
   uninstall:
     keepHistory: false
-    
+
   maxHistory: 1
 
   values:

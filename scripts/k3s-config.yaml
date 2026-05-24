@@ -1,3 +1,4 @@
+---
 # k3s additional control plane
 server: https://k3s.${SECRET_DOMAIN}:6443
 token: ${NODE_TOKEN}
@@ -16,7 +17,6 @@ kube-proxy-arg:
 kube-scheduler-arg:
   - "bind-address=0.0.0.0"
 
----
 # k3s cluster init
 cluster-init: true
 tls-san:

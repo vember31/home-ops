@@ -39,7 +39,7 @@ spec:
 
   uninstall:
     keepHistory: false
-    
+
   maxHistory: 1
 
   values:
@@ -110,7 +110,7 @@ spec:
                   identifier: app
                   port: http
 
-        tls: 
+        tls:
          - secretName: ${APP}-tls-production
            hosts:
              - *host
@@ -124,6 +124,5 @@ spec:
         accessMode: ReadWriteOnce
         size: 128Mi
         retain: true
-        globalMounts: 
+        globalMounts:
           - path: /app/pb_data
-      

@@ -38,7 +38,7 @@ spec:
 
   uninstall:
     keepHistory: false
-    
+
   maxHistory: 1
 
   values:
@@ -114,7 +114,7 @@ spec:
                   identifier: app
                   port: http
 
-        tls: 
+        tls:
          - secretName: ${APP}-tls-production
            hosts:
              - *host
