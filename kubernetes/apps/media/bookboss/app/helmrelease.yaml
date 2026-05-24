@@ -79,7 +79,7 @@ spec:
               TZ: ${TIMEZONE}
               BOOKBOSS__LIBRARY__LIBRARY_PATH: /books/library
               BOOKBOSS__IMPORT__BOOKDROP_PATH: /books/bookdrop
-              BOOKBOSS__FRONTEND__BASE_URL: &host https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+              BOOKBOSS__FRONTEND__BASE_URL: https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
               BOOKBOSS__FRONTEND__LISTEN_PORT: &port 8080
             envFrom: *envFrom
 
@@ -142,7 +142,7 @@ spec:
           gethomepage.dev/name: BookBoss
 
         hosts:
-          - host: ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+          - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
