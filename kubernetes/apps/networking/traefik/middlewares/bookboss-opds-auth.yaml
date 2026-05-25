@@ -1,0 +1,11 @@
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/traefik.io/middleware_v1alpha1.json
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: bookboss-opds-auth
+  namespace: networking
+spec:
+  headers:
+    customResponseHeaders:
+      WWW-Authenticate: 'Basic realm="BookBoss"'
