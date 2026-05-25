@@ -53,7 +53,7 @@ for i in $(seq 1 $MAX_RETRIES); do
         --data-urlencode "password=${QBT_PASS}" \
         "${QBT_BASE_URL}/api/v2/auth/login" || true)
 
-    if [ "$HTTP_CODE" = "200" ]; then
+    if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "204" ]; then
         log "Authentication successful"
         break
     fi
