@@ -74,12 +74,13 @@ spec:
               - secretRef:
                   name: qbittorrent-secret
 
-            # lifecycle:
-            #   postStart:
-            #     exec:
-            #       command:
-            #         - /bin/bash
-            #         - /scripts/apply-preferences.sh
+            lifecycle:
+              postStart:
+                exec:
+                  command:
+                    - /bin/bash
+                    - -c
+                    - "nohup /scripts/apply-preferences.sh >/dev/null 2>&1 </dev/null &"
 
             resources:
               requests:

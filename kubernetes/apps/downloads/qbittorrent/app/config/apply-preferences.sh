@@ -1,25 +1,34 @@
 #!/bin/bash
-set -euo pipefail
+set -Eeuo pipefail
 
 exec > >(tee /tmp/apply-preferences.log) 2>&1
 
 # Configuration
 QBT_HOST="localhost"
 QBT_PORT="8080"
+QBT_BASE_URL="http://${QBT_HOST}:${QBT_PORT}"
 QBT_USER="${QBITTORRENT_USERNAME}"
 QBT_PASS="${QBITTORRENT_PASSWORD}"
 OVERRIDES_FILE="/scripts/overrides.json"
-MAX_RETRIES=30
+MAX_RETRIES=60
 RETRY_DELAY=2
 
 log() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*"
 }
 
+trap 'rc=$?; log "ERROR: apply-preferences.sh failed with exit code ${rc}"' ERR
+
+curl_common_args=(
+    -sS
+    -H "Origin: ${QBT_BASE_URL}"
+    -H "Referer: ${QBT_BASE_URL}/"
+)
+
 # Wait for qBittorrent to be ready
 log "Waiting for qBittorrent to be ready..."
 for i in $(seq 1 $MAX_RETRIES); do
-    if curl -s -f "http://${QBT_HOST}:${QBT_PORT}/api/v2/app/version" > /dev/null 2>&1; then
+    if curl "${curl_common_args[@]}" -fsS "${QBT_BASE_URL}/api/v2/app/version" > /dev/null 2>&1; then
         log "qBittorrent is ready"
         break
     fi
@@ -35,15 +44,28 @@ log "Authenticating with qBittorrent API..."
 COOKIE_JAR=$(mktemp)
 trap "rm -f $COOKIE_JAR" EXIT
 
-if ! curl -s -i -c "$COOKIE_JAR" \
-    --data-urlencode "username=${QBT_USER}" \
-    --data-urlencode "password=${QBT_PASS}" \
-    "http://${QBT_HOST}:${QBT_PORT}/api/v2/auth/login" | grep -q "200 OK"; then
-    log "ERROR: Authentication failed"
-    exit 1
-fi
+for i in $(seq 1 $MAX_RETRIES); do
+    HTTP_CODE=$(curl "${curl_common_args[@]}" \
+        -o /dev/null \
+        -w "%{http_code}" \
+        -c "$COOKIE_JAR" \
+        --data-urlencode "username=${QBT_USER}" \
+        --data-urlencode "password=${QBT_PASS}" \
+        "${QBT_BASE_URL}/api/v2/auth/login" || true)
 
-log "Authentication successful"
+    if [ "$HTTP_CODE" = "200" ]; then
+        log "Authentication successful"
+        break
+    fi
+
+    if [ "$i" -eq "$MAX_RETRIES" ]; then
+        log "ERROR: Authentication failed after $MAX_RETRIES attempts (last HTTP status: $HTTP_CODE)"
+        exit 1
+    fi
+
+    log "Authentication not ready yet (HTTP $HTTP_CODE); retrying..."
+    sleep "$RETRY_DELAY"
+done
 
 # Read and process overrides file
 if [ ! -f "$OVERRIDES_FILE" ]; then
@@ -59,7 +81,8 @@ log "Applying preferences to qBittorrent..."
 RESPONSE=$(curl -s -b "$COOKIE_JAR" \
     -X POST \
     --data-urlencode "json@${OVERRIDES_FILE}" \
-    "http://${QBT_HOST}:${QBT_PORT}/api/v2/app/setPreferences")
+    "${curl_common_args[@]}" \
+    "${QBT_BASE_URL}/api/v2/app/setPreferences" || true)
 
 # Check if the request was successful
 if [ "$RESPONSE" = "Ok." ] || [ -z "$RESPONSE" ]; then
