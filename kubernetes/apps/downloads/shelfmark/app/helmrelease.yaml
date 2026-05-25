@@ -92,7 +92,8 @@ spec:
                   name: prowlarr-secret
               - secretRef:
                   name: qbittorrent-secret
-
+              - secretRef:
+                  name: shelfmark-secret
             resources:
               requests:
                 cpu: 10m
