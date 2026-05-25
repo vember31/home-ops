@@ -17,5 +17,6 @@ resources:
   - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
   - ./radarr/ks.yaml
+  - ./shelfmark/ks.yaml
   - ./sonarr/ks.yaml
   - ./unpackerr/ks.yaml
