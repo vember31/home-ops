@@ -3,16 +3,16 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app **APPNAME**
+  name: &app shelfmark
   namespace: flux-system
 spec:
-  targetNamespace: **TARGETNAMEESPACE**
+  targetNamespace: downloads
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: **OPTIONAL**
-  path: ./kubernetes/apps/****************
+    - name: nfs-volumes
+  path: ./kubernetes/apps/downloads/shelfmark/app
   prune: true
   sourceRef:
     kind: GitRepository
@@ -24,4 +24,3 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: **remove if not neeeded**
