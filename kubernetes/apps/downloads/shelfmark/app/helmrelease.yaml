@@ -89,9 +89,9 @@ spec:
               HARDCOVER_ENABLED: true
             envFrom:
               - secretRef:
-                  name: prowlarr
+                  name: prowlarr-secret
               - secretRef:
-                  name: qbittorrent
+                  name: qbittorrent-secret
 
             resources:
               requests:
