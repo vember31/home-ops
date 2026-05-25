@@ -11,7 +11,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: nfs-volumes
+    - name: longhorn
   path: ./kubernetes/apps/downloads/shelfmark/app
   prune: true
   sourceRef:
