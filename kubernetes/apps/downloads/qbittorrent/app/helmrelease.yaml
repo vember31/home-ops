@@ -74,12 +74,12 @@ spec:
               - secretRef:
                   name: qbittorrent-secret
 
-            lifecycle:
-              postStart:
-                exec:
-                  command:
-                    - /bin/bash
-                    - /scripts/apply-preferences.sh
+            # lifecycle:
+            #   postStart:
+            #     exec:
+            #       command:
+            #         - /bin/bash
+            #         - /scripts/apply-preferences.sh
 
             resources:
               requests:
