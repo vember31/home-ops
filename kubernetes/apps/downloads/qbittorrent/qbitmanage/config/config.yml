@@ -53,6 +53,8 @@ tracker:
   torrentleech|tleechreload:
     tag: TorrentLeech
     notifiarr: torrentleech
+  seedpool.org:
+    tag: SeedPool
   # The "other" key is a special keyword and if defined will tag any other trackers that don't match the above trackers into this tag
   other:
     tag: other
