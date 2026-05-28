@@ -3,7 +3,7 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: traefik-dashboard
+  name: flux-dashboard
   namespace: networking
   annotations:
     gethomepage.dev/enabled: "true"
@@ -12,6 +12,7 @@ metadata:
     gethomepage.dev/group: Resources
     gethomepage.dev/icon: flux-cd
     gethomepage.dev/name: Flux Operator
+    gethomepage.dev/pod-selector: app.kubernetes.io/name=flux-operator
     gethomepage.dev/siteMonitor: *href
 
 spec:
