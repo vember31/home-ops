@@ -67,6 +67,7 @@ spec:
           gethomepage.dev/group: Monitoring
           gethomepage.dev/icon: sh-victoriametrics
           gethomepage.dev/name: VictoriaLogs
+          gethomepage.dev/pod-selector: app.kubernetes.io/name=victoria-logs-single
           gethomepage.dev/siteMonitor: http://${APP}-server.monitoring.svc.cluster.local:9428/health
         hosts:
           - name: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}

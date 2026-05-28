@@ -140,6 +140,7 @@ spec:
           gethomepage.dev/group: Media
           gethomepage.dev/icon: https://github.com/szinn/BookBoss/blob/main/assets-source/BookBoss-96x96.png?raw=true
           gethomepage.dev/name: BookBoss
+          gethomepage.dev/pod-selector: app.kubernetes.io/name=bookboss
 
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}

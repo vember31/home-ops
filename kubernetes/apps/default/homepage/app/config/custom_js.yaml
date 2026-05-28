@@ -1,9 +1,10 @@
----
 // Function to set theme-mode in localStorage
 // Local theme is found if you hit F12, go to Application tab, and then browse what's in the 'local storage'
+const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
 function setThemeMode() {
     // Check if the browser is in dark mode
-    const darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const darkMode = colorSchemeQuery.matches;
 
     // Determine the new theme-mode
     const newThemeMode = darkMode ? 'dark' : 'light';
@@ -20,7 +21,11 @@ function setThemeMode() {
 }
 
 // Listen for changes in the browser's theme and update theme-mode accordingly
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setThemeMode);
+if (typeof colorSchemeQuery.addEventListener === 'function') {
+    colorSchemeQuery.addEventListener('change', setThemeMode);
+} else if (typeof colorSchemeQuery.addListener === 'function') {
+    colorSchemeQuery.addListener(setThemeMode);
+}
 
 // Initial check to set theme-mode when the script loads
 setThemeMode();

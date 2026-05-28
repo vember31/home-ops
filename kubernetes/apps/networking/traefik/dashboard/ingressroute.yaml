@@ -12,6 +12,7 @@ metadata:
     gethomepage.dev/group: Networking
     gethomepage.dev/icon: traefik
     gethomepage.dev/name: Traefik
+    gethomepage.dev/pod-selector: app.kubernetes.io/name=traefik
     gethomepage.dev/widget.type: traefik
     gethomepage.dev/widget.url: *href
     gethomepage.dev/app: traefik
