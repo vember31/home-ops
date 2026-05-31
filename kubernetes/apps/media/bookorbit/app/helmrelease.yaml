@@ -77,7 +77,6 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
-              BOOK_DROP_HOST_PATH: "/books/bookdrop"
               NODE_ENV: production
               PORT: &port 3000
               POSTGRES_HOST: postgres-18-rw.database.svc.cluster.local
@@ -197,3 +196,5 @@ spec:
         path: /export/media/books
         globalMounts:
           - path: /books
+          - path: /data/book-dock
+            subPath: bookdrop
