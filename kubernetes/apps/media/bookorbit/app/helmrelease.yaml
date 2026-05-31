@@ -1,0 +1,183 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name bookorbit
+  namespace: media
+
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      ${APP}:
+        enabled: true
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18
+            envFrom: &envFrom
+              - secretRef:
+                  name: bookorbit-secret
+
+        containers:
+          app:
+            image:
+              repository: ghcr.io/bookorbit/bookorbit
+              tag: 1.7.0
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              BOOK_DROP_HOST_PATH: "/books/bookdrop"
+              NODE_ENV: production
+              PORT: &port 3000
+              POSTGRES_HOST: postgres-18-rw.database.svc.cluster.local
+              POSTGRES_PORT: "5432"
+              APP_URL: https://${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}
+              CLIENT_URL: https://${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}
+              PUID: "1000"
+              PGID: "1000"
+            envFrom: *envFrom
+
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *port
+                  initialDelaySeconds: 20
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *port
+                  initialDelaySeconds: 20
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+                add:
+                  - CHOWN
+                  - DAC_OVERRIDE
+                  - FOWNER
+                  - SETGID
+                  - SETUID
+
+    service:
+      app:
+        controller: *name
+        ports:
+          http:
+            port: *port
+
+    ingress:
+      app:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: Book Management
+          gethomepage.dev/group: Media
+          gethomepage.dev/icon: sh-bookorbit
+          gethomepage.dev/name: BookOrbit
+          gethomepage.dev/pod-selector: app.kubernetes.io/name=bookorbit
+
+        hosts:
+          - host: &host ${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+
+        tls:
+          - secretName: ${APP}-tls-production
+            hosts:
+              - *host
+
+    persistence:
+
+      data:
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        storageClass: longhorn
+        globalMounts:
+          - path: /data
+
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+
+      books:
+        enabled: true
+        type: nfs
+        server: ${OMV_IP}
+        path: /export/media/books
+        globalMounts:
+          - path: /books
