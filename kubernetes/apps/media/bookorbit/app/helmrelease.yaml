@@ -43,6 +43,14 @@ spec:
 
   values:
 
+    configMaps:
+      bookorbit-initdb:
+        data:
+          bookorbit.sql: |
+            CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+            CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+            CREATE EXTENSION IF NOT EXISTS "vector";
+
     controllers:
       ${APP}:
         enabled: true
@@ -173,6 +181,14 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp
+
+      initdb:
+        type: configMap
+        identifier: bookorbit-initdb
+        advancedMounts:
+          ${APP}:
+            init-db:
+              - path: /initdb
 
       books:
         enabled: true
