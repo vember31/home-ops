@@ -149,7 +149,7 @@ spec:
           gethomepage.dev/enabled: "true"
           gethomepage.dev/description: Book Management
           gethomepage.dev/group: Media
-          gethomepage.dev/icon: sh-bookorbit
+          gethomepage.dev/icon: https://raw.githubusercontent.com/bookorbit/bookorbit/cbcdf019ad3ef73cda73ab5f4d773a9be912c7b0/client/public/pwa-icon-source.svg
           gethomepage.dev/name: BookOrbit
           gethomepage.dev/pod-selector: app.kubernetes.io/name=bookorbit
 
