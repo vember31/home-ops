@@ -26,6 +26,9 @@ spec:
       - name: timescaledb-toolkit
         image:
           reference: ghcr.io/vember31/timescaledb-toolkit:1.22.0
+      - name: pgvector
+        image:
+          reference: ghcr.io/vember31/pgvector:0.8.2-pg18
     parameters:
       max_connections: "200"
       shared_buffers: 256MB
