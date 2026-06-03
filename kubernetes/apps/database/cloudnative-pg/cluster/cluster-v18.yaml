@@ -10,6 +10,18 @@ spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:18.4-standard-trixie
   primaryUpdateStrategy: unsupervised
 
+  affinity:
+    # Keep replicas off the same node, and exclude k3s-control2 from scheduling.
+    podAntiAffinityType: required
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                  - k3s-control2
+
   storage:
     size: 20Gi
     storageClass: local-path
