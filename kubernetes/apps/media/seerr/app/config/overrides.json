@@ -199,7 +199,7 @@
     "enabled": true,
     "types": 4062,
     "options": {
-     "jsonPayload": "{{ `$(SEERR_JSON_PAYLOAD)` | nospace }}",
+     "jsonPayload": "{{ `$(SEERR_JSON_PAYLOAD)` | nospace | b64dec | toJson | b64enc }}",
      "webhookUrl": "{{ .NOTIFIARR_WEBHOOK_URL }}",
      "supportVariables": false
     }
