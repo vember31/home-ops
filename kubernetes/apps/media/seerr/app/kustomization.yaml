@@ -10,6 +10,16 @@ secretGenerator:
   - name: seerr-json-payload
     files:
       - jsonPayload=./config/json-payload.json
+configurations:
+  - ./kustomizeconfig.yaml
+vars:
+  - name: SEERR_JSON_PAYLOAD
+    objref:
+      apiVersion: v1
+      kind: Secret
+      name: seerr-json-payload
+    fieldref:
+      fieldpath: data.jsonPayload
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
