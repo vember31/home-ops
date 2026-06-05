@@ -97,10 +97,16 @@ spec:
     resources:
       requests:
         cpu: 10m
-        memory: 16Mi
+        memory: 64Mi
       limits:
         cpu: 50m
-        memory: 64Mi
+        memory: 256Mi
+
+    livenessProbe:
+      timeoutSeconds: 10
+
+    readinessProbe:
+      timeoutSeconds: 10
 
     serviceMonitor:
       enabled: true

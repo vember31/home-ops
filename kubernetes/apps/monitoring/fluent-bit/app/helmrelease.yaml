@@ -76,6 +76,7 @@ spec:
           kube_tag_prefix kubernetes.var.log.containers.
           k8s-logging.parser on
           k8s-logging.exclude on
+          buffer_size 128k
           namespace_labels off
           annotations off
 
@@ -129,11 +130,17 @@ spec:
 
     resources:
       requests:
-        cpu: 10m
-        memory: 16Mi
+        cpu: 25m
+        memory: 128Mi
       limits:
         cpu: 100m
-        memory: 64Mi
+        memory: 256Mi
+
+    livenessProbe:
+      timeoutSeconds: 10
+
+    readinessProbe:
+      timeoutSeconds: 10
 
     serviceMonitor:
       enabled: true
