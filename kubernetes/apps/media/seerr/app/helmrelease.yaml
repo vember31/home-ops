@@ -103,7 +103,7 @@ spec:
                   httpGet:
                     path: /api/v1/status
                     port: &port 5055
-                  initialDelaySeconds: 0
+                  initialDelaySeconds: 30
                   periodSeconds: 30
                   timeoutSeconds: 5
                   failureThreshold: 3
