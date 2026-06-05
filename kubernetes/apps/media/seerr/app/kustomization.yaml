@@ -6,6 +6,10 @@ configMapGenerator:
   - name: seerr-overrides-configmap
     files:
       - ./config/overrides.json
+secretGenerator:
+  - name: seerr-json-payload
+    files:
+      - jsonPayload=./config/json-payload.json
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
