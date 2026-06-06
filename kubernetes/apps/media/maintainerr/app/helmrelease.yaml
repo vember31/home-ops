@@ -68,22 +68,25 @@ spec:
                 memory: 426M
 
             probes:
-              liveness:
+              liveness: &probes
                 enabled: true
-              readiness:
-                enabled: true
-              startup:
-                enabled: true
+                custom: true
                 spec:
-                  failureThreshold: 30
-                  periodSeconds: 5
+                  httpGet:
+                    path: /api/health
+                    port: &port 6246
+                  initialDelaySeconds: 30
+                  periodSeconds: 60
+                  timeoutSeconds: 10
+                  failureThreshold: 5
+              readiness: *probes
 
     service:
       app:
         controller: *name
         ports:
           http:
-            port: 6246
+            port: *port
 
     ingress:
       app:
