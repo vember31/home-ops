@@ -67,6 +67,8 @@ share_limits:
       - radarr-complete
       - prowlarr
       - books
+      - sonarr-complete.cross
+      - radarr-complete.cross
     max_seeding_time: 60d
     # min_seeding_time: 30d
     max_ratio: -1
