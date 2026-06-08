@@ -125,3 +125,10 @@ spec:
         accessMode: ReadWriteOnce
         size: 256Mi
         retain: true
+
+      downloads:
+        enabled: true
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv-media
+        globalMounts:
+          - path: /media
