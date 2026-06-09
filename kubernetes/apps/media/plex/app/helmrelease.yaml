@@ -199,29 +199,22 @@ spec:
       transcode:
         type: emptyDir
 
-      tv:
+      media:
         enabled: true
         type: persistentVolumeClaim
-        existingClaim: nfs-omv-media-tv
+        existingClaim: nfs-omv-media
         globalMounts:
           - path: /media/tv
+            subPath: tv
             readOnly: true
-
-      movies:
-        enabled: true
-        type: persistentVolumeClaim
-        existingClaim: nfs-omv-media-movies
-        globalMounts:
           - path: /media/movies
+            subPath: movies
             readOnly: true
-
-      # live tv recordings
-      recordings:
-        enabled: true
-        type: persistentVolumeClaim
-        existingClaim: nfs-omv-media-recordings
-        globalMounts:
           - path: /media/recordings
+            subPath: recordings
+            readOnly: false
+          - path: /media/videos
+            subPath: videos
             readOnly: false
 
       # old hard drive in old server
@@ -241,12 +234,3 @@ spec:
         globalMounts:
           - path: /media2/tv
             readOnly: true
-
-      # vids and stuff
-      videos:
-        enabled: true
-        type: persistentVolumeClaim
-        existingClaim: nfs-omv-media-videos
-        globalMounts:
-          - path: /media/videos
-            readOnly: false
