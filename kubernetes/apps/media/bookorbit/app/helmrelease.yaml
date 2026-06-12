@@ -81,8 +81,8 @@ spec:
               POSTGRES_PORT: "5432"
               APP_URL: https://${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}
               CLIENT_URL: https://${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}
-              PUID: "1000"
-              PGID: "1000"
+              PUID: 1000
+              PGID: 1000
             envFrom: *envFrom
 
             probes:
@@ -129,6 +129,14 @@ spec:
                   - FOWNER
                   - SETGID
                   - SETUID
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
 
     service:
       app:
