@@ -83,6 +83,7 @@ spec:
               CLIENT_URL: https://${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}
               PUID: 1000
               PGID: 1000
+              BOOK_DOCK_PATH: /books/bookdrop
             envFrom: *envFrom
 
             probes:
@@ -219,9 +220,4 @@ spec:
       books:
         enabled: true
         type: persistentVolumeClaim
-        existingClaim: nfs-omv-media
-        globalMounts:
-          - path: /books
-            subPath: books
-          - path: /data/book-dock
-            subPath: books/bookdrop
+        existingClaim: nfs-omv-media-books

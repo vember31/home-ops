@@ -271,3 +271,43 @@ spec:
   resources:
     requests:
       storage: 4Ti
+
+---
+# OMV - /export/media/books
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv-media-books
+spec:
+  capacity:
+    storage: 16Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4.2
+    - nconnect=16
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv-media-books
+    volumeAttributes:
+      server: ${OMV_IP}
+      share: /media/books
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv-media-books
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv-media-books
+  resources:
+    requests:
+      storage: 16Ti
