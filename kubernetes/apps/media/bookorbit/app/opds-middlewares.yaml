@@ -1,0 +1,35 @@
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/traefik.io/middleware_v1alpha1.json
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: bookorbit-opds-strip-secret
+  namespace: media
+spec:
+  headers:
+    customRequestHeaders:
+      X-Bookorbit-Secret: ""
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/traefik.io/middleware_v1alpha1.json
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: bookorbit-opds-failed-auth-rate-limit
+  namespace: media
+spec:
+  rateLimit:
+    average: 10
+    period: 1m
+    burst: 10
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/traefik.io/middleware_v1alpha1.json
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: bookorbit-opds-deny-basic-auth
+  namespace: media
+spec:
+  basicAuth:
+    realm: DM OPDS
+    users:
+      - "opds-denied:{SHA}AS6KR3Yuoz6ygkNQuaDrvwQo3OI="

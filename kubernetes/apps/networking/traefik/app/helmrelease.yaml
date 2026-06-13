@@ -60,6 +60,7 @@ spec:
       - "--log.level=INFO"
       - "--api.insecure=true"
       - "--serversTransport.insecureSkipVerify=true"
+      - "--accesslog.fields.headers.names.X-Bookorbit-Secret=drop"
 
     ports:
       web:

@@ -174,27 +174,6 @@ spec:
             hosts:
               - *host
 
-      opds:
-        enabled: true
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-opds-auth@kubernetescrd
-
-        hosts:
-          - host: *host
-            paths:
-              - path: /api/v1/opds
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-
-        tls:
-          - secretName: ${APP}-tls-production
-            hosts:
-              - *host
-
     persistence:
       data:
         type: persistentVolumeClaim

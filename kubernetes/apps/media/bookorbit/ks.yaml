@@ -3,14 +3,40 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: bookorbit-substitutions
+  namespace: flux-system
+  labels:
+    substitution.flux.home.arpa/disabled: "true"
+spec:
+  dependsOn:
+    - name: external-secrets-stores
+  path: ./kubernetes/apps/media/bookorbit/app/substitutions
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  targetNamespace: flux-system
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: &app bookorbit
   namespace: flux-system
+  labels:
+    substitution.flux.home.arpa/disabled: "true"
 spec:
   targetNamespace: media
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: bookorbit-substitutions
     - name: cloudnative-pg-cluster
   path: ./kubernetes/apps/media/bookorbit/app
   prune: true
@@ -25,3 +51,10 @@ spec:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: books
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-settings
+      - kind: Secret
+        name: cluster-secrets
+      - kind: Secret
+        name: bookorbit-substitutions
