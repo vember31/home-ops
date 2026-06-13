@@ -5,5 +5,4 @@ kind: Kustomization
 resources:
   - ./cluster.yaml
   - ./podmonitor.yaml
-  - ./networkpolicy.yaml
   - ../../../../templates/gatus/internal-backend
