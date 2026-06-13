@@ -218,10 +218,10 @@ spec:
 
       books:
         enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media/books
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv-media
         globalMounts:
           - path: /books
+            subPath: books
           - path: /data/book-dock
-            subPath: bookdrop
+            subPath: books/bookdrop
