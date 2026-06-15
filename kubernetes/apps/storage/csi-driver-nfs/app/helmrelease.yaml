@@ -14,5 +14,7 @@ spec:
   values:
     controller:
       replicas: 1
+    feature:
+      enableFSGroupPolicy: false
     storageClass:
       create: false
