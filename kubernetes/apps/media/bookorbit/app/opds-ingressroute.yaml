@@ -12,7 +12,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}`) && PathPrefix(`/api/v1/opds`) && Header(`X-Bookorbit-Secret`, `${BOOKORBIT_OPDS_SECRET}`)
+      match: Host(`${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}`) && (Path(`/api/v1/opds`) || PathPrefix(`/api/v1/opds/`)) && Header(`X-Bookorbit-Secret`, `${BOOKORBIT_OPDS_SECRET}`)
       priority: 1000
       middlewares:
         - name: bookorbit-opds-strip-secret
@@ -22,7 +22,7 @@ spec:
         - name: bookorbit
           port: 3000
     - kind: Rule
-      match: Host(`${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}`) && PathPrefix(`/api/v1/opds`)
+      match: Host(`${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}`) && (Path(`/api/v1/opds`) || PathPrefix(`/api/v1/opds/`))
       priority: 900
       middlewares:
         - name: bookorbit-opds-failed-auth-rate-limit
