@@ -56,8 +56,9 @@ state_key() {
 
 list_node_pods() {
     kubectl get pods -A \
-        --field-selector "spec.nodeName=${NODE_NAME},status.phase=Running" \
-        -o jsonpath='{range .items[*]}{.metadata.uid}{"|"}{.metadata.namespace}{"|"}{.metadata.name}{"|"}{.metadata.ownerReferences[0].kind}{"|"}{.metadata.ownerReferences[0].name}{"\n"}{end}'
+        --field-selector "spec.nodeName=${NODE_NAME}" \
+        -o jsonpath='{range .items[*]}{.metadata.uid}{"|"}{.metadata.namespace}{"|"}{.metadata.name}{"|"}{.status.phase}{"|"}{.metadata.ownerReferences[0].kind}{"|"}{.metadata.ownerReferences[0].name}{"\n"}{end}' |
+        awk -F '|' '$4 != "Succeeded" && $4 != "Failed"'
 }
 
 list_nfs_mounts() {
@@ -180,13 +181,34 @@ restart_target() {
     fi
 }
 
+delete_stuck_pods() {
+    namespace="$1"
+    kind="$2"
+    name="$3"
+    bad_pods_file="$4"
+
+    awk -F '|' -v ns="$namespace" -v kind="$kind" -v name="$name" \
+        '$1 == ns && $2 == kind && $3 == name { print $4 "|" $5 }' "$bad_pods_file" |
+        sort -u |
+        while IFS='|' read -r pod_name phase; do
+            [ -n "$pod_name" ] || continue
+            log "deleting stuck pod ${namespace}/${pod_name} phase=${phase} after stale NFS detection"
+            kubectl -n "$namespace" delete pod "$pod_name" --ignore-not-found=true || {
+                log "failed to delete stuck pod ${namespace}/${pod_name}"
+                return 1
+            }
+        done
+}
+
 check_mounts() {
     pod_map="${STATE_DIR}/pods.map"
     seen_file="${STATE_DIR}/seen.controllers"
     bad_file="${STATE_DIR}/bad.controllers"
+    bad_pods_file="${STATE_DIR}/bad.pods"
 
     : > "$seen_file"
     : > "$bad_file"
+    : > "$bad_pods_file"
 
     pods="$(list_node_pods 2>&1)" || {
         log "failed to list pods on ${NODE_NAME}: ${pods}"
@@ -211,7 +233,7 @@ check_mounts() {
             continue
         fi
 
-        IFS='|' read -r _ namespace pod_name owner_kind owner_name <<EOF
+        IFS='|' read -r _ namespace pod_name pod_phase owner_kind owner_name <<EOF
 $pod_line
 EOF
 
@@ -226,7 +248,10 @@ EOF
         printf '%s\n' "$controller_key" >> "$seen_file"
 
         if ! probe_mount "$mount_path"; then
-            printf '%s|%s %s %s %s\n' "$controller_key" "$pod_name" "$fs" "$source" "$mount_path" >> "$bad_file"
+            printf '%s|pod=%s phase=%s %s %s %s\n' "$controller_key" "$pod_name" "$pod_phase" "$fs" "$source" "$mount_path" >> "$bad_file"
+            if [ "$pod_phase" != "Running" ]; then
+                printf '%s|%s|%s|%s|%s\n' "$namespace" "$controller_kind" "$controller_name" "$pod_name" "$pod_phase" >> "$bad_pods_file"
+            fi
         fi
     done
 
@@ -261,6 +286,9 @@ EOF
         log "NFS probe failed for ${namespace}/${kind}/${name}; failures=${failures}; ${matching_bad}"
 
         if [ "$failures" -ge "$FAILURES_BEFORE_RESTART" ]; then
+            if [ -s "$bad_pods_file" ]; then
+                delete_stuck_pods "$namespace" "$kind" "$name" "$bad_pods_file" && echo 0 > "$failures_file"
+            fi
             restart_target "$namespace" "$kind" "$name" "$matching_bad"
         fi
     done
