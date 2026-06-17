@@ -91,25 +91,19 @@ spec:
                 enabled: true
                 custom: true
                 spec:
-                  exec:
-                    command:
-                      - /bin/sh
-                      - /probes/liveness.sh
-                      - "32400"
-                      - "identity"
-                      - "/media/tv"
-                      - "/media/movies"
-                      - "/media/recordings"
-                      - "/media/videos"
-                      - "/media2/tv"
-                      - "/media2/movies"
-                  initialDelaySeconds: 0
+                  httpGet:
+                    path: /identity
+                    port: &port 32400
+                  initialDelaySeconds: 10
                   periodSeconds: 30
                   timeoutSeconds: 10
                   failureThreshold: 3
               readiness: *probes
               startup:
-                enabled: false
+                enabled: true
+                spec:
+                  periodSeconds: 10
+                  failureThreshold: 30
             
             securityContext:
               allowPrivilegeEscalation: false
@@ -133,7 +127,7 @@ spec:
           lbipam.cilium.io/ips: "${PLEX_IP}"
         ports:
           http:
-            port: 32400
+            port: *port
 
     ingress:
       app:
