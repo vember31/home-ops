@@ -11,8 +11,8 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
-    - nfsvers=4.2
-    - nconnect=16
+    - nfsvers=3
+    - proto=tcp
     - hard
     - noatime
     - rsize=1048576
@@ -22,7 +22,7 @@ spec:
     volumeHandle: nfs-omv-media-downloads
     volumeAttributes:
       server: ${OMV_IP}
-      share: /media
+      share: /export/media
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -50,8 +50,8 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
-    - nfsvers=4.2
-    - nconnect=16
+    - nfsvers=3
+    - proto=tcp
     - hard
     - noatime
     - rsize=1048576
@@ -61,7 +61,7 @@ spec:
     volumeHandle: nfs-omv2-downloads
     volumeAttributes:
       server: ${OMV2_IP}
-      share: /
+      share: /export
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

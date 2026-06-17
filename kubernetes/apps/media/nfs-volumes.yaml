@@ -11,8 +11,8 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
-    - nfsvers=4.2
-    - nconnect=16
+    - nfsvers=3
+    - proto=tcp
     - hard
     - noatime
     - rsize=1048576
@@ -22,7 +22,7 @@ spec:
     volumeHandle: nfs-omv-media-root
     volumeAttributes:
       server: ${OMV_IP}
-      share: /media
+      share: /export/media
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -50,8 +50,8 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
-    - nfsvers=4.2
-    - nconnect=16
+    - nfsvers=3
+    - proto=tcp
     - hard
     - noatime
     - rsize=1048576
@@ -61,7 +61,7 @@ spec:
     volumeHandle: nfs-omv-media-tv
     volumeAttributes:
       server: ${OMV_IP}
-      share: /media/tv
+      share: /export/media/tv
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -89,8 +89,8 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
-    - nfsvers=4.2
-    - nconnect=16
+    - nfsvers=3
+    - proto=tcp
     - hard
     - noatime
     - rsize=1048576
@@ -100,7 +100,7 @@ spec:
     volumeHandle: nfs-omv-media-movies
     volumeAttributes:
       server: ${OMV_IP}
-      share: /media/movies
+      share: /export/media/movies
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -128,8 +128,8 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
-    - nfsvers=4.2
-    - nconnect=16
+    - nfsvers=3
+    - proto=tcp
     - hard
     - noatime
     - rsize=1048576
@@ -139,7 +139,7 @@ spec:
     volumeHandle: nfs-omv-media-recordings
     volumeAttributes:
       server: ${OMV_IP}
-      share: /media/recordings
+      share: /export/media/recordings
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -167,8 +167,8 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
-    - nfsvers=4.2
-    - nconnect=16
+    - nfsvers=3
+    - proto=tcp
     - hard
     - noatime
     - rsize=1048576
@@ -178,7 +178,7 @@ spec:
     volumeHandle: nfs-omv-media-videos
     volumeAttributes:
       server: ${OMV_IP}
-      share: /media/videos
+      share: /export/media/videos
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -206,8 +206,8 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
-    - nfsvers=4.2
-    - nconnect=16
+    - nfsvers=3
+    - proto=tcp
     - hard
     - noatime
     - rsize=1048576
@@ -217,7 +217,7 @@ spec:
     volumeHandle: nfs-omv2-media-tv
     volumeAttributes:
       server: ${OMV2_IP}
-      share: /tv
+      share: /export/tv
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -245,8 +245,8 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
-    - nfsvers=4.2
-    - nconnect=16
+    - nfsvers=3
+    - proto=tcp
     - hard
     - noatime
     - rsize=1048576
@@ -256,7 +256,7 @@ spec:
     volumeHandle: nfs-omv2-media-movies
     volumeAttributes:
       server: ${OMV2_IP}
-      share: /movies
+      share: /export/movies
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -285,8 +285,8 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   mountOptions:
-    - nfsvers=4.2
-    - nconnect=16
+    - nfsvers=3
+    - proto=tcp
     - hard
     - noatime
     - rsize=1048576
@@ -296,7 +296,7 @@ spec:
     volumeHandle: nfs-omv-media-books
     volumeAttributes:
       server: ${OMV_IP}
-      share: /media/books
+      share: /export/media/books
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
