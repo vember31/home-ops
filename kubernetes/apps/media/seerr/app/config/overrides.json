@@ -149,13 +149,16 @@
     }
    },
    "discord": {
-    "enabled": false,
+    "enabled": true,
     "embedPoster": true,
-    "types": 0,
+    "types": 2048,
     "options": {
-     "webhookUrl": "",
+     "botUsername": "Seerr (Unused)",
+     "webhookUrl": "{{ .SEERR_DISCORD_WEBHOOK_URL }}",
      "webhookRoleId": "",
-     "enableMentions": true
+     "enableMentions": true,
+     "locale": "en",
+     "useUserLocale": true
     }
    },
    "slack": {
