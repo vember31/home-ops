@@ -1,0 +1,37 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aclerici38/pocket-id-operator/v0.8.0/dist/schemas/pocketidinstance_v1alpha1.json
+apiVersion: pocketid.internal/v1alpha1
+kind: PocketIDInstance
+metadata:
+  name: pocket-id
+  namespace: security
+  labels:
+    app.kubernetes.io/name: pocket-id
+spec:
+  deploymentType: Deployment
+  appUrl: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
+  timezone: ${TIMEZONE}
+  analyticsDisabled: true
+  versionCheckDisabled: true
+  auditLogRetentionDays: 30
+  OIDCClientRotation:
+    minSpacing: 1h
+  encryptionKey:
+    valueFrom:
+      secretKeyRef:
+        name: pocket-id-secret
+        key: ENCRYPTION_KEY
+  persistence:
+    enabled: true
+    storageClass: longhorn
+    size: 5Gi
+  logging:
+    level: info
+    json: true
+  userManagement:
+    allowOwnAccountEdit: true
+    allowUserSignups: disabled
+  ui:
+    appName: Pocket ID
+    sessionDuration: 1440
+    homePageUrl: /settings/account

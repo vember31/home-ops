@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aclerici38/pocket-id-operator/v0.8.0/dist/schemas/pocketidoidcclient_v1alpha1.json
+apiVersion: pocketid.internal/v1alpha1
+kind: PocketIDOIDCClient
+metadata:
+  name: bookorbit
+  namespace: media
+spec:
+  name: BookOrbit
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: pocket-id
+  callbackUrls:
+    - https://books.local.${SECRET_DOMAIN}/oauth2-callback
+    - https://books.${SECRET_DOMAIN}/oauth2-callback
+  logoutCallbackUrls:
+    - https://books.local.${SECRET_DOMAIN}/login
+    - https://books.${SECRET_DOMAIN}/login
+  launchUrl: https://books.local.${SECRET_DOMAIN}
+  pkceEnabled: true
+  allowedUserGroups:
+    - name: bookorbit-users
+      namespace: security
+  logo:
+    logoUrl: https://raw.githubusercontent.com/bookorbit/bookorbit/cbcdf019ad3ef73cda73ab5f4d773a9be912c7b0/client/public/pwa-icon-source.svg
+  secret:
+    name: bookorbit-oidc-credentials
+    additionalLabels:
+      app.kubernetes.io/name: bookorbit

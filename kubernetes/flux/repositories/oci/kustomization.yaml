@@ -15,6 +15,7 @@ resources:
   - ./flux-operator.yaml
   - ./grafana-operator.yaml
   - ./node-feature-discovery.yaml
+  # - ./pocket-id-operator.yaml # parked until Pocket ID rollout is ready: https://github.com/vember31/home-ops/issues/4232
   - ./plugin-barman-cloud.yaml
   - ./victoria-logs.yaml
   - ./victoria-metrics-k8s-stack.yaml

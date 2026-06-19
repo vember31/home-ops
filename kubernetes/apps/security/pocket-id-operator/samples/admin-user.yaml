@@ -1,0 +1,27 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aclerici38/pocket-id-operator/v0.8.0/dist/schemas/pocketiduser_v1alpha1.json
+apiVersion: pocketid.internal/v1alpha1
+kind: PocketIDUser
+metadata:
+  name: admin
+  namespace: security
+spec:
+  userInfoSecretRef:
+    name: pocket-id-admin-user-info
+  admin: true
+  locale: en
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aclerici38/pocket-id-operator/v0.8.0/dist/schemas/pocketidusergroup_v1alpha1.json
+apiVersion: pocketid.internal/v1alpha1
+kind: PocketIDUserGroup
+metadata:
+  name: admins
+  namespace: security
+spec:
+  friendlyName: Administrators
+  customClaims:
+    - key: role
+      value: admin
+  users:
+    userRefs:
+      - name: admin

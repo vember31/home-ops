@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pocket-id-tls-production
+  namespace: security
+spec:
+  secretName: pocket-id-tls-production
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}"
+  dnsNames:
+    - "${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}"
