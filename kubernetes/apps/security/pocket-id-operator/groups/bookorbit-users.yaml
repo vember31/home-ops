@@ -12,5 +12,6 @@ spec:
       value: bookorbit
   users:
     userRefs:
-      - name: admin
-      - name: normal
+      - name: dm
+      - name: emm
+      - name: mfm
