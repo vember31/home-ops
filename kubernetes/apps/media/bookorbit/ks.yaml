@@ -38,6 +38,7 @@ spec:
   dependsOn:
     - name: bookorbit-substitutions
     - name: cloudnative-pg-cluster
+    - name: pocket-id-groups
   path: ./kubernetes/apps/media/bookorbit/app
   prune: true
   sourceRef:

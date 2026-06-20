@@ -12,10 +12,8 @@ spec:
       app.kubernetes.io/name: pocket-id
   callbackUrls:
     - https://books.local.${SECRET_DOMAIN}/oauth2-callback
-    - https://books.${SECRET_DOMAIN}/oauth2-callback
   logoutCallbackUrls:
     - https://books.local.${SECRET_DOMAIN}/login
-    - https://books.${SECRET_DOMAIN}/login
   launchUrl: https://books.local.${SECRET_DOMAIN}
   pkceEnabled: true
   allowedUserGroups:

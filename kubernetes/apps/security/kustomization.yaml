@@ -7,5 +7,5 @@ resources:
   - ./namespace.yaml
   
   # Post Flux-Kustomizations
-  # - ./pocket-id-operator/ks.yaml # parked until Pocket ID rollout is ready: https://github.com/vember31/home-ops/issues/4232
+  - ./pocket-id-operator/ks.yaml
   - ./vaultwarden/ks.yaml
