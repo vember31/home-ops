@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./externalsecret.yaml
+  # - ./resources/pocket-id-oidc-client.yaml # parked until Pocket ID rollout is ready: https://github.com/vember31/home-ops/issues/4232
   - ./opds-ingressroute.yaml
   - ./opds-middlewares.yaml
   - ../../../../templates/gatus/internal
