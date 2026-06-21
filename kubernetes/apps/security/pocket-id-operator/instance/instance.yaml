@@ -21,6 +21,12 @@ spec:
       secretKeyRef:
         name: pocket-id-secret
         key: ENCRYPTION_KEY
+  geoip:
+    maxmindLicenseKey:
+      valueFrom:
+        secretKeyRef:
+          name: pocket-id-secret
+          key: MAXMIND_LICENSE_KEY
   persistence:
     enabled: true
     storageClass: longhorn
