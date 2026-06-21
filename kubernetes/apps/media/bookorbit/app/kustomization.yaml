@@ -8,4 +8,4 @@ resources:
   - ./oidc/pocket-id-oidc-client.yaml
   - ./opds-ingressroute.yaml
   - ./opds-middlewares.yaml
-  - ../../../../templates/gatus/internal
+  - ../../../../templates/gatus/external

@@ -5,16 +5,16 @@ kind: IngressRoute
 metadata:
   name: bookorbit-opds
   namespace: media
-  annotations:
-    external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
 spec:
   entryPoints:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}`) && (Path(`/api/v1/opds`) || PathPrefix(`/api/v1/opds/`)) && Header(`X-Bookorbit-Secret`, `${BOOKORBIT_OPDS_SECRET}`)
+      match: Host(`${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}`) && (Path(`/api/v1/opds`) || PathPrefix(`/api/v1/opds/`)) && Header(`X-Bookorbit-Secret`, `${BOOKORBIT_OPDS_SECRET}`)
       priority: 1000
       middlewares:
+        - name: cloudflare-ips
+          namespace: networking
         - name: bookorbit-opds-strip-secret
         - name: opds-auth
           namespace: networking
@@ -22,9 +22,11 @@ spec:
         - name: bookorbit
           port: 3000
     - kind: Rule
-      match: Host(`${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}`) && (Path(`/api/v1/opds`) || PathPrefix(`/api/v1/opds/`))
+      match: Host(`${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}`) && (Path(`/api/v1/opds`) || PathPrefix(`/api/v1/opds/`))
       priority: 900
       middlewares:
+        - name: cloudflare-ips
+          namespace: networking
         - name: bookorbit-opds-failed-auth-rate-limit
         - name: bookorbit-opds-deny-basic-auth
       services:
