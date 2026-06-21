@@ -13,3 +13,4 @@ spec:
   users:
     userRefs:
       - name: dm
+      - name: mfm
