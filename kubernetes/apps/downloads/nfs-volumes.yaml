@@ -76,3 +76,120 @@ spec:
   resources:
     requests:
       storage: 4Ti
+---
+# OMV2 - /export/tv
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv2-downloads-tv
+spec:
+  capacity:
+    storage: 4Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=3
+    - proto=tcp
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv2-downloads-tv
+    volumeAttributes:
+      server: ${OMV2_IP}
+      share: /export/tv
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv2-tv
+  namespace: downloads
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv2-downloads-tv
+  resources:
+    requests:
+      storage: 4Ti
+---
+# OMV2 - /export/movies
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv2-downloads-movies
+spec:
+  capacity:
+    storage: 4Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=3
+    - proto=tcp
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv2-downloads-movies
+    volumeAttributes:
+      server: ${OMV2_IP}
+      share: /export/movies
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv2-movies
+  namespace: downloads
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv2-downloads-movies
+  resources:
+    requests:
+      storage: 4Ti
+---
+# OMV2 - /export/backups
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-omv2-downloads-backups
+spec:
+  capacity:
+    storage: 4Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=3
+    - proto=tcp
+    - hard
+    - noatime
+    - rsize=1048576
+    - wsize=1048576
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: nfs-omv2-downloads-backups
+    volumeAttributes:
+      server: ${OMV2_IP}
+      share: /export/backups
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-omv2-backups
+  namespace: downloads
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  volumeName: nfs-omv2-downloads-backups
+  resources:
+    requests:
+      storage: 4Ti
