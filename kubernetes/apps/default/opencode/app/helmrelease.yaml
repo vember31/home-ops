@@ -65,11 +65,13 @@ spec:
               - -c
               - |
                 set -e
-                apk add --no-cache curl >/dev/null 2>&1
+                apk add --no-cache curl tar >/dev/null 2>&1
                 curl -sLo /usr/local/bin/kubectl -L "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
                 chmod +x /usr/local/bin/kubectl
-                curl -sLo /usr/local/bin/flux -L https://github.com/fluxcd/flux2/releases/latest/download/flux_linux_amd64
-                chmod +x /usr/local/bin/flux
+                FLUX_URL=$(curl -sL https://api.github.com/repos/fluxcd/flux2/releases/latest | grep -o '\"browser_download_url\": *\"[^\"]*linux_amd64[^\"]*\"' | cut -d'\"' -f4)
+                curl -sLo /tmp/flux.tar.gz -L "$FLUX_URL"
+                tar -xzf /tmp/flux.tar.gz -C /usr/local/bin/ flux
+                rm /tmp/flux.tar.gz
                 exec opencode web --hostname 0.0.0.0 --port 4096
 
             env:
