@@ -13,7 +13,7 @@ spec:
   # renovate: depName="Longhorn"
   grafanaCom:
     id: 16888
-    revision: 12
+    revision: 13
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics
