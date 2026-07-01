@@ -68,6 +68,8 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: qbittorrent
+    - name: external-secrets-stores
+    - name: pocket-id-groups
   path: ./kubernetes/apps/downloads/qbittorrent/qui
   prune: true
   sourceRef:
