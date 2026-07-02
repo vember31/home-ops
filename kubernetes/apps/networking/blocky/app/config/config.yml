@@ -150,7 +150,7 @@ bootstrapDns:
     - 9.9.9.9
 
 upstreams:
-  strategy: strict
+  strategy: parallel_best
   groups:
     default:
       - quic:dns.adguard-dns.com
