@@ -71,6 +71,24 @@ spec:
               AUTOBRR__PORT: &port 7474
               AUTOBRR__LOG_LEVEL: INFO
               TZ: ${TIMEZONE}
+              AUTOBRR__OIDC_ENABLED: "true"
+              AUTOBRR__OIDC_REDIRECT_URL: https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}/api/auth/oidc/callback
+              AUTOBRR__OIDC_DISABLE_BUILT_IN_LOGIN: "true"
+              AUTOBRR__OIDC_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: autobrr-oidc-credentials
+                    key: client_id
+              AUTOBRR__OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: autobrr-oidc-credentials
+                    key: client_secret
+              AUTOBRR__OIDC_ISSUER:
+                valueFrom:
+                  secretKeyRef:
+                    name: autobrr-oidc-credentials
+                    key: issuer_url
             envFrom: *envFrom
 
             resources:

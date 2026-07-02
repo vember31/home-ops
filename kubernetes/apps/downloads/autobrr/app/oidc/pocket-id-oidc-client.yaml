@@ -1,0 +1,27 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aclerici38/pocket-id-operator/v0.8.0/dist/schemas/pocketidoidcclient_v1alpha1.json
+apiVersion: pocketid.internal/v1alpha1
+kind: PocketIDOIDCClient
+metadata:
+  name: autobrr
+  namespace: downloads
+spec:
+  name: Autobrr
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: pocket-id
+  callbackUrls:
+    - https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}/api/auth/oidc/callback
+  logoutCallbackUrls:
+    - https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+  launchUrl: https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+  pkceEnabled: true
+  allowedUserGroups:
+    - name: autobrr-users
+      namespace: security
+  logo:
+    logoUrl: https://raw.githubusercontent.com/autobrr/autobrr/develop/web/static/apple-touch-icon.png
+  secret:
+    name: autobrr-oidc-credentials
+    additionalLabels:
+      app.kubernetes.io/name: autobrr
