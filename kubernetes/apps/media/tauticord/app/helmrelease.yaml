@@ -65,7 +65,6 @@ spec:
 
             probes:
               liveness:
-                type: exec
                 spec:
                   exec:
                     command:
