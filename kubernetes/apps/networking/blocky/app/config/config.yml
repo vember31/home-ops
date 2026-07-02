@@ -120,7 +120,7 @@ ecs:
   useAsClient: true
 
 dnssec:
-  validate: true
+  validate: false #causes issues with discord and other sites
 
 log:
   level: info
