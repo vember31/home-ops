@@ -6,7 +6,7 @@ Tautulli:
   URL: "http://tautulli.media.svc.cluster.local:8181"
   APIKey: "{{ .TC_TAUTULLI_KEY }}"
   UseSelfSignedCert: false
-  RefreshSeconds: 30
+  RefreshSeconds: 120
   TerminateMessage: "Your stream has been terminated. Please contact the server owner with any questions."
 
 # Discord settings

@@ -63,6 +63,19 @@ spec:
                 exec:
                   command: ["/bin/sh", "-c", "cp /template/tauticord.yaml /config/tauticord.yaml"]
 
+            probes:
+              liveness:
+                type: exec
+                spec:
+                  exec:
+                    command:
+                      - /bin/sh
+                      - -c
+                      - |
+                        find /logs -type f -mmin -5 2>/dev/null | grep -q . || exit 1
+                  initialDelaySeconds: 300
+                  periodSeconds: 180
+                  failureThreshold: 2
 
             resources:
               limits:
