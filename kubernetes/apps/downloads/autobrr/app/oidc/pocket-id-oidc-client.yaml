@@ -6,7 +6,7 @@ metadata:
   name: autobrr
   namespace: downloads
 spec:
-  name: Autobrr
+  name: autobrr
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: pocket-id

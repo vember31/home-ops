@@ -6,7 +6,7 @@ metadata:
   name: qui
   namespace: downloads
 spec:
-  name: Qui
+  name: qui
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: pocket-id
