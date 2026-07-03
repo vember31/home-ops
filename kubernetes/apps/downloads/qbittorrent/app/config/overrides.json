@@ -28,8 +28,8 @@
 
   "queueing_enabled": true,
   "max_active_downloads": 10,
-  "max_active_torrents": 200,
-  "max_active_uploads": 200,
+  "max_active_torrents": 500,
+  "max_active_uploads": 500,
   "max_active_checking_torrents": 1,
   "dont_count_slow_torrents": false,
 
