@@ -20,7 +20,7 @@ spec:
     - name: qui-users
       namespace: security
   logo:
-    logoUrl: https://raw.githubusercontent.com/autobrr/qui/main/frontend/public/favicon.svg
+    logoUrl: https://getqui.com/img/qui.png
   secret:
     name: qui-oidc-credentials
     additionalLabels:

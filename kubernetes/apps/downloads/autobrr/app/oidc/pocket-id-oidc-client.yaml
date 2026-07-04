@@ -20,7 +20,7 @@ spec:
     - name: autobrr-users
       namespace: security
   logo:
-    logoUrl: https://raw.githubusercontent.com/autobrr/autobrr/develop/web/static/apple-touch-icon.png
+    logoUrl: https://raw.githubusercontent.com/autobrr/autobrr/0297ba895dd3368795b9d1c0a60ddf5d31c661a9/.github/images/logo.png
   secret:
     name: autobrr-oidc-credentials
     additionalLabels:
