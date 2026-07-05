@@ -6,4 +6,5 @@ resources:
   - ./admins.yaml
   - ./autobrr-users.yaml
   - ./bookorbit-users.yaml
+  - ./donetick-users.yaml
   - ./qui-users.yaml
