@@ -7,15 +7,8 @@ metadata:
   namespace: home
 spec:
   name: Donetick
-  instanceSelector:
-    matchLabels:
-      app.kubernetes.io/name: pocket-id
   callbackUrls:
     - https://${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}/auth/oauth2
-  logoutCallbackUrls:
-    - https://${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}
-  launchUrl: https://${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}
-  pkceEnabled: true
   allowedUserGroups:
     - name: donetick-users
       namespace: security
