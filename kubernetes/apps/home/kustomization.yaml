@@ -8,4 +8,4 @@ resources:
   
   # Post Flux-Kustomizations
   - ./outline/ks.yaml
-  # - ./donetick/ks.yaml
+  - ./donetick/ks.yaml
