@@ -3,6 +3,7 @@
 import http.server
 import json
 import os
+import sys
 import urllib.error
 import urllib.request
 
@@ -46,6 +47,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 status = response.status
         except urllib.error.HTTPError as error:
             status = error.code
+            print(f"discord returned {status}: {error.read().decode(errors='replace')}", file=sys.stderr)
+        except urllib.error.URLError as error:
+            print(f"discord request failed: {error.reason}", file=sys.stderr)
+            self.send_response(502)
+            self.end_headers()
+            return
 
         self.send_response(status if status < 400 else 502)
         self.end_headers()
