@@ -9,13 +9,48 @@ import urllib.request
 
 DISCORD_WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
 
+EVENT_STYLES = {
+    "task.created": ("🆕", 0x5865F2),
+    "task.completed": ("✅", 0x57F287),
+    "task.updated": ("✏️", 0xFEE75C),
+    "task.deleted": ("🗑️", 0xED4245),
+}
+DEFAULT_STYLE = ("🔔", 0x99AAB5)
 
-def format_message(payload):
+
+def build_embed(payload):
     event_type = payload.get("type", "unknown")
     data = payload.get("data") or {}
-    lines = [f"**Donetick — {event_type}**"]
-    lines += [f"{key}: {value}" for key, value in data.items()]
-    return "\n".join(lines)
+    chore = data.get("chore") if isinstance(data.get("chore"), dict) else {}
+    emoji, color = EVENT_STYLES.get(event_type, DEFAULT_STYLE)
+
+    embed = {
+        "title": f"{emoji} {event_type.replace('.', ' ').replace('_', ' ').title()}",
+        "color": color,
+        "fields": [],
+    }
+
+    if chore.get("name"):
+        embed["fields"].append({"name": "Chore", "value": chore["name"], "inline": True})
+
+    who = data.get("display_name") or data.get("username")
+    if who:
+        embed["fields"].append({"name": "By", "value": who, "inline": True})
+
+    if chore.get("nextDueDate"):
+        embed["fields"].append({"name": "Next Due", "value": chore["nextDueDate"], "inline": True})
+
+    note = data.get("note")
+    if note:
+        embed["fields"].append({"name": "Note", "value": note, "inline": False})
+
+    timestamp = chore.get("updatedAt") or chore.get("createdAt")
+    if timestamp:
+        embed["timestamp"] = timestamp
+
+    embed["footer"] = {"text": "Donetick"}
+
+    return embed
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
@@ -34,7 +69,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             return
 
-        discord_body = json.dumps({"content": format_message(payload)}).encode()
+        discord_body = json.dumps({"embeds": [build_embed(payload)]}).encode()
         request = urllib.request.Request(
             DISCORD_WEBHOOK_URL,
             data=discord_body,
