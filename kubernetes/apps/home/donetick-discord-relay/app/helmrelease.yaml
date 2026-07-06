@@ -1,0 +1,98 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app donetick-discord-relay
+  namespace: home
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+
+  maxHistory: 1
+
+  values:
+    controllers:
+      ${APP}:
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+        containers:
+          app:
+            image:
+              repository: docker.io/library/python
+              tag: 3.13-alpine
+              pullPolicy: IfNotPresent
+            command:
+              - python3
+              - /config/relay.py
+            env:
+              PYTHONDONTWRITEBYTECODE: "1"
+              DISCORD_WEBHOOK_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: donetick-discord-relay-secret
+                    key: DISCORD_WEBHOOK_URL
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 64Mi
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: &port 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+              startup: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+
+    persistence:
+      config:
+        type: configMap
+        name: donetick-discord-relay-configmap
+        defaultMode: 0555
+        globalMounts:
+          - path: /config/relay.py
+            subPath: relay.py
+            readOnly: true
