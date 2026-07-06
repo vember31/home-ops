@@ -11,7 +11,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: external-secrets-stores
+    - name: donetick
   path: ./kubernetes/apps/home/donetick-discord-relay/app
   prune: true
   sourceRef:

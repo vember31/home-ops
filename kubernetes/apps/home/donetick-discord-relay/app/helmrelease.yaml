@@ -46,7 +46,7 @@ spec:
               DISCORD_WEBHOOK_URL:
                 valueFrom:
                   secretKeyRef:
-                    name: donetick-discord-relay-secret
+                    name: donetick-secret
                     key: DISCORD_WEBHOOK_URL
             resources:
               requests:
