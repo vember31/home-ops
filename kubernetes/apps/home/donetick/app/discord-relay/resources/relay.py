@@ -1,11 +1,25 @@
 #!/usr/bin/env python3
 """Reshapes Donetick webhook events into Discord's expected payload and forwards them."""
+from datetime import datetime, timezone, timedelta
 import http.server
 import json
 import os
 import sys
 import urllib.error
 import urllib.request
+
+try:
+    from zoneinfo import ZoneInfo
+    CT = ZoneInfo("America/Chicago")
+except Exception:
+    CT = timezone(timedelta(hours=-5))
+
+def fmt_ts(ts_str):
+    try:
+        dt = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+        return dt.astimezone(CT).strftime("%b %d, %Y at %I:%M %p")
+    except (ValueError, TypeError):
+        return ts_str
 
 DISCORD_WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
 
@@ -55,7 +69,7 @@ def build_embed(payload):
 
     next_due = chore.get("nextDueDate") or data.get("nextDueDate") or data.get("due_date") or data.get("dueDate")
     if next_due:
-        embed["fields"].append({"name": "Next Due", "value": next_due, "inline": True})
+        embed["fields"].append({"name": "Next Due", "value": fmt_ts(next_due), "inline": True})
 
     note = data.get("note") or chore.get("note")
     if note:
