@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Reshapes Donetick webhook events into Discord's expected payload and forwards them."""
 from datetime import datetime, timezone, timedelta
+import html
 import http.server
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -13,6 +15,11 @@ try:
     CT = ZoneInfo("America/Chicago")
 except Exception:
     CT = timezone(timedelta(hours=-5))
+
+TAG_RE = re.compile(r"<[^>]*>")
+
+def strip_html(s):
+    return html.unescape(TAG_RE.sub("", s)).strip()
 
 def fmt_ts(ts_str):
     try:
@@ -73,11 +80,11 @@ def build_embed(payload):
 
     note = data.get("note") or chore.get("note")
     if note:
-        embed["fields"].append({"name": "Note", "value": note, "inline": False})
+        embed["fields"].append({"name": "Note", "value": strip_html(note), "inline": False})
 
     description = data.get("description") or chore.get("description")
     if description:
-        embed["fields"].append({"name": "Description", "value": description, "inline": False})
+        embed["fields"].append({"name": "Description", "value": strip_html(description), "inline": False})
 
     timestamp = chore.get("updatedAt") or chore.get("createdAt") or data.get("timestamp")
     if timestamp:
