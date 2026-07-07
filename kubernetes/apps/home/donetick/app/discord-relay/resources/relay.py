@@ -14,8 +14,15 @@ EVENT_STYLES = {
     "task.completed": ("✅", 0x57F287),
     "task.updated": ("✏️", 0xFEE75C),
     "task.deleted": ("🗑️", 0xED4245),
+    "task.reminder": ("⏰", 0xE67E22),
+    "task.due": ("📅", 0xE67E22),
+    "chore.reminder": ("⏰", 0xE67E22),
 }
 DEFAULT_STYLE = ("🔔", 0x99AAB5)
+
+
+def log(msg):
+    print(msg, file=sys.stderr, flush=True)
 
 
 def build_embed(payload):
@@ -30,21 +37,27 @@ def build_embed(payload):
         "fields": [],
     }
 
-    if chore.get("name"):
-        embed["fields"].append({"name": "Chore", "value": chore["name"], "inline": True})
+    chore_name = chore.get("name") or data.get("chore_name") or data.get("name") or data.get("title")
+    if chore_name:
+        embed["fields"].append({"name": "Chore", "value": chore_name, "inline": True})
 
     who = data.get("display_name") or data.get("username")
     if who:
         embed["fields"].append({"name": "By", "value": who, "inline": True})
 
-    if chore.get("nextDueDate"):
-        embed["fields"].append({"name": "Next Due", "value": chore["nextDueDate"], "inline": True})
+    next_due = chore.get("nextDueDate") or data.get("nextDueDate") or data.get("due_date") or data.get("dueDate")
+    if next_due:
+        embed["fields"].append({"name": "Next Due", "value": next_due, "inline": True})
 
-    note = data.get("note")
+    note = data.get("note") or chore.get("note")
     if note:
         embed["fields"].append({"name": "Note", "value": note, "inline": False})
 
-    timestamp = chore.get("updatedAt") or chore.get("createdAt")
+    description = data.get("description") or chore.get("description")
+    if description:
+        embed["fields"].append({"name": "Description", "value": description, "inline": False})
+
+    timestamp = chore.get("updatedAt") or chore.get("createdAt") or data.get("timestamp")
     if timestamp:
         embed["timestamp"] = timestamp
 
@@ -62,14 +75,22 @@ class Handler(http.server.BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(length) if length else b"{}"
 
+        log(f"[IN] {self.command} {self.path} ({length} bytes)")
+
         try:
             payload = json.loads(body)
         except json.JSONDecodeError:
+            log(f"[IN] invalid JSON: {body[:500]}")
             self.send_response(400)
             self.end_headers()
             return
 
-        discord_body = json.dumps({"embeds": [build_embed(payload)]}).encode()
+        log(f"[IN] payload: {json.dumps(payload, indent=2, default=str)}")
+
+        embed = build_embed(payload)
+        discord_body = json.dumps({"embeds": [embed]}).encode()
+        log(f"[OUT] discord payload: {discord_body.decode()}")
+
         request = urllib.request.Request(
             DISCORD_WEBHOOK_URL,
             data=discord_body,
@@ -83,20 +104,18 @@ class Handler(http.server.BaseHTTPRequestHandler):
         try:
             with urllib.request.urlopen(request, timeout=10) as response:
                 status = response.status
+                log(f"[OUT] discord response: {status}")
         except urllib.error.HTTPError as error:
             status = error.code
-            print(f"discord returned {status}: {error.read().decode(errors='replace')}", file=sys.stderr)
+            log(f"[OUT] discord error {status}: {error.read().decode(errors='replace')}")
         except urllib.error.URLError as error:
-            print(f"discord request failed: {error.reason}", file=sys.stderr)
+            log(f"[OUT] discord request failed: {error.reason}")
             self.send_response(502)
             self.end_headers()
             return
 
         self.send_response(status if status < 400 else 502)
         self.end_headers()
-
-    def log_message(self, fmt, *args):
-        pass
 
 
 if __name__ == "__main__":
