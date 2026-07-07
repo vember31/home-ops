@@ -31,8 +31,12 @@ def build_embed(payload):
     chore = data.get("chore") if isinstance(data.get("chore"), dict) else {}
     emoji, color = EVENT_STYLES.get(event_type, DEFAULT_STYLE)
 
+    title = f"{emoji} {event_type.replace('.', ' ').replace('_', ' ').title()}"
+    reminder_type = data.get("type")
+    if event_type == "task.reminder" and reminder_type:
+        title = f"{emoji} {reminder_type.replace('_', ' ').title()} Reminder"
     embed = {
-        "title": f"{emoji} {event_type.replace('.', ' ').replace('_', ' ').title()}",
+        "title": title,
         "color": color,
         "fields": [],
     }
@@ -41,7 +45,7 @@ def build_embed(payload):
     if chore_name:
         embed["fields"].append({"name": "Chore", "value": chore_name, "inline": True})
 
-    who = data.get("display_name") or data.get("username")
+    who = data.get("display_name") or data.get("username") or data.get("assignee")
     if who:
         embed["fields"].append({"name": "By", "value": who, "inline": True})
 
