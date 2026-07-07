@@ -83,7 +83,9 @@ def build_embed(payload):
     if timestamp:
         embed["timestamp"] = timestamp
 
-    embed["footer"] = {"text": "Donetick"}
+    sent = payload.get("timestamp")
+    footer = f"Donetick · {fmt_ts(sent)}" if sent else "Donetick"
+    embed["footer"] = {"text": footer}
 
     return embed
 
