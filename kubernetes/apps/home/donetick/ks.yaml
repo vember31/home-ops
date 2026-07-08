@@ -42,7 +42,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: donetick
-  path: ./kubernetes/apps/home/donetick/app/discord-relay
+  path: ./kubernetes/apps/home/donetick/discord-relay
   prune: true
   sourceRef:
     kind: GitRepository
