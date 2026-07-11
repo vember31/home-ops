@@ -151,8 +151,8 @@ for r in d.get('data',{}).get('result',[]):
     for ts, val in r.get('values',[]):
         dt = datetime.datetime.utcfromtimestamp(float(ts)).strftime('%H:%M')
         data[dt][inst] = float(val)
-nodes = ['192.168.2.11','192.168.2.12','192.168.2.13','192.168.2.14','192.168.2.15']
-labels = ['node1','node2','node3','node4','node5']
+nodes = ['192.168.2.11','192.168.2.12','192.168.2.13','192.168.2.14','192.168.2.15','192.168.2.51','192.168.2.52','192.168.2.53']
+labels = ['node1','node2','node3','node4','node5','work1','work2','work3']
 print('Time   ' + '  '.join(f'{l:>8}' for l in labels))
 for dt in sorted(data.keys()):
     row = data[dt]
@@ -233,6 +233,9 @@ curl -s 'http://localhost:9428/select/logsql/query' \
 | k3s-control3 | 192.168.2.13 | etcd, control plane, Longhorn |
 | k3s-control4 | 192.168.2.14 | etcd, Dragonfly-1 |
 | k3s-control5 | 192.168.2.15 | etcd, CNPG operator |
+| k3s-worker1 | 192.168.2.51 | workloads |
+| k3s-worker2 | 192.168.2.52 | workloads |
+| k3s-worker3 | 192.168.2.53 | workloads |
 
 etcd ports: `:2381` (metrics), `:2379` (client), `:2380` (peer)  
 node-exporter: `:9100`

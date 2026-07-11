@@ -106,14 +106,17 @@ Automated dependency management with modular config in `.github/renovate/`:
 
 ## Cluster Access
 
-SSH into nodes directly via the secure subnet. Nodes 11–15:
+SSH into nodes directly via the secure subnet. Control-plane nodes 11–15, worker nodes 51–53:
 
 ```
-ssh <user>@192.168.2.11   # node 1
-ssh <user>@192.168.2.12   # node 2
-ssh <user>@192.168.2.13   # node 3
-ssh <user>@192.168.2.14   # node 4
-ssh <user>@192.168.2.15   # node 5
+ssh <user>@192.168.2.11   # node 1 (control-plane)
+ssh <user>@192.168.2.12   # node 2 (control-plane)
+ssh <user>@192.168.2.13   # node 3 (control-plane)
+ssh <user>@192.168.2.14   # node 4 (control-plane)
+ssh <user>@192.168.2.15   # node 5 (control-plane)
+ssh <user>@192.168.2.51   # worker 1
+ssh <user>@192.168.2.52   # worker 2
+ssh <user>@192.168.2.53   # worker 3
 ```
 
 (`<user>` is the local admin account — not committed here for privacy.)

@@ -6,7 +6,7 @@ log file stdout
 router bgp 64513
  bgp ebgp-requires-policy
  bgp router-id 192.168.2.1
- maximum-paths 5
+ maximum-paths 8
  !
  ! Peer group for DNS
  neighbor K8S peer-group
@@ -23,6 +23,9 @@ router bgp 64513
  neighbor 192.168.2.13 peer-group K8S
  neighbor 192.168.2.14 peer-group K8S
  neighbor 192.168.2.15 peer-group K8S
+ neighbor 192.168.2.51 peer-group K8S
+ neighbor 192.168.2.52 peer-group K8S
+ neighbor 192.168.2.53 peer-group K8S
  !
  address-family ipv4 unicast
   redistribute connected

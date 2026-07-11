@@ -17,6 +17,12 @@ EOF
 sudo sysctl --system
 ```
 
+### Disable Swap
+Kubernetes requires swap to be disabled — the kubelet will refuse to start if swap is enabled, because swap undermines the predictability of pod memory guarantees. Disable it immediately and in `/etc/fstab` so it doesn't come back on reboot:
+```
+sudo swapoff -a && sudo sed -i '/[[:space:]]swap[[:space:]]/s/^/#/' /etc/fstab
+```
+
 Install packages:
 ```
 sudo apt install nfs-common open-iscsi qemu-guest-agent unattended-upgrades
@@ -91,6 +97,15 @@ kube-scheduler-arg:
 EOF" && curl -sfL https://get.k3s.io | sh -s server
 ```
 
+Write the k3s config and install k3s on **worker (agent) nodes** to join the cluster:
+```
+sudo mkdir -p /etc/rancher/k3s && sudo bash -c "cat > /etc/rancher/k3s/config.yaml <<EOF
+server: https://k3s.${SECRET_DOMAIN}:6443
+token: ${K3S_TOKEN}
+EOF" && curl -sfL https://get.k3s.io | sh -s agent
+```
+Worker nodes only run workloads — they do not participate in etcd or run control-plane components. Their config is minimal: just the server URL and token. Server-side `disable` flags (like `disable-kube-proxy`) are cluster-wide and don't apply to agents.
+
 ### Secret Preparation
 Create and apply the gitlab secret for external-secrets:
 ```
@@ -146,9 +161,10 @@ EOF
 Once the sync completes, Flux will pick up the `flux-operator` and `flux-instance` HelmReleases from the repo and manage itself from that point on.
 
 ## Adding a New Node to an Existing Cluster
-Joining a new node to an already-bootstrapped cluster only requires the **Node Preparation** and **Install k3s on additional server nodes** steps above (skip Secret Preparation and Install Flux Operator — those are one-time, cluster-wide steps). `K3S_TOKEN` can be read from any existing node at `/var/lib/rancher/k3s/server/token`.
+Joining a new node to an already-bootstrapped cluster starts with the **Node Preparation** steps, then the k3s install step matching the node type (**server** or **worker**). Skip Secret Preparation and Install Flux Operator — those are one-time, cluster-wide steps. `K3S_TOKEN` can be read from any existing node at `/var/lib/rancher/k3s/server/token`.
 
-Beyond joining k3s itself, a few places track the list of node IPs by hand and must be updated whenever a node is added (or removed):
+### Server (control-plane) nodes
+Beyond joining k3s itself, a few places track the list of server node IPs by hand and must be updated whenever a server node is added (or removed):
 
 | File | What to update |
 |---|---|
@@ -175,3 +191,14 @@ write memory
 Validate with `vtysh -c "show ip bgp"` — the new node's IP should appear as a next hop with a `=` (multipath) once BGP converges.
 
 After joining, confirm the node shows up healthy with `kubectl get nodes -o wide` and that etcd has the expected member count (`kubectl -n kube-system exec <any-etcd-pod> -- etcdctl member list`, or check the etcd fragmentation query in `docs/runbooks/cluster-investigation.md`).
+
+### Worker nodes
+Worker nodes run workloads only (no etcd, no control-plane), so the repo-side updates are much lighter — you only need:
+
+| File | What to update |
+|---|---|
+| `kubernetes/flux/vars/cluster-settings.yaml` | Optionally add a `NODE<n>_IP: "<ip>"` entry if the node is relevant to static scrape targets |
+| `configs/frr/frr-config-udm-pro-se.txt` | Add a `neighbor <ip> peer-group K8S` line, and bump `maximum-paths` in `router bgp 64513` to match the new node count |
+| `CLAUDE.md` (repo root) | Add the new node to the "Cluster Access" SSH list |
+
+Apply the FRR BGP changes on the UDM Pro SE as described above (same procedure). After joining, verify with `kubectl get nodes -o wide`.
