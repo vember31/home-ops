@@ -11,11 +11,11 @@ spec:
   jobName: kube-controller-manager
   targetEndpoints:
     - targets:
-        - "192.168.2.11:10257"
-        - "192.168.2.12:10257"
-        - "192.168.2.13:10257"
-        - "192.168.2.14:10257"
-        - "192.168.2.15:10257"
+        - "${NODE1_IP}:10257"
+        - "${NODE2_IP}:10257"
+        - "${NODE3_IP}:10257"
+        - "${NODE4_IP}:10257"
+        - "${NODE5_IP}:10257"
       scheme: https
       bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
       tlsConfig:
@@ -36,11 +36,11 @@ spec:
   jobName: kube-etcd
   targetEndpoints:
     - targets:
-        - "192.168.2.11:2381"
-        - "192.168.2.12:2381"
-        - "192.168.2.13:2381"
-        - "192.168.2.14:2381"
-        - "192.168.2.15:2381"
+        - "${NODE1_IP}:2381"
+        - "${NODE2_IP}:2381"
+        - "${NODE3_IP}:2381"
+        - "${NODE4_IP}:2381"
+        - "${NODE5_IP}:2381"
       scheme: http
 ---
 # yaml-language-server: $schema=https://k8s-schemas.home-operations.com/operator.victoriametrics.com/vmstaticscrape_v1beta1.json
@@ -53,11 +53,11 @@ spec:
   jobName: kube-scheduler
   targetEndpoints:
     - targets:
-        - "192.168.2.11:10259"
-        - "192.168.2.12:10259"
-        - "192.168.2.13:10259"
-        - "192.168.2.14:10259"
-        - "192.168.2.15:10259"
+        - "${NODE1_IP}:10259"
+        - "${NODE2_IP}:10259"
+        - "${NODE3_IP}:10259"
+        - "${NODE4_IP}:10259"
+        - "${NODE5_IP}:10259"
       scheme: https
       bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
       tlsConfig:

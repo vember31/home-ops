@@ -210,8 +210,8 @@ k3s bundles Rancher's local-path-provisioner. VictoriaMetrics and VictoriaLogs u
 
 ### 2.8 Clean Up Dead Code (Optional)
 
-- `configs/haproxy/` — no longer in use
-- `configs/keepalived/` — no longer in use
+- ~~`configs/haproxy/` — no longer in use~~ done, removed pre-migration
+- ~~`configs/keepalived/` — no longer in use~~ done, removed pre-migration
 - `kubernetes/bootstrap/README.md` — rewrite for Talos workflow
 - `scripts/` — replace k3s setup scripts with Talos machine config generation
 
@@ -534,8 +534,8 @@ Also remove `GATEWAY_IP` / `SECURE_GATEWAY` duplication — they're the same val
 
 ### 6.4 Remove Dead Config
 
-- `configs/haproxy/` — HAProxy config, no longer in use since Cilium BGP handles API LB
-- `configs/keepalived/` — Keepalived config, same reason
+- ~~`configs/haproxy/` — HAProxy config, no longer in use since Cilium BGP handles API LB~~ done, removed pre-migration
+- ~~`configs/keepalived/` — Keepalived config, same reason~~ done, removed pre-migration
 - The old HAProxy VIP (`192.168.2.8`) was a DHCP reservation — remove it from UDM
 
 ---
@@ -574,6 +574,6 @@ Also remove `GATEWAY_IP` / `SECURE_GATEWAY` duplication — they're the same val
 - `migrations/talos/` — this document and machine config templates
 
 ### Clean Up (Optional)
-- `configs/haproxy/` — dead code, no longer in use
-- `configs/keepalived/` — dead code, no longer in use
+- ~~`configs/haproxy/` — dead code, no longer in use~~ done, removed pre-migration
+- ~~`configs/keepalived/` — dead code, no longer in use~~ done, removed pre-migration
 - `kubernetes/bootstrap/README.md` — rewrite for Talos

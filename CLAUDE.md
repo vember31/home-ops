@@ -33,7 +33,7 @@ kubernetes/
     ├── yaml-templates/    # Boilerplate for new apps (helmrelease, ks, externalsecret)
     └── gatus/             # Gatus health-check templates (internal, external, dns)
 
-configs/                   # Network device configs (frr, haproxy, keepalived)
+configs/                   # Network device configs (frr)
 scripts/                   # Utility scripts (node setup, blocky, redis)
 .github/
 ├── renovate.json5         # Renovate main config
