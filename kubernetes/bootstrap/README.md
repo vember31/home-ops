@@ -60,6 +60,7 @@ cluster-init: true
 token: ${K3S_TOKEN}
 tls-san:
   - k3s.${SECRET_DOMAIN}
+  - ${K3S_LB_IP}
 disable:
   - traefik
   - servicelb
@@ -82,6 +83,7 @@ server: https://k3s.${SECRET_DOMAIN}:6443
 token: ${K3S_TOKEN}
 tls-san:
   - k3s.${SECRET_DOMAIN}
+  - ${K3S_LB_IP}
 disable:
   - traefik
   - servicelb
