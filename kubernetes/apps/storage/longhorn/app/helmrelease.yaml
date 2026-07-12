@@ -74,6 +74,7 @@ spec:
       disableSchedulingOnCordonedNode: "true"
       nodeDrainPolicy: delete-both-statefulset-and-deployment-pod
       allowCollectingLonghornUsageMetrics: true
+      replicaZoneSoftAntiAffinity: "true"
 
     ingress:
       enabled: true
