@@ -174,9 +174,12 @@ Beyond joining k3s itself, a few places track the list of server node IPs by han
 | `kubernetes/apps/monitoring/victoria-metrics-k8s-stack/app/vmstaticscrapes.yaml` | Add a `"${NODE<n>_IP}:<port>"` line to the `kube-controller-manager` (`:10257`), `kube-etcd` (`:2381`), and `kube-scheduler` (`:10259`) `targetEndpoints` lists |
 | `configs/frr/frr-config-udm-pro-se.txt` | Add a `neighbor <ip> peer-group K8S` line, and bump `maximum-paths` in `router bgp 64513` to match the new node count |
 | `docs/runbooks/cluster-investigation.md` | Add a row to the "Node → pod mapping" table, and add the IP/label to the node arrays in the embedded Python snippets |
+| `kubernetes/apps/kube-system/cilium/app/kube-api.yaml` | Add an `${NODE<n>_IP}` entry to the `kube-api` `EndpointSlice`'s `endpoints` list |
 | `CLAUDE.md` (repo root) | Add the new node to the "Cluster Access" SSH list |
 
 `cluster-settings.yaml` is a Flux `ConfigMap` substituted into every manifest under `kubernetes/apps` via `postBuild.substituteFrom` (wired up cluster-wide in `kubernetes/flux/apps.yaml`), so `${NODE1_IP}` etc. resolve automatically in `vmstaticscrapes.yaml`. This only centralizes the *values* — Flux's substitution is a plain string replace with no array/loop support (it even strips newlines from substituted values), so growing the node count still means adding a new line per file above; it just means an existing node's IP only needs to change in one place.
+
+**The `kube-api` `EndpointSlice` is hard-coded to the control-plane IPs on purpose.** The Service used to select Cilium's own daemonset pods (`k8s-app: cilium`, `hostNetwork: true`, so pod IP == node IP) as a shortcut to reach the apiserver on port 6443. That broke once worker nodes joined and started running Cilium too — the LB would occasionally pick a worker backend, which has nothing listening on 6443, causing intermittent timeouts. The `EndpointSlice` pins the backend list to the actual control-plane node IPs instead, so it must be updated by hand whenever that set changes.
 
 **`configs/frr/frr-config-udm-pro-se.txt` is a reference copy, not GitOps-managed** — every node BGP-peers directly with the UDM Pro SE for MetalLB/Cilium route advertisement (see `configs/frr/frr-README.md`), and the UDM only picks up changes when they're applied live. After editing the repo file, SSH into the UDM Pro SE and apply the same change to the running config:
 ```
