@@ -6,6 +6,5 @@ resources:
   - ./helmrelease.yaml
   - ./config
   - ./kube-api.yaml
-  - ./cilium-lb-api-cleanup.yaml
   - ./gatus.yaml
   - ./hubble-gatus.yaml
