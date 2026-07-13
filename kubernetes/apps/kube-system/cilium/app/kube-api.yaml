@@ -9,45 +9,8 @@ spec:
   type: LoadBalancer
   loadBalancerClass: io.cilium/bgp-control-plane
   externalTrafficPolicy: Cluster
+  selector:
+    cilium-lb-api: "true"
   ports:
     - port: 6443
       targetPort: 6443
----
-# No Service selector above: matching on `k8s-app: cilium` also pulled in
-# worker-node Cilium pods once workers joined, and workers don't run the
-# apiserver on 6443 — causing the LB to occasionally route there and time out.
-# This EndpointSlice pins the backends to the control-plane nodes explicitly.
-# See kubernetes/bootstrap/readme.md ("Adding a new node") if the control-plane
-# node set ever changes — this list needs a manual update to match.
-apiVersion: discovery.k8s.io/v1
-kind: EndpointSlice
-metadata:
-  name: kube-api
-  labels:
-    kubernetes.io/service-name: kube-api
-addressType: IPv4
-ports:
-  - name: ""
-    port: 6443
-    protocol: TCP
-endpoints:
-  - addresses: ["${NODE1_IP}"]
-    conditions:
-      ready: true
-      serving: true
-  - addresses: ["${NODE2_IP}"]
-    conditions:
-      ready: true
-      serving: true
-  - addresses: ["${NODE3_IP}"]
-    conditions:
-      ready: true
-      serving: true
-  - addresses: ["${NODE4_IP}"]
-    conditions:
-      ready: true
-      serving: true
-  - addresses: ["${NODE5_IP}"]
-    conditions:
-      ready: true
-      serving: true

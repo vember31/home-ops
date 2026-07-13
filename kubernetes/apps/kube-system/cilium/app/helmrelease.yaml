@@ -43,6 +43,9 @@ spec:
 
   values:
 
+    podLabels:
+      cilium-lb-api: "true"
+
     # Native routing support
     routingMode: native
     ipv4NativeRoutingCIDR: ${POD_CIDR}
@@ -51,7 +54,7 @@ spec:
     # kube-proxy
     kubeProxyReplacement: true
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
-    k8sServiceHost: ${K3S_LB_IP}
+    k8sServiceHost: ${NODE1_IP}
     k8sServicePort: 6443
 
     # ipam
