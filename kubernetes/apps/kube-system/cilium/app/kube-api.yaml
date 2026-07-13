@@ -8,7 +8,7 @@ metadata:
 spec:
   type: LoadBalancer
   loadBalancerClass: io.cilium/bgp-control-plane
-  externalTrafficPolicy: Local
+  externalTrafficPolicy: Cluster
   selector:
     k8s-app: cilium
   ports:

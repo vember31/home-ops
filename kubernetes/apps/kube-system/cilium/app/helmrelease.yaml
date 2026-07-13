@@ -43,9 +43,6 @@ spec:
 
   values:
 
-    podLabels:
-      cilium-lb-api: "true"
-
     # Native routing support
     routingMode: native
     ipv4NativeRoutingCIDR: ${POD_CIDR}
