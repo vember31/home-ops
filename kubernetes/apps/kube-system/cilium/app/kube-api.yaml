@@ -32,7 +32,22 @@ ports:
     protocol: TCP
 endpoints:
   - addresses: ["${NODE1_IP}"]
+    conditions:
+      ready: true
+      serving: true
   - addresses: ["${NODE2_IP}"]
+    conditions:
+      ready: true
+      serving: true
   - addresses: ["${NODE3_IP}"]
+    conditions:
+      ready: true
+      serving: true
   - addresses: ["${NODE4_IP}"]
+    conditions:
+      ready: true
+      serving: true
   - addresses: ["${NODE5_IP}"]
+    conditions:
+      ready: true
+      serving: true
