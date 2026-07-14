@@ -62,13 +62,13 @@ tracker:
 share_limits:
   default:
     priority: 1
-    categories:
-      - sonarr-complete
-      - radarr-complete
-      - prowlarr
-      - books
-      - sonarr-complete.cross
-      - radarr-complete.cross
+    # categories:
+    #   - sonarr-complete
+    #   - radarr-complete
+    #   - prowlarr
+    #   - books
+    #   - sonarr-complete.cross
+    #   - radarr-complete.cross
     max_seeding_time: 60d
     # min_seeding_time: 30d
     max_ratio: -1
