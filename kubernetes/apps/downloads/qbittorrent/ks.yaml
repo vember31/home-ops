@@ -67,6 +67,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: cloudnative-pg-cluster
     - name: qbittorrent
     - name: external-secrets-stores
     - name: pocket-id-groups

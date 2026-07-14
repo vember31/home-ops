@@ -51,15 +51,25 @@ spec:
           reloader.stakater.com/auto: "true"
         replicas: 1
 
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18
+            envFrom: &envFrom
+              - secretRef:
+                  name: qui-secret
+
         containers:
           app:
             image:
               repository: ghcr.io/autobrr/qui
-              tag: v1.23.0@sha256:b1abd18f1d544cd5c63a3b8d9c8a91d097143e04df416567a8cb52040f380ca8
+              tag: v1.23.0
               pullPolicy: IfNotPresent
 
             env:
               TZ: ${TIMEZONE}
+              QUI__CHECK_FOR_UPDATES: false
               QUI__OIDC_ENABLED: "true"
               QUI__OIDC_REDIRECT_URL: https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}/api/auth/oidc/callback
               QUI__OIDC_DISABLE_BUILT_IN_LOGIN: "true"
@@ -78,6 +88,7 @@ spec:
                   secretKeyRef:
                     name: qui-oidc-credentials
                     key: issuer_url
+            envFrom: *envFrom
 
             resources:
               requests:
@@ -143,18 +154,12 @@ spec:
 
     persistence:
 
-      config:
-        enabled: true
-        suffix: config
-        type: persistentVolumeClaim
-        storageClass: longhorn
-        accessMode: ReadWriteOnce
-        size: 256Mi
-        retain: true
-
       downloads:
         enabled: true
         type: persistentVolumeClaim
         existingClaim: nfs-omv-media
         globalMounts:
           - path: /media
+
+      tmp:
+        type: emptyDir
