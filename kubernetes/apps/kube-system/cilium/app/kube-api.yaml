@@ -11,6 +11,7 @@ spec:
   externalTrafficPolicy: Cluster
   selector:
     k8s-app: cilium
+    cilium-api-lb: "true"
   ports:
     - port: 6443
       targetPort: 6443
