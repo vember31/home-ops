@@ -154,6 +154,9 @@ spec:
 
     persistence:
 
+      config:
+        type: emptyDir
+
       downloads:
         enabled: true
         type: persistentVolumeClaim
