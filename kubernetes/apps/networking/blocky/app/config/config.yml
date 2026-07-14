@@ -112,6 +112,9 @@ customDNS:
     pve2.${SECRET_DOMAIN}: ${PVE_2}
     pve3.${SECRET_DOMAIN}: ${PVE_3}
     pve4.${SECRET_DOMAIN}: ${PVE_4}
+    pve5.${SECRET_DOMAIN}: ${PVE_5}
+    pve6.${SECRET_DOMAIN}: ${PVE_6}
+    pve7.${SECRET_DOMAIN}: ${PVE_7}
     vault.${SECRET_DOMAIN}: ${TRAEFIK_IP}
 
 connectIPVersion: v4

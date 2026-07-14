@@ -64,6 +64,36 @@
           username: {{HOMEPAGE_VAR_PVE_TOKEN_ID}}
           password: {{HOMEPAGE_VAR_PVE_1_SECRET}}
           node: pve4
+    - PVE5:
+        href: https://${PVE_1}:8006
+        icon: proxmox
+        description: 'Proxmox: Node 5'
+        widget:
+          type: proxmox
+          url: https://${PVE_1}:8006
+          username: {{HOMEPAGE_VAR_PVE_TOKEN_ID}}
+          password: {{HOMEPAGE_VAR_PVE_1_SECRET}}
+          node: pve5
+    - PVE6:
+        href: https://${PVE_1}:8006
+        icon: proxmox
+        description: 'Proxmox: Node 6'
+        widget:
+          type: proxmox
+          url: https://${PVE_1}:8006
+          username: {{HOMEPAGE_VAR_PVE_TOKEN_ID}}
+          password: {{HOMEPAGE_VAR_PVE_1_SECRET}}
+          node: pve6
+    - PVE7:
+        href: https://${PVE_1}:8006
+        icon: proxmox
+        description: 'Proxmox: Node 7'
+        widget:
+          type: proxmox
+          url: https://${PVE_1}:8006
+          username: {{HOMEPAGE_VAR_PVE_TOKEN_ID}}
+          password: {{HOMEPAGE_VAR_PVE_1_SECRET}}
+          node: pve7
 
 - Networking:
     - Adguard:
