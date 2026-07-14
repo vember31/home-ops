@@ -43,6 +43,27 @@ spec:
 
   values:
 
+    extraInitContainers:
+      - name: label-control-plane
+        image: alpine/kubectl:latest
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+        command:
+          - /bin/sh
+          - -c
+          - |
+            ROLE=$(kubectl get node ${NODE_NAME} -o jsonpath='{.metadata.labels.node-role\.kubernetes\.io/control-plane}')
+            if [ "$ROLE" = "true" ]; then
+              kubectl label pod ${POD_NAME} -n kube-system cilium-api-lb=true --overwrite >/dev/null 2>&1
+            fi
+
     # Native routing support
     routingMode: native
     ipv4NativeRoutingCIDR: ${POD_CIDR}

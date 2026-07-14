@@ -6,5 +6,6 @@ resources:
   - ./helmrelease.yaml
   - ./config
   - ./kube-api.yaml
+  - ./kube-api-labeler-rbac.yaml
   - ./gatus.yaml
   - ./hubble-gatus.yaml
