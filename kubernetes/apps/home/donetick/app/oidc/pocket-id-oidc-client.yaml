@@ -8,6 +8,7 @@ metadata:
 spec:
   name: Donetick
   description: Task and chore management
+  launchUrl: https://${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}
   callbackUrls:
     - https://${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}/auth/oauth2
     - donetick://auth/oauth2
