@@ -61,11 +61,6 @@ spec:
             env:
               TZ: ${TIMEZONE}
 
-            lifecycle:
-              postStart:
-                exec:
-                  command: ["/bin/sh", "-c", "cp /secret/config.json /app/data/config.json"]
-
             resources:
               requests:
                 cpu: 10m
@@ -78,11 +73,6 @@ spec:
         type: secret
         name: isponsorblocktv
         globalMounts:
-          - path: /secret/config.json
+          - path: /app/data/config.json
             subPath: config.json
             readOnly: true
-
-      data:
-        type: emptyDir
-        globalMounts:
-          - path: /app/data
