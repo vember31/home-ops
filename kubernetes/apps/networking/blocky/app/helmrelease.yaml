@@ -42,6 +42,23 @@ spec:
     
   maxHistory: 1
 
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: DaemonSet
+              name: *name
+            patch: |-
+              apiVersion: apps/v1
+              kind: DaemonSet
+              metadata:
+                name: *name
+              spec:
+                updateStrategy:
+                  type: RollingUpdate
+                  rollingUpdate:
+                    maxUnavailable: 4
+
   values:
       controllers:
         ${APP}:
