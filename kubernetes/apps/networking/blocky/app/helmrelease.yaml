@@ -49,10 +49,6 @@ spec:
               kind: DaemonSet
               name: *name
             patch: |-
-              apiVersion: apps/v1
-              kind: DaemonSet
-              metadata:
-                name: *name
               spec:
                 updateStrategy:
                   type: RollingUpdate
