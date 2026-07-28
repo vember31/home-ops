@@ -41,7 +41,9 @@ spec:
     keepHistory: false
     
   maxHistory: 1
-
+  
+  # once on bjws chart version 5.1.0, can drop this postRenderers section and move the rollingUpdate strategy to the values section
+  # https://github.com/bjw-s-labs/helm-charts/pull/684
   postRenderers:
     - kustomize:
         patches:
