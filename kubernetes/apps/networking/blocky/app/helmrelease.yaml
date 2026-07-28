@@ -47,8 +47,6 @@ spec:
         ${APP}:
           type: daemonset #remove replicas for daemonset
           strategy: RollingUpdate
-          rollingUpdate:
-            maxUnavailable: 4
           annotations:
             reloader.stakater.com/auto: "true"
           initContainers:
