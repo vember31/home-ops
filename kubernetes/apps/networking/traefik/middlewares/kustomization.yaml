@@ -6,8 +6,6 @@ resources:
   - ./cloudflare-ips.yaml
   - ./error-pages-middleware.yaml
   - ./external-with-errors.yaml
-  - ./forwarded-proto-https.yaml
-  - ./internal-with-errors-proto.yaml
   - ./internal-with-errors.yaml
   - ./opds-auth.yaml
   - ./secure-networks.yaml
