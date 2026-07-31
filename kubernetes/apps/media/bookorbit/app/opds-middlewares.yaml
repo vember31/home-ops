@@ -9,7 +9,7 @@ stringData:
   users: |
     opds-denied:{SHA}AS6KR3Yuoz6ygkNQuaDrvwQo3OI=
 ---
-# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/traefik.io/middleware_v1alpha1.json
+
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
@@ -20,7 +20,7 @@ spec:
     customRequestHeaders:
       X-Bookorbit-Secret: ""
 ---
-# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/traefik.io/middleware_v1alpha1.json
+
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
@@ -32,7 +32,7 @@ spec:
     period: 1m
     burst: 10
 ---
-# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/traefik.io/middleware_v1alpha1.json
+
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
