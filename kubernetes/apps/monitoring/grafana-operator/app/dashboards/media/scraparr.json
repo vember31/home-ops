@@ -405,7 +405,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "scraparr_services_up{job=~\"$job\", scraparr_services=~\"seerr|jellyseerr\", alias=\"$seerr\"}",
+          "expr": "scraparr_services_up{job=~\"$job\", scraparr_services=~\"seerr\", alias=\"$seerr\"}",
           "legendFormat": "",
           "refId": "A"
         }
@@ -2294,7 +2294,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "jellyseerr_request_total{job=~\"$job\", alias=\"$seerr\"} or overseerr_request_total{job=~\"$job\", alias=\"$seerr\"}",
+          "expr": "seerr_request_total{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "",
           "refId": "A"
         }
@@ -2351,7 +2351,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "jellyseerr_request_tv{job=~\"$job\", alias=\"$seerr\"} or overseerr_request_tv{job=~\"$job\", alias=\"$seerr\"}",
+          "expr": "seerr_request_tv{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "",
           "refId": "A"
         }
@@ -2408,7 +2408,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "jellyseerr_request_movie{job=~\"$job\", alias=\"$seerr\"} or overseerr_request_movie{job=~\"$job\", alias=\"$seerr\"}",
+          "expr": "seerr_request_movie{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "",
           "refId": "A"
         }
@@ -2464,7 +2464,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "jellyseerr_request_tv{job=~\"$job\", alias=\"$seerr\"} or overseerr_request_tv{job=~\"$job\", alias=\"$seerr\"}",
+          "expr": "seerr_request_tv{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "TV",
           "refId": "A",
           "instant": true,
@@ -2475,7 +2475,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "jellyseerr_request_movie{job=~\"$job\", alias=\"$seerr\"} or overseerr_request_movie{job=~\"$job\", alias=\"$seerr\"}",
+          "expr": "seerr_request_movie{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "Movies",
           "refId": "B",
           "instant": true,
@@ -2534,7 +2534,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "jellyseerr_request_status{job=~\"$job\", alias=\"$seerr\"} or overseerr_request_status{job=~\"$job\", alias=\"$seerr\"}",
+          "expr": "seerr_request_status{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "{{status}}",
           "refId": "A"
         }
@@ -2594,7 +2594,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sort_desc(jellyseerr_user_requests{job=~\"$job\", alias=\"$seerr\"} or overseerr_user_requests{job=~\"$job\", alias=\"$seerr\"})",
+          "expr": "sort_desc(seerr_user_requests{job=~\"$job\", alias=\"$seerr\"})",
           "legendFormat": "{{user}}",
           "refId": "A"
         }
@@ -2651,7 +2651,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "jellyseerr_user_total{job=~\"$job\", alias=\"$seerr\"} or overseerr_user_total{job=~\"$job\", alias=\"$seerr\"}",
+          "expr": "seerr_user_total{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "",
           "refId": "A"
         }
@@ -2716,7 +2716,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "jellyseerr_issue_total{job=~\"$job\", alias=\"$seerr\"} or overseerr_issue_total{job=~\"$job\", alias=\"$seerr\"}",
+          "expr": "seerr_issue_total{job=~\"$job\", alias=\"$seerr\"}",
           "legendFormat": "",
           "refId": "A"
         }
@@ -2776,7 +2776,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "jellyseerr_issue_type{job=~\"$job\", alias=\"${seerr}\"} or overseerr_issue_type{job=~\"$job\", alias=\"${seerr}\"}",
+          "expr": "seerr_issue_type{job=~\"$job\", alias=\"${seerr}\"}\"}",
           "legendFormat": "{{type}}",
           "refId": "A"
         }
@@ -3119,7 +3119,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "time() - (jellyseerr_last_scrape{job=~\"$job\", alias=\"$seerr\"} or overseerr_last_scrape{job=~\"$job\", alias=\"$seerr\"})",
+          "expr": "time() - (seerr_last_scrape{job=~\"$job\", alias=\"$seerr\"})",
           "legendFormat": "",
           "refId": "A"
         }
@@ -3280,7 +3280,7 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(jellyseerr_last_scrape{job=~\"$job\"}, alias)",
+        "definition": "label_values(seerr_last_scrape{job=~\"$job\"}, alias)",
         "hide": 0,
         "includeAll": false,
         "label": "Seerr",
@@ -3289,7 +3289,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(jellyseerr_last_scrape{job=~\"$job\"}, alias)",
+          "query": "label_values(seerr_last_scrape{job=~\"$job\"}, alias)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,

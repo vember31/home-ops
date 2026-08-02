@@ -76,7 +76,7 @@ spec:
               RADARR_URL: http://radarr.downloads.svc.cluster.local:7878
               PROWLARR_URL: http://prowlarr.downloads.svc.cluster.local:9696
               BAZARR_URL: http://bazarr.downloads.svc.cluster.local:6767
-              JELLYSEERR_URL: http://seerr.media.svc.cluster.local:5055
+              SEERR_URL: http://seerr.media.svc.cluster.local:5055
             envFrom:
               - secretRef:
                   name: scraparr-secret
