@@ -186,7 +186,7 @@
               format: number
 
     - Wizarr:
-        href: https://wizarr.${SECRET_DOMAIN}
+        href: https://join.${SECRET_DOMAIN}
         icon: wizarr.png
         description: Media Invite Management
         siteMonitor: http://wizarr.media.svc.cluster.local:5690
