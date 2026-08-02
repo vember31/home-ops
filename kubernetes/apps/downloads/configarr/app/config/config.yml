@@ -162,7 +162,7 @@ radarr:
             use_ssl: false
             url_base: /
             username: "admin"
-            password: "{{ .QBITTORRENT_PASSWORD }}"
+            password: !env QBITTORRENT_PASSWORD
             movie_category: "radarr"
             movie_imported_category: "radarr-complete"
       update_password: true
