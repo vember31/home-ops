@@ -38,7 +38,7 @@ spec:
           reference: ghcr.io/vember31/timescaledb:2.28.3
       - name: timescaledb-toolkit
         image:
-          reference: ghcr.io/vember31/timescaledb-toolkit:1.23.0
+          reference: ghcr.io/vember31/timescaledb-toolkit:1.24.0
       - name: pgvector
         image:
           reference: ghcr.io/vember31/pgvector:0.8.5-pg18
