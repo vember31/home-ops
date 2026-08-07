@@ -55,8 +55,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/communitymaintained/pinchflat
-              tag: 1.4.2@sha256:58a5f692e5944c18421e3c44b43267bdfb19a361046d118e0fcf54b85d01d0da
+              repository: ghcr.io/kieraneglin/pinchflat
+              tag: latest@sha256:01b4f98aabaf3f5fe394213f7a32578c9e84e42080f52e2f8334021a4473b202
               pullPolicy: IfNotPresent
 
             env:
