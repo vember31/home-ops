@@ -39,6 +39,16 @@
       minimumGroupSize: 2,
     },
     {
+      description: "Vember31 CNPG Extension Images Group",
+      groupName: "vember31 CNPG extensions",
+      matchDatasources: ["docker"],
+      matchPackagePrefixes: ["ghcr.io/vember31/"],
+      matchPackageNames: ["ghcr.io/cloudnative-pg/postgresql"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
       "description": ["System Upgrade Controller Group"],
       "groupName": "System Upgrade Controller",
       "matchPackagePatterns": ["system-upgrade-controller"],
