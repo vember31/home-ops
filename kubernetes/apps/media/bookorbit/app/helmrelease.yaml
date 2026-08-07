@@ -70,7 +70,7 @@ spec:
           app:
             image:
               repository: ghcr.io/bookorbit/bookorbit
-              tag: 2.4.0
+              tag: 2.5.0
               pullPolicy: IfNotPresent
 
             env:
