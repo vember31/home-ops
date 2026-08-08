@@ -67,14 +67,18 @@ spec:
               - /bin/sh
               - -c
               - |
+                prune() {
+                  echo "[image-cleaner] pruning unused images on $(hostname)"
+                  /usr/local/bin/k3s crictl rmi --prune
+                  echo "[image-cleaner] prune done on $(hostname)"
+                }
+                prune
                 while true; do
                   now=$(date +%s)
                   next=$(date -d "02:00" +%s)
                   [ "$next" -le "$now" ] && next=$((next + 86400))
                   sleep $((next - now))
-                  echo "[image-cleaner] pruning unused images on $(hostname)"
-                  /usr/local/bin/k3s crictl rmi --prune
-                  echo "[image-cleaner] prune done on $(hostname)"
+                  prune
                 done
             env:
               TZ: ${TIMEZONE}
