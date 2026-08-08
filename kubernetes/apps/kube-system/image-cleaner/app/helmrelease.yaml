@@ -69,7 +69,8 @@ spec:
               - |
                 prune() {
                   echo "[image-cleaner] pruning unused images on $(hostname)"
-                  /usr/local/bin/k3s crictl rmi --prune
+                  /var/lib/rancher/k3s/data/current/bin/crictl \
+                    -r unix:///run/k3s/containerd/containerd.sock rmi --prune
                   echo "[image-cleaner] prune done on $(hostname)"
                 }
                 prune
@@ -101,12 +102,12 @@ spec:
               capabilities: { drop: ["ALL"] }
 
     persistence:
-      k3s-bin:
+      k3s-data:
         type: hostPath
-        hostPath: /usr/local/bin/k3s
-        hostPathType: File
+        hostPath: /var/lib/rancher/k3s/data
+        hostPathType: Directory
         globalMounts:
-          - path: /usr/local/bin/k3s
+          - path: /var/lib/rancher/k3s/data
             readOnly: true
       containerd-sock:
         type: hostPath
