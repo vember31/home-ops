@@ -1,3 +1,5 @@
 # Allowlisted domains can be manually defined here
 *.whattoexpect.com
 *.discord.com #no idea where this is being blocked
+*.pixeldrain.com
+*.gofile.io
