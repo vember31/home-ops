@@ -59,7 +59,7 @@ spec:
                 updateStrategy:
                   type: RollingUpdate
                   rollingUpdate:
-                    maxUnavailable: 4
+                    maxUnavailable: "50%"
 
   values:
       controllers:
