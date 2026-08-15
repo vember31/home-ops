@@ -27,6 +27,7 @@ spec:
       retries: 3
 
   upgrade:
+    timeout: 15m
     remediation:
       remediateLastFailure: true
       retries: 3
