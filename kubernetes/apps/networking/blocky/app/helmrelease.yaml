@@ -41,31 +41,14 @@ spec:
     keepHistory: false
     
   maxHistory: 1
-  
-  # once on bjws chart version 5.1.0, can drop this postRenderers section and move the rollingUpdate strategy to the values section
-  # https://github.com/bjw-s-labs/helm-charts/pull/684
-  postRenderers:
-    - kustomize:
-        patches:
-          - target:
-              kind: DaemonSet
-              name: *name
-            patch: |-
-              apiVersion: apps/v1
-              kind: DaemonSet
-              metadata:
-                name: blocky
-              spec:
-                updateStrategy:
-                  type: RollingUpdate
-                  rollingUpdate:
-                    maxUnavailable: "50%"
 
   values:
       controllers:
         ${APP}:
           type: daemonset #remove replicas for daemonset
           strategy: RollingUpdate
+          rollingUpdate:
+            maxUnavailable: "50%"
           annotations:
             reloader.stakater.com/auto: "true"
           initContainers:

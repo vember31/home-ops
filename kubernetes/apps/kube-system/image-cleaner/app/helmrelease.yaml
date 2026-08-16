@@ -41,23 +41,6 @@ spec:
 
   maxHistory: 1
 
-  postRenderers:
-    - kustomize:
-        patches:
-          - target:
-              kind: DaemonSet
-              name: image-cleaner
-            patch: |-
-              apiVersion: apps/v1
-              kind: DaemonSet
-              metadata:
-                name: image-cleaner
-              spec:
-                updateStrategy:
-                  type: RollingUpdate
-                  rollingUpdate:
-                    maxUnavailable: "100%"
-
   values:
 
     defaultPodOptions:
@@ -74,6 +57,9 @@ spec:
     controllers:
       ${APP}:
         type: daemonset
+        strategy: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: "100%"
 
         containers:
           app:
