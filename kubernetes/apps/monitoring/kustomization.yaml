@@ -14,9 +14,7 @@ resources:
   - ./dozzle/ks.yaml
   - ./fluent-bit/ks.yaml
   - ./gatus/ks.yaml
-  - ./goldilocks/ks.yaml
   - ./grafana-operator/ks.yaml
   - ./victoria-metrics-k8s-stack/ks.yaml
   - ./unpoller/ks.yaml
   - ./victoria-logs/ks.yaml
-  - ./vpa/ks.yaml
