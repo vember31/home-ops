@@ -101,3 +101,6 @@ spec:
     metrics:
       serviceMonitor:
         enabled: true
+
+    networkPolicies:
+      restrictInternalTraffic: false #chart 1.12.1 introduced network policies that broke vm agent scans - this fixes
