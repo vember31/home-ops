@@ -55,7 +55,7 @@ spec:
           app:
             image:
               repository: codeberg.org/nwithan8/tauticord
-              tag: 6.0.1@sha256:470f99de894e3d93e08ed0f7f505e54a102ba56a90fd39f86043a63a22aeefd7
+              tag: 6.1.0@sha256:9aefe03e24090db0bbfc5b447ce4c150d9ab0c1d0f9c90d035af89d4846f956e
               pullPolicy: IfNotPresent
 
             lifecycle:
