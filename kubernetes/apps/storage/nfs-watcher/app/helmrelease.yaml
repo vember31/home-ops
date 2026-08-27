@@ -31,6 +31,9 @@ spec:
     controllers:
       ${APP}:
         type: daemonset
+        strategy: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: "100%"
         pod:
           securityContext:
             runAsUser: 0
