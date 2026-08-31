@@ -65,7 +65,7 @@ spec:
               PGID: 1000
               UMASK: 002
             # Sonarr Config
-              UN_SONARR_0_URL: http://sonarr:8989
+              UN_SONARR_0_URL: http://sonarr.downloads.svc.cluster.local:8989
               UN_SONARR_0_API_KEY: 
                 valueFrom:
                   secretKeyRef:
@@ -77,7 +77,7 @@ spec:
               UN_SONARR_0_DELETE_ORIG: false
               UN_SONARR_0_DELETE_DELAY: 5m
               # Radarr Config
-              UN_RADARR_0_URL: http://radarr:7878
+              UN_RADARR_0_URL: http://radarr.downloads.svc.cluster.local:7878
               UN_RADARR_0_API_KEY: 
                 valueFrom:
                   secretKeyRef:
