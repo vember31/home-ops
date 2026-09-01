@@ -47,6 +47,9 @@ spec:
 
   values:
 
+    updateStrategy: RollingUpdate
+    maxUnavailable: "100%"
+
     configuration:
       startTime: "4:00"                 # only reboot after this time of day (default "0:00")
       endTime: "7:00"                   # only reboot before this time of day (default "23:59")
