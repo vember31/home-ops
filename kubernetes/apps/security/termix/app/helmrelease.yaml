@@ -1,0 +1,198 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name termix
+  namespace: security
+
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+
+  maxHistory: 1
+
+  values:
+
+    controllers:
+      ${APP}:
+        enabled: true
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18
+            envFrom: &envFrom
+              - secretRef:
+                  name: termix-secret
+
+        containers:
+          app:
+            image:
+              repository: ghcr.io/lukegus/termix
+              tag: "2.7.1@sha256:931e4ce466f4d29b157eb8d6dcd4d36ee5114495c6edddbb19d4e360e2a60f8d"
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              PORT: "8080"
+              DATA_DIR: /app/data
+              ENABLE_TELEMETRY: "false"
+              ENABLE_GUACAMOLE: "false"
+              ALLOW_REGISTRATION: "false"
+              OIDC_ADMIN_GROUP: admins
+              OIDC_GROUP_CLAIM: groups
+              OIDC_FORCE_HTTPS: "true"
+              OIDC_ALLOW_REGISTRATION: "true"
+              OIDC_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: termix-oidc-credentials
+                    key: client_id
+              OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: termix-oidc-credentials
+                    key: client_secret
+              OIDC_ISSUER_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: termix-oidc-credentials
+                    key: issuer_url
+              OIDC_AUTHORIZATION_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: termix-oidc-credentials
+                    key: authorization_url
+              OIDC_TOKEN_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: termix-oidc-credentials
+                    key: token_url
+              OIDC_USERINFO_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: termix-oidc-credentials
+                    key: userinfo_url
+            envFrom: *envFrom
+
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 1Gi
+
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 8080
+                  initialDelaySeconds: 60
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  initialDelaySeconds: 15
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+
+    service:
+      app:
+        controller: *name
+        ports:
+          http:
+            port: *port
+
+    ingress:
+      app:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: "SSH management"
+          gethomepage.dev/group: Security
+          gethomepage.dev/icon: https://docs.termix.site/img/logo.svg
+          gethomepage.dev/name: Termix
+          gethomepage.dev/siteMonitor: http://termix.security.svc.cluster.local:8080
+
+        hosts:
+          - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+
+        tls:
+         - secretName: ${APP}-tls-production
+           hosts:
+             - *host
+
+    persistence:
+
+      data:
+        enabled: true
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 512Mi
+        retain: true
+        globalMounts:
+          - path: /app/data
+
+      tmp:
+        type: emptyDir

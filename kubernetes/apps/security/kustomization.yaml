@@ -8,4 +8,5 @@ resources:
   
   # Post Flux-Kustomizations
   - ./pocket-id-operator/ks.yaml
+  - ./termix/ks.yaml
   - ./vaultwarden/ks.yaml
