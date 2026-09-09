@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aclerici38/pocket-id-operator/v0.11.0/dist/schemas/pocketidoidcclient_v1alpha1.json
+apiVersion: pocketid.internal/v1alpha1
+kind: PocketIDOIDCClient
+metadata:
+  name: crowdsec-web-ui
+  namespace: security
+spec:
+  name: crowdsec-web-ui
+  description: CrowdSec dashboard
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: pocket-id
+  callbackUrls:
+    - https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}/api/auth/oidc/callback
+  logoutCallbackUrls:
+    - https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+  launchUrl: https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+  pkceEnabled: true
+  clientSecretOverlap: "168h"
+  allowedUserGroups:
+    - name: admins
+      namespace: security
+  logo:
+    logoUrl: https://raw.githubusercontent.com/TheDuffman85/crowdsec-web-ui/main/client/public/logo.svg
+  secret:
+    name: crowdsec-web-ui-oidc-credentials
+    additionalLabels:
+      app.kubernetes.io/name: crowdsec-web-ui

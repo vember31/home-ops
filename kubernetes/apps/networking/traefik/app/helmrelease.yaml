@@ -63,6 +63,20 @@ spec:
       - "--accesslog=true"
       - "--accesslog.fields.headers.names.X-Bookorbit-Secret=drop"
 
+    # CrowdSec bouncer plugin (see middlewares/crowdsec-bouncer.yaml)
+    experimental:
+      plugins:
+        bouncer:
+          moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+          version: v1.7.1
+
+    # Mounts the CrowdSec bouncer key so the plugin middleware can read it
+    volumes:
+      - name: crowdsec-bouncer-key
+        mountPath: /etc/traefik/crowdsec
+        type: secret
+        secretName: crowdsec-bouncer-key
+
     ports:
       web:
         forwardedHeaders:

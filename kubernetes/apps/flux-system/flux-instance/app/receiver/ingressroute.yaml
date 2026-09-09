@@ -15,6 +15,9 @@ spec:
   routes:
     - kind: Rule
       match: Host(`flux-webhook.${SECRET_DOMAIN}`)
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: networking
       services:
         - name: webhook-receiver
           port: 80

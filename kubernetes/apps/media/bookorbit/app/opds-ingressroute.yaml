@@ -14,6 +14,8 @@ spec:
       middlewares:
         - name: cloudflare-ips
           namespace: networking
+        - name: crowdsec-bouncer
+          namespace: networking
         - name: bookorbit-opds-strip-secret
         - name: opds-auth
           namespace: networking
@@ -25,6 +27,8 @@ spec:
       priority: 900
       middlewares:
         - name: cloudflare-ips
+          namespace: networking
+        - name: crowdsec-bouncer
           namespace: networking
         - name: bookorbit-opds-failed-auth-rate-limit
         - name: bookorbit-opds-deny-basic-auth

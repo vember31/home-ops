@@ -7,5 +7,6 @@ metadata:
 spec:
   chain:
     middlewares:
+    - name: crowdsec-bouncer
     - name: error-pages
     - name: cloudflare-ips

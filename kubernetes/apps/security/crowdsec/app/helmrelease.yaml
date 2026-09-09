@@ -1,0 +1,91 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: crowdsec
+  namespace: security
+spec:
+  chart:
+    spec:
+      chart: crowdsec
+      version: 0.24.2
+      sourceRef:
+        kind: HelmRepository
+        name: crowdsec
+        namespace: flux-system
+
+  interval: 15m
+  timeout: 5m
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+
+  maxHistory: 1
+
+  values:
+    # yaml-language-server: $schema=https://raw.githubusercontent.com/crowdsecurity/helm-charts/main/charts/crowdsec/values.schema.json
+
+    image:
+      repository: crowdsecurity/crowdsec
+      tag: v1.8.1
+
+    # Detection is handled by the AppSec component fed by the Traefik bouncer
+    # plugin. No log acquisition is configured, so the agent is not needed.
+    agent:
+      enabled: false
+
+    # WAF: the Traefik bouncer plugin forwards every request here for in-band
+    # analysis (virtual patching + generic web attack rules). Decisions feed the
+    # LAPI and are enforced by the bouncer in stream mode.
+    appsec:
+      enabled: true
+      acquisitions:
+        - source: appsec
+          listen_addr: "0.0.0.0:7422"
+          path: /
+          appsec_config: crowdsecurity/appsec-default
+          labels:
+            type: appsec
+      env:
+        - name: COLLECTIONS
+          value: "crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules"
+
+    lapi:
+      env:
+        - name: ENROLL_KEY
+          valueFrom:
+            secretKeyRef:
+              name: crowdsec-keys
+              key: ENROLL_KEY
+        - name: ENROLL_INSTANCE_NAME
+          value: home-ops
+        - name: ENROLL_TAGS
+          value: "k8s,traefik"
+        - name: BOUNCER_KEY_traefik
+          valueFrom:
+            secretKeyRef:
+              name: crowdsec-keys
+              key: BOUNCER_KEY_traefik
