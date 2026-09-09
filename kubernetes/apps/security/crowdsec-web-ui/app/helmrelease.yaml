@@ -61,24 +61,24 @@ spec:
             env:
               TZ: ${TIMEZONE}
               CONFIG_AUTH_ENABLED: "true"
-              CONFIG_AUTH_OIDC_ISSUERURL:
+              CONFIG_AUTH_OIDC_ISSUER_URL:
                 valueFrom:
                   secretKeyRef:
                     name: crowdsec-web-ui-oidc-credentials
                     key: issuer_url
-              CONFIG_AUTH_OIDC_CLIENTID:
+              CONFIG_AUTH_OIDC_CLIENT_ID:
                 valueFrom:
                   secretKeyRef:
                     name: crowdsec-web-ui-oidc-credentials
                     key: client_id
-              CONFIG_AUTH_OIDC_CLIENTSECRET:
+              CONFIG_AUTH_OIDC_CLIENT_SECRET:
                 valueFrom:
                   secretKeyRef:
                     name: crowdsec-web-ui-oidc-credentials
                     key: client_secret
               CONFIG_AUTH_OIDC_SCOPE: "openid profile email"
               CONFIG_AUTH_OIDC_GROUPS_CLAIM: "groups"
-              CONFIG_AUTH_OIDC_ADMINGROUPS: '["admins"]'
+              CONFIG_AUTH_OIDC_ADMIN_GROUPS: '["admins"]'
               CONFIG_INSTANCE_LAPI_URL: "http://crowdsec-service.security.svc.cluster.local:8080"
               CONFIG_INSTANCE_LAPI_AUTH_USERNAME: "crowdsec-web-ui"
               CONFIG_INSTANCE_LAPI_AUTH_PASSWORD:
