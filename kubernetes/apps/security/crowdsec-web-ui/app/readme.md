@@ -20,6 +20,6 @@ Verify with `cscli machines list` (or the Web UI itself once OIDC is working).
 ## Notes
 
 - The Web UI connects to the LAPI at `http://crowdsec-service.security.svc.cluster.local:8080`.
-- Access is internal-only (`https://crowdsec-web-ui.local.${SECRET_DOMAIN}`), SSO via PocketID, restricted to the `admins` group.
+- Access is internal-only (`https://crowdsec.local.${SECRET_DOMAIN}`), SSO via PocketID, restricted to the `admins` group.
 - SQLite state lives on a Longhorn PVC mounted at `/app/data`; the app writes its `config.yaml` there on first start.
 - The app-image tag is date-based (`YYYY.M.D`); Renovate should pick it up as a container digest update.
