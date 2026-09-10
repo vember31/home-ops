@@ -8,7 +8,6 @@ resources:
   
   # Post Flux-Kustomizations
   - ./crowdsec/ks.yaml
-  - ./crowdsec-web-ui/ks.yaml
   - ./pocket-id-operator/ks.yaml
   - ./termix/ks.yaml
   - ./vaultwarden/ks.yaml
