@@ -76,7 +76,7 @@ spec:
                   secretKeyRef:
                     name: crowdsec-web-ui-oidc-credentials
                     key: client_secret
-              CONFIG_AUTH_OIDC_SCOPE: "openid profile email"
+              CONFIG_AUTH_OIDC_SCOPE: "openid profile email groups"
               CONFIG_AUTH_OIDC_GROUPS_CLAIM: "groups"
               CONFIG_AUTH_OIDC_ADMIN_GROUPS: '["admins"]'
               CONFIG_INSTANCE_LAPI_URL: "http://crowdsec-service.security.svc.cluster.local:8080"
