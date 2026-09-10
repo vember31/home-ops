@@ -6,7 +6,7 @@ metadata:
   name: crowdsec-web-ui
   namespace: security
 spec:
-  name: crowdsec-web-ui
+  name: crowdsec
   description: CrowdSec dashboard
   instanceSelector:
     matchLabels:
