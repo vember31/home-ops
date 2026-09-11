@@ -142,7 +142,7 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
           traefik.ingress.kubernetes.io/router.middlewares: networking-cloudflare-ips@kubernetescrd
           gethomepage.dev/enabled: "true"
           gethomepage.dev/description: "Task & Chore Management"

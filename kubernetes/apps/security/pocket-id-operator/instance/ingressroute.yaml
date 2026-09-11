@@ -5,7 +5,7 @@ metadata:
   name: pocket-id
   namespace: security
   annotations:
-    external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+    external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/href: &href https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
     gethomepage.dev/description: Identity Provider

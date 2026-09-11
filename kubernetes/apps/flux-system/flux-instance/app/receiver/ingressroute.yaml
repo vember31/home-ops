@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
   annotations:
     gethomepage.dev/enabled: "false"
-    external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+    external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
     external-dns.alpha.kubernetes.io/hostname: "flux-webhook.${SECRET_DOMAIN}"
 
 spec:

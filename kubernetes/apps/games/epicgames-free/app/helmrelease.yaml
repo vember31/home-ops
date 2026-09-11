@@ -98,7 +98,7 @@ spec:
           # external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
           # traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
           traefik.ingress.kubernetes.io/router.middlewares: networking-external-with-errors@kubernetescrd
-          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
+          external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
           gethomepage.dev/enabled: "false"
           gethomepage.dev/description: Free Epic Games Aggregator
           gethomepage.dev/group: Home

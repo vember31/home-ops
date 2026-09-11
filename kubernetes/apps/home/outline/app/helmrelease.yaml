@@ -126,7 +126,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           traefik.ingress.kubernetes.io/router.middlewares: networking-external-with-errors@kubernetescrd
-          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
+          external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}" 
           gethomepage.dev/enabled: "true"
           gethomepage.dev/description: "Note-taking & Documentation"
           gethomepage.dev/group: Home

@@ -151,7 +151,7 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          external-dns.alpha.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
           traefik.ingress.kubernetes.io/router.priority: "100"
           traefik.ingress.kubernetes.io/router.middlewares: networking-external-with-errors@kubernetescrd
           gethomepage.dev/enabled: "true"
