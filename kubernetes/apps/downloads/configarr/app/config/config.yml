@@ -5,6 +5,7 @@ radarrEnabled: true
 whisparrEnabled: false
 readarrEnabled: false
 lidarrEnabled: false
+prowlarrEnabled: true
 
 sonarr:
   sonarr:
@@ -176,3 +177,150 @@ radarr:
         auto_redownload_failed: false
         auto_redownload_failed_from_interactive_search: true
         check_for_finished_download_interval: 1
+
+# experimental support: check https://configarr.de/docs/configuration/experimental-support/#prowlarr-v1
+prowlarr:
+  main:
+    base_url: http://prowlarr.downloads.svc.cluster.local:9696
+    api_key: !env PROWLARR_API_KEY
+
+    # Ensure these tag labels exist (created if missing)
+    tags:
+      - sonarr
+      - radarr
+    delete_unmanaged_tags:
+      enabled: false
+
+    # Indexers - `definition` is the Prowlarr schema definitionName; matched on the server by `name`
+    indexers:
+      data:
+        - name: BroadcasTheNet
+          definition: BroadcasTheNet
+          enable: true
+          priority: 1
+          app_profile: Automatic + Interactive
+          fields:
+            baseUrl: https://api.broadcasthe.net/
+            apiKey: !env BTN_API_KEY
+            baseSettings.queryLimit: 150
+            baseSettings.limitsUnit: 1
+            torrentBaseSettings.preferMagnetUrl: false
+          tags:
+            - sonarr
+        - name: IPTorrents
+          definition: IPTorrents
+          enable: true
+          priority: 25
+          app_profile: Automatic + Interactive
+          fields:
+            baseUrl: https://ipt.lol/
+            cookie: !env IPT_COOKIE
+            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+            freeLeechOnly: false
+            searchSortBy: 0
+            baseSettings.limitsUnit: 0
+            torrentBaseSettings.preferMagnetUrl: false
+          tags:
+            - radarr
+        - name: "IPTorrents "
+          definition: IPTorrents
+          enable: true
+          priority: 2
+          app_profile: Interactive Only
+          fields:
+            baseUrl: https://ipt.lol/
+            cookie: !env IPT_COOKIE
+            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+            freeLeechOnly: false
+            searchSortBy: 0
+            baseSettings.limitsUnit: 0
+            torrentBaseSettings.preferMagnetUrl: false
+          tags:
+            - sonarr
+        - name: seedpool
+          definition: seedpool-api
+          enable: true
+          priority: 25
+          app_profile: Interactive Only
+          fields:
+            definitionFile: seedpool-api
+            apikey: !env SEEDPOOL_API_KEY
+            freeleech: false
+            tmdbidonly: true
+            single_file_release_use_filename: true
+            baseSettings.limitsUnit: 0
+            torrentBaseSettings.preferMagnetUrl: false
+            sort: 0
+            type: 1
+          tags:
+            - sonarr
+            - radarr
+        - name: TorrentLeech
+          definition: torrentleech
+          enable: true
+          priority: 25
+          app_profile: Interactive Only
+          fields:
+            definitionFile: torrentleech
+            baseUrl: https://www.torrentleech.org/
+            username: vember31
+            password: !env TL_PASSWORD
+            alt2fatoken: !env TL_ALT2FA_TOKEN
+            freeleech: false
+            exclude_scene: false
+            exclude_archives: false
+            baseSettings.limitsUnit: 0
+            torrentBaseSettings.preferMagnetUrl: false
+            sort: 0
+            type: 1
+          tags:
+            - sonarr
+            - radarr
+      delete_unmanaged:
+        enabled: false
+
+    # Applications - the Sonarr/Radarr instances Prowlarr syncs its indexers to
+    applications:
+      data:
+        - name: Radarr
+          type: Radarr
+          sync_level: fullSync
+          fields:
+            prowlarrUrl: http://prowlarr.downloads.svc.cluster.local:9696
+            baseUrl: http://radarr.downloads.svc.cluster.local:7878
+            apiKey: !env RADARR_API_KEY
+            syncCategories: [2000, 2010, 2020, 2030, 2040, 2045, 2050, 2060, 2070, 2080, 2090]
+          tags:
+            - radarr
+        - name: Sonarr
+          type: Sonarr
+          sync_level: fullSync
+          fields:
+            prowlarrUrl: http://prowlarr.downloads.svc.cluster.local:9696
+            baseUrl: http://sonarr.downloads.svc.cluster.local:8989
+            apiKey: !env SONARR_API_KEY
+            syncCategories: [5000, 5010, 5020, 5030, 5040, 5045, 5050, 5090]
+          tags:
+            - sonarr
+      delete_unmanaged:
+        enabled: false
+      # Trigger Prowlarr's global "Sync App Indexers" command after syncing
+      sync_indexers: true
+
+    # Download clients (no `config` / `remote_paths` for Prowlarr)
+    download_clients:
+      data:
+        - name: qBittorrent
+          type: QBittorrent
+          enable: true
+          tags: []
+          fields:
+            host: qbittorrent
+            port: 8080
+            use_ssl: false
+            username: admin
+            password: !env QBITTORRENT_PASSWORD
+            category: prowlarr
+      update_password: true
+      delete_unmanaged:
+        enabled: false
