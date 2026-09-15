@@ -247,7 +247,6 @@ prowlarr:
             apikey: !env SEEDPOOL_API_KEY
             freeleech: false
             tmdbidonly: true
-            single_file_release_use_filename: true
             baseSettings.limitsUnit: 0
             torrentBaseSettings.preferMagnetUrl: false
             sort: 0
@@ -267,8 +266,6 @@ prowlarr:
             password: !env TL_PASSWORD
             alt2fatoken: !env TL_ALT2FA_TOKEN
             freeleech: false
-            exclude_scene: false
-            exclude_archives: false
             baseSettings.limitsUnit: 0
             torrentBaseSettings.preferMagnetUrl: false
             sort: 0
