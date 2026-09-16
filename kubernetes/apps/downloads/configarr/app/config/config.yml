@@ -189,7 +189,7 @@ prowlarr:
       - sonarr
       - radarr
     delete_unmanaged_tags:
-      enabled: false
+      enabled: true
 
     # Indexers - `definition` is the Prowlarr schema definitionName; matched on the server by `name`
     indexers:
@@ -274,7 +274,7 @@ prowlarr:
             - sonarr
             - radarr
       delete_unmanaged:
-        enabled: false
+        enabled: true
 
     # Applications - the Sonarr/Radarr instances Prowlarr syncs its indexers to
     applications:
@@ -300,7 +300,7 @@ prowlarr:
           tags:
             - sonarr
       delete_unmanaged:
-        enabled: false
+        enabled: true
       # Trigger Prowlarr's global "Sync App Indexers" command after syncing
       sync_indexers: true
 
@@ -320,4 +320,4 @@ prowlarr:
             category: prowlarr
       update_password: true
       delete_unmanaged:
-        enabled: false
+        enabled: true
