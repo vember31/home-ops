@@ -9,6 +9,7 @@ disable:
   - traefik
   - servicelb
   - coredns
+  - gateway-api-crd
 etcd-expose-metrics: true
 kube-controller-manager-arg:
   - "bind-address=0.0.0.0"
@@ -26,6 +27,7 @@ disable:
   - traefik
   - servicelb
   - coredns
+  - gateway-api-crd
 etcd-expose-metrics: true
 kube-controller-manager-arg:
   - "bind-address=0.0.0.0"
