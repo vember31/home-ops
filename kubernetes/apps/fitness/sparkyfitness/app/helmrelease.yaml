@@ -180,6 +180,13 @@ spec:
               limits:
                 memory: 512Mi
 
+            securityContext:
+              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -231,7 +238,7 @@ spec:
       data:
         type: persistentVolumeClaim
         accessMode: ReadWriteOnce
-        size: 2Gi
+        size: 1Gi
         storageClass: longhorn
         globalMounts:
           - path: /app/SparkyFitnessServer/uploads
@@ -243,3 +250,27 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp
+
+      temp_uploads:
+        type: emptyDir
+        advancedMounts:
+          server:
+            - path: /app/SparkyFitnessServer/temp_uploads
+
+      nginx-conf:
+        type: emptyDir
+        advancedMounts:
+          frontend:
+            - path: /etc/nginx/conf.d
+
+      nginx-run:
+        type: emptyDir
+        advancedMounts:
+          frontend:
+            - path: /run
+
+      nginx-cache:
+        type: emptyDir
+        advancedMounts:
+          frontend:
+            - path: /var/cache/nginx
