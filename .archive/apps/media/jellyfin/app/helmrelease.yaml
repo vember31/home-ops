@@ -53,6 +53,14 @@ spec:
 
         # Controller-specific overrides for `defaultPodOptions` keys
         pod:
+
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            fsGroup: 1000
+            fsGroupChangePolicy: "OnRootMismatch"
+
           # keep media streaming off of nas, utility servers
           affinity:
             nodeAffinity:
@@ -65,18 +73,27 @@ spec:
                       - nas
                       - utility
 
+          # jellyfin/jellyfin#17831: default 30s can SIGKILL the shutdown VACUUM+ANALYZE on v12
+          terminationGracePeriodSeconds: 120
+
         containers:
           app:
             image:
-              repository: linuxserver/jellyfin
-              tag: 10.10.7@sha256:0844d7504c018b0b0b898914a3c48d9dfa76d8f51ac49d8c66a1108944743fe4
+              repository: ghcr.io/jellyfin/jellyfin
+              tag: 12.1@sha256:008ec8024bdaaa6f0a3f0de468e185633eeba9d67c56936e8dbf5ef6b8d6200f
               pullPolicy: IfNotPresent
 
             env:
               TZ: ${TIMEZONE}
-              PUID: 1000
-              PGID: 1000
-              JELLYFIN_PublishedServerUrl: https://jellyfin.local.${SECRET_DOMAIN}
+              DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
+              JELLYFIN_PublishedServerUrl: https://${APP}.local.${SECRET_DOMAIN}
+
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
 
             resources:
               requests:
@@ -92,10 +109,9 @@ spec:
                   httpGet:
                     path: /health
                     port: &port 8096
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 3
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 5
               readiness: *probe
               startup:
                 enabled: true
@@ -104,9 +120,7 @@ spec:
                   httpGet:
                     path: /health
                     port: *port
-                  initialDelaySeconds: 0
                   periodSeconds: 10
-                  timeoutSeconds: 1
                   failureThreshold: 30
 
     service:
@@ -164,14 +178,61 @@ spec:
         enabled: true
         type: emptyDir
         globalMounts:
-          - path: /config/cache
+          - path: /cache
+
+      tmp:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+
+      tv:
+        enabled: true
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv-media-tv
+        globalMounts:
+          - path: /media/tv
+            readOnly: true
+
+      movies:
+        enabled: true
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv-media-movies
+        globalMounts:
+          - path: /media/movies
+            readOnly: true
+
+      videos:
+        enabled: true
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv-media-videos
+        globalMounts:
+          - path: /media/videos
+            readOnly: false
+
+      # old hard drive in old server
+      movies2:
+        enabled: true
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv2-media-movies
+        globalMounts:
+          - path: /media2/movies
+            readOnly: true
+
+      # old hard drive in old server
+      tv2:
+        enabled: true
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv2-media-tv
+        globalMounts:
+          - path: /media2/tv
+            readOnly: true
 
       # live tv recordings
       recordings:
         enabled: true
-        type: nfs
-        server: ${OMV_IP}
-        path: /export/media/recordings
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv-media-recordings
         globalMounts:
           - path: /media/recordings
-            readOnly: false #allow jellyfin to record to this too
+            readOnly: false # allow jellyfin to record to this too
