@@ -251,7 +251,7 @@ spec:
         globalMounts:
           - path: /tmp
 
-      temp_uploads:
+      temp-uploads:
         type: emptyDir
         advancedMounts:
           ${APP}:
