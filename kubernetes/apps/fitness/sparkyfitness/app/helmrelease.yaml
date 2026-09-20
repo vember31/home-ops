@@ -75,7 +75,8 @@ spec:
               SPARKY_FITNESS_SERVER_PORT: &serverPort 3010
               SPARKY_FITNESS_FRONTEND_URL: &appUrl https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
               BETTER_AUTH_URL: *appUrl
-              # Traefik -> frontend nginx -> server (2 proxy hops)
+              # Cloudflare (proxied) -> Traefik -> frontend nginx -> server
+              SPARKY_FITNESS_REAL_IP_HEADER: CF-Connecting-IP
               SPARKY_FITNESS_TRUSTED_PROXY_HOPS: "2"
 
               # Login: OIDC-only (fail-safe email login disabled)
@@ -201,8 +202,9 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          traefik.ingress.kubernetes.io/router.priority: "100"
+          traefik.ingress.kubernetes.io/router.middlewares: networking-external-with-errors@kubernetescrd
           gethomepage.dev/enabled: "true"
           gethomepage.dev/description: Family fitness & food tracking
           gethomepage.dev/group: Fitness

@@ -1,7 +1,8 @@
 # SparkyFitness
 
 Family fitness, food, water, and health tracking (frontend nginx + Node.js server).
-Runs in the `fitness` namespace, reachable at https://fitness.local.${SECRET_DOMAIN}.
+Runs in the `fitness` namespace, reachable at https://fitness.${SECRET_DOMAIN}.
+Public via Cloudflare (proxied) -> Traefik.
 
 ## GitLab CI/CD Variables
 
@@ -40,7 +41,7 @@ Login is OIDC-only via Pocket ID (email/password disabled, auto-redirect on).
 The env-configured provider slug is `sparkyfitness`:
 
 - issuer: pocket-id discovery (from the operator-generated secret)
-- redirect URI: `https://fitness.local.${SECRET_DOMAIN}/api/auth/sso/callback/sparkyfitness`
+- redirect URI: `https://fitness.${SECRET_DOMAIN}/api/auth/sso/callback/sparkyfitness`
   (this path is verified against the server source — it is **not** the generic
   `/api/auth/callback/...`)
 - auto-register: on — first login by a user in the `sparkyfitness-users` group
@@ -58,5 +59,8 @@ kubectl -n fitness logs deploy/sparkyfitness -c server -f
 ```
 
 Health endpoint: `GET /api/health` on :3010 (server) and `/` on :8080 (frontend).
-Nginx runs non-root on 8080 (`NGINX_LISTEN_PORT`); Traefik termination, so
-`SPARKY_FITNESS_TRUSTED_PROXY_HOPS=2` is set for per-IP rate limiting.
+Nginx runs non-root on 8080 (`NGINX_LISTEN_PORT`). Public traffic is
+Cloudflare-proxied, so `SPARKY_FITNESS_REAL_IP_HEADER=CF-Connecting-IP` is set
+(plus `SPARKY_FITNESS_TRUSTED_PROXY_HOPS=2` as fallback) for correct per-IP
+rate limiting; the server is never reachable without the CDN, so the header
+cannot be spoofed. Gatus monitors the public URL via 1.1.1.1.

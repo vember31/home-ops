@@ -6,4 +6,4 @@ resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
   - ./oidc/pocket-id-oidc-client.yaml
-  - ../../../../templates/gatus/internal
+  - ../../../../templates/gatus/external
