@@ -254,23 +254,27 @@ spec:
       temp_uploads:
         type: emptyDir
         advancedMounts:
-          server:
-            - path: /app/SparkyFitnessServer/temp_uploads
+          ${APP}:
+            server:
+              - path: /app/SparkyFitnessServer/temp_uploads
 
       nginx-conf:
         type: emptyDir
         advancedMounts:
-          frontend:
-            - path: /etc/nginx/conf.d
+          ${APP}:
+            frontend:
+              - path: /etc/nginx/conf.d
 
       nginx-run:
         type: emptyDir
         advancedMounts:
-          frontend:
-            - path: /run
+          ${APP}:
+            frontend:
+              - path: /run
 
       nginx-cache:
         type: emptyDir
         advancedMounts:
-          frontend:
-            - path: /var/cache/nginx
+          ${APP}:
+            frontend:
+              - path: /var/cache/nginx
