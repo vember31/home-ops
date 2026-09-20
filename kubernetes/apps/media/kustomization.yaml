@@ -23,4 +23,3 @@ resources:
   - ./tauticord/ks.yaml
   - ./tautulli/ks.yaml
   - ./tracearr/ks.yaml
-  - ./wizarr/ks.yaml
