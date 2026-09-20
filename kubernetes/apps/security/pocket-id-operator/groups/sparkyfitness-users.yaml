@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aclerici38/pocket-id-operator/v0.11.0/dist/schemas/pocketidusergroup_v1alpha1.json
+apiVersion: pocketid.internal/v1alpha1
+kind: PocketIDUserGroup
+metadata:
+  name: sparkyfitness-users
+  namespace: security
+spec:
+  friendlyName: SparkyFitness Users
+  customClaims:
+    - key: app
+      value: sparkyfitness
+  users:
+    userRefs:
+      - name: dm
+      - name: emm

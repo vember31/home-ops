@@ -1,0 +1,243 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name sparkyfitness
+  namespace: fitness
+
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+
+  maxHistory: 1
+
+  values:
+    controllers:
+      ${APP}:
+        enabled: true
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        replicas: 1
+
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18
+            env:
+              - name: INIT_POSTGRES_USER_FLAGS
+                value: "--createrole"
+            envFrom: &envFrom
+              - secretRef:
+                  name: sparkyfitness-secret
+
+        containers:
+          server:
+            image:
+              repository: codewithcj/sparkyfitness_server
+              tag: latest
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              NODE_ENV: production
+              SPARKY_FITNESS_LOG_LEVEL: INFO
+              SPARKY_FITNESS_SERVER_PORT: &serverPort 3010
+              SPARKY_FITNESS_FRONTEND_URL: &appUrl https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
+              BETTER_AUTH_URL: *appUrl
+              # Traefik -> frontend nginx -> server (2 proxy hops)
+              SPARKY_FITNESS_TRUSTED_PROXY_HOPS: "2"
+
+              # Login: OIDC-only (fail-safe email login disabled)
+              SPARKY_FITNESS_DISABLE_EMAIL_LOGIN: "true"
+              SPARKY_FITNESS_OIDC_AUTH_ENABLED: "true"
+              SPARKY_FITNESS_OIDC_PROVIDER_SLUG: sparkyfitness
+              SPARKY_FITNESS_OIDC_PROVIDER_NAME: SparkyFitness
+              SPARKY_FITNESS_OIDC_SCOPE: openid email profile
+              SPARKY_FITNESS_OIDC_AUTO_REGISTER: "true"
+              SPARKY_FITNESS_OIDC_AUTO_REDIRECT: "true"
+              SPARKY_FITNESS_OIDC_ISSUER_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: sparkyfitness-oidc-credentials
+                    key: issuer_url
+              SPARKY_FITNESS_OIDC_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: sparkyfitness-oidc-credentials
+                    key: client_id
+              SPARKY_FITNESS_OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: sparkyfitness-oidc-credentials
+                    key: client_secret
+            envFrom: *envFrom
+
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: *serverPort
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 60
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: *serverPort
+                  initialDelaySeconds: 30
+                  periodSeconds: 60
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: *serverPort
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+
+          frontend:
+            image:
+              repository: codewithcj/sparkyfitness
+              tag: latest
+              pullPolicy: IfNotPresent
+
+            env:
+              TZ: ${TIMEZONE}
+              SPARKY_FITNESS_FRONTEND_URL: *appUrl
+              SPARKY_FITNESS_SERVER_HOST: ${APP}.fitness.svc.cluster.local
+              SPARKY_FITNESS_SERVER_PORT: "3010"
+              NGINX_LISTEN_PORT: &frontendPort 8080
+
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *frontendPort
+                  initialDelaySeconds: 15
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 512Mi
+
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+
+    service:
+      app:
+        controller: *name
+        ports:
+          http:
+            port: *frontendPort
+          server:
+            port: *serverPort
+
+    ingress:
+      app:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: Family fitness & food tracking
+          gethomepage.dev/group: Fitness
+          gethomepage.dev/icon: https://raw.githubusercontent.com/CodeWithCJ/SparkyFitness/main/SparkyFitnessFrontend/public/images/icons/icon-512x512.png
+          gethomepage.dev/name: SparkyFitness
+          gethomepage.dev/pod-selector: app.kubernetes.io/name=sparkyfitness
+          gethomepage.dev/siteMonitor: http://${APP}.fitness.svc.cluster.local:8080
+
+        hosts:
+          - host: &host ${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+
+        tls:
+          - secretName: ${APP}-tls-production
+            hosts:
+              - *host
+
+    persistence:
+      data:
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        storageClass: longhorn
+        globalMounts:
+          - path: /app/SparkyFitnessServer/uploads
+            subPath: uploads
+          - path: /app/SparkyFitnessServer/backup
+            subPath: backup
+
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
