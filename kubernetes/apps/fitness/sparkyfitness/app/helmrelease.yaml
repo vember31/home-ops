@@ -65,7 +65,7 @@ spec:
           server:
             image:
               repository: codewithcj/sparkyfitness_server
-              tag: latest
+              tag: v1.7.2@sha256:a3562bb89cf0c7f8394bc2728776d9ba42327aaabf831ef35f00e0fe1ee47a93
               pullPolicy: IfNotPresent
 
             env:
@@ -149,7 +149,7 @@ spec:
           frontend:
             image:
               repository: codewithcj/sparkyfitness
-              tag: latest
+              tag: v1.7.2@sha256:2fe089fb28bbfdc634b702d2a85f8fa0e2c6c7f39c713fd0762f295657cf4c28
               pullPolicy: IfNotPresent
 
             env:
