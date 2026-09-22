@@ -10,13 +10,15 @@ spec:
       enabled: true
       logLevel: WARN
       crowdsecMode: stream
-      streamStartupBlock: true
+      streamStartupBlock: false
+      updateMaxFailure: 3
       remediationStatusCode: 403
       crowdsecLapiHost: crowdsec-service.security.svc.cluster.local:8080
       crowdsecLapiKeyFile: /etc/traefik/crowdsec/crowdsec-bouncer-key
       crowdsecAppsecEnabled: true
       crowdsecAppsecHost: crowdsec-appsec-service.security.svc.cluster.local:7422
       crowdsecAppsecFailureBlock: false
+      crowdsecAppsecUnreachableBlock: false
       forwardedHeadersTrustedIPs:
         - 173.245.48.0/20
         - 103.21.244.0/22
