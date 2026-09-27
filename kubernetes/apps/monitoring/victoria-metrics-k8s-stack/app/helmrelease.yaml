@@ -187,6 +187,23 @@ spec:
     kubelet:
       enabled: true
       vmScrapes:
+        resources:
+          spec:
+            metricRelabelConfigs:
+              # /metrics/resource duplicates these with /metrics/cadvisor. The series
+              # have identical labels apart from metrics_path/image, so queries that
+              # sum without filtering (e.g. Lens) double-count them.
+              - action: drop
+                sourceLabels: ["__name__"]
+                regex: "(container_memory_working_set_bytes|container_cpu_usage_seconds_total|container_start_time_seconds)"
+              # Keep the chart defaults (per-scrape metricRelabelConfigs replace them)
+              - action: labeldrop
+                regex: (uid)
+              - action: labeldrop
+                regex: (id|name)
+              - action: drop
+                sourceLabels: ["__name__"]
+                regex: "(rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)"
         kubelet:
           spec:
             metricRelabelConfigs:
