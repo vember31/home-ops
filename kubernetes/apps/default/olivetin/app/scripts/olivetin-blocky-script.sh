@@ -2,7 +2,6 @@
 
 ACTION=$1
 DURATION=$2
-BLOCKY_GROUPS=$3 # this should be not required with v0.24, but it is now. use 'ads'
 NAMESPACE=networking
 PAUSE_SECONDS=1s
 KUBECTL_LOCATION=/home/olivetin/kubectl
@@ -34,10 +33,11 @@ for pod in $BLOCKY_PODS; do
             $KUBECTL_LOCATION exec -n $NAMESPACE -c "app" "$pod" -- /app/blocky blocking enable;
         ;;
         disable)
+            # --groups is intentionally omitted so blocking is disabled for ALL groups
             if [ -z "$DURATION" ]; then
-                $KUBECTL_LOCATION exec -n $NAMESPACE -c "app" "$pod" -- /app/blocky blocking disable --groups "$BLOCKY_GROUPS"
+                $KUBECTL_LOCATION exec -n $NAMESPACE -c "app" "$pod" -- /app/blocky blocking disable
             else
-                $KUBECTL_LOCATION exec -n $NAMESPACE -c "app" "$pod" -- /app/blocky blocking disable --duration "$DURATION" --groups "$BLOCKY_GROUPS";
+                $KUBECTL_LOCATION exec -n $NAMESPACE -c "app" "$pod" -- /app/blocky blocking disable --duration "$DURATION";
             fi
         ;;
     esac

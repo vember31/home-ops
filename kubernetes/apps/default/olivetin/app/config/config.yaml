@@ -14,7 +14,7 @@ actions:
 
   - title: Disable Blocky for 5 minutes
     icon: <iconify-icon icon="vscode-icons:file-type-go-gopher"></iconify-icon>
-    shell: /scripts/olivetin-blocky-script.sh disable 5m ads
+    shell: /scripts/olivetin-blocky-script.sh disable 5m
     maxConcurrent: 1
     timeout: 10
 
@@ -37,7 +37,7 @@ actions:
     popupOnStart: execution-dialog
 
   - title: Blocky All Commands
-    shell: /scripts/olivetin-blocky-script.sh {{ `{{blocky_action}}` }} {{ `{{blocky_duration}}` }}m {{ `{{blocky_groups}}` }}
+    shell: /scripts/olivetin-blocky-script.sh {{ `{{blocky_action}}` }} {{ `{{blocky_duration}}` }}m
     timeout: 10
     icon: <iconify-icon icon="vscode-icons:file-type-go-gopher"></iconify-icon>
     popupOnStart: execution-dialog
@@ -52,8 +52,6 @@ actions:
             value: status
       - name: blocky_duration
         type: int
-      - name: blocky_groups
-        type: ascii_sentence
 
   - title: Restart Media & Download Apps
     shell: /scripts/restart_download_media_apps.sh

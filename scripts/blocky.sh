@@ -7,7 +7,6 @@
 
 ACTION=$1
 DURATION=$2
-BLOCKY_GROUPS=ads #could turn this to variable later, but i only have 'default' group present. comma-delimited. won't be required with v0.24
 NAMESPACE=networking
 PAUSE_SECONDS=3s
 
@@ -26,10 +25,11 @@ for pod in $BLOCKY_PODS; do
             kubectl exec -n $NAMESPACE "${pod}" -- /app/blocky blocking enable;
         ;;
         disable)
+            # --groups is intentionally omitted so blocking is disabled for ALL groups
             if [ -z "${DURATION}" ]; then
-                kubectl exec -n $NAMESPACE "${pod}" -- /app/blocky blocking disable --groups "${BLOCKY_GROUPS}"
+                kubectl exec -n $NAMESPACE "${pod}" -- /app/blocky blocking disable
             else
-                kubectl exec -n $NAMESPACE "${pod}" -- /app/blocky blocking disable --duration "${DURATION}" --groups "${BLOCKY_GROUPS}";
+                kubectl exec -n $NAMESPACE "${pod}" -- /app/blocky blocking disable --duration "${DURATION}";
             fi
         ;;
     esac
