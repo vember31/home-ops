@@ -10,6 +10,7 @@ spec:
       dashboards: grafana
   folderRef: grafana-folder-blocky
   resyncPeriod: 30m
+  contentCacheDuration: 10m
   url: https://raw.githubusercontent.com/vember31/home-ops/refs/heads/main/kubernetes/apps/monitoring/grafana-operator/app/dashboards/blocky/blocky-postgres.json
   datasources:
     - inputName: DS_POSTGRES
