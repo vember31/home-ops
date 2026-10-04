@@ -15,6 +15,7 @@ spec:
     - name: dragonfly-cluster
     - name: external-secrets-stores
     - name: longhorn
+    - name: pocket-id-groups
   path: ./kubernetes/apps/home/outline/app
   prune: true
   sourceRef:

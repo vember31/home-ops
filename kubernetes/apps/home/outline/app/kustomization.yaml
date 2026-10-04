@@ -6,4 +6,5 @@ resources:
   - ./externalsecret.yaml
   - ./resources/scheduled-job.yaml
   - ./helmrelease.yaml
+  - ./oidc/pocket-id-oidc-client.yaml
   - ../../../../templates/gatus/external

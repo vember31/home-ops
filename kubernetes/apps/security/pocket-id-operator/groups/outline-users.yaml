@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aclerici38/pocket-id-operator/v0.11.0/dist/schemas/pocketidusergroup_v1alpha1.json
+apiVersion: pocketid.internal/v1alpha1
+kind: PocketIDUserGroup
+metadata:
+  name: outline-users
+  namespace: security
+spec:
+  friendlyName: Outline Users
+  customClaims:
+    - key: app
+      value: outline
+  users:
+    userRefs:
+      - name: dm
+      - name: emm
+      - name: mfm

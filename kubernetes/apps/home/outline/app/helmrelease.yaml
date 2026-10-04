@@ -90,6 +90,42 @@ spec:
               DATABASE_CONNECTION_POOL_MAX: 10
               WEB_CONCURRENCY: 10
 
+              # OIDC (Pocket ID)
+              OIDC_DISPLAY_NAME: Pocket ID
+              OIDC_USERNAME_CLAIM: preferred_username
+              OIDC_SCOPES: openid profile email groups
+              OIDC_DISABLE_REDIRECT: "true"
+              OIDC_CLIENT_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: outline-oidc-credentials
+                    key: client_id
+              OIDC_CLIENT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: outline-oidc-credentials
+                    key: client_secret
+              OIDC_AUTH_URI:
+                valueFrom:
+                  secretKeyRef:
+                    name: outline-oidc-credentials
+                    key: authorization_url
+              OIDC_TOKEN_URI:
+                valueFrom:
+                  secretKeyRef:
+                    name: outline-oidc-credentials
+                    key: token_url
+              OIDC_USERINFO_URI:
+                valueFrom:
+                  secretKeyRef:
+                    name: outline-oidc-credentials
+                    key: userinfo_url
+              OIDC_LOGOUT_URI:
+                valueFrom:
+                  secretKeyRef:
+                    name: outline-oidc-credentials
+                    key: end_session_url
+
             envFrom: *envFrom
 
             resources:
