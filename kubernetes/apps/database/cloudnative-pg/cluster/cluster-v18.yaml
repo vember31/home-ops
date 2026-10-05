@@ -35,13 +35,13 @@ spec:
     extensions:
       - name: timescaledb
         image:
-          reference: ghcr.io/vember31/timescaledb:2.30.1
+          reference: ghcr.io/vember31/timescaledb:2.30.2
       - name: timescaledb-toolkit
         image:
           reference: ghcr.io/vember31/timescaledb-toolkit:1.26.0
       - name: pgvector
         image:
-          reference: ghcr.io/vember31/pgvector:0.8.6-pg18
+          reference: ghcr.io/vember31/pgvector:0.8.7-pg18
     parameters:
       max_connections: "200"
       shared_buffers: 256MB
