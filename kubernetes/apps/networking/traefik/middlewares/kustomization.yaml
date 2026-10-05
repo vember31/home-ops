@@ -11,3 +11,4 @@ resources:
   - ./internal-with-errors.yaml
   - ./opds-auth.yaml
   - ./secure-networks.yaml
+  - ./seerr-headers.yaml

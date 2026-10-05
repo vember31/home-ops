@@ -277,7 +277,7 @@
  "network": {
   "csrfProtection": false,
   "forceIpv4First": false,
-  "trustProxy": false,
+  "trustProxy": true,
   "proxy": {
    "enabled": false,
    "hostname": "",

@@ -134,7 +134,7 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          traefik.ingress.kubernetes.io/router.middlewares: networking-external-with-errors@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: networking-seerr-headers@kubernetescrd,networking-external-with-errors@kubernetescrd
           external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
           hajimari.io/icon: mdi:eye-circle
           hajimari.io/info: &description Media Request Management
