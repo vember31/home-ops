@@ -55,7 +55,7 @@ spec:
             image:
               repository: ghcr.io/home-operations/postgres-init
               tag: 18
-            envFrom: &envFrom
+            envFrom:
               - secretRef:
                   name: autopulse-secret
 
@@ -86,83 +86,48 @@ spec:
                   failureThreshold: 30
                   periodSeconds: 5
 
-          ui:
-            nameOverride: autopulse-ui
-            image:
-              repository: docker.io/danonline/autopulse
-              tag: ui@sha256:2df63fb2ad4c23bce338741e2e8e32c481fe39a603810ba3b6f441e406173e20
-              pullPolicy: IfNotPresent
-
-            env:
-              TZ: ${TIMEZONE}
-              ORIGIN: https://${APP}.local.${SECRET_DOMAIN}
-              FORCE_AUTH: true
-              FORCE_SERVER_URL: http://autopulse-app.media.svc.cluster.local:2875
-              SECRET:
-                valueFrom:
-                  secretKeyRef:
-                    name: autopulse-secret
-                    key: AUTOPULSE_SECRET
-
-            resources:
-              requests:
-                cpu: 10m
-              limits:
-                memory: 256Mi
-
-            probes:
-              liveness:
-                enabled: true
-              readiness:
-                enabled: true
-              startup:
-                enabled: true
-                spec:
-                  failureThreshold: 30
-                  periodSeconds: 5
-
     service:
       app:
         controller: *name
+        forceRename: ${APP}-app
         ports:
           http:
             port: 2875
-      ui:
-        controller: *name
-        ports:
-          http:
-            port: 2880
 
     ingress:
-      ui:
+      app:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd,media-autopulse-redirect@kubernetescrd
           gethomepage.dev/enabled: "false"
           gethomepage.dev/description: "*Arr / Plex Bridge"
           gethomepage.dev/group: Media
           gethomepage.dev/icon: https://github.com/dan-online/autopulse/raw/main/assets/logo.webp
           gethomepage.dev/name: Autopulse
-          gethomepage.dev/siteMonitor: http://${APP}-ui.media.svc.cluster.local:2880
-
+          gethomepage.dev/siteMonitor: http://${APP}-app.media.svc.cluster.local:2875/ui/events
 
         hosts:
           - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
             paths:
               - path: /
+                pathType: Exact
                 service:
-                  identifier: ui
+                  identifier: app
+                  port: http
+              - path: /ui
+                pathType: Prefix
+                service:
+                  identifier: app
                   port: http
 
         tls:
-         - secretName: ${APP}-tls-production
-           hosts:
-             - *host
+          - secretName: ${APP}-tls-production
+            hosts:
+              - *host
 
     persistence:
-
       config:
         type: secret
         name: autopulse-secret
@@ -172,10 +137,3 @@ spec:
               - path: /app/config.yaml
                 readOnly: true
                 subPath: config.yaml
-
-      zoneinfo:
-        type: hostPath
-        hostPath: /usr/share/zoneinfo
-        globalMounts:
-          - path: /usr/share/zoneinfo
-            readOnly: true

@@ -1,0 +1,11 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: autopulse-redirect
+  namespace: media
+spec:
+  redirectRegex:
+    regex: ^https?://[^/]+/?$
+    replacement: https://autopulse.local.${SECRET_DOMAIN}/ui/
+    permanent: true

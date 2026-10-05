@@ -10,7 +10,7 @@ data:
     endpoints:
       - name: "autopulse-ui"
         group: internal
-        url: "https://autopulse.local.${SECRET_DOMAIN}/"
+        url: "https://autopulse.local.${SECRET_DOMAIN}/ui/events"
         interval: 1m
         client:
           dns-resolver: tcp://${BLOCKY_IP}:53

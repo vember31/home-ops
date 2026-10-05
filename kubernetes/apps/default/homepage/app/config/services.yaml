@@ -144,10 +144,10 @@
               label: Last Quick Sync
               format: relativeDate
     - Autopulse:
-        href: https://autopulse.local.${SECRET_DOMAIN}
+        href: https://autopulse.local.${SECRET_DOMAIN}/ui/
         icon: https://github.com/dan-online/autopulse/raw/main/assets/logo.webp
         description: "*Arr / Plex Bridge"
-        siteMonitor: http://autopulse-ui.media.svc.cluster.local:2880
+        siteMonitor: http://autopulse-app.media.svc.cluster.local:2875/ui/events
         widget:
           type: customapi
           url: http://autopulse-app.media.svc.cluster.local:2875/stats
