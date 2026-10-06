@@ -1,5 +1,6 @@
 # Allowlisted domains can be manually defined here
 *.whattoexpect.com
 *.discord.com #no idea where this is being blocked
-*.pixeldrain.com
-*.gofile.io
+*.pixeldrain.com #rom downloads
+*.gofile.io #rom downloads
+androidtvlauncherxfe-pa.googleapis.com #though annoying, this allows the google tv banners to rotate
