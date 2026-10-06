@@ -55,7 +55,7 @@ spec:
           app:
             image:
               repository: ghcr.io/theduffman85/crowdsec-web-ui
-              tag: 2026.10.1
+              tag: 2026.10.2
               pullPolicy: IfNotPresent
 
             env:
