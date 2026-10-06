@@ -31,6 +31,8 @@ spec:
     controllers:
       ${APP}:
         type: daemonset
+        annotations:
+          reloader.stakater.com/auto: "true"
         strategy: RollingUpdate
         rollingUpdate:
           maxUnavailable: "100%"

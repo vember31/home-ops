@@ -57,7 +57,7 @@ state_key() {
 list_node_pods() {
     kubectl get pods -A \
         --field-selector "spec.nodeName=${NODE_NAME}" \
-        -o jsonpath='{range .items[*]}{.metadata.uid}{"|"}{.metadata.namespace}{"|"}{.metadata.name}{"|"}{.status.phase}{"|"}{.metadata.ownerReferences[0].kind}{"|"}{.metadata.ownerReferences[0].name}{"\n"}{end}' |
+        -o jsonpath='{range .items[*]}{.metadata.uid}{"|"}{.metadata.namespace}{"|"}{.metadata.name}{"|"}{.status.phase}{"|"}{.metadata.deletionTimestamp}{"|"}{.metadata.ownerReferences[0].kind}{"|"}{.metadata.ownerReferences[0].name}{"\n"}{end}' |
         awk -F '|' '$4 != "Succeeded" && $4 != "Failed"'
 }
 
@@ -188,15 +188,23 @@ delete_stuck_pods() {
     bad_pods_file="$4"
 
     awk -F '|' -v ns="$namespace" -v kind="$kind" -v name="$name" \
-        '$1 == ns && $2 == kind && $3 == name { print $4 "|" $5 }' "$bad_pods_file" |
+        '$1 == ns && $2 == kind && $3 == name { print $4 "|" $5 "|" $6 }' "$bad_pods_file" |
         sort -u |
-        while IFS='|' read -r pod_name phase; do
+        while IFS='|' read -r pod_name phase deleting; do
             [ -n "$pod_name" ] || continue
-            log "deleting stuck pod ${namespace}/${pod_name} phase=${phase} after stale NFS detection"
-            kubectl -n "$namespace" delete pod "$pod_name" --ignore-not-found=true || {
-                log "failed to delete stuck pod ${namespace}/${pod_name}"
-                return 1
-            }
+            if [ -n "$deleting" ]; then
+                log "force deleting stuck pod ${namespace}/${pod_name} phase=${phase} deletionTimestamp=${deleting} after stale NFS detection"
+                kubectl -n "$namespace" delete pod "$pod_name" --force --grace-period=0 --ignore-not-found=true || {
+                    log "failed to force delete stuck pod ${namespace}/${pod_name}"
+                    return 1
+                }
+            else
+                log "deleting stuck pod ${namespace}/${pod_name} phase=${phase} after stale NFS detection"
+                kubectl -n "$namespace" delete pod "$pod_name" --ignore-not-found=true || {
+                    log "failed to delete stuck pod ${namespace}/${pod_name}"
+                    return 1
+                }
+            fi
         done
 }
 
@@ -233,7 +241,7 @@ check_mounts() {
             continue
         fi
 
-        IFS='|' read -r _ namespace pod_name pod_phase owner_kind owner_name <<EOF
+        IFS='|' read -r _ namespace pod_name pod_phase pod_deleting owner_kind owner_name <<EOF
 $pod_line
 EOF
 
@@ -248,9 +256,9 @@ EOF
         printf '%s\n' "$controller_key" >> "$seen_file"
 
         if ! probe_mount "$mount_path"; then
-            printf '%s|pod=%s phase=%s %s %s %s\n' "$controller_key" "$pod_name" "$pod_phase" "$fs" "$source" "$mount_path" >> "$bad_file"
-            if [ "$pod_phase" != "Running" ]; then
-                printf '%s|%s|%s|%s|%s\n' "$namespace" "$controller_kind" "$controller_name" "$pod_name" "$pod_phase" >> "$bad_pods_file"
+            printf '%s|pod=%s phase=%s deleting=%s %s %s %s\n' "$controller_key" "$pod_name" "$pod_phase" "${pod_deleting:-none}" "$fs" "$source" "$mount_path" >> "$bad_file"
+            if [ "$pod_phase" != "Running" ] || [ -n "$pod_deleting" ]; then
+                printf '%s|%s|%s|%s|%s|%s\n' "$namespace" "$controller_kind" "$controller_name" "$pod_name" "$pod_phase" "$pod_deleting" >> "$bad_pods_file"
             fi
         fi
     done
