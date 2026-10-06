@@ -5,7 +5,7 @@
       "description": "Loose versioning for non-semver packages",
       "matchDatasources": ["docker"],
       "versioning": "loose",
-      "matchPackagePatterns": ["home-operations/plex"]
+      "matchPackageNames": ["/home-operations\\/plex/"]
     },
     {
       "description": "Fix some Blocky tags",
@@ -17,43 +17,43 @@
       "description": "Hotio Release Semver Packages",
       "matchDatasources": ["docker"],
       "versioning": "regex:^release-(?<major>\\d+)\\.(?<minor>\\d+)?\\.(?<patch>\\d+)?(-(?<build>.*))?$",
-      "matchPackagePatterns": ["hotio/tautulli"]
+      "matchPackageNames": ["/hotio\\/tautulli/"]
     },
     {
       "description": "version with a v, then semver and then compatibility",
       "matchDatasources": ["docker"],
       "versioning": "regex:^v(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(-hf(?P<build>\\d+))?$",
-      "matchPackagePatterns": ["requestrr","imagemaid","qbit_manage","zap2xml","qui","seerr"]
+      "matchPackageNames": ["/requestrr/","/imagemaid/","/qbit_manage/","/zap2xml/","/qui/","/seerr/"]
     },
     {
       "description": "jellyfin has one rogue package that is a date that needs to be excluded. allow major with only 3 digits max",
       "matchDatasources": ["docker"],
       "versioning": "regex:^(?P<major>\\d{1,3})\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)$",
-      "matchPackagePatterns": ["jellyfin"]
+      "matchPackageNames": ["/jellyfin/"]
     },
     {
       "description": "olivetin/wizarr date matching",
       "matchDatasources": ["docker"],
       "versioning": "regex:^(?P<major>\\d{4})\\.(?P<minor>\\d{1,2})\\.(?P<patch>\\d{1,2})(?P<build>[a-zA-Z0-9]?)?$",
-      "matchPackagePatterns": ["olivetin"]
+      "matchPackageNames": ["/olivetin/"]
     },
     {
       "description": "v + date matching",
       "matchDatasources": ["docker"],
       "versioning": "regex:^v(?P<major>\\d{4})\\.(?P<minor>\\d{1,2})\\.(?P<patch>\\d{1,2})(?P<build>\\d*)?$",
-      "matchPackagePatterns": ["pinchflat","wizarr"]
+      "matchPackageNames": ["/pinchflat/","/wizarr/"]
     },
     {
       "description": "tauticord - add release notes",
       "matchDatasources": ["docker"],
       "customChangelogUrl": "https://github.com/nwithan8/tauticord",
-      "matchPackagePatterns": ["tauticord"]
+      "matchPackageNames": ["/tauticord/"]
     },
     {
       "description": "Custom versioning for k3s",
       "matchDatasources": ["github-releases"],
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k3s)(?<build>\\d+)$",
-      "matchPackagePatterns": ["k3s"]
+      "matchPackageNames": ["/k3s/"]
     },
   ]
 }

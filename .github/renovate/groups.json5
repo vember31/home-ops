@@ -4,9 +4,9 @@
     {
       "description": ["Actions Runner Controller Group"],
       "groupName": "Actions Runner Controller",
-      "matchPackagePatterns": [
-        "gha-runner-scale-set-controller",
-        "gha-runner-scale-set"
+      "matchPackageNames": [
+        "/gha-runner-scale-set-controller/",
+        "/gha-runner-scale-set/"
       ],
       "matchDatasources": ["docker", "helm"],
       "group": {
@@ -17,7 +17,7 @@
     {
       "description": ["Dragonfly Operator Group"],
       "groupName": "Dragonfly Operator",
-      "matchPackagePatterns": ["dragonfly(?:db)?.operator"],
+      "matchPackageNames": ["/dragonfly(?:db)?.operator/"],
       "matchDatasources": ["docker", "github-releases"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
@@ -42,8 +42,7 @@
       description: "Vember31 CNPG Extension Images Group",
       groupName: "vember31 CNPG extensions",
       matchDatasources: ["docker"],
-      matchPackagePrefixes: ["ghcr.io/vember31/"],
-      matchPackageNames: ["ghcr.io/cloudnative-pg/postgresql"],
+      matchPackageNames: ["ghcr.io/cloudnative-pg/postgresql", "ghcr.io/vember31/{/,}**"],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },
@@ -51,7 +50,7 @@
     {
       "description": ["System Upgrade Controller Group"],
       "groupName": "System Upgrade Controller",
-      "matchPackagePatterns": ["system-upgrade-controller"],
+      "matchPackageNames": ["/system-upgrade-controller/"],
       "matchDatasources": ["docker", "github-releases"],
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"

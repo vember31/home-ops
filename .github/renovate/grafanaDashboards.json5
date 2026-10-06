@@ -27,7 +27,7 @@
   ],
   "packageRules": [
     {
-      "addLabels": ["renovate/grafana-dashboard"],
+      "addLabels": ["📊 renovate/grafana-dashboard"],
       "matchDatasources": ["custom.grafana-dashboards"],
       "matchUpdateTypes": ["major"],
       "semanticCommitType": "chore",

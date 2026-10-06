@@ -2,40 +2,64 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "packageRules": [
     {
+      "description": ["Breaking changes"],
       "matchUpdateTypes": ["major"],
-      "labels": ["type/major"]
+      "labels": ["💥 type/major"]
     },
     {
+      "description": ["New features"],
       "matchUpdateTypes": ["minor"],
-      "labels": ["type/minor"]
+      "labels": ["✨ type/minor"]
     },
     {
+      "description": ["Bug fixes"],
       "matchUpdateTypes": ["patch"],
-      "labels": ["type/patch"]
+      "labels": ["🩹 type/patch"]
     },
     {
-      "matchUpdateTypes": ["digest"],
-      "labels": ["type/digest"]
+      "description": ["Container image digest refreshes"],
+      "matchUpdateTypes": ["digest", "pinDigest"],
+      "labels": ["📌 type/digest"]
     },
     {
+      "description": ["Dependencies pinned to a fixed version"],
+      "matchUpdateTypes": ["pin"],
+      "labels": ["🧷 type/pin"]
+    },
+    {
+      "description": ["Dependency replacements"],
+      "matchUpdateTypes": ["replacement"],
+      "labels": ["♻️ type/replacement"]
+    },
+    {
+      "description": ["Container image updates"],
       "matchDatasources": ["docker"],
-      "addLabels": ["renovate/container"]
+      "addLabels": ["🐳 renovate/container"]
     },
     {
+      "description": ["Helm chart updates"],
       "matchDatasources": ["helm"],
-      "addLabels": ["renovate/helm"]
+      "addLabels": ["☸️ renovate/helm"]
     },
     {
+      "description": ["GitHub release and tag updates"],
       "matchDatasources": ["github-releases", "github-tags"],
-      "addLabels": ["renovate/github-release"]
+      "addLabels": ["🐙 renovate/github-release"]
     },
     {
+      "description": ["GitHub Actions updates"],
       "matchManagers": ["github-actions"],
-      "addLabels": ["renovate/github-action"]
+      "addLabels": ["⚙️ renovate/github-action"]
     },
     {
+      "description": ["Python package updates"],
       "matchDatasources": ["pypi"],
-      "addLabels": ["renovate/pip"]
+      "addLabels": ["🐍 renovate/pip"]
+    },
+    {
+      "description": ["Flux GitOps resource updates"],
+      "matchManagers": ["flux"],
+      "addLabels": ["🌀 renovate/flux"]
     }
   ]
 }

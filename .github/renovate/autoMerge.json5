@@ -7,15 +7,17 @@
       "automerge": true,
       "automergeType": "pr",
       "matchUpdateTypes": ["digest"],
-      "matchPackagePatterns": ["hotio","bazarr","sonarr","radarr","qbittorrent","prowlarr","autopulse","maintainerr"]
+      "matchPackageNames": ["/hotio/","/bazarr/","/sonarr/","/radarr/","/qbittorrent/","/prowlarr/","/autopulse/","/maintainerr/"],
+      "addLabels": ["🤖 renovate/automerge"]
     },
     {
       "description": ["Auto-merge kube-prometheus-stack Helm chart updates"],
-      "matchPackagePatterns": ["kube-prometheus-stack"],
+      "matchPackageNames": ["/kube-prometheus-stack/"],
       "matchUpdateTypes": ["patch", "minor","major","digest"], 
       "automerge": true,
       "automergeType": "pr",
-      "rangeStrategy": "replace"
+      "rangeStrategy": "replace",
+      "addLabels": ["🤖 renovate/automerge"]
     }
   ]
 }

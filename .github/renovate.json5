@@ -8,6 +8,8 @@
     ':dependencyDashboard',
     ':semanticCommits',
     ':timezone(America/Chicago)',
+    ':configMigration',
+    'helpers:pinGitHubActionDigests',
     'github>vember31/home-ops//.github/renovate/allowedVersions.json5',
     'github>vember31/home-ops//.github/renovate/autoMerge.json5',
     'github>vember31/home-ops//.github/renovate/commitMessage.json5',
@@ -21,11 +23,24 @@
   ],
   ignoreTests: true,
   dependencyDashboardTitle: 'Renovate Dashboard 🤖',
+  dependencyDashboardLabels: ['📋 renovate/dashboard'],
+  prBodyColumns: [
+    'Package',
+    'Type',
+    'Update',
+    'Change',
+    'Package file',
+    'References',
+    'Pending',
+  ],
   suppressNotifications: [
     'prEditedNotification',
     'prIgnoreNotification',
   ],
   rebaseWhen: 'conflicted',
+  vulnerabilityAlerts: {
+    addLabels: ['🔒 renovate/security'],
+  },
   assigneesFromCodeOwners: true,
   reviewersFromCodeOwners: true,
   flux: {

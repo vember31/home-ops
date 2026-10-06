@@ -3,12 +3,12 @@
   "packageRules": [
     {
       "matchDatasources": ["docker"],
-      "matchPackagePatterns": ["postgresql","postgres-init"],
+      "matchPackageNames": ["/postgresql/","/postgres-init/"],
       "allowedVersions": "<19"
     },
     {
       "matchDatasources": ["docker"],
-      "matchPackagePatterns": ["olivetin"],
+      "matchPackageNames": ["/olivetin/"],
       "allowedVersions": "<3000"
     },
   ]

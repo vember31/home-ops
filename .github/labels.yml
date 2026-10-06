@@ -1,0 +1,59 @@
+---
+# Managed by .github/workflows/labels.yml — keep in sync with .github/renovate/*.json5
+#
+# Colors run hot (breaking) to cool (safe) for update types, and use brand-ish
+# colors for the datasource labels.
+
+# Update types — hot (breaking) to cool (safe)
+- name: "💥 type/major"
+  color: "#b60205"
+  description: "Breaking change — read the release notes before merging"
+- name: "✨ type/minor"
+  color: "#d93f0b"
+  description: "New features and improvements"
+- name: "🩹 type/patch"
+  color: "#fbca04"
+  description: "Bug fixes and small tweaks"
+- name: "📌 type/digest"
+  color: "#1d76db"
+  description: "Container image digest refresh"
+- name: "🧷 type/pin"
+  color: "#c2e0c6"
+  description: "Dependency pinned to a fixed version"
+- name: "♻️ type/replacement"
+  color: "#bfd4f2"
+  description: "Dependency replaced by a different package"
+
+# Where the update comes from
+- name: "🐳 renovate/container"
+  color: "#0db7ed"
+  description: "Docker/OCI image update"
+- name: "☸️ renovate/helm"
+  color: "#326ce5"
+  description: "Helm chart update"
+- name: "🐙 renovate/github-release"
+  color: "#24292e"
+  description: "GitHub release or tag update"
+- name: "⚙️ renovate/github-action"
+  color: "#2088ff"
+  description: "GitHub Actions workflow update"
+- name: "🐍 renovate/pip"
+  color: "#3776ab"
+  description: "Python package update"
+- name: "📊 renovate/grafana-dashboard"
+  color: "#f46800"
+  description: "Grafana dashboard revision update"
+- name: "🌀 renovate/flux"
+  color: "#5468ff"
+  description: "Flux GitOps resource update"
+
+# Special
+- name: "🔒 renovate/security"
+  color: "#ee0701"
+  description: "Security vulnerability fix — review promptly"
+- name: "🤖 renovate/automerge"
+  color: "#2cbe4e"
+  description: "Merges automatically once checks pass"
+- name: "📋 renovate/dashboard"
+  color: "#7057ff"
+  description: "Renovate Dependency Dashboard"
