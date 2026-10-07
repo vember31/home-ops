@@ -201,3 +201,10 @@ spec:
         enabled: true
         type: persistentVolumeClaim
         existingClaim: nfs-omv-media-books
+
+      media:
+        enabled: true
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv-media
+        globalMounts:
+          - path: /media
