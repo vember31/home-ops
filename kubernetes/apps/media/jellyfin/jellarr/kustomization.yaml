@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./externalsecret.yaml
+configMapGenerator:
+  - name: jellarr-configmap
+    files:
+      - config.yml=./config/config.yml
+      - render_config.py=./config/render_config.py
+generatorOptions:
+  disableNameSuffixHash: true

@@ -16,6 +16,7 @@ resources:
   - ./bookorbit/ks.yaml
   - ./dispatcharr/ks.yaml
   - ./isponsorblocktv/ks.yaml
+  # - ./jellyfin/ks.yaml
   - ./maintainerr/ks.yaml
   - ./plex/ks.yaml
   - ./requestrr/ks.yaml
