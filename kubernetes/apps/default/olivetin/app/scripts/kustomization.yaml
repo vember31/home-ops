@@ -8,6 +8,7 @@ configMapGenerator:
       - ./olivetin-blocky-script.sh
       - ./restart_download_media_apps.sh
       - ./merge-open-prs.sh
+      - ./fetch-open-prs.sh
 generatorOptions:
   disableNameSuffixHash: true
   annotations:

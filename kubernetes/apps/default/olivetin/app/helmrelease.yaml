@@ -185,3 +185,24 @@ spec:
           - path: /scripts/merge-open-prs.sh
             subPath: merge-open-prs.sh
             readOnly: false
+
+      fetch-open-prs-script:
+        enabled: true
+        type: configMap
+        name: olivetin-scripts
+        items:
+          - key: fetch-open-prs.sh
+            path: fetch-open-prs.sh
+        defaultMode: 0777
+        globalMounts:
+          - path: /scripts/fetch-open-prs.sh
+            subPath: fetch-open-prs.sh
+            readOnly: false
+
+      # Writable location for the open-PR entity file that powers the
+      # Pull Requests dashboard (rewritten by fetch-open-prs.sh).
+      pr-entities:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /tmp/olivetin-entities

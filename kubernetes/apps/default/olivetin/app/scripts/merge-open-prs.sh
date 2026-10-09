@@ -7,14 +7,19 @@
 # DELETE_BRANCH). It can also be run manually:
 #
 #   GITHUB_TOKEN=github_pat_... MERGE_MODE=preview ./merge-open-prs.sh
+#   GITHUB_TOKEN=github_pat_... ./merge-open-prs.sh --mode merge --pr 4827
 #
 # The token needs write access to pull requests, and - when deleting branches -
 # to repository contents ("Pull requests" + "Contents" for fine-grained PATs,
 # or the "repo" scope for classic PATs).
 #
-# Exit code is 0 for a completed run (including runs where individual PRs could
-# not be merged - see the summary), and 1 for authentication, configuration or
-# network setup failures.
+# After any successful merge run, the OliveTin PR dashboard entities are
+# refreshed (best effort) by calling fetch-open-prs.sh, if it is available.
+#
+# Exit code is 0 for a completed run (including bulk runs where individual PRs
+# could not be merged - see the summary), and 1 for authentication,
+# configuration or network setup failures - or when a single requested PR
+# could not be merged.
 
 set -euo pipefail
 
@@ -25,6 +30,8 @@ AUTHOR="${PR_AUTHOR:-any}"
 LABEL="${REQUIRED_LABEL:-any}"
 METHOD="${MERGE_METHOD:-squash}"
 DELETE_BRANCH="${DELETE_BRANCH:-}"
+PR_NUMBER=""
+FETCH_SCRIPT="${OLIVETIN_FETCH_SCRIPT:-/scripts/fetch-open-prs.sh}"
 
 usage() {
   cat <<'EOF'
@@ -34,6 +41,7 @@ Usage: merge-open-prs.sh [options]
 
 Options:
   --mode preview|merge          preview only (default) or actually merge
+  --pr NUMBER                   merge exactly this PR (overrides --author/--label)
   --author LOGIN|any            only merge PRs opened by LOGIN (default: any)
   --label LABEL|any             only merge PRs carrying LABEL (default: any)
   --method squash|merge|rebase  merge method to use (default: squash)
@@ -56,6 +64,7 @@ EOF
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --mode) MODE="$2"; shift 2 ;;
+    --pr) PR_NUMBER="$2"; shift 2 ;;
     --author) AUTHOR="$2"; shift 2 ;;
     --label) LABEL="$2"; shift 2 ;;
     --method) METHOD="$2"; shift 2 ;;
@@ -81,6 +90,11 @@ if ! [[ "${REPO}" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
   exit 1
 fi
 
+if [[ -n "${PR_NUMBER}" ]] && ! [[ "${PR_NUMBER}" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: --pr must be a PR number (got: ${PR_NUMBER})" >&2
+  exit 1
+fi
+
 for tool in curl jq; do
   if ! command -v "$tool" >/dev/null 2>&1; then
     echo "ERROR: required tool not found: ${tool}" >&2
@@ -100,6 +114,13 @@ trap 'rm -rf "${TMP}"' EXIT
 accept_header="Accept: application/vnd.github+json"
 version_header="X-GitHub-Api-Version: 2022-11-28"
 auth_header="Authorization: Bearer ${GITHUB_TOKEN}"
+
+merged=0
+failed=0
+preview_ready=0
+preview_not_ready=0
+preview_unknown=0
+PREVIEW_NOTE=""
 
 api_get() {
   curl -fsSL --retry 2 --retry-delay 2 \
@@ -129,10 +150,94 @@ delete_branch() {
     "${API}/repos/${REPO}/git/refs/heads/${ref}"
 }
 
+preview_fetch_state() {
+  # Prints the mergeable_state for a PR. GitHub computes mergeability lazily,
+  # so the first fetch often returns "unknown" - retry a couple of times.
+  local number="$1" state="unknown" detail="" attempt
+  for attempt in 1 2 3; do
+    if ! detail="$(api_get "/repos/${REPO}/pulls/${number}")"; then
+      return 1
+    fi
+    state="$(jq -r '.mergeable_state // "unknown"' <<<"${detail}")"
+    if [[ "${state}" != "unknown" ]]; then
+      break
+    fi
+    if [[ "${attempt}" -lt 3 ]]; then
+      sleep 2
+    fi
+  done
+  echo "${state}"
+}
+
+preview_state_note() {
+  # Sets PREVIEW_NOTE for the given mergeable_state and updates the counters.
+  # (Must run in the main shell - command substitution would lose the counters.)
+  case "$1" in
+    clean) PREVIEW_NOTE="looks mergeable"; preview_ready=$((preview_ready + 1)) ;;
+    unstable) PREVIEW_NOTE="mergeable, but checks are pending or failing"; preview_ready=$((preview_ready + 1)) ;;
+    blocked) PREVIEW_NOTE="blocked by required checks/reviews"; preview_not_ready=$((preview_not_ready + 1)) ;;
+    dirty) PREVIEW_NOTE="has merge conflicts"; preview_not_ready=$((preview_not_ready + 1)) ;;
+    behind) PREVIEW_NOTE="branch is behind the base branch"; preview_ready=$((preview_ready + 1)) ;;
+    unknown) PREVIEW_NOTE="GitHub has not calculated mergeability yet - merge mode will still attempt it"; preview_unknown=$((preview_unknown + 1)) ;;
+    *) PREVIEW_NOTE="$1"; preview_not_ready=$((preview_not_ready + 1)) ;;
+  esac
+}
+
+attempt_merge() {
+  # $1 number, $2 title, $3 author, $4 branch, $5 fork
+  local number="$1" title="$2" author="$3" branch="$4" fork="$5" code message dcode
+
+  echo "#${number} ${title} (@${author})"
+
+  code="$(merge_pr "${number}")" || code="000"
+
+  if [[ "${code}" == "200" ]] && [[ "$(jq -r '.merged // false' "${TMP}/merge.json" 2>/dev/null)" == "true" ]]; then
+    echo "  -> merged ($(jq -r '.sha // "?"' "${TMP}/merge.json"))"
+    merged=$((merged + 1))
+    if [[ -n "${DELETE_BRANCH}" ]]; then
+      if [[ "${fork}" == "true" ]]; then
+        echo "     branch not deleted (PR comes from a fork)"
+      else
+        dcode="$(delete_branch "${branch}")" || dcode="000"
+        case "${dcode}" in
+          204) echo "     deleted branch ${branch}" ;;
+          404|422) echo "     branch ${branch} was already deleted" ;;
+          *) echo "     WARNING: could not delete branch ${branch} (HTTP ${dcode})" ;;
+        esac
+      fi
+    fi
+    return 0
+  fi
+
+  if [[ "${code}" == "401" ]]; then
+    echo "ERROR: GitHub rejected the token mid-run (HTTP 401) - aborting." >&2
+    exit 1
+  fi
+
+  message="$(jq -r '.message // "unknown error"' "${TMP}/merge.json" 2>/dev/null || echo "no response body")"
+  echo "  -> NOT merged (HTTP ${code}): ${message}"
+  failed=$((failed + 1))
+  return 1
+}
+
+refresh_entities() {
+  # Update the OliveTin PR dashboard (best effort) after merge runs.
+  if [[ "${MODE}" != "merge" ]]; then
+    return 0
+  fi
+  if [[ -x "${FETCH_SCRIPT}" ]]; then
+    "${FETCH_SCRIPT}" >/dev/null 2>&1 || true
+  fi
+}
+
 echo "GitHub merge run - $(date '+%Y-%m-%d %H:%M:%S %Z')"
 echo "Repository:   ${REPO}"
 echo "Mode:         ${MODE}"
-echo "Filters:      author=${AUTHOR}, label=${LABEL}"
+if [[ -n "${PR_NUMBER}" ]]; then
+  echo "PR:           #${PR_NUMBER}"
+else
+  echo "Filters:      author=${AUTHOR}, label=${LABEL}"
+fi
 echo "Merge method: ${METHOD}"
 if [[ -n "${DELETE_BRANCH}" ]]; then
   echo "Branches:     delete after merge"
@@ -146,6 +251,51 @@ if ! me="$(api_get /user 2>"${TMP}/curl-error")"; then
 fi
 echo "Authenticated as $(jq -r '.login // "unknown"' <<<"${me}")"
 
+# ---------------------------------------------------------------------------
+# Single PR mode (used by the per-PR merge buttons on the dashboard).
+# ---------------------------------------------------------------------------
+if [[ -n "${PR_NUMBER}" ]]; then
+  if ! detail="$(api_get "/repos/${REPO}/pulls/${PR_NUMBER}")"; then
+    echo "ERROR: could not fetch PR #${PR_NUMBER} from ${REPO} - does it exist?" >&2
+    exit 1
+  fi
+
+  title="$(jq -r '.title // ""' <<<"${detail}")"
+  author="$(jq -r '.user.login // ""' <<<"${detail}")"
+  state="$(jq -r '.state // "unknown"' <<<"${detail}")"
+  draft="$(jq -r '.draft // false' <<<"${detail}")"
+  branch="$(jq -r '.head.ref // ""' <<<"${detail}")"
+  fork="$(jq -r '.head.repo.fork // false' <<<"${detail}")"
+
+  if [[ "${draft}" == "true" ]]; then
+    echo "PR #${PR_NUMBER} is a draft - not merging." >&2
+    exit 1
+  fi
+  if [[ "${state}" != "open" ]]; then
+    echo "PR #${PR_NUMBER} is not open (state: ${state}) - nothing to do." >&2
+    exit 1
+  fi
+
+  if [[ "${MODE}" == "preview" ]]; then
+    mstate="$(jq -r '.mergeable_state // "unknown"' <<<"${detail}")"
+    echo "#${PR_NUMBER} ${title} (@${author})"
+    preview_state_note "${mstate}"
+    echo "  -> would merge (${mstate}): ${PREVIEW_NOTE}"
+    exit 0
+  fi
+
+  attempt_merge "${PR_NUMBER}" "${title}" "${author}" "${branch}" "${fork}" || true
+  refresh_entities
+
+  if [[ "${failed}" -gt 0 ]]; then
+    exit 1
+  fi
+  exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Bulk mode: every open PR matching the selected filters.
+# ---------------------------------------------------------------------------
 if ! prs="$(api_get "/repos/${REPO}/pulls?state=open&per_page=100&sort=created&direction=asc")"; then
   echo "ERROR: could not list open PRs for ${REPO} - check repository name and token permissions." >&2
   exit 1
@@ -175,12 +325,6 @@ matched="$(jq 'length' <<<"${matches}")"
 echo "Open PRs: ${scanned}, matching filters: ${matched}"
 echo
 
-merged=0
-failed=0
-preview_ready=0
-preview_not_ready=0
-preview_unknown=0
-
 while IFS= read -r pr; do
   [[ -z "${pr}" ]] && continue
 
@@ -190,94 +334,22 @@ while IFS= read -r pr; do
   branch="$(jq -r '.branch' <<<"${pr}")"
   fork="$(jq -r '.fork' <<<"${pr}")"
 
-  echo "#${number} ${title} (@${author})"
-
   if [[ "${MODE}" == "preview" ]]; then
-    # GitHub computes mergeability lazily, so the first detail fetch often
-    # returns "unknown" - retry a couple of times for a definitive answer.
-    state="unknown"
-    detail=""
-    for attempt in 1 2 3; do
-      if ! detail="$(api_get "/repos/${REPO}/pulls/${number}")"; then
-        detail=""
-        break
-      fi
-      state="$(jq -r '.mergeable_state // "unknown"' <<<"${detail}")"
-      if [[ "${state}" != "unknown" ]]; then
-        break
-      fi
-      if [[ "${attempt}" -lt 3 ]]; then
-        sleep 2
-      fi
-    done
-
-    if [[ -z "${detail}" ]]; then
+    echo "#${number} ${title} (@${author})"
+    if ! state="$(preview_fetch_state "${number}")"; then
       echo "  -> could not fetch PR details"
       failed=$((failed + 1))
       continue
     fi
-
-    case "${state}" in
-      clean)
-        note="looks mergeable"
-        preview_ready=$((preview_ready + 1))
-        ;;
-      unstable)
-        note="mergeable, but checks are pending or failing"
-        preview_ready=$((preview_ready + 1))
-        ;;
-      blocked)
-        note="blocked by required checks/reviews"
-        preview_not_ready=$((preview_not_ready + 1))
-        ;;
-      dirty)
-        note="has merge conflicts"
-        preview_not_ready=$((preview_not_ready + 1))
-        ;;
-      behind)
-        note="branch is behind the base branch"
-        preview_ready=$((preview_ready + 1))
-        ;;
-      unknown)
-        note="GitHub has not calculated mergeability yet - merge mode will still attempt it"
-        preview_unknown=$((preview_unknown + 1))
-        ;;
-      *)
-        note="${state}"
-        preview_not_ready=$((preview_not_ready + 1))
-        ;;
-    esac
-    echo "  -> would merge (${state}): ${note}"
+    preview_state_note "${state}"
+    echo "  -> would merge (${state}): ${PREVIEW_NOTE}"
     continue
   fi
 
-  code="$(merge_pr "${number}")" || code="000"
-
-  if [[ "${code}" == "200" ]] && [[ "$(jq -r '.merged // false' "${TMP}/merge.json" 2>/dev/null)" == "true" ]]; then
-    echo "  -> merged ($(jq -r '.sha // "?"' "${TMP}/merge.json"))"
-    merged=$((merged + 1))
-
-    if [[ -n "${DELETE_BRANCH}" ]]; then
-      if [[ "${fork}" == "true" ]]; then
-        echo "     branch not deleted (PR comes from a fork)"
-      else
-        dcode="$(delete_branch "${branch}")" || dcode="000"
-        case "${dcode}" in
-          204) echo "     deleted branch ${branch}" ;;
-          404|422) echo "     branch ${branch} was already deleted" ;;
-          *) echo "     WARNING: could not delete branch ${branch} (HTTP ${dcode})" ;;
-        esac
-      fi
-    fi
-  elif [[ "${code}" == "401" ]]; then
-    echo "ERROR: GitHub rejected the token mid-run (HTTP 401) - aborting." >&2
-    exit 1
-  else
-    message="$(jq -r '.message // "unknown error"' "${TMP}/merge.json" 2>/dev/null || echo "no response body")"
-    echo "  -> NOT merged (HTTP ${code}): ${message}"
-    failed=$((failed + 1))
-  fi
+  attempt_merge "${number}" "${title}" "${author}" "${branch}" "${fork}" || true
 done < <(jq -c '.[]' <<<"${matches}")
+
+refresh_entities
 
 echo
 echo "Summary"
