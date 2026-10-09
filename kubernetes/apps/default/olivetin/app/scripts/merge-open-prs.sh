@@ -179,6 +179,7 @@ merged=0
 failed=0
 preview_ready=0
 preview_not_ready=0
+preview_unknown=0
 
 while IFS= read -r pr; do
   [[ -z "${pr}" ]] && continue
@@ -238,8 +239,8 @@ while IFS= read -r pr; do
         preview_ready=$((preview_ready + 1))
         ;;
       unknown)
-        note="GitHub is still calculating mergeability - re-run in a moment"
-        preview_not_ready=$((preview_not_ready + 1))
+        note="GitHub has not calculated mergeability yet - merge mode will still attempt it"
+        preview_unknown=$((preview_unknown + 1))
         ;;
       *)
         note="${state}"
@@ -291,6 +292,9 @@ echo "Skipped:      $((scanned - matched)) (drafts or filtered out)"
 if [[ "${MODE}" == "preview" ]]; then
   echo "Ready:        ${preview_ready}"
   echo "Not ready:    ${preview_not_ready}"
+  if [[ "${preview_unknown}" -gt 0 ]]; then
+    echo "Unknown:      ${preview_unknown} (GitHub has not calculated mergeability yet)"
+  fi
   if [[ "${failed}" -gt 0 ]]; then
     echo "Errors:       ${failed} (could not fetch PR details)"
   fi
