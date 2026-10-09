@@ -71,6 +71,10 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
+              GITHUB_TOKEN:
+                secretKeyRef:
+                  name: olivetin-secret
+                  key: GITHUB_TOKEN
 
             resources:
               requests:
@@ -167,4 +171,17 @@ spec:
         globalMounts:
           - path: /scripts/restart_download_media_apps.sh
             subPath: restart_download_media_apps.sh
+            readOnly: false
+
+      merge-open-prs-script:
+        enabled: true
+        type: configMap
+        name: olivetin-scripts
+        items:
+          - key: merge-open-prs.sh
+            path: merge-open-prs.sh
+        defaultMode: 0777
+        globalMounts:
+          - path: /scripts/merge-open-prs.sh
+            subPath: merge-open-prs.sh
             readOnly: false

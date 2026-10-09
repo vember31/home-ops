@@ -82,3 +82,68 @@ actions:
     maxConcurrent: 1
     timeout: 10
     popupOnStart: execution-dialog
+
+  - title: Merge Open GitHub PRs
+    id: merge_open_prs
+    icon: <iconify-icon icon="mdi:source-merge"></iconify-icon>
+    shell: /scripts/merge-open-prs.sh
+    maxConcurrent: 1
+    timeout: 300
+    popupOnStart: execution-dialog
+    arguments:
+      - name: merge_mode
+        title: Mode
+        description: Preview only lists what would be merged. Pick "Merge for real" to actually merge every matching PR.
+        default: preview
+        choices:
+          - title: Preview only (dry run)
+            value: preview
+          - title: Merge for real
+            value: merge
+
+      - name: pr_author
+        title: PR author
+        description: Only merge pull requests opened by this account.
+        default: renovate[bot]
+        choices:
+          - title: Renovate bot (recommended)
+            value: renovate[bot]
+          - title: All authors
+            value: any
+          - title: Me (vember31)
+            value: vember31
+
+      - name: required_label
+        title: Required label
+        description: Restrict merging to PRs carrying a specific label - useful to only merge changes Renovate is already allowed to auto-merge.
+        default: any
+        choices:
+          - title: Any label
+            value: any
+          - title: "🤖 renovate/automerge"
+            value: "🤖 renovate/automerge"
+          - title: "🐳 renovate/container"
+            value: "🐳 renovate/container"
+          - title: "📌 type/digest"
+            value: "📌 type/digest"
+
+      - name: merge_method
+        title: Merge method
+        default: squash
+        choices:
+          - title: Squash
+            value: squash
+          - title: Merge commit
+            value: merge
+          - title: Rebase
+            value: rebase
+
+      - name: delete_branch
+        title: Delete source branch after merge
+        type: checkbox
+        description: Only affects branches in this repository - branches from forks are never touched.
+        choices:
+          - title: "1"
+            value: --delete-branches
+          - title: "0"
+            value: ""
