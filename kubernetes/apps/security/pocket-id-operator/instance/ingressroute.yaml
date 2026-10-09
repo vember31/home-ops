@@ -13,7 +13,7 @@ metadata:
     gethomepage.dev/icon: pocket-id
     gethomepage.dev/name: Pocket ID
     gethomepage.dev/pod-selector: app.kubernetes.io/name=pocket-id
-    gethomepage.dev/siteMonitor: http://pocket-id.security.svc.cluster.local:1411/readyz
+    gethomepage.dev/siteMonitor: http://pocket-id.security.svc.cluster.local:1411/healthz
 spec:
   entryPoints:
     - websecure

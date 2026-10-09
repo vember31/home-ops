@@ -7,3 +7,4 @@ resources:
   - ./certificate.yaml
   - ./ingressroute.yaml
   - ./instance.yaml
+  - ../../../../templates/gatus/external
