@@ -19,10 +19,15 @@ fieldset.pr-cards {
 fieldset.pr-cards > .display {
   align-items: stretch;
   text-align: left;
+  font-size: 1rem !important;
+  line-height: 1.5;
 }
 
 fieldset.pr-cards > .display pre {
   margin: 0;
+  font-family: inherit;
+  font-size: 1em;
+  line-height: 1.5;
 }
 
 fieldset.pr-cards > .action-button {
