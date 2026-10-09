@@ -63,8 +63,22 @@ actions:
   - title: Sync Autobrr ARR Lists (Sonarr/Radarr)
     icon: <iconify-icon icon="mdi:sync"></iconify-icon>
     shell: |
-      curl -fsS -X POST http://autobrr.downloads.svc.cluster.local:7474/api/webhook/lists/trigger/arr \
-        -H "X-API-Token: {{ .AUTOBRR_API_KEY }}"
+      echo "Triggering autobrr ARR list refresh..."
+      if curl -fsS -o /dev/null -w "autobrr responded with HTTP %{http_code}\n" \
+           -X POST http://autobrr.downloads.svc.cluster.local:7474/api/webhook/lists/trigger/arr \
+           -H "X-API-Token: {{ .AUTOBRR_API_KEY }}"; then
+        sleep 2
+        echo
+        echo "List status:"
+        curl -fsS -H "X-API-Token: {{ .AUTOBRR_API_KEY }}" \
+          http://autobrr.downloads.svc.cluster.local:7474/api/lists \
+          | jq -r '.[] | "  \(.name) (\(.type)): \(.last_refresh_status) @ \(.last_refresh_time)"'
+        echo
+        echo "Done - autobrr is re-pulling monitored titles from Sonarr and Radarr."
+      else
+        echo "ERROR: could not trigger the autobrr list refresh (see curl error above)." >&2
+        exit 1
+      fi
     maxConcurrent: 1
     timeout: 10
     popupOnStart: execution-dialog
