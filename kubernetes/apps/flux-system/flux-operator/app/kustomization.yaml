@@ -6,3 +6,4 @@ resources:
   - ./helmrelease.yaml
   - ./certificate.yaml
   - ./ingressroute.yaml
+  - ../../../../templates/gatus/internal

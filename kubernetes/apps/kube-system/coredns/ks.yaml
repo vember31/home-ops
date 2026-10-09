@@ -22,3 +22,4 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      GATUS_DNS_IP: "10.43.0.10"
