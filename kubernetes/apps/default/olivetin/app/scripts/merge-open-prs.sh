@@ -192,13 +192,30 @@ while IFS= read -r pr; do
   echo "#${number} ${title} (@${author})"
 
   if [[ "${MODE}" == "preview" ]]; then
-    if ! detail="$(api_get "/repos/${REPO}/pulls/${number}")"; then
+    # GitHub computes mergeability lazily, so the first detail fetch often
+    # returns "unknown" - retry a couple of times for a definitive answer.
+    state="unknown"
+    detail=""
+    for attempt in 1 2 3; do
+      if ! detail="$(api_get "/repos/${REPO}/pulls/${number}")"; then
+        detail=""
+        break
+      fi
+      state="$(jq -r '.mergeable_state // "unknown"' <<<"${detail}")"
+      if [[ "${state}" != "unknown" ]]; then
+        break
+      fi
+      if [[ "${attempt}" -lt 3 ]]; then
+        sleep 2
+      fi
+    done
+
+    if [[ -z "${detail}" ]]; then
       echo "  -> could not fetch PR details"
       failed=$((failed + 1))
       continue
     fi
 
-    state="$(jq -r '.mergeable_state // "unknown"' <<<"${detail}")"
     case "${state}" in
       clean)
         note="looks mergeable"
