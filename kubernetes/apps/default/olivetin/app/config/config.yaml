@@ -59,3 +59,12 @@ actions:
     timeout: 10
     icon: <iconify-icon icon="solar:restart-linear"></iconify-icon>
     popupOnStart: execution-dialog
+
+  - title: Sync Autobrr ARR Lists (Sonarr/Radarr)
+    icon: <iconify-icon icon="mdi:sync"></iconify-icon>
+    shell: |
+      curl -fsS -X POST http://autobrr.downloads.svc.cluster.local:7474/api/webhook/lists/trigger/arr \
+        -H "X-API-Token: {{ .AUTOBRR_API_KEY }}"
+    maxConcurrent: 1
+    timeout: 10
+    popupOnStart: execution-dialog
