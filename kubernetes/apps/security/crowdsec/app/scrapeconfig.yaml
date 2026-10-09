@@ -14,3 +14,4 @@ spec:
         job: crowdsec
       targets:
         - crowdsec-service.security.svc.cluster.local:6060
+        - crowdsec-appsec-service.security.svc.cluster.local:6060
