@@ -6,6 +6,7 @@ configMapGenerator:
   - name: olivetin-config
     files:
       - ./config.yaml
+      - ./theme.css
 generatorOptions:
   disableNameSuffixHash: true
   annotations:

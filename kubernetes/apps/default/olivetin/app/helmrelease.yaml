@@ -206,3 +206,14 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp/olivetin-entities
+
+      # Custom theme that widens the PR dashboard cards (themeName in config.yaml).
+      olivetin-theme:
+        enabled: true
+        type: configMap
+        name: olivetin-config
+        items:
+          - key: theme.css
+            path: themes/home-ops/theme.css
+        globalMounts:
+          - path: /config/custom-webui

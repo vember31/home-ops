@@ -1,0 +1,39 @@
+/* Custom theme for the OliveTin Pull Requests dashboard.
+ *
+ * The stock dashboard fieldset lays its contents out in fixed 180px columns,
+ * which makes the PR changelog columns very narrow. These rules widen the
+ * PR cards: the changelog spans the full card width and the merge button sits
+ * below it, capped to a comfortable width.
+ *
+ * Theme CSS is injected inside @layer theme, so !important is used where it
+ * needs to beat the component's own (scoped) rules.
+ */
+
+/* PR entity cards: stack changelog above the merge button, full width. */
+fieldset.pr-cards {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75em;
+}
+
+fieldset.pr-cards > .display {
+  align-items: stretch;
+  text-align: left;
+}
+
+fieldset.pr-cards > .display pre {
+  margin: 0;
+}
+
+fieldset.pr-cards > .action-button {
+  width: 100%;
+  max-width: 22em;
+  margin: 0 auto;
+}
+
+/* Top actions fieldset: comfortable button width, centered. */
+fieldset.pr-actions {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  max-width: 44em;
+  margin: 0 auto;
+}

@@ -9,6 +9,9 @@ listenAddressSingleHTTPFrontend: 0.0.0.0:1337
 # Choose from INFO (default), WARN and DEBUG
 logLevel: "INFO"
 
+# Custom theme (see theme.css in this directory) - widens the PR dashboard cards.
+themeName: home-ops
+
 # Actions (buttons) to show up on the WebUI:
 actions:
 
@@ -190,6 +193,7 @@ dashboards:
     contents:
       - title: Actions
         type: fieldset
+        cssClass: pr-actions
         contents:
           - title: Refresh Open PR List
           - title: Merge Open GitHub PRs
@@ -197,6 +201,7 @@ dashboards:
       # One card per open PR: changelog + a merge button just for that PR.
       - type: fieldset
         entity: pr
+        cssClass: pr-cards
         title: '#{{ `{{ pr.number }}` }} {{ `{{ pr.title }}` }}'
         contents:
           - type: display
