@@ -92,15 +92,33 @@ jq -c --argjson max "${MAX_CHANGELOG_CHARS}" '
       branch: (.head.ref // ""),
       labels: ([.labels[].name] | join(", ")),
       updated: ((.updated_at // "")[0:10]),
+      card_title: ("#" + (.number | tostring) + " " + (.title // "")),
+      meta: (" · @" + (.user.login // "") + " · updated " + ((.updated_at // "")[0:10])
+             + (if ([.labels[].name] | length) > 0 then " · " + ([.labels[].name] | join(", ")) else "" end)),
+      action_label: ("Merge PR #" + (.number | tostring)),
+      action_shell: ("/scripts/merge-open-prs.sh --mode merge --pr " + (.number | tostring) + " --delete-branches"),
       changelog: ((.body // "") | clean_changelog)
     }
 ' <<<"${prs}" > "${tmp}"
+
+shown="$(wc -l < "${tmp}" | tr -d ' ')"
+
+if [[ "${shown}" -eq 0 ]]; then
+  # OliveTin warns about empty entity files / entity actions with no instances,
+  # so when there is nothing to merge leave a placeholder card in place.
+  cat > "${tmp}" <<'PLACEHOLDER'
+{"name":"No open PRs","number":"","title":"No open pull requests 🎉","author":"","url":"https://github.com/vember31/home-ops/pulls","branch":"","labels":"","updated":"","card_title":"No open pull requests 🎉","meta":"","action_label":"Refresh Open PRs","action_shell":"/scripts/fetch-open-prs.sh","changelog":"There are no open pull requests right now.\n\nThe list refreshes automatically every 5 minutes, or click Refresh Open PRs below."}
+PLACEHOLDER
+fi
 
 # Keep the inode stable and write in place so OliveTin (fsnotify) reloads the
 # entity file immediately. The temp file avoids leaving a truncated file behind
 # if jq fails partway through.
 cat "${tmp}" > "${ENTITY_FILE}"
 
-shown="$(wc -l < "${ENTITY_FILE}" | tr -d ' ')"
-echo "Wrote ${shown} open PRs (${total} open, drafts skipped) to ${ENTITY_FILE}"
+if [[ "${shown}" -eq 0 ]]; then
+  echo "No open PRs - wrote placeholder card (${total} open, drafts skipped) to ${ENTITY_FILE}"
+else
+  echo "Wrote ${shown} open PRs (${total} open, drafts skipped) to ${ENTITY_FILE}"
+fi
 echo "OliveTin will reload the Pull Requests dashboard automatically."
