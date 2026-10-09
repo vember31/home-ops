@@ -32,9 +32,9 @@
       "matchPackageNames": ["/jellyfin/"]
     },
     {
-      "description": "olivetin/wizarr date matching",
+      "description": "olivetin 3k is semver",
       "matchDatasources": ["docker"],
-      "versioning": "regex:^(?P<major>\\d{4})\\.(?P<minor>\\d{1,2})\\.(?P<patch>\\d{1,2})(?P<build>[a-zA-Z0-9]?)?$",
+      "versioning": "semver",
       "matchPackageNames": ["/olivetin/"]
     },
     {

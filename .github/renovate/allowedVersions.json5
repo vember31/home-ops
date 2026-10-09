@@ -6,10 +6,5 @@
       "matchPackageNames": ["/postgresql/","/postgres-init/"],
       "allowedVersions": "<19"
     },
-    {
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["/olivetin/"],
-      "allowedVersions": "<3000"
-    },
   ]
 }
