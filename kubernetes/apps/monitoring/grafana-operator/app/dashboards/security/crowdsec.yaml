@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: grafana-dash-crowdsec
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folderRef: grafana-folder-security
+  resyncPeriod: 30m
+  # renovate: depName="Crowdsec Cyber Threat Insights"
+  grafanaCom:
+    id: 21689
+    revision: 1
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics

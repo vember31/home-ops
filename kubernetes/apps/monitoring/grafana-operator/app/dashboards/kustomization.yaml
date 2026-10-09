@@ -11,6 +11,7 @@ resources:
   - ./logging
   - ./longhorn
   - ./media
+  - ./security
   - ./traefik
   - ./unifi
   - ./victoria-logs
