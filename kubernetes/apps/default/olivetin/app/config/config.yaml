@@ -153,8 +153,9 @@ actions:
 
   # One button per open PR, or a refresh button on the placeholder card that
   # fetch-open-prs.sh writes when there are no open PRs. The label and command
-  # come preformatted from the entity file (Go template conditionals are not
-  # usable here - OliveTin's legacy migration rewrites {{ else }}/{{ end }}).
+  # come preformatted from the entity file: OliveTin's legacy argument migration
+  # rewrites bare go-template else/end keywords, which breaks conditionals, so
+  # the script supplies these strings directly.
   - title: '{{ `{{ pr.action_label }}` }}'
     entity: pr
     icon: <iconify-icon icon="mdi:source-merge"></iconify-icon>
