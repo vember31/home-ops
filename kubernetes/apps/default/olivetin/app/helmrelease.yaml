@@ -66,7 +66,7 @@ spec:
           app:
             image:
               repository: jamesread/olivetin
-              tag: 2025.11.25@sha256:6ee4ad8805fe90e1f07a15f4f3f9d90019ad2b036426cab1b132ae19653c7dac
+              tag: 3000.20.0@sha256:f3066e207efd35ab8f9ffd71cf7e2abb78d2b1edaf77ea924113bdbe6ef4f989
               pullPolicy: IfNotPresent
 
             env:
@@ -84,7 +84,7 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /api/readyz
+                    path: /readyz
                     port: &port 1337
                   initialDelaySeconds: 0
                   periodSeconds: 10
