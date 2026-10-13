@@ -86,7 +86,7 @@ spec:
             env:
               TZ: ${TIMEZONE}
               DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
-              JELLYFIN_PublishedServerUrl: https://${APP}.local.${SECRET_DOMAIN}
+              JELLYFIN_PublishedServerUrl: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
 
             securityContext:
               allowPrivilegeEscalation: false
@@ -135,22 +135,21 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          external-dns.alpha.kubernetes.io/target: ipv4.${SECRET_DOMAIN}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-external-with-errors@kubernetescrd
           hajimari.io/icon: simple-icons:jellyfin
           hajimari.io/info: &description Open-source Media Server
-          gethomepage.dev/enabled: "true"
+          # the homepage card lives in services.yaml (the jellyfin widget needs
+          # version: 2, which string-only annotations can't express)
+          gethomepage.dev/enabled: "false"
           gethomepage.dev/description: *description
           gethomepage.dev/group: Media
           gethomepage.dev/icon: jellyfin
           gethomepage.dev/name: Jellyfin
-          gethomepage.dev/widget.type: ${APP}
-          gethomepage.dev/widget.url: &siteMonitor http://${APP}.media.svc.cluster.local:8096
-          gethomepage.dev/widget.key: "{{ `{{HOMEPAGE_VAR_JELLYFIN_TOKEN}}` }}"
-          gethomepage.dev/siteMonitor: *siteMonitor
+          gethomepage.dev/siteMonitor: http://${APP}.media.svc.cluster.local:8096
 
         hosts:
-          - host: &host ${APP}.local.${SECRET_DOMAIN}
+          - host: &host ${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
@@ -170,7 +169,7 @@ spec:
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce
-        size: 10Gi
+        size: 20Gi
         retain: true
         globalMounts: []
       

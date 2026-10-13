@@ -1,26 +1,44 @@
 # Jellyfin + Jellarr
 
-Jellyfin 12.1 restored from `.archive`, with server configuration managed
-declaratively by [jellarr](https://github.com/venkyr77/jellarr) and user
-sign-in via Pocket ID OIDC through the
+Jellyfin 12.1 restored from `.archive`, served at
+**`https://jellyfin.${SECRET_DOMAIN}`** (public URL; on the LAN, Blocky
+resolves it straight to Traefik — see
+`kubernetes/apps/networking/blocky/app/config/config.yml`), with user sign-in
+via Pocket ID OIDC through the
 [Jellyfin Security](https://github.com/ZL154/JellyfinSecurity) plugin.
 
+Server configuration is designed to be managed declaratively by
+[jellarr](https://github.com/venkyr77/jellarr), **but jellarr is suspended for
+now**: the current release (v0.1.0) authenticates with the legacy
+`X-Emby-Token` header, which Jellyfin 12 disables by default
+([jellyfin/jellyfin#15559](https://github.com/jellyfin/jellyfin/pull/15559)).
+The upstream fix ([venkyr77/jellarr#79](https://github.com/venkyr77/jellarr/pull/79))
+has not shipped yet, so the CronJob stays suspended and the server is
+configured by hand once during bootstrap (below). When a fixed jellarr release
+exists, unsuspend it and it will converge the server to
+`jellarr/config/config.yml`.
+
 > **Status: disabled.** `kubernetes/apps/media/kustomization.yaml` has
-> `# - ./jellyfin/ks.yaml` commented out, so none of this deploys yet. The
-> `jellyfin-users` Pocket ID group does deploy already (it lives in the
-> `pocket-id-groups` Kustomization) — that is harmless and just means the
-> group is ready when Jellyfin is enabled.
+> `# - ./jellyfin/ks.yaml` commented out, so none of the `jellyfin/` manifests
+> deploy yet. The `jellyfin-users` Pocket ID group does deploy already (it
+> lives in the `pocket-id-groups` Kustomization) — that is harmless and just
+> means the group is ready when Jellyfin is enabled.
 
 ## Layout
 
 | Path | Purpose |
 | --- | --- |
-| `ks.yaml` | Flux Kustomizations: `jellyfin` and `jellarr` (plex-auto-languages style) |
-| `app/` | Jellyfin HelmRelease (12.1, CPU-only, NFS media mounts, gatus/homepage) |
+| `ks.yaml` | Flux Kustomizations: `jellyfin` and `jellarr` (CronJob deploys suspended) |
+| `app/` | Jellyfin HelmRelease (12.1, CPU-only, NFS media mounts, public ingress, external gatus check) |
 | `app/oidc/pocket-id-oidc-client.yaml` | `PocketIDOIDCClient` — creates the Pocket ID client and the `jellyfin-oidc-credentials` Secret |
-| `jellarr/` | jellarr CronJob, ExternalSecret, and config |
-| `jellarr/config/config.yml` | Everything jellarr manages (system, libraries, plugins) |
+| `jellarr/` | jellarr CronJob, ExternalSecret, and config (inert until unsuspended) |
+| `jellarr/config/config.yml` | Everything jellarr will manage (system, libraries, plugins, Jellyfin Security) — also the source of truth for the manual bootstrap |
 | `jellarr/config/render_config.py` | Init-container script that injects the Pocket ID client id/secret into the config at pod start |
+
+The Homepage card is defined in
+`kubernetes/apps/default/homepage/app/config/services.yaml` rather than in
+ingress annotations, because the jellyfin widget needs `version: 2` for
+Jellyfin 12 and annotation values are always strings.
 
 ## Bootstrap checklist
 
@@ -32,99 +50,94 @@ Uncomment the line in `kubernetes/apps/media/kustomization.yaml`:
   - ./jellyfin/ks.yaml
 ```
 
-Commit and push. Then watch it come up:
+Commit and push, then:
 
 ```bash
 flux reconcile kustomization cluster-apps --with-source
 kubectl -n media rollout status deploy/jellyfin --timeout=10m
 ```
 
-This creates: the Jellyfin HelmRelease (fresh 10Gi `jellyfin-config` PVC — the
-old data is gone), the Pocket ID OIDC client, and the jellarr app (CronJob
-starts **suspended** on purpose).
+This creates the Jellyfin HelmRelease (fresh 20Gi `jellyfin-config` PVC), the
+Pocket ID OIDC client, and the jellarr app with its CronJob **suspended** on
+purpose.
+
+Networking, for reference: external-dns publishes `jellyfin.${SECRET_DOMAIN}`
+through Cloudflare and Traefik serves it behind the `external-with-errors`
+middleware chain (CrowdSec bouncer + error pages + Cloudflare IP handling). On
+the LAN, Blocky maps the same hostname to the Traefik VIP so home clients
+stream directly instead of looping through Cloudflare.
 
 ### 2. First boot of Jellyfin
 
-Open `https://jellyfin.local.${SECRET_DOMAIN}` and complete the setup wizard:
+Open `https://jellyfin.${SECRET_DOMAIN}` and complete the setup wizard:
 
-1. Create the admin account (this must be done by hand — jellarr intentionally
-   does not skip the wizard or create users).
-2. **Dashboard → API Keys → create a key named `jellarr`.** Copy it.
-3. Optional: create a second key for the Homepage dashboard widget — or just
-   reuse the `jellarr` key (API keys are not user-bound).
+1. Create the admin account (by hand — nothing automates this).
+2. **Dashboard → API Keys → create a key named `jellarr`** and copy it (stash
+   it for step 6; jellarr itself stays suspended for now).
+3. Optional: create a second key for the Homepage widget — or just reuse the
+   `jellarr` key (API keys are not user-bound).
 
-### 3. Prep the GitLab secrets
+### 3. Install the plugins by hand
 
-The cluster's ExternalSecrets read from GitLab through the
-`gitlab-secret-store` ClusterSecretStore. Jellyfin's variables live in the
-existing **`jellyfin`** CI/CD variable group (Homepage's ExternalSecret already
-extracts from it). In GitLab → group → **Settings → CI/CD → Variables**, add /
-refresh:
+jellarr would do this, but it is suspended. **Dashboard → Plugins →
+Repositories**, add:
 
-| Variable | Value | Notes |
-| --- | --- | --- |
-| `JELLARR_API_KEY` | the `jellarr` API key from step 2 | Mask it. Consumed as `{{ .JELLARR_API_KEY }}` by `jellarr/externalsecret.yaml` |
-| `HOMEPAGE_VAR_JELLYFIN_TOKEN` | a valid Jellyfin API key | Mask it. Same key as above is fine. The old value is dead because the old server's data (and its API keys) no longer exists, which is why the Homepage Jellyfin widget is currently broken |
+| Name | URL |
+| --- | --- |
+| Jellyfin Security | `https://raw.githubusercontent.com/ZL154/JellyfinSecurity/main/manifest.json` |
+| Intro Skipper | `https://intro-skipper.org/manifest.json` |
 
-Notes:
+Save, then **Catalog → install both → restart Jellyfin**. On Jellyfin 12 the
+Jellyfin Security catalog entry automatically serves the .NET 10 build, and
+Intro Skipper's manifest serves the release matching the server version.
 
-- Only the *values* live in GitLab — nothing secret is committed to the repo.
-- Homepage reads its token at container start, but the deployment has
-  `reloader.stakater.com/auto: "true"`, so it restarts automatically once the
-  synced `homepage-secret` changes. No manual restart needed.
-- If you prefer separate keys for easier rotation, name the second one
-  `homepage` in Jellyfin and put its value in `HOMEPAGE_VAR_JELLYFIN_TOKEN`.
+### 4. Configure Jellyfin Security (OIDC + hardening)
 
-Then force an External Secrets sync and confirm the secrets exist:
+`jellarr/config/config.yml` is the source of truth for the settings below; set
+them once in the plugin UI (Dashboard → Plugins → Jellyfin Security). The
+client credentials come from the operator-generated Secret:
 
 ```bash
-kubectl -n media annotate externalsecret jellarr force-sync=$(date +%s) --overwrite
-kubectl -n media get externalsecret jellarr          # SecretSynced
-kubectl -n media get secret jellarr-secret           # JELLARR_API_KEY
-kubectl -n media get secret jellyfin-oidc-credentials # client_id, client_secret, issuer_url
+kubectl -n media get secret jellyfin-oidc-credentials \
+  -o jsonpath='{.data.client_id}' | base64 -d; echo
+kubectl -n media get secret jellyfin-oidc-credentials \
+  -o jsonpath='{.data.client_secret}' | base64 -d; echo
 ```
 
-If `jellyfin-oidc-credentials` is missing, the Pocket ID operator hasn't
-reconciled the OIDC client yet — check `kubectl -n media get pocketidoidcclient jellyfin`.
+Settings tab:
 
-### 4. Unsuspend jellarr
+| Setting | Value |
+| --- | --- |
+| Public base URL | `https://jellyfin.${SECRET_DOMAIN}` |
+| Trust X-Forwarded-For | on |
+| Trusted proxy CIDRs | `${POD_CIDR}` / `${SERVICE_CIDR}` (10.42.0.0/16, 10.43.0.0/16) |
+| Block empty-password login | on |
+| Impossible-travel detection | off (no GeoIP databases mounted) |
+| WebAuthn RP ID | `jellyfin.${SECRET_DOMAIN}` |
+| WebAuthn origins | `https://jellyfin.${SECRET_DOMAIN}` |
 
-In `kubernetes/apps/media/jellyfin/jellarr/helmrelease.yaml`, change
-`suspend: true` → `false` (there's a TODO comment marking it), commit, push.
+Sign-in Methods tab → add a provider:
 
-```bash
-kubectl -n media get cronjob jellarr -o jsonpath='{.spec.suspend}{"\n"}'  # false
-```
+| Field | Value |
+| --- | --- |
+| Preset | PocketID |
+| Display name | `Pocket ID` |
+| Discovery URL | `https://id.${SECRET_DOMAIN}/.well-known/openid-configuration` |
+| Client ID / Secret | from `jellyfin-oidc-credentials` above |
+| Scopes | `openid profile email groups` |
+| Username claim | `preferred_username` |
+| Allowed groups | `jellyfin-users` |
+| Auto-create users | on |
+| Skip plugin 2FA | on |
+| Force HTTPS | on |
+| Show login button | on |
 
-### 5. First run — install plugins
+The Pocket ID side needs no changes: `app/oidc/pocket-id-oidc-client.yaml`
+already registers the plugin's callback
+(`https://jellyfin.${SECRET_DOMAIN}/TwoFactorAuth/Oidc/Callback/pocket-id`,
+PKCE, restricted to `jellyfin-users`).
 
-```bash
-kubectl -n media create job --from=cronjob/jellarr jellarr-bootstrap-1
-kubectl -n media logs -f job/jellarr-bootstrap-1
-```
-
-Expected: system settings applied, four libraries created (Movies, TV Shows,
-Videos, Recordings), Intro Skipper and Jellyfin Security installed. The plugin
-**configs** may not apply yet if Jellyfin hasn't loaded the plugins.
-
-### 6. Restart Jellyfin so the plugins load
-
-```bash
-kubectl -n media rollout restart deploy/jellyfin
-kubectl -n media rollout status deploy/jellyfin
-```
-
-### 7. Second run — configure plugins + OIDC
-
-```bash
-kubectl -n media create job --from=cronjob/jellarr jellarr-bootstrap-2
-kubectl -n media logs -f job/jellarr-bootstrap-2
-```
-
-Expected: `Updating plugin configuration: Jellyfin Security` (and Intro
-Skipper if it has settings). After this, the OIDC provider is live.
-
-### 8. Verify OIDC
+### 5. Verify OIDC
 
 - The Jellyfin login page should show a **"Sign in with Pocket ID"** button.
 - Sign in as a Pocket ID user in the `jellyfin-users` group (`dm`, `emm`,
@@ -133,20 +146,69 @@ Skipper if it has settings). After this, the OIDC provider is live.
   `…/TwoFactorAuth/Setup` → linked sign-in methods → link Pocket ID. The
   plugin deliberately refuses to auto-link administrator accounts.
 
-Steady state: the CronJob runs daily at **04:30 America/Chicago** and is
-idempotent — logs should read `already up to date` when nothing changed.
+### 6. Pre-stage the GitLab secrets
+
+ExternalSecrets read from GitLab through the `gitlab-secret-store`
+ClusterSecretStore. Jellyfin's variables live in the existing **`jellyfin`**
+CI/CD variable group. In GitLab → group → **Settings → CI/CD → Variables**,
+add / refresh:
+
+| Variable | Value | Notes |
+| --- | --- | --- |
+| `HOMEPAGE_VAR_JELLYFIN_TOKEN` | a valid Jellyfin API key | Needed now for the Homepage widget. The old value is dead because the old server's data (and its API keys) no longer exists |
+| `JELLARR_API_KEY` | the `jellarr` API key from step 2 | Not consumed until jellarr is unsuspended, but stash it now while you're here |
+
+Then force a sync:
+
+```bash
+kubectl -n default annotate externalsecret homepage-secret force-sync=$(date +%s) --overwrite
+kubectl -n media annotate externalsecret jellarr force-sync=$(date +%s) --overwrite   # optional until jellarr is enabled
+```
+
+Homepage restarts itself via Reloader once the synced secret changes.
+
+### 7. (Later) Enable jellarr
+
+When a jellarr release that includes
+[venkyr77/jellarr#79](https://github.com/venkyr77/jellarr/pull/79) exists:
+
+1. Bump the image tag in `jellarr/helmrelease.yaml` (Renovate will open the
+   PR; v0.1.0 is the newest release today).
+2. Flip `suspend: true` → `false` (there's a TODO comment marking it), commit,
+   and push.
+3. The plugins are already installed; because Jellyfin needs a restart between
+   plugin install and plugin configuration, run the job twice:
+
+```bash
+kubectl -n media create job --from=cronjob/jellarr jellarr-bootstrap-1
+kubectl -n media logs -f job/jellarr-bootstrap-1
+kubectl -n media rollout restart deploy/jellyfin
+kubectl -n media create job --from=cronjob/jellarr jellarr-bootstrap-2
+kubectl -n media logs -f job/jellarr-bootstrap-2
+```
+
+4. Steady state: the CronJob runs daily at **04:30 America/Chicago** and is
+   idempotent — logs read `already up to date` when nothing changed. From then
+   on jellarr is the source of truth for everything in `config.yml`; UI edits
+   to managed fields get reverted on the next run.
 
 ## How it works
 
+- **Public URL + LAN split-horizon:** `jellyfin.${SECRET_DOMAIN}` is published
+  to Cloudflare by external-dns (`ipv4.${SECRET_DOMAIN}` target) and routed by
+  Traefik behind the `external-with-errors` middleware chain. On the LAN,
+  Blocky maps the same hostname to the Traefik VIP (like `vault.`), so home
+  clients stream directly.
 - **jellarr** reads `/config/config.yml` (rendered at pod start from the
-  `jellarr-configmap` ConfigMap). A `python:3.14-alpine` init container injects
+  `jellarr-configmap` ConfigMap). A `python:3.15-alpine` init container injects
   the Pocket ID `client_id`/`client_secret` from the operator-generated
   `jellyfin-oidc-credentials` Secret, so client-secret rotation is picked up
   automatically on the next run.
 - **OIDC flow:** `PocketIDOIDCClient jellyfin` → pocket-id-operator creates the
-  Pocket ID client (`https://jellyfin.local.${SECRET_DOMAIN}/TwoFactorAuth/Oidc/Callback/pocket-id`,
+  Pocket ID client (`https://jellyfin.${SECRET_DOMAIN}/TwoFactorAuth/Oidc/Callback/pocket-id`,
   PKCE, restricted to `jellyfin-users`) and the k8s Secret → jellarr pushes the
-  provider config into the Jellyfin Security plugin via the Jellyfin API.
+  provider config into the Jellyfin Security plugin via the Jellyfin API (or,
+  while suspended, you set it in the UI as in step 4).
 - **jellarr manages:** plugin repositories (official + Intro Skipper + Jellyfin
   Security), metrics, trickplay (software), libraries, and both plugins'
   configs. It does **not** manage branding, encoding, users, or the startup
@@ -165,10 +227,19 @@ idempotent — logs should read `already up to date` when nothing changed.
 
 ## Post-bootstrap options
 
-- **OIDC-only sign-in:** add `DisablePasswordLogin: true` to the Jellyfin
-  Security config (admin/LAN escape hatches stay on by default).
+Recommended now that the server has a public URL:
+
+- **OIDC-only sign-in for remote clients:** set `DisablePasswordLogin: true` in
+  the Jellyfin Security config. Admin and LAN escape hatches stay on by
+  default, so you can still sign in locally (or as admin) if Pocket ID is
+  down.
+- **Require 2FA for admins:** set `EnforcementScope: Admins` (or `All`) if you
+  don't go fully OIDC-only.
 - **Admin elevation via Pocket ID:** add `AdminGroups: admins` and
   `AllowAdminGroupElevation: true` to the OIDC provider.
+
+Other options:
+
 - **Impossible-travel alerts:** mount MaxMind GeoLite2 DBs (Pocket ID's secret
   already has a MaxMind license key) and set `ImpossibleTravelEnabled: true`.
 - **Hardware transcoding:** mount the GPU and add an `encoding:` section, e.g.
@@ -177,7 +248,7 @@ idempotent — logs should read `already up to date` when nothing changed.
 ## Reference commands
 
 ```bash
-# trigger a run on demand
+# trigger a run on demand (only useful once jellarr is unsuspended)
 kubectl -n media create job --from=cronjob/jellarr jellarr-manual-$(date +%s)
 
 # follow the latest job
@@ -199,9 +270,9 @@ flux reconcile kustomization jellarr --with-source
 
 | Symptom | Fix |
 | --- | --- |
-| `JELLARR_API_KEY required` in job logs | GitLab variable missing / ExternalSecret not synced — recheck step 3 |
-| ExternalSecret `SecretSyncedError` | `JELLARR_API_KEY` not present in the GitLab `jellyfin` group |
+| jellarr job logs `already up to date` then crashes, or 401s | Expected: jellarr v0.1.0 can't authenticate to Jellyfin 12. Leave it suspended until venkyr77/jellarr#79 ships |
+| `JELLARR_API_KEY required` in job logs | GitLab variable missing / ExternalSecret not synced — recheck step 6 |
 | `jellyfin-oidc-credentials` missing | `kubectl -n media get pocketidoidcclient jellyfin` — operator still reconciling or Pocket ID unreachable |
-| Login page has no Pocket ID button | Plugin config not applied yet — restart Jellyfin, run jellarr again |
-| Homepage Jellyfin widget broken | `HOMEPAGE_VAR_JELLYFIN_TOKEN` still holds the old server's key |
-| Job pod stuck `CreateContainerConfigError` | One of the secrets it references doesn't exist yet (steps 3–4) |
+| Login page has no Pocket ID button | Plugin config not applied yet — recheck step 4, restart Jellyfin |
+| Homepage Jellyfin widget broken | `HOMEPAGE_VAR_JELLYFIN_TOKEN` missing or still the old key. The card needs `version: 2` (set in homepage `services.yaml`) — v1 mode calls the `/emby/` routes Jellyfin 12 removed |
+| Job pod stuck `CreateContainerConfigError` | One of the secrets it references doesn't exist yet (step 6) |

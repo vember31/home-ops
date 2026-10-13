@@ -13,7 +13,7 @@ system:
   enableMetrics: true
   pluginRepositories:
     - name: "Jellyfin Official"
-      url: "https://repo.jellyfin.org/releases/plugin/manifest.json"
+      url: "https://repo.jellyfin.org/files/plugin/manifest.json"
       enabled: true
     - name: "Intro Skipper"
       url: "https://intro-skipper.org/manifest.json"
@@ -59,7 +59,7 @@ plugins:
     configuration:
       Enabled: true
       # Pocket ID OIDC is the primary user sign-in; plugin 2FA stays opt-in.
-      PublicBaseUrl: "https://jellyfin.local.${SECRET_DOMAIN}"
+      PublicBaseUrl: "https://jellyfin.${SECRET_DOMAIN}"
       TrustForwardedFor: true
       TrustedProxyCidrs:
         - "${POD_CIDR}"
@@ -67,9 +67,9 @@ plugins:
       BlockEmptyPasswordLogin: true
       # No GeoIP databases are mounted, so impossible-travel can't work.
       ImpossibleTravelEnabled: false
-      WebAuthnRpId: "jellyfin.local.${SECRET_DOMAIN}"
+      WebAuthnRpId: "jellyfin.${SECRET_DOMAIN}"
       WebAuthnOrigins:
-        - "https://jellyfin.local.${SECRET_DOMAIN}"
+        - "https://jellyfin.${SECRET_DOMAIN}"
       OidcProviders:
         - Id: "pocket-id"
           DisplayName: "Pocket ID"

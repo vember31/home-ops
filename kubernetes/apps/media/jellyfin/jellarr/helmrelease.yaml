@@ -61,7 +61,9 @@ spec:
           schedule: "30 4 * * *"
           timeZone: ${TIMEZONE}
           concurrencyPolicy: Forbid
-          # TODO: set to false once JELLARR_API_KEY has been added to the
+          # TODO: set to false once jellarr supports Jellyfin 12 (v0.1.0 only
+          # sends the legacy X-Emby-Token header, which 12 disables - see
+          # venkyr77/jellarr#79) and JELLARR_API_KEY has been added to the
           # GitLab "jellyfin" variable group (see externalsecret.yaml)
           suspend: true
           successfulJobsHistory: 1

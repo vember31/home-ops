@@ -13,8 +13,8 @@ spec:
       app.kubernetes.io/name: pocket-id
   callbackUrls:
     # Jellyfin Security plugin route: /TwoFactorAuth/Oidc/Callback/<provider id>
-    - https://jellyfin.local.${SECRET_DOMAIN}/TwoFactorAuth/Oidc/Callback/pocket-id
-  launchUrl: https://jellyfin.local.${SECRET_DOMAIN}
+    - https://jellyfin.${SECRET_DOMAIN}/TwoFactorAuth/Oidc/Callback/pocket-id
+  launchUrl: https://jellyfin.${SECRET_DOMAIN}
   pkceEnabled: true
   allowedUserGroups:
     - name: jellyfin-users

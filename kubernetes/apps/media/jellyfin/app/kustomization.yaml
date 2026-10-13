@@ -5,4 +5,4 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./oidc/pocket-id-oidc-client.yaml
-  - ../../../../templates/gatus/internal
+  - ../../../../templates/gatus/external
