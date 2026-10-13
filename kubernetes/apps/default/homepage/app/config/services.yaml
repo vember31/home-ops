@@ -165,6 +165,16 @@
             - field: stats.retrying
               label: Retrying
               format: number
+    - Jellyfin:
+        href: https://jellyfin.${SECRET_DOMAIN}
+        icon: jellyfin
+        description: Open-source Media Server
+        siteMonitor: http://jellyfin.media.svc.cluster.local:8096
+        widget:
+          type: jellyfin
+          url: http://jellyfin.media.svc.cluster.local:8096
+          key: "{{HOMEPAGE_VAR_JELLYFIN_TOKEN}}"
+          version: 2 # Jellyfin 12: v1 mode uses the /emby/ routes 12 removed
     - Maintainerr:
         href: https://maintainerr.local.${SECRET_DOMAIN}
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/maintainerr.svg
