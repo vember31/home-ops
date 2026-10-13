@@ -26,9 +26,9 @@
       "matchPackageNames": ["/requestrr/","/imagemaid/","/qbit_manage/","/zap2xml/","/qui/","/seerr/"]
     },
     {
-      "description": "jellyfin has one rogue package that is a date that needs to be excluded. allow major with only 3 digits max",
+      "description": "jellyfin: exclude date-like tags (major capped at 3 digits); the official image uses 2-part tags like 12.1, so patch is optional",
       "matchDatasources": ["docker"],
-      "versioning": "regex:^(?P<major>\\d{1,3})\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)$",
+      "versioning": "regex:^(?P<major>\\d{1,3})\\.(?P<minor>\\d+)(\\.(?P<patch>\\d+))?$",
       "matchPackageNames": ["/jellyfin/"]
     },
     {
