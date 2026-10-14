@@ -207,7 +207,7 @@ prowlarr:
             torrentBaseSettings.preferMagnetUrl: false
           tags:
             - sonarr
-        - name: IPTorrents
+        - name: "IPTorrents - Automatic"
           definition: IPTorrents
           enable: true
           priority: 25
@@ -222,7 +222,7 @@ prowlarr:
             torrentBaseSettings.preferMagnetUrl: false
           tags:
             - radarr
-        - name: "IPTorrents "
+        - name: "IPTorrents - Interactive"
           definition: IPTorrents
           enable: true
           priority: 2
