@@ -1,0 +1,15 @@
+---
+# Same as external-with-errors but without the cloudflare-ips allowlist: use
+# this for public services served from DNS-only (unproxied) Cloudflare
+# records, where clients connect straight to Traefik instead of through
+# Cloudflare's proxy.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: external-direct-with-errors
+  namespace: networking
+spec:
+  chain:
+    middlewares:
+    - name: crowdsec-bouncer
+    - name: error-pages

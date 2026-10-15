@@ -6,6 +6,7 @@ resources:
   - ./cloudflare-ips.yaml
   - ./crowdsec-bouncer.yaml
   - ./error-pages-middleware.yaml
+  - ./external-direct-with-errors.yaml
   - ./external-with-errors.yaml
   - ./gatus-headers.yaml
   - ./internal-secure.yaml
