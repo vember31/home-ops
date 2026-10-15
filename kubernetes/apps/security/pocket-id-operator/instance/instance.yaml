@@ -64,6 +64,8 @@ spec:
           key: GMAIL_APP_PASSWORD
     - name: SMTP_TLS
       value: starttls
+    - name: TRUSTED_PLATFORM
+      value: CF-Connecting-IP
   emailNotifications:
     oneTimeAccessAsAdmin: true
     verification: true
