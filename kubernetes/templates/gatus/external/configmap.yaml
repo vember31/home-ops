@@ -13,7 +13,10 @@ data:
         url: "https://${GATUS_SUBDOMAIN:-${APP}}.${SECRET_DOMAIN}${GATUS_PATH:-/}"
         interval: 1m
         client:
-          dns-resolver: tcp://1.1.1.1:53
+          # override with GATUS_DNS_RESOLVER on apps that need split-horizon
+          # dns (blocky), e.g. DNS-only records where NAT hairpin to the wan
+          # ip isn't available from inside the cluster
+          dns-resolver: ${GATUS_DNS_RESOLVER:-tcp://1.1.1.1:53}
           timeout: 60s
         conditions:
           - "[STATUS] == ${GATUS_STATUS:-200}"

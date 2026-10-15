@@ -135,8 +135,13 @@ spec:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
-          external-dns.alpha.kubernetes.io/target: ipv4.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-external-with-errors@kubernetescrd
+          # DNS-only (unproxied) record: media traffic must not run through
+          # Cloudflare's proxy, it's against their ToS
+          external-dns.kubernetes.io/cloudflare-proxied: "false"
+          external-dns.kubernetes.io/target: ipv4.${SECRET_DOMAIN}
+          # external-direct-with-errors, not external-with-errors: the
+          # cloudflare-ips allowlist in that chain 403s non-Cloudflare clients
+          traefik.ingress.kubernetes.io/router.middlewares: networking-external-direct-with-errors@kubernetescrd
           hajimari.io/icon: simple-icons:jellyfin
           hajimari.io/info: &description Open-source Media Server
           # the homepage card lives in services.yaml (the jellyfin widget needs

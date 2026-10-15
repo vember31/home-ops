@@ -62,10 +62,17 @@ Pocket ID OIDC client, and the jellarr app with its CronJob **suspended** on
 purpose.
 
 Networking, for reference: external-dns publishes `jellyfin.${SECRET_DOMAIN}`
-through Cloudflare and Traefik serves it behind the `external-with-errors`
-middleware chain (CrowdSec bouncer + error pages + Cloudflare IP handling). On
-the LAN, Blocky maps the same hostname to the Traefik VIP so home clients
-stream directly instead of looping through Cloudflare.
+as a **DNS-only (unproxied)** record (`external-dns.kubernetes.io/cloudflare-proxied: "false"`)
+— media traffic through Cloudflare's proxy is against their ToS — so clients
+connect straight to Traefik. The usual `external-with-errors` chain can't be
+used for that: its `cloudflare-ips` allowlist only admits Cloudflare IPs, so
+Jellyfin uses `external-direct-with-errors` (CrowdSec bouncer + error pages)
+instead. On the LAN, Blocky maps the same hostname to the Traefik VIP, so any
+RFC1918 client that can reach Traefik streams directly; the gatus check also
+resolves via Blocky (`GATUS_DNS_RESOLVER` in `ks.yaml`) because NAT hairpin to
+the WAN IP isn't available from inside the cluster. Clients that don't use
+Blocky (hardcoded DNS) need NAT reflection/hairpin on the UniFi 443
+port-forward to use the public hostname from inside.
 
 ### 2. First boot of Jellyfin
 
@@ -195,10 +202,13 @@ kubectl -n media logs -f job/jellarr-bootstrap-2
 ## How it works
 
 - **Public URL + LAN split-horizon:** `jellyfin.${SECRET_DOMAIN}` is published
-  to Cloudflare by external-dns (`ipv4.${SECRET_DOMAIN}` target) and routed by
-  Traefik behind the `external-with-errors` middleware chain. On the LAN,
-  Blocky maps the same hostname to the Traefik VIP (like `vault.`), so home
-  clients stream directly.
+  by external-dns as a DNS-only (unproxied) record (`ipv4.${SECRET_DOMAIN}`
+  target, `cloudflare-proxied: "false"`) and routed by Traefik behind the
+  `external-direct-with-errors` chain. On the LAN, Blocky maps the same
+  hostname to the Traefik VIP (like `vault.`), so home clients stream directly
+  — Jellyfin clients speak plain HTTPS to the hostname, so no dedicated
+  `LoadBalancer` IP is needed (unlike Plex, whose native protocol can't ride
+  an ingress).
 - **jellarr** reads `/config/config.yml` (rendered at pod start from the
   `jellarr-configmap` ConfigMap). A `python:3.15-alpine` init container injects
   the Pocket ID `client_id`/`client_secret` from the operator-generated
@@ -276,3 +286,4 @@ flux reconcile kustomization jellarr --with-source
 | Login page has no Pocket ID button | Plugin config not applied yet — recheck step 4, restart Jellyfin |
 | Homepage Jellyfin widget broken | `HOMEPAGE_VAR_JELLYFIN_TOKEN` missing or still the old key. The card needs `version: 2` (set in homepage `services.yaml`) — v1 mode calls the `/emby/` routes Jellyfin 12 removed |
 | Job pod stuck `CreateContainerConfigError` | One of the secrets it references doesn't exist yet (step 6) |
+| LAN device can't reach `jellyfin.${SECRET_DOMAIN}` | It's resolving the WAN IP — the device isn't using Blocky DNS. Enable NAT reflection/hairpin on the UniFi 443 port-forward, or point the device at Blocky |

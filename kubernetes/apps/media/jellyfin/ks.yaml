@@ -26,6 +26,9 @@ spec:
     substitute:
       APP: *app
       GATUS_SUBDOMAIN: jellyfin
+      # NAT hairpin is off, so resolve the public hostname via Blocky; the
+      # check reaches Traefik on the LAN VIP instead of the WAN IP
+      GATUS_DNS_RESOLVER: tcp://${BLOCKY_IP}:53
 
 ---
 # yaml-language-server: $schema=https://k8s-schemas.home-operations.com/kustomize.toolkit.fluxcd.io/kustomization_v1.json
