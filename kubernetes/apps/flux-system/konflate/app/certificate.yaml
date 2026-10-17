@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/cert-manager.io/certificate_v1.json
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: konflate-tls
+  namespace: flux-system
+spec:
+  secretName: konflate-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "konflate.local.${SECRET_DOMAIN}"
+  dnsNames:
+    - "konflate.local.${SECRET_DOMAIN}"

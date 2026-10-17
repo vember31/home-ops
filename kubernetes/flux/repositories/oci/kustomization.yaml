@@ -14,6 +14,7 @@ resources:
   - ./flux-instance.yaml
   - ./flux-operator.yaml
   - ./grafana-operator.yaml
+  - ./konflate.yaml
   - ./node-feature-discovery.yaml
   - ./pocket-id-operator.yaml
   - ./plugin-barman-cloud.yaml
