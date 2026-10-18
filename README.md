@@ -66,23 +66,39 @@ This Git repository contains the following directories under [Kubernetes](./kube
 
 ### Flux Workflow
 
-This is a high-level look how Flux deploys applications with dependencies. Below there are 3 example apps: `postgres`, `lldap` and `authelia`. `postgres` is the first app that needs to be running and healthy before `lldap` and `authelia`. Once `postgres` is healthy `lldap` will be deployed and after that is healthy `authelia` will be deployed.
+This is a high-level look at how Flux deploys applications with dependencies. Pushes to [GitHub](https://github.com/vember31/home-ops) fire the `flux-webhook` Receiver, which asks Flux to reconcile the `flux-system` GitRepository and the `cluster-apps` Kustomization right away, instead of waiting for the next interval. The Flux Operator's `FluxInstance` generates the `flux-system` GitRepository and Kustomization, and the latter reconciles `kubernetes/flux` to create `cluster-apps` — the Kustomization that discovers every app under `kubernetes/apps` — along with `flux-repositories` and `flux-vars`, which manage the Helm/OCI sources and cluster-wide variables.
+
+Below there are a few example apps: `cloudnative-pg`, `cloudnative-pg-cluster` and the `pocket-id` stack. `cloudnative-pg` (the Postgres operator) is the first app that needs to be running and healthy before `cloudnative-pg-cluster`, which creates the `postgres-18` cluster. Similarly, `pocket-id` waits for `pocket-id-operator`, then `pocket-id-users` waits for `pocket-id`, and `pocket-id-groups` waits for `pocket-id-users`. An app like `outline` is only deployed once both the Postgres cluster and `pocket-id-groups` are healthy.
 
 ```mermaid
 graph TD;
-  id1>Kustomization: cluster] -->|Creates| id2>Kustomization: cluster-apps];
-  id2>Kustomization: cluster-apps] -->|Creates| id3>Kustomization: postgres];
-  id2>Kustomization: cluster-apps] -->|Creates| id6>Kustomization: lldap]
-  id2>Kustomization: cluster-apps] -->|Creates| id8>Kustomization: authelia]
-  id2>Kustomization: cluster-apps] -->|Creates| id5>Kustomization: postgres-cluster]
-  id3>Kustomization: postgres] -->|Creates| id4[HelmRelease: postgres];
-  id5>Kustomization: postgres-cluster] -->|Depends on| id3>Kustomization: postgres];
-  id5>Kustomization: postgres-cluster] -->|Creates| id10[Postgres Cluster];
-  id6>Kustomization: lldap] -->|Creates| id7(HelmRelease: lldap);
-  id6>Kustomization: lldap] -->|Depends on| id5>Kustomization: postgres-cluster];
-  id8>Kustomization: authelia] -->|Creates| id9(HelmRelease: authelia);
-  id8>Kustomization: authelia] -->|Depends on| id5>Kustomization: postgres-cluster];
-  id9(HelmRelease: authelia) -->|Depends on| id7(HelmRelease: lldap);
+  id1([GitHub: vember31/home-ops]) -->|Push event| id2[Receiver: flux-webhook];
+  id2 -->|Requests reconcile| id3[GitRepository: flux-system];
+  id2 -->|Requests reconcile| id4>Kustomization: cluster-apps];
+  id5(FluxInstance: flux) -->|Generates| id3;
+  id5 -->|Generates| id6>Kustomization: flux-system];
+  id3 -->|Artifact| id6;
+  id6 -->|Creates| id4;
+  id4 -->|Creates| id7>Kustomization: cloudnative-pg];
+  id4 -->|Creates| id9>Kustomization: cloudnative-pg-cluster];
+  id4 -->|Creates| id11>Kustomization: pocket-id-operator];
+  id4 -->|Creates| id13>Kustomization: pocket-id];
+  id4 -->|Creates| id15>Kustomization: pocket-id-users];
+  id4 -->|Creates| id17>Kustomization: pocket-id-groups];
+  id4 -->|Creates| id19>Kustomization: outline];
+  id7 -->|Creates| id8[HelmRelease: cloudnative-pg];
+  id9 -->|Depends on| id7;
+  id9 -->|Creates| id10([Cluster: postgres-18]);
+  id11 -->|Creates| id12[HelmRelease: pocket-id-operator];
+  id13 -->|Depends on| id11;
+  id13 -->|Creates| id14([PocketIDInstance: pocket-id]);
+  id15 -->|Depends on| id13;
+  id15 -->|Creates| id16([PocketIDUser resources]);
+  id17 -->|Depends on| id15;
+  id17 -->|Creates| id18([PocketIDUserGroup resources]);
+  id19 -->|Depends on| id9;
+  id19 -->|Depends on| id17;
+  id19 -->|Creates| id20[HelmRelease: outline];
 ```
 
 ## 🌐 DNS
