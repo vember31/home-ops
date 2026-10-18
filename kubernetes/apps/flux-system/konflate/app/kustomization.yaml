@@ -7,4 +7,5 @@ resources:
   - ./helmrelease.yaml
   - ./certificate.yaml
   - ./ingressroute.yaml
+  - ./webhook
   - ../../../../templates/gatus/internal

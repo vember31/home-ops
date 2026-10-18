@@ -1,0 +1,26 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: konflate-webhook
+  namespace: flux-system
+  annotations:
+    gethomepage.dev/enabled: "false"
+    external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+    external-dns.alpha.kubernetes.io/hostname: "konflate-webhook.${SECRET_DOMAIN}"
+
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`konflate-webhook.${SECRET_DOMAIN}`) && Path(`/hooks`)
+      middlewares:
+        - name: crowdsec-bouncer
+          namespace: networking
+        - name: konflate-webhook-ratelimit
+      services:
+        - name: konflate
+          port: 8080
+  tls:
+    secretName: konflate-webhook-tls

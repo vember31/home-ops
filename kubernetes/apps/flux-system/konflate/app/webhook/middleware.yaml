@@ -1,0 +1,13 @@
+---
+# konflate deliberately has no built-in rate limiting; the README directs it to
+# the reverse proxy. Scope it to the public webhook route only. GitHub's real
+# delivery rate is far below this, so the limit only blunts abuse.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: konflate-webhook-ratelimit
+  namespace: flux-system
+spec:
+  rateLimit:
+    average: 20
+    burst: 40
