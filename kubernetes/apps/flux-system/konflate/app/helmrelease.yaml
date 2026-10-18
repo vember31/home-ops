@@ -49,6 +49,9 @@ spec:
       # each rendered PR. Needs the write credential in konflate-secret.
       statusChecks: true
       prComments: true
+      # HEAD each image a PR newly references; a missing image raises a
+      # failing blocker instead of surfacing as an ImagePullBackOff later.
+      verifyImages: true
     secret:
       existingSecret: konflate-secret
     monitoring:
