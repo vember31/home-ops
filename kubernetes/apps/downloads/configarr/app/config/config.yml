@@ -198,7 +198,7 @@ prowlarr:
           definition: BroadcasTheNet
           enable: true
           priority: 1
-          app_profile: Automatic + Interactive
+          sync_profile: Automatic + Interactive
           fields:
             baseUrl: https://api.broadcasthe.net/
             apiKey: !env BTN_API_KEY
@@ -211,7 +211,7 @@ prowlarr:
           definition: IPTorrents
           enable: true
           priority: 25
-          app_profile: Automatic + Interactive
+          sync_profile: Automatic + Interactive
           fields:
             baseUrl: https://ipt.lol/
             cookie: !env IPT_COOKIE
@@ -226,7 +226,7 @@ prowlarr:
           definition: IPTorrents
           enable: true
           priority: 2
-          app_profile: Interactive Only
+          sync_profile: Interactive Only
           fields:
             baseUrl: https://ipt.lol/
             cookie: !env IPT_COOKIE
@@ -241,7 +241,7 @@ prowlarr:
           definition: seedpool-api
           enable: true
           priority: 25
-          app_profile: Interactive Only
+          sync_profile: Interactive Only
           fields:
             definitionFile: seedpool-api
             apikey: !env SEEDPOOL_API_KEY
@@ -258,7 +258,7 @@ prowlarr:
           definition: torrentleech
           enable: true
           priority: 25
-          app_profile: Interactive Only
+          sync_profile: Interactive Only
           fields:
             definitionFile: torrentleech
             baseUrl: https://www.torrentleech.org/
