@@ -191,6 +191,22 @@ prowlarr:
     delete_unmanaged_tags:
       enabled: true
 
+    # Sync profiles ("Sync Profiles" in the Prowlarr UI) - indexers reference these by name
+    sync_profiles:
+      data:
+        - name: Automatic + Interactive
+          enable_rss: true
+          enable_automatic_search: true
+          enable_interactive_search: true
+          minimum_seeders: 1
+        - name: Interactive Only
+          enable_rss: false
+          enable_automatic_search: false
+          enable_interactive_search: true
+          minimum_seeders: 1
+      delete_unmanaged:
+        enabled: true
+
     # Indexers - `definition` is the Prowlarr schema definitionName; matched on the server by `name`
     indexers:
       data:
