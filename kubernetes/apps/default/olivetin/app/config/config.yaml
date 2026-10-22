@@ -174,6 +174,40 @@ actions:
     execOnStartup: true
     execOnCron: '*/5 * * * *'
 
+  # Newest 10 Dispatcharr streams -> OliveTin entity file, so the assign
+  # action below can offer them as a dropdown (works on mobile; OliveTin
+  # actions have no TTY for whiptail-style pickers).
+  - title: Refresh Dispatcharr Stream List
+    id: refresh_dispatcharr_streams
+    icon: <iconify-icon icon="mdi:refresh"></iconify-icon>
+    shell: /scripts/update_channel_one.sh --list --format entities --output /tmp/olivetin-entities/dispatcharr-streams.json
+    maxConcurrent: 1
+    timeout: 120
+    popupOnStart: execution-dialog
+    execOnStartup: true
+    execOnCron: '*/5 * * * *'
+
+  # Channel 1 is a temporary hold channel, so the chosen stream always
+  # replaces its stream list (no backups kept).
+  - title: Assign Stream to Channel 1
+    id: assign_dispatcharr_channel_one
+    icon: <iconify-icon icon="mdi:television"></iconify-icon>
+    shell: /scripts/update_channel_one.sh --assign {{ `{{ stream_id }}` }} --yes
+    maxConcurrent: 1
+    timeout: 60
+    popupOnStart: execution-dialog
+    arguments:
+      - name: stream_id
+        title: Newest streams
+        description: Pick the stream to make the only stream on channel 1. The list refreshes every 5 minutes.
+        entity: dispatcharr_stream
+        rejectNull: true
+        choices:
+          - value: '{{ `{{ dispatcharr_stream.id }}` }}'
+            title: '{{ `{{ dispatcharr_stream.label }}` }}'
+      - type: confirmation
+        title: Replace channel 1's stream list?
+
 # Open PRs for the Pull Requests dashboard. fetch-open-prs.sh rewrites this file
 # (NDJSON, one entity per line) on startup, every 5 minutes, and after merges.
 entities:
@@ -191,6 +225,19 @@ entities:
         title: Updated
       - name: labels
         title: Labels
+
+  # Newest Dispatcharr streams, written by update_channel_one.sh. Feeds the
+  # "Assign Stream to Channel 1" dropdown.
+  - file: /tmp/olivetin-entities/dispatcharr-streams.json
+    name: dispatcharr_stream
+    icon: <iconify-icon icon="mdi:television"></iconify-icon>
+    properties:
+      - name: stream_name
+        title: Stream
+      - name: updated
+        title: Updated
+      - name: stale
+        title: Stale
 
 dashboards:
   - title: Pull Requests
@@ -214,3 +261,12 @@ dashboards:
               <a href="{{ `{{ pr.url }}` }}" target="_blank" rel="noopener noreferrer">View on GitHub</a>{{ `{{ pr.meta }}` }}
               <pre style="white-space: pre-wrap; overflow-wrap: anywhere; max-height: 28em; overflow-y: auto; margin: 0.6em 0 0;">{{ `{{ pr.changelog }}` }}</pre>
           - title: '{{ `{{ pr.action_label }}` }}'
+
+  # Mobile-friendly Dispatcharr hold-channel controls.
+  - title: Dispatcharr
+    contents:
+      - title: Channel 1
+        type: fieldset
+        contents:
+          - title: Assign Stream to Channel 1
+          - title: Refresh Dispatcharr Stream List

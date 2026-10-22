@@ -75,6 +75,15 @@ spec:
                 secretKeyRef:
                   name: olivetin-secret
                   key: GITHUB_TOKEN
+              DISPATCHARR_URL: http://dispatcharr.media.svc.cluster.local:9191
+              DISPATCHARR_CHANNEL_NUMBER: "1"
+              # optional: the pod still starts (and the other actions still
+              # work) before DISPATCHARR_API_TOKEN exists in the GitLab secret.
+              DISPATCHARR_API_TOKEN:
+                secretKeyRef:
+                  name: olivetin-dispatcharr
+                  key: DISPATCHARR_API_TOKEN
+                  optional: true
 
             resources:
               requests:
@@ -197,6 +206,19 @@ spec:
         globalMounts:
           - path: /scripts/fetch-open-prs.sh
             subPath: fetch-open-prs.sh
+            readOnly: false
+
+      dispatcharr-channel-one-script:
+        enabled: true
+        type: configMap
+        name: olivetin-scripts
+        items:
+          - key: update_channel_one.sh
+            path: update_channel_one.sh
+        defaultMode: 0777
+        globalMounts:
+          - path: /scripts/update_channel_one.sh
+            subPath: update_channel_one.sh
             readOnly: false
 
       # Writable location for the open-PR entity file that powers the

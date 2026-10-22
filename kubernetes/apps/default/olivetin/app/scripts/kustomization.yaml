@@ -9,6 +9,7 @@ configMapGenerator:
       - ./restart_download_media_apps.sh
       - ./merge-open-prs.sh
       - ./fetch-open-prs.sh
+      - ./update_channel_one.sh
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
