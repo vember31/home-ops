@@ -33,13 +33,19 @@
 #     from the GitLab 'dispatcharr' secret (same JSON as the Postgres creds).
 #
 # Dispatcharr API notes:
-#   - GET /api/streams/ is paginated (page_size max 10000) and its ordering
+#   - Two route layouts exist: newer builds serve /api/streams/ and
+#     /api/channels/, while 0.32.x serves /api/channels/streams/ and
+#     /api/channels/channels/. Each run probes both and uses whichever
+#     returns a DRF list, so a Dispatcharr upgrade cannot silently break it.
+#   - The streams list is paginated (page_size max 10000) and its ordering
 #     filter does not expose id/updated_at. Streams are therefore sorted by
 #     id client-side; ids auto-increment and re-seen streams keep their row,
 #     so the highest id is the most recently added stream.
-#   - GET /api/channels/ is used to find the target by channel_number. If the
-#     number is duplicated, set DISPATCHARR_CHANNEL_ID instead.
-#   - PATCH /api/channels/<id>/ {"streams": [<stream_id>]} replaces the
+#   - The channel list has no channel_number filter, so the target is found
+#     client-side by effective_channel_number (falling back to
+#     channel_number). If the number is duplicated, set
+#     DISPATCHARR_CHANNEL_ID instead.
+#   - PATCH <channel detail> {"streams": [<stream_id>]} replaces the
 #     channel's stream list (order 0). --keep-existing prepends the new
 #     stream and keeps the old ones as backups.
 #   - API-key auth (X-API-Key) requires Dispatcharr 0.20 or newer.
@@ -308,6 +314,8 @@ trap 'log WARN "Interrupted."; exit 130' INT TERM
 HTTP_STATUS=""
 HTTP_BODY=""
 SELECTED_STREAM=""
+STREAMS_PATH=""
+CHANNELS_PATH=""
 
 # ---------------------------------------------------------------------------
 # HTTP
@@ -325,7 +333,9 @@ api_error_message() {
   printf '%s' "${message:0:500}"
 }
 
-api() {
+# Raw request: sets HTTP_STATUS/HTTP_BODY, no error handling. Used by api()
+# and by the route probes, which need to tolerate unexpected responses.
+curl_api() {
   local method="$1"
   local path="$2"
   local payload="${3:-}"
@@ -365,10 +375,23 @@ api() {
   local curl_rc=0
   HTTP_STATUS="$(curl "${args[@]}" "${url}")" || curl_rc=$?
   if ((curl_rc != 0)); then
-    die "Could not reach Dispatcharr at ${DISPATCHARR_URL} (curl exit ${curl_rc})."
+    HTTP_BODY=""
+    return "${curl_rc}"
   fi
 
   HTTP_BODY="$(cat "${TMP_DIR}/response.json" 2>/dev/null || true)"
+  return 0
+}
+
+api() {
+  local method="$1"
+  local path="$2"
+  local payload="${3:-}"
+  local curl_rc=0
+  curl_api "${method}" "${path}" "${payload}" || curl_rc=$?
+  if ((curl_rc != 0)); then
+    die "Could not reach Dispatcharr at ${DISPATCHARR_URL} (curl exit ${curl_rc})."
+  fi
 
   case "${HTTP_STATUS}" in
     2??)
@@ -428,11 +451,77 @@ fetch_paginated() {
 }
 
 # ---------------------------------------------------------------------------
+# Route discovery
+#
+# Dispatcharr 0.32.x serves /api/channels/streams/ + /api/channels/channels/;
+# newer builds serve /api/streams/ + /api/channels/. Probe once per run and
+# remember which layout this instance uses.
+# ---------------------------------------------------------------------------
+is_drf_list() {
+  jq -e '
+    type == "array"
+    or (type == "object" and ((.results? | type) == "array"))
+  ' <<<"$1" >/dev/null 2>&1
+}
+
+probe_candidate() {
+  local candidate="$1"
+
+  curl_api GET "${candidate}?page=1&page_size=1" || return 1
+
+  case "${HTTP_STATUS}" in
+    401)
+      die "Dispatcharr rejected the API token (HTTP 401). Check DISPATCHARR_API_TOKEN; API keys require Dispatcharr 0.20 or newer."
+      ;;
+    403)
+      die "Dispatcharr denied the request (HTTP 403). The API key's user must be an administrator to modify channels."
+      ;;
+  esac
+
+  [[ "${HTTP_STATUS}" == 2?? ]] && is_drf_list "${HTTP_BODY}"
+}
+
+ensure_streams_path() {
+  if [[ -n "${STREAMS_PATH}" ]]; then
+    return 0
+  fi
+
+  local candidate
+  for candidate in "/api/streams/" "/api/channels/streams/"; do
+    if probe_candidate "${candidate}"; then
+      STREAMS_PATH="${candidate}"
+      log DEBUG "Dispatcharr streams endpoint: ${STREAMS_PATH}"
+      return 0
+    fi
+  done
+
+  die "Could not find the Dispatcharr streams endpoint at ${DISPATCHARR_URL} (tried /api/streams/ and /api/channels/streams/)."
+}
+
+ensure_channels_path() {
+  if [[ -n "${CHANNELS_PATH}" ]]; then
+    return 0
+  fi
+
+  local candidate
+  for candidate in "/api/channels/" "/api/channels/channels/"; do
+    if probe_candidate "${candidate}"; then
+      CHANNELS_PATH="${candidate}"
+      log DEBUG "Dispatcharr channels endpoint: ${CHANNELS_PATH}"
+      return 0
+    fi
+  done
+
+  die "Could not find the Dispatcharr channels endpoint at ${DISPATCHARR_URL} (tried /api/channels/ and /api/channels/channels/)."
+}
+
+# ---------------------------------------------------------------------------
 # Dispatcharr operations
 # ---------------------------------------------------------------------------
 fetch_streams() {
   local ndjson="${TMP_DIR}/streams.ndjson"
-  fetch_paginated "/api/streams/" "${ndjson}"
+  ensure_streams_path
+  fetch_paginated "${STREAMS_PATH}" "${ndjson}"
 
   local total
   total="$(wc -l <"${ndjson}" | tr -d ' ')"
@@ -445,19 +534,22 @@ fetch_streams() {
 
 get_stream() {
   local stream_id="$1"
-  api GET "/api/streams/${stream_id}/"
+  ensure_streams_path
+  api GET "${STREAMS_PATH}${stream_id}/"
   jq -c '.' <<<"${HTTP_BODY}"
 }
 
 find_channel() {
+  ensure_channels_path
+
   if [[ -n "${CHANNEL_ID}" ]]; then
-    api GET "/api/channels/${CHANNEL_ID}/"
+    api GET "${CHANNELS_PATH}${CHANNEL_ID}/"
     jq -c '.' <<<"${HTTP_BODY}"
     return 0
   fi
 
   local ndjson="${TMP_DIR}/channels.ndjson"
-  fetch_paginated "/api/channels/" "${ndjson}"
+  fetch_paginated "${CHANNELS_PATH}" "${ndjson}"
 
   local matches
   matches="$(jq -s --argjson number "${CHANNEL_NUMBER}" '
@@ -820,7 +912,8 @@ assign_stream() {
     return 0
   fi
 
-  api PATCH "/api/channels/${channel_id}/" "${payload}"
+  ensure_channels_path
+  api PATCH "${CHANNELS_PATH}${channel_id}/" "${payload}"
 
   if ! jq -e --argjson stream_id "${stream_id}" '
     (.streams // []) | index($stream_id) != null
