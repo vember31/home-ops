@@ -68,7 +68,7 @@ spec:
       value: CF-Connecting-IP
   emailNotifications:
     oneTimeAccessAsAdmin: true
-    verification: true
+    verificationMode: optional
   userManagement:
     allowOwnAccountEdit: true
     allowUserSignups: disabled
