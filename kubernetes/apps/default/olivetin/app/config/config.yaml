@@ -174,23 +174,10 @@ actions:
     execOnStartup: true
     execOnCron: '*/5 * * * *'
 
-  # Newest 10 Dispatcharr streams -> OliveTin entity file, so the assign
-  # action below can offer them as a dropdown (works on mobile; OliveTin
-  # actions have no TTY for whiptail-style pickers). This is the cheap
-  # periodic rebuild: it does NOT pull the M3U playlists from the providers.
-  - title: Rebuild Stream List (cached)
-    id: refresh_dispatcharr_streams
-    icon: <iconify-icon icon="mdi:refresh"></iconify-icon>
-    shell: /scripts/update_channel_one.sh --list --format entities --output /tmp/olivetin-entities/dispatcharr-streams.json
-    maxConcurrent: 1
-    timeout: 120
-    popupOnStart: execution-dialog
-    execOnStartup: true
-    execOnCron: '*/5 * * * *'
-
   # Tap this after the provider adds a channel: pulls the M3U playlists,
   # waits for Dispatcharr's refresh task to finish, then rebuilds the
-  # picker list. Kept manual so the provider is not hit every 5 minutes.
+  # picker list. Manual only - nothing reads Dispatcharr on a schedule
+  # or on startup.
   - title: Refresh M3U & Stream List
     id: refresh_dispatcharr_m3u
     icon: <iconify-icon icon="mdi:cloud-download"></iconify-icon>

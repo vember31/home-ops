@@ -28,10 +28,9 @@
 #
 # OliveTin wiring (kubernetes/apps/default/olivetin/app):
 #   - config.yaml:
-#       "Rebuild Stream List (cached)" writes the entity file on startup and
-#       every 5 minutes, without pulling the providers;
-#       "Refresh M3U & Stream List" does the same with --refresh (manual, so
-#       the providers are only hit when you ask);
+#       "Refresh M3U & Stream List" pulls the providers, waits, and rewrites
+#       the entity file; nothing runs on a schedule or on startup, so
+#       Dispatcharr is only read when you tap an action;
 #       "Assign Stream to Channel 1" renders the entity as a dropdown and
 #       calls this script with --assign <id> --yes. Channel 1 is a temporary
 #       hold channel, so the action always replaces its stream list.
@@ -754,7 +753,7 @@ write_entities() {
       name: "No streams found",
       id: "",
       stream_name: "",
-      label: "No streams found - click Refresh Dispatcharr Stream List",
+      label: "No streams found - run Refresh M3U & Stream List first",
       updated: "",
       stale: ""
     }' >"${tmp}"
