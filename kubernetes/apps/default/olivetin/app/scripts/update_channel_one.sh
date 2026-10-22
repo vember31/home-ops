@@ -13,6 +13,10 @@
 #        ./update_channel_one.sh --list
 #        ./update_channel_one.sh --list --format json
 #
+#      Add --refresh to pull the M3U playlists from the providers first, so a
+#      channel the provider just added shows up in the list:
+#        ./update_channel_one.sh --refresh --list
+#
 #   3. Non-interactive assign (what OliveTin calls):
 #        ./update_channel_one.sh --assign 12345 --yes
 #
@@ -23,10 +27,14 @@
 #          --output /tmp/olivetin-entities/dispatcharr-streams.json
 #
 # OliveTin wiring (kubernetes/apps/default/olivetin/app):
-#   - config.yaml: "Refresh Dispatcharr Stream List" writes the entity file on
-#     startup and every 5 minutes; "Assign Stream to Channel 1" renders it as a
-#     dropdown and calls this script with --assign <id> --yes. Channel 1 is a
-#     temporary hold channel, so the action always replaces its stream list.
+#   - config.yaml:
+#       "Rebuild Stream List (cached)" writes the entity file on startup and
+#       every 5 minutes, without pulling the providers;
+#       "Refresh M3U & Stream List" does the same with --refresh (manual, so
+#       the providers are only hit when you ask);
+#       "Assign Stream to Channel 1" renders the entity as a dropdown and
+#       calls this script with --assign <id> --yes. Channel 1 is a temporary
+#       hold channel, so the action always replaces its stream list.
 #   - helmrelease.yaml: mounts this script and sets DISPATCHARR_URL,
 #     DISPATCHARR_CHANNEL_NUMBER and DISPATCHARR_API_TOKEN.
 #   - externalsecret.yaml: 'olivetin-dispatcharr' reads DISPATCHARR_API_TOKEN
@@ -48,6 +56,10 @@
 #   - PATCH <channel detail> {"streams": [<stream_id>]} replaces the
 #     channel's stream list (order 0). --keep-existing prepends the new
 #     stream and keeps the old ones as backups.
+#   - --refresh POSTs /api/m3u/refresh/ (or /api/m3u/refresh/<account_id>/)
+#     and polls /api/m3u/accounts/ until every active account leaves the
+#     fetching/parsing states, so the list is rebuilt from fresh provider
+#     data. This is a Celery task; a busy worker can delay the start.
 #   - API-key auth (X-API-Key) requires Dispatcharr 0.20 or newer.
 #
 # Environment:
@@ -61,6 +73,9 @@
 #   DISPATCHARR_TIMEOUT         optional  curl timeout in seconds (default: 30)
 #   DISPATCHARR_ENTITY_FILE     optional  default entity output path
 #   DISPATCHARR_PICKER          optional  auto (default), whiptail, dialog or text
+#   DISPATCHARR_M3U_REFRESH     optional  same as --refresh (default false)
+#   DISPATCHARR_M3U_ACCOUNT_ID  optional  refresh only this M3U account
+#   DISPATCHARR_M3U_REFRESH_TIMEOUT  optional  seconds to wait for the refresh (default 180)
 #   DISPATCHARR_LOG_LEVEL       optional  DEBUG, INFO (default), WARN, ERROR
 #
 # Exit codes: 0 success/cancel, 1 error (config, API or runtime), 130 interrupted.
@@ -117,6 +132,7 @@ Options:
   --channel-number NUMBER   Target channel number (default: ${CHANNEL_NUMBER:-1}).
   --channel-id ID           Target channel database id (overrides number).
   --limit N                 Number of newest streams to show (default: 10).
+  --refresh                 Pull the M3U playlists before listing streams.
   --keep-existing           Prepend the new stream, keep existing streams as backups.
   --yes, -y                 Skip the confirmation prompt (required when non-interactive).
   --dry-run                 Show the PATCH payload without changing anything.
@@ -135,6 +151,9 @@ Environment:
   DISPATCHARR_TIMEOUT         curl timeout seconds (default: 30)
   DISPATCHARR_ENTITY_FILE     default entity output path
   DISPATCHARR_PICKER          auto (default), whiptail, dialog or text
+  DISPATCHARR_M3U_REFRESH     same as --refresh (default false)
+  DISPATCHARR_M3U_ACCOUNT_ID  refresh only this M3U account
+  DISPATCHARR_M3U_REFRESH_TIMEOUT  seconds to wait for the refresh (default 180)
   DISPATCHARR_LOG_LEVEL       DEBUG, INFO (default), WARN, ERROR
 
 Examples:
@@ -159,6 +178,9 @@ VERIFY_TLS="${DISPATCHARR_VERIFY_TLS:-true}"
 TIMEOUT="${DISPATCHARR_TIMEOUT:-30}"
 ENTITY_FILE="${DISPATCHARR_ENTITY_FILE:-/tmp/olivetin-entities/dispatcharr-streams.json}"
 PICKER="${DISPATCHARR_PICKER:-auto}"
+REFRESH_M3U="${DISPATCHARR_M3U_REFRESH:-false}"
+M3U_ACCOUNT_ID="${DISPATCHARR_M3U_ACCOUNT_ID:-}"
+M3U_REFRESH_TIMEOUT="${DISPATCHARR_M3U_REFRESH_TIMEOUT:-180}"
 
 MODE="interactive"
 FORMAT="table"
@@ -217,6 +239,10 @@ while (($#)); do
       (($# >= 2)) || die "--limit requires a value."
       STREAM_LIMIT="$2"
       shift 2
+      ;;
+    --refresh)
+      REFRESH_M3U="true"
+      shift
       ;;
     --keep-existing)
       KEEP_EXISTING="true"
@@ -294,6 +320,18 @@ case "${PICKER}" in
   auto | whiptail | dialog | text) ;;
   *) die "DISPATCHARR_PICKER must be auto, whiptail, dialog or text." ;;
 esac
+
+case "${REFRESH_M3U}" in
+  true | false) ;;
+  *) die "DISPATCHARR_M3U_REFRESH must be 'true' or 'false'." ;;
+esac
+
+if [[ -n "${M3U_ACCOUNT_ID}" ]]; then
+  [[ "${M3U_ACCOUNT_ID}" =~ ^[0-9]+$ ]] || die "DISPATCHARR_M3U_ACCOUNT_ID must be a numeric account id."
+fi
+
+[[ "${M3U_REFRESH_TIMEOUT}" =~ ^[0-9]+$ ]] || die "DISPATCHARR_M3U_REFRESH_TIMEOUT must be an integer number of seconds."
+((M3U_REFRESH_TIMEOUT > 0)) || die "DISPATCHARR_M3U_REFRESH_TIMEOUT must be greater than zero."
 
 for tool in curl jq; do
   command -v "${tool}" >/dev/null 2>&1 || die "Required tool not found: ${tool}"
@@ -513,6 +551,80 @@ ensure_channels_path() {
   done
 
   die "Could not find the Dispatcharr channels endpoint at ${DISPATCHARR_URL} (tried /api/channels/ and /api/channels/channels/)."
+}
+
+# ---------------------------------------------------------------------------
+# M3U refresh
+# ---------------------------------------------------------------------------
+fetch_m3u_accounts() {
+  api GET "/api/m3u/accounts/"
+  jq -c 'if type == "array" then . else (.results // []) end' <<<"${HTTP_BODY}"
+}
+
+m3u_refresh_in_progress() {
+  jq -r '
+    [.[] | select(.is_active == true) | .status]
+    | any(. == "fetching" or . == "parsing")
+  ' <<<"$1"
+}
+
+m3u_accounts_fingerprint() {
+  jq -c '
+    [.[] | select(.is_active == true) | {id, status, updated_at}]
+    | sort_by(.id)
+  ' <<<"$1"
+}
+
+refresh_m3u() {
+  local before after before_fingerprint after_fingerprint message
+  local path="/api/m3u/refresh/"
+  local started_at=${SECONDS}
+  local saw_progress="false"
+  local interval=3
+  local start_grace=30
+
+  if [[ -n "${M3U_ACCOUNT_ID}" ]]; then
+    path="/api/m3u/refresh/${M3U_ACCOUNT_ID}/"
+  fi
+
+  before="$(fetch_m3u_accounts)"
+  before_fingerprint="$(m3u_accounts_fingerprint "${before}")"
+
+  log INFO "Triggering Dispatcharr M3U refresh (${path})..."
+  api POST "${path}"
+
+  message="$(jq -r '.message // empty' <<<"${HTTP_BODY}" 2>/dev/null || true)"
+  [[ -n "${message}" ]] && log DEBUG "${message}"
+
+  while :; do
+    sleep "${interval}"
+    after="$(fetch_m3u_accounts)"
+
+    if [[ "$(m3u_refresh_in_progress "${after}")" == "true" ]]; then
+      saw_progress="true"
+      log DEBUG "M3U refresh in progress..."
+    else
+      after_fingerprint="$(m3u_accounts_fingerprint "${after}")"
+      if [[ "${saw_progress}" == "true" || "${after_fingerprint}" != "${before_fingerprint}" ]]; then
+        log INFO "M3U refresh finished."
+        jq -r '
+          .[] | select(.is_active == true)
+          | "  \(.name): \(.status)\(if .last_message then " - " + (.last_message[0:200]) else "" end)"
+        ' <<<"${after}" >&2
+        return 0
+      fi
+    fi
+
+    local elapsed=$((SECONDS - started_at))
+
+    if [[ "${saw_progress}" == "false" && "${elapsed}" -ge "${start_grace}" ]]; then
+      die "M3U refresh did not start within ${start_grace}s (is the Dispatcharr celery worker running?)."
+    fi
+
+    if ((elapsed >= M3U_REFRESH_TIMEOUT)); then
+      die "M3U refresh did not finish within ${M3U_REFRESH_TIMEOUT}s; check Dispatcharr and try again."
+    fi
+  done
 }
 
 # ---------------------------------------------------------------------------
@@ -935,6 +1047,10 @@ assign_stream() {
 main() {
   case "${MODE}" in
     list)
+      if [[ "${REFRESH_M3U}" == "true" ]]; then
+        refresh_m3u
+      fi
+
       local streams
       streams="$(fetch_streams)"
 
@@ -965,6 +1081,9 @@ main() {
 
     assign)
       [[ "${STREAM_ID}" =~ ^[0-9]+$ ]] || die "--assign requires a numeric stream id."
+      if [[ "${REFRESH_M3U}" == "true" ]]; then
+        log WARN "--refresh is ignored with --assign; use the list action to refresh the picker."
+      fi
       local channel stream
       channel="$(find_channel)"
       stream="$(get_stream "${STREAM_ID}")"
@@ -974,6 +1093,9 @@ main() {
 
     interactive)
       local channel streams
+      if [[ "${REFRESH_M3U}" == "true" ]]; then
+        refresh_m3u
+      fi
       channel="$(find_channel)"
       streams="$(fetch_streams)"
       select_stream "${streams}"

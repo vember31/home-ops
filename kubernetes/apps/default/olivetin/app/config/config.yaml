@@ -176,8 +176,9 @@ actions:
 
   # Newest 10 Dispatcharr streams -> OliveTin entity file, so the assign
   # action below can offer them as a dropdown (works on mobile; OliveTin
-  # actions have no TTY for whiptail-style pickers).
-  - title: Refresh Dispatcharr Stream List
+  # actions have no TTY for whiptail-style pickers). This is the cheap
+  # periodic rebuild: it does NOT pull the M3U playlists from the providers.
+  - title: Rebuild Stream List (cached)
     id: refresh_dispatcharr_streams
     icon: <iconify-icon icon="mdi:refresh"></iconify-icon>
     shell: /scripts/update_channel_one.sh --list --format entities --output /tmp/olivetin-entities/dispatcharr-streams.json
@@ -186,6 +187,17 @@ actions:
     popupOnStart: execution-dialog
     execOnStartup: true
     execOnCron: '*/5 * * * *'
+
+  # Tap this after the provider adds a channel: pulls the M3U playlists,
+  # waits for Dispatcharr's refresh task to finish, then rebuilds the
+  # picker list. Kept manual so the provider is not hit every 5 minutes.
+  - title: Refresh M3U & Stream List
+    id: refresh_dispatcharr_m3u
+    icon: <iconify-icon icon="mdi:cloud-download"></iconify-icon>
+    shell: /scripts/update_channel_one.sh --refresh --list --format entities --output /tmp/olivetin-entities/dispatcharr-streams.json
+    maxConcurrent: 1
+    timeout: 300
+    popupOnStart: execution-dialog
 
   # Channel 1 is a temporary hold channel, so the chosen stream always
   # replaces its stream list (no backups kept).
@@ -268,5 +280,5 @@ dashboards:
       - title: Channel 1
         type: fieldset
         contents:
+          - title: Refresh M3U & Stream List
           - title: Assign Stream to Channel 1
-          - title: Refresh Dispatcharr Stream List
