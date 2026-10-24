@@ -116,6 +116,12 @@ spec:
           cluster: ${CLUSTER_NAME}
         # Keep the VMAgent scale subresource valid for VPA/Goldilocks.
         shardCount: 1
+        extraArgs:
+          promscrape.streamParse: "true"
+          # k3s runs all components in one process, so the control-plane
+          # metrics endpoints emit responses larger than the 16MB default
+          # and get dropped before metric relabeling has a chance to run.
+          promscrape.maxScrapeSize: "64MB"
         resources:
           requests:
             cpu: 100m
