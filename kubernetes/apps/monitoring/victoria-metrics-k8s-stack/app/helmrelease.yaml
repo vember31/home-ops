@@ -142,6 +142,8 @@ spec:
       spec:
         replicaCount: 2
         configSecret: alertmanager-secret
+        extraArgs:
+          cluster.reconnect-timeout: 5m
         storage:
           volumeClaimTemplate:
             spec:
