@@ -10,5 +10,6 @@ resources:
   - ./jellyfin-users.yaml
   - ./outline-users.yaml
   - ./qui-users.yaml
+  - ./radarr-users.yaml
   - ./sonarr-users.yaml
   - ./sparkyfitness-users.yaml

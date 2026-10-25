@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aclerici38/pocket-id-operator/v0.11.0/dist/schemas/pocketidoidcclient_v1alpha1.json
+apiVersion: pocketid.internal/v1alpha1
+kind: PocketIDOIDCClient
+metadata:
+  name: radarr
+  namespace: downloads
+spec:
+  name: Radarr
+  description: Movie collection management
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: pocket-id
+  callbackUrls:
+    - https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}/signin-oidc
+  logoutCallbackUrls:
+    - https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}/signout-callback-oidc
+    - https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}/loggedout
+  launchUrl: https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+  # Radarr's ASP.NET OIDC handler uses the authorization-code flow without PKCE
+  pkceEnabled: false
+  allowedUserGroups:
+    - name: radarr-users
+      namespace: security
+  logo:
+    logoUrl: https://raw.githubusercontent.com/Radarr/Radarr/b40c63dcfe0e51e1e2796d41a0e129bf04ff5908/Logo/Radarr.svg
+  secret:
+    name: radarr-oidc-credentials
+    additionalLabels:
+      app.kubernetes.io/name: radarr

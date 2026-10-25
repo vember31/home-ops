@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aclerici38/pocket-id-operator/v0.11.0/dist/schemas/pocketidusergroup_v1alpha1.json
+apiVersion: pocketid.internal/v1alpha1
+kind: PocketIDUserGroup
+metadata:
+  name: radarr-users
+  namespace: security
+spec:
+  friendlyName: Radarr Users
+  customClaims:
+    - key: app
+      value: radarr
+  users:
+    userRefs:
+      - name: dm

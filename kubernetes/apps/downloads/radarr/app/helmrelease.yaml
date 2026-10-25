@@ -69,8 +69,31 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
-              RADARR__AUTH__METHOD: External
-              RADARR__AUTH__REQUIRED: DisabledForLocalAddresses
+              RADARR__AUTH__METHOD: Oidc
+              RADARR__AUTH__REQUIRED: Enabled
+              # Radarr authorizes one OIDC user, matched by verified email or sub.
+              # Pocket ID restricts the client to the radarr-users group.
+              RADARR__AUTH__OIDCAUTHORITY:
+                valueFrom:
+                  secretKeyRef:
+                    name: radarr-oidc-credentials
+                    key: issuer_url
+              RADARR__AUTH__OIDCCLIENTID:
+                valueFrom:
+                  secretKeyRef:
+                    name: radarr-oidc-credentials
+                    key: client_id
+              RADARR__AUTH__OIDCCLIENTSECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: radarr-oidc-credentials
+                    key: client_secret
+              RADARR__AUTH__OIDCUSERIDENTIFIER:
+                valueFrom:
+                  secretKeyRef:
+                    name: radarr-secret
+                    key: RADARR_OIDC_USER
+              RADARR__AUTH__OIDCSCOPES: openid profile email
               RADARR__SERVER__ALLOWEDHOSTS: ${APP}.local.${SECRET_DOMAIN},${APP}.downloads.svc.cluster.local
               RADARR__SERVER__PORT: &port 7878
               RADARR__SERVER__TRUSTEDNETWORKS: "10.42.0.0/16"
