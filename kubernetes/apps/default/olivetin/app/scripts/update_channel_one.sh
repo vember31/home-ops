@@ -28,9 +28,12 @@
 #
 # OliveTin wiring (kubernetes/apps/default/olivetin/app):
 #   - config.yaml:
+#       "Seed Dispatcharr Stream Picker" is hidden and runs on startup; it
+#       only writes a placeholder entity if the file is missing, so the
+#       picker has valid data after a pod restart without reading Dispatcharr;
 #       "Refresh M3U & Stream List" pulls the providers, waits, and rewrites
-#       the entity file; nothing runs on a schedule or on startup, so
-#       Dispatcharr is only read when you tap an action;
+#       the entity file; nothing reads Dispatcharr on a schedule or on startup,
+#       so Dispatcharr is only read when you tap an action;
 #       "Assign Stream to Channel 1" renders the entity as a dropdown and
 #       calls this script with --assign <id> --yes. Channel 1 is a temporary
 #       hold channel, so the action always replaces its stream list.
@@ -112,6 +115,12 @@ die() {
   exit 1
 }
 
+placeholder_entity_json() {
+  cat <<'JSON'
+{"name":"No streams found","id":"","stream_name":"","label":"No streams found - run Refresh M3U & Stream List first","updated":"","stale":""}
+JSON
+}
+
 usage() {
   cat <<EOF
 ${SCRIPT_NAME} ${VERSION} - assign a Dispatcharr stream to a channel.
@@ -123,11 +132,13 @@ Modes:
   (default)                 Interactively pick one of the newest streams.
   --list                    List the newest streams and exit.
   --assign STREAM_ID        Assign STREAM_ID without a picker.
+  --placeholder             Write a "no streams" entity placeholder and exit.
+                            Does not contact Dispatcharr.
 
 Options:
   --format table|json|entities
                             Output format for --list (default: table).
-  --output PATH             Write --list output to PATH instead of stdout.
+  --output PATH             Write --list/--placeholder output to PATH.
   --channel-number NUMBER   Target channel number (default: ${CHANNEL_NUMBER:-1}).
   --channel-id ID           Target channel database id (overrides number).
   --limit N                 Number of newest streams to show (default: 10).
@@ -158,6 +169,7 @@ Environment:
 Examples:
   ${SCRIPT_NAME} --list
   ${SCRIPT_NAME} --list --format entities --output /tmp/streams.json
+  ${SCRIPT_NAME} --placeholder --output /tmp/streams.json
   ${SCRIPT_NAME} --assign 12345 --yes
   ${SCRIPT_NAME} --assign 12345 --keep-existing --yes
   ${SCRIPT_NAME} --dry-run --assign 12345 --yes
@@ -204,6 +216,10 @@ while (($#)); do
     --assign=*)
       STREAM_ID="${1#*=}"
       MODE="assign"
+      shift
+      ;;
+    --placeholder)
+      MODE="placeholder"
       shift
       ;;
     --format)
@@ -272,6 +288,23 @@ while (($#)); do
       ;;
   esac
 done
+
+# Placeholder mode never talks to Dispatcharr, so it runs before the API
+# validation below. OliveTin calls this on startup to keep the entity file
+# valid after the emptyDir is recreated.
+if [[ "${MODE}" == "placeholder" ]]; then
+  placeholder_file="${OUTPUT:-${ENTITY_FILE}}"
+  mkdir -p "$(dirname "${placeholder_file}")"
+
+  if [[ -s "${placeholder_file}" ]]; then
+    log INFO "Entity file ${placeholder_file} already exists; leaving it untouched."
+  else
+    placeholder_entity_json >"${placeholder_file}"
+    log INFO "Wrote placeholder entity to ${placeholder_file}."
+  fi
+
+  exit 0
+fi
 
 # ---------------------------------------------------------------------------
 # Validation
@@ -749,14 +782,7 @@ write_entities() {
   : >"${tmp}"
 
   if [[ "$(jq 'length' <<<"${streams}")" -eq 0 ]]; then
-    jq -nc '{
-      name: "No streams found",
-      id: "",
-      stream_name: "",
-      label: "No streams found - run Refresh M3U & Stream List first",
-      updated: "",
-      stale: ""
-    }' >"${tmp}"
+    placeholder_entity_json >"${tmp}"
   else
     while IFS= read -r stream; do
       local id name updated stale label
