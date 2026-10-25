@@ -267,8 +267,8 @@ dashboards:
         contents:
           - type: display
             title: |
-              <a href="{{ `{{ pr.url }}` }}" target="_blank" rel="noopener noreferrer">View on GitHub</a>{{ `{{ pr.meta }}` }}
-              <pre style="white-space: pre-wrap; overflow-wrap: anywhere; max-height: 28em; overflow-y: auto; margin: 0.6em 0 0;">{{ `{{ pr.changelog }}` }}</pre>
+              <div class="pr-meta"><a href="{{ `{{ pr.url }}` }}" target="_blank" rel="noopener noreferrer">View on GitHub</a>{{ `{{ pr.meta }}` }}</div>
+              <div class="pr-changelog">{{ `{{ pr.changelog }}` }}</div>
           - title: '{{ `{{ pr.action_label }}` }}'
 
   # Mobile-friendly Dispatcharr hold-channel controls.

@@ -5,6 +5,9 @@
  * PR cards: the changelog spans the full card width and the merge button sits
  * below it, capped to a comfortable width.
  *
+ * The changelog is rendered by GitHub to HTML (see fetch-open-prs.sh), so the
+ * styles below cover the common markdown elements GitHub emits.
+ *
  * Theme CSS is injected inside @layer theme, so !important is used where it
  * needs to beat the component's own (scoped) rules.
  */
@@ -17,17 +20,178 @@ fieldset.pr-cards {
 }
 
 fieldset.pr-cards > .display {
-  align-items: stretch;
-  text-align: left;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
   font-size: 1rem !important;
-  line-height: 1.5;
+  line-height: 1.5 !important;
 }
 
-fieldset.pr-cards > .display pre {
-  margin: 0;
-  font-family: inherit;
+/* Header line with the GitHub link and PR metadata. */
+fieldset.pr-cards > .display .pr-meta {
+  width: 100%;
+  margin-bottom: 0.5em;
+  color: var(--text-secondary, #666);
+  font-size: 0.85em;
+}
+
+fieldset.pr-cards > .display .pr-meta a {
+  font-weight: 600;
+}
+
+/* Rendered PR body. Keep it scrollable so long changelogs do not push the
+ * merge button off the card. */
+fieldset.pr-cards > .display .pr-changelog {
+  width: 100%;
+  max-height: 28em;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+fieldset.pr-cards > .display .pr-changelog > :first-child {
+  margin-top: 0;
+}
+
+fieldset.pr-cards > .display .pr-changelog > :last-child {
+  margin-bottom: 0;
+}
+
+fieldset.pr-cards > .display .pr-changelog p,
+fieldset.pr-cards > .display .pr-changelog ul,
+fieldset.pr-cards > .display .pr-changelog ol,
+fieldset.pr-cards > .display .pr-changelog dl,
+fieldset.pr-cards > .display .pr-changelog blockquote,
+fieldset.pr-cards > .display .pr-changelog pre,
+fieldset.pr-cards > .display .pr-changelog table,
+fieldset.pr-cards > .display .pr-changelog details,
+fieldset.pr-cards > .display .pr-changelog hr {
+  margin: 0 0 0.75em;
+}
+
+fieldset.pr-cards > .display .pr-changelog h1,
+fieldset.pr-cards > .display .pr-changelog h2,
+fieldset.pr-cards > .display .pr-changelog h3,
+fieldset.pr-cards > .display .pr-changelog h4,
+fieldset.pr-cards > .display .pr-changelog h5,
+fieldset.pr-cards > .display .pr-changelog h6 {
+  margin: 1em 0 0.4em;
+  line-height: 1.25;
+}
+
+fieldset.pr-cards > .display .pr-changelog h1 {
+  font-size: 1.35em;
+}
+
+fieldset.pr-cards > .display .pr-changelog h2 {
+  font-size: 1.2em;
+}
+
+fieldset.pr-cards > .display .pr-changelog h3 {
+  font-size: 1.1em;
+}
+
+fieldset.pr-cards > .display .pr-changelog h4,
+fieldset.pr-cards > .display .pr-changelog h5,
+fieldset.pr-cards > .display .pr-changelog h6 {
   font-size: 1em;
-  line-height: 1.5;
+}
+
+fieldset.pr-cards > .display .pr-changelog ul,
+fieldset.pr-cards > .display .pr-changelog ol {
+  padding-left: 1.5em;
+}
+
+fieldset.pr-cards > .display .pr-changelog li + li {
+  margin-top: 0.25em;
+}
+
+fieldset.pr-cards > .display .pr-changelog a {
+  color: var(--link-color, #007bff);
+}
+
+fieldset.pr-cards > .display .pr-changelog code,
+fieldset.pr-cards > .display .pr-changelog samp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+fieldset.pr-cards > .display .pr-changelog code {
+  padding: 0.1em 0.3em;
+  border-radius: 0.3em;
+  background: var(--bg-hover, #f0f0f0);
+}
+
+fieldset.pr-cards > .display .pr-changelog pre {
+  padding: 0.75em;
+  overflow-x: auto;
+  border-radius: 0.4em;
+  background: var(--bg-hover, #f5f5f5);
+}
+
+fieldset.pr-cards > .display .pr-changelog pre code {
+  padding: 0;
+  background: none;
+}
+
+fieldset.pr-cards > .display .pr-changelog blockquote {
+  padding-left: 0.75em;
+  border-left: 0.25em solid var(--border-color, #ccc);
+  color: var(--muted-text-color, #666);
+}
+
+fieldset.pr-cards > .display .pr-changelog hr {
+  border: 0;
+  border-top: 1px solid var(--border-color, #ccc);
+}
+
+fieldset.pr-cards > .display .pr-changelog img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* GitHub wraps rendered tables in an accessibility custom element. */
+fieldset.pr-cards > .display .pr-changelog markdown-accessiblity-table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+fieldset.pr-cards > .display .pr-changelog table {
+  display: block;
+  width: max-content;
+  max-width: none;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+fieldset.pr-cards > .display .pr-changelog th,
+fieldset.pr-cards > .display .pr-changelog td {
+  padding: 0.35em 0.6em;
+  border: 1px solid var(--border-color, #ccc);
+  text-align: left;
+}
+
+fieldset.pr-cards > .display .pr-changelog thead th {
+  background: var(--bg-hover, #f5f5f5);
+}
+
+fieldset.pr-cards > .display .pr-changelog details {
+  width: 100%;
+}
+
+fieldset.pr-cards > .display .pr-changelog summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+fieldset.pr-cards > .display .pr-changelog .contains-task-list {
+  padding-left: 0.25em;
+  list-style: none;
+}
+
+fieldset.pr-cards > .display .pr-changelog .task-list-item-checkbox {
+  margin-right: 0.4em;
 }
 
 fieldset.pr-cards > .action-button {
