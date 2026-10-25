@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aclerici38/pocket-id-operator/v0.11.0/dist/schemas/pocketidoidcclient_v1alpha1.json
+apiVersion: pocketid.internal/v1alpha1
+kind: PocketIDOIDCClient
+metadata:
+  name: sonarr
+  namespace: downloads
+spec:
+  name: Sonarr
+  description: TV collection management
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: pocket-id
+  callbackUrls:
+    - https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}/signin-oidc
+  logoutCallbackUrls:
+    - https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}/signout-callback-oidc
+    - https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}/loggedout
+  launchUrl: https://${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+  # Sonarr's ASP.NET OIDC handler uses the authorization-code flow without PKCE
+  pkceEnabled: false
+  allowedUserGroups:
+    - name: sonarr-users
+      namespace: security
+  logo:
+    logoUrl: https://raw.githubusercontent.com/Sonarr/Sonarr/465b5192acfe16a28da72b37179e37daa22aca86/Logo/Sonarr.svg
+  secret:
+    name: sonarr-oidc-credentials
+    additionalLabels:
+      app.kubernetes.io/name: sonarr

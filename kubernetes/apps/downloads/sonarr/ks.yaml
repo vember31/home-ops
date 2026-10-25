@@ -15,6 +15,7 @@ spec:
     - name: qbittorrent
     - name: autopulse
     - name: external-secrets-stores
+    - name: pocket-id-groups
   path: ./kubernetes/apps/downloads/sonarr/app
   prune: true
   sourceRef:

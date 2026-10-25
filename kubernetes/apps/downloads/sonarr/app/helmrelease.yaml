@@ -68,8 +68,31 @@ spec:
 
             env:
               TZ: ${TIMEZONE}
-              SONARR__AUTH__METHOD: External
-              SONARR__AUTH__REQUIRED: DisabledForLocalAddresses
+              SONARR__AUTH__METHOD: Oidc
+              SONARR__AUTH__REQUIRED: Enabled
+              # Sonarr v5 authorizes one OIDC user, matched by verified email or sub.
+              # Pocket ID restricts the client to the sonarr-users group.
+              SONARR__AUTH__OIDCAUTHORITY:
+                valueFrom:
+                  secretKeyRef:
+                    name: sonarr-oidc-credentials
+                    key: issuer_url
+              SONARR__AUTH__OIDCCLIENTID:
+                valueFrom:
+                  secretKeyRef:
+                    name: sonarr-oidc-credentials
+                    key: client_id
+              SONARR__AUTH__OIDCCLIENTSECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: sonarr-oidc-credentials
+                    key: client_secret
+              SONARR__AUTH__OIDCUSERIDENTIFIER:
+                valueFrom:
+                  secretKeyRef:
+                    name: sonarr-secret
+                    key: SONARR_OIDC_USER
+              SONARR__AUTH__OIDCSCOPES: openid profile email
               SONARR__LOG__DBENABLED: "False"
               SONARR__SERVER__ALLOWEDHOSTS: ${APP}.local.${SECRET_DOMAIN},${APP}.downloads.svc.cluster.local
               SONARR__SERVER__PORT: &port 8989
