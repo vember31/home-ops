@@ -55,7 +55,7 @@ spec:
           app:
             image:
               repository: ghcr.io/hotio/tautulli
-              tag: release-2.18.2@sha256:5d552375cd25d9534a9139f0d8649b0449f86bf15b8f426c858c32f77617a778
+              tag: release-2.18.2@sha256:e4c022734e60687e83095946c497cf5479b9d8c6076204d5dbb81571ce4fc477
               pullPolicy: IfNotPresent
 
             env:
