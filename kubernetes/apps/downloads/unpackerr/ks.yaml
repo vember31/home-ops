@@ -6,7 +6,7 @@ metadata:
   name: &app unpackerr
   namespace: flux-system
 spec:
-  targetNamespace: &namespace downloads
+  targetNamespace: downloads
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -24,5 +24,3 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_PORT: "5656"
-      GATUS_NAMESPACE: *namespace

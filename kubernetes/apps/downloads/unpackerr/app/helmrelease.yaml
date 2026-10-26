@@ -47,7 +47,8 @@ spec:
       ${APP}:
         enabled: true
         type: deployment
-        annotations: {}
+        annotations:
+          reloader.stakater.com/auto: "true"
         labels: {}
         replicas: 1
 
@@ -55,50 +56,31 @@ spec:
           app:
             image:
               repository: ghcr.io/unpackerr/unpackerr
-              tag: v0.16.1@sha256:406586865431b40b29353d899fb75a788f5384743f7f381444db5fe55d206914
+              tag: v1.0.0@sha256:21c6bfa4f4c86ab2dd0232da0dfb3ed4c5d929e42e09894e7b4d2154d0c144f6
               pullPolicy: IfNotPresent
 
-            env:
-            # Global
-              TZ: ${TIMEZONE}
-              PUID: 1000
-              PGID: 1000
-              UMASK: 002
-            # Sonarr Config
-              UN_SONARR_0_URL: http://sonarr.downloads.svc.cluster.local:8989
-              UN_SONARR_0_API_KEY: 
-                valueFrom:
-                  secretKeyRef:
-                    name: unpackerr-secret
-                    key: SONARR_API_KEY
-              UN_SONARR_0_PATHS_0: /media/downloads
-              UN_SONARR_0_PROTOCOLS: torrent
-              UN_SONARR_0_TIMEOUT: 10s
-              UN_SONARR_0_DELETE_ORIG: false
-              UN_SONARR_0_DELETE_DELAY: 5m
-              # Radarr Config
-              UN_RADARR_0_URL: http://radarr.downloads.svc.cluster.local:7878
-              UN_RADARR_0_API_KEY: 
-                valueFrom:
-                  secretKeyRef:
-                    name: unpackerr-secret
-                    key: RADARR_API_KEY
-              UN_RADARR_0_PATHS_0: /media/downloads
-              UN_RADARR_0_PROTOCOLS: torrent
-              UN_RADARR_0_TIMEOUT: 10s
-              UN_RADARR_0_DELETE_ORIG: false
-              UN_RADARR_0_DELETE_DELAY: 5m
-              # Webhook Config
-              UN_WEBHOOK_0_URL: 
-                valueFrom:
-                  secretKeyRef:
-                    name: unpackerr-secret
-                    key: UNPACKERR_NOTIFIARR_URL
-              UN_WEBHOOK_0_NAME: Notifiarr
-              UN_WEBHOOK_0_NICKNAME: Unpackerr
-              # Webserver Config
-              UN_WEBSERVER_METRICS: true #serves prometheus metrics
+            command:
+              - /scripts/start-unpackerr.sh
 
+            env:
+              TZ: ${TIMEZONE}
+              UN_CONFIG_FILE: /config/unpackerr.conf
+              # Prometheus key: metrics read only.
+              UN_WEBSERVER_API_KEYS_0_NAME: prometheus
+              UN_WEBSERVER_API_KEYS_0_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: unpackerr-auth
+                    key: metrics_api_key
+              UN_WEBSERVER_API_KEYS_0_ROLES_0: metrics
+              UN_WEBSERVER_API_KEYS_1_NAME: admin
+              UN_WEBSERVER_API_KEYS_1_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: unpackerr-auth
+                    key: admin_api_key
+              UN_WEBSERVER_API_KEYS_1_ROLES_0: admin
+              UN_WEBSERVER_ROLES_metrics_PERMISSIONS_0: system:metrics:read
 
             resources:
               requests:
@@ -118,12 +100,45 @@ spec:
                   failureThreshold: 30
                   periodSeconds: 5
 
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+
     service:
       app:
         controller: *name
         ports:
           http:
             port: 5656
+
+    ingress:
+      app:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-secure@kubernetescrd
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: "Archive Extraction"
+          gethomepage.dev/group: Downloads
+          gethomepage.dev/icon: unpackerr
+          gethomepage.dev/name: Unpackerr
+          gethomepage.dev/siteMonitor: &url http://unpackerr.downloads.svc.cluster.local:5656
+        hosts:
+          - host: &host ${GATUS_SUBDOMAIN:-${APP}}.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: ${APP}-tls-production
+            hosts:
+              - *host
 
     serviceMonitor:
       app:
@@ -134,8 +149,57 @@ spec:
             path: /metrics
             interval: 1m
             scrapeTimeout: 10s
+            authorization:
+              type: Bearer
+              credentials:
+                name: unpackerr-auth
+                key: metrics_api_key
 
     persistence:
+
+      config:
+        type: emptyDir
+        globalMounts:
+          - path: /config
+
+      seed:
+        type: configMap
+        name: unpackerr-config-seed
+        defaultMode: 0644
+        advancedMounts:
+          ${APP}:
+            app:
+              - path: /seed
+                readOnly: true
+
+      scripts:
+        type: configMap
+        name: unpackerr-scripts
+        defaultMode: 0755
+        advancedMounts:
+          ${APP}:
+            app:
+              - path: /scripts/start-unpackerr.sh
+                subPath: start-unpackerr.sh
+                readOnly: true
+
+      credentials:
+        type: secret
+        name: unpackerr-secret
+        advancedMounts:
+          ${APP}:
+            app:
+              - path: /secrets
+                readOnly: true
+
+      auth:
+        type: secret
+        name: unpackerr-auth
+        advancedMounts:
+          ${APP}:
+            app:
+              - path: /auth
+                readOnly: true
 
       media:
         enabled: true
@@ -143,7 +207,3 @@ spec:
         existingClaim: nfs-omv-media
         globalMounts:
           - path: /media/
-
-      logs:
-        type: emptyDir
-      
