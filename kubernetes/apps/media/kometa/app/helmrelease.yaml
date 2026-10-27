@@ -104,9 +104,16 @@ spec:
     persistence:
 
       config:
-        type: emptyDir
+        enabled: true
+        suffix: config
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        retain: true
         globalMounts:
           - path: /config
+            readOnly: false
 
       config-file:
         type: configMap

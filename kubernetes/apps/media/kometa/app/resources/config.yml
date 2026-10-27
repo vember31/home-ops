@@ -48,7 +48,6 @@ settings:
   playlist_report: false
   check_nightly: false
   show_unconfigured: true
-  auto_sort_hubs: false
   show_unfiltered: false
   overlay_artwork_filetype: webp_lossy
   overlay_artwork_quality: 90
