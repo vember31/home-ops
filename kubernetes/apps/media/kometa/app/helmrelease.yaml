@@ -70,6 +70,7 @@ spec:
 
             args:
               - |
+                mkdir -p /config/assets
                 python3 kometa.py --run --read-only-config --run-libraries "Movies";
                 python3 kometa.py --run --read-only-config --run-libraries "TV Shows"
 

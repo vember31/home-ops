@@ -48,6 +48,10 @@ settings:
   playlist_report: false
   check_nightly: false
   show_unconfigured: true
+  auto_sort_hubs: false
+  show_unfiltered: false
+  overlay_artwork_filetype: webp_lossy
+  overlay_artwork_quality: 90
   playlist_exclude_users:
   run_order:
     - operations
@@ -57,8 +61,9 @@ settings:
 
 plex:
   url: "http://plex.media.svc.cluster.local:32400"
-  token: <<PLEX_TOKEN>>
+  token: env
   timeout: 120
+  verify_ssl: true
   clean_bundles: false
   empty_trash: false
   optimize: false
