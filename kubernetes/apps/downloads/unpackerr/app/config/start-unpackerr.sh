@@ -6,4 +6,7 @@ if [ ! -s /config/unpackerr.conf ]; then
   echo "Seeded /config/unpackerr.conf from config"
 fi
 
+ln -sfn /history/unpackerr.history.jsonl /config/unpackerr.history.jsonl
+echo "History: /history/unpackerr.history.jsonl"
+
 exec /unpackerr "$@"

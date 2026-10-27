@@ -162,6 +162,17 @@ spec:
         globalMounts:
           - path: /config
 
+      history:
+        enabled: true
+        suffix: history
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 64Mi
+        retain: true
+        globalMounts:
+          - path: /history
+
       seed:
         type: configMap
         name: unpackerr-config-seed
