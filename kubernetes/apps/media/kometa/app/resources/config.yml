@@ -1,0 +1,71 @@
+libraries:
+  Movies:
+    collection_files:
+      - default: basic
+      - default: imdb
+      - default: franchise
+  TV Shows:
+    collection_files:
+      - default: basic
+      - default: franchise
+
+settings:
+  cache: true
+  cache_expiration: 60
+  sync_mode: sync
+  show_unmanaged: true
+  show_filtered: false
+  show_missing: true
+  save_missing: true
+  run_again_delay: 2
+  asset_directory: /config/assets
+  asset_folders: false
+  assets_for_all: false
+  released_missing_only: false
+  create_asset_folders: false
+  missing_only_released: false
+  delete_below_minimum: false
+  minimum_items: 1
+  asset_depth: 0
+  dimensional_asset_rename: false
+  download_url_assets: false
+  show_missing_season_assets: false
+  default_collection_order:
+  delete_not_scheduled: false
+  only_filter_missing: false
+  show_options: false
+  show_missing_assets: false
+  tvdb_language: default
+  ignore_ids:
+  ignore_imdb_ids:
+  verify_ssl: true
+  playlist_sync_to_users: all
+  show_missing_episode_assets: false
+  show_asset_not_needed: true
+  item_refresh_delay: 0
+  custom_repo: https://github.com/vember31/home-ops/tree/main/kubernetes/apps/media/kometa/custom/
+  prioritize_assets: false
+  playlist_report: false
+  check_nightly: false
+  show_unconfigured: true
+  playlist_exclude_users:
+  run_order:
+    - operations
+    - metadata
+    - collections
+    - overlays
+
+plex:
+  url: "http://plex.media.svc.cluster.local:32400"
+  token: <<PLEX_TOKEN>>
+  timeout: 120
+  clean_bundles: false
+  empty_trash: false
+  optimize: false
+  db_cache: 1024
+
+tmdb:
+  apikey: <<TMDB_API_KEY>>
+  language: en
+  cache_expiration: 60
+  region:
