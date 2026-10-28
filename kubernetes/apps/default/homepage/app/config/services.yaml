@@ -122,27 +122,6 @@
         description: Home Security
 
 - Media:
-    - Agregarr:
-        href: https://agregarr.local.${SECRET_DOMAIN}
-        icon: sh-agregarr
-        description: Plex Collection Management
-        siteMonitor: http://agregarr.media.svc.cluster.local:7171
-        widget:
-          type: customapi
-          url: http://agregarr.media.svc.cluster.local:7171/api/v1/settings/main
-          refreshInterval: 60000
-          headers:
-            X-Api-Key: "{{HOMEPAGE_VAR_AGREGARR_TOKEN}}"
-          mappings:
-            - field: syncCounter
-              label: Total Syncs
-              format: number
-            - field: lastGlobalSyncAt
-              label: Last Full Sync
-              format: relativeDate
-            - field: lastCollectionsQuickSyncAt
-              label: Last Quick Sync
-              format: relativeDate
     - Autopulse:
         href: https://autopulse.local.${SECRET_DOMAIN}/ui/
         icon: https://github.com/dan-online/autopulse/raw/main/assets/logo.webp
@@ -165,16 +144,16 @@
             - field: stats.retrying
               label: Retrying
               format: number
-    - Jellyfin:
-        href: https://jellyfin.${SECRET_DOMAIN}
-        icon: jellyfin
-        description: Open-source Media Server
-        siteMonitor: http://jellyfin.media.svc.cluster.local:8096
-        widget:
-          type: jellyfin
-          url: http://jellyfin.media.svc.cluster.local:8096
-          key: "{{HOMEPAGE_VAR_JELLYFIN_TOKEN}}"
-          version: 2 # Jellyfin 12: v1 mode uses the /emby/ routes 12 removed
+    # - Jellyfin:
+    #     href: https://jellyfin.${SECRET_DOMAIN}
+    #     icon: jellyfin
+    #     description: Open-source Media Server
+    #     siteMonitor: http://jellyfin.media.svc.cluster.local:8096
+    #     widget:
+    #       type: jellyfin
+    #       url: http://jellyfin.media.svc.cluster.local:8096
+    #       key: "{{HOMEPAGE_VAR_JELLYFIN_TOKEN}}"
+    #       version: 2 # Jellyfin 12: v1 mode uses the /emby/ routes 12 removed
     - Maintainerr:
         href: https://maintainerr.local.${SECRET_DOMAIN}
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/maintainerr.svg
