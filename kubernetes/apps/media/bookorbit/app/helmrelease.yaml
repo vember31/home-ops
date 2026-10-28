@@ -82,7 +82,7 @@ spec:
               APP_URL: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
               CLIENT_URL: https://${GATUS_SUBDOMAIN}.${SECRET_DOMAIN}
               PUID: 1000
-              PGID: 1000
+              PGID: 100
               BOOK_DOCK_PATH: /books/bookdrop
             envFrom: *envFrom
 
@@ -135,7 +135,8 @@ spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
-        runAsGroup: 1000
+        # NAS users group; /books is root:users 2775 and BookOrbit creates /books/bookdrop at boot
+        runAsGroup: 100
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
 
