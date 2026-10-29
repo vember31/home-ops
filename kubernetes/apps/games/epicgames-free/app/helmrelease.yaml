@@ -53,6 +53,9 @@ spec:
           concurrencyPolicy: Forbid
           successfulJobsHistory: 1
           failedJobsHistory: 1
+          # Allow time for a manual device-login wait (~6h), but fail hung runs
+          # before the 12h KubeJobNotCompleted alert can fire.
+          activeDeadlineSeconds: 28800
 
         containers:
           app:
@@ -72,16 +75,23 @@ spec:
               readOnlyRootFilesystem: false
               capabilities: { drop: ["ALL"] }
 
-            probes: 
-              liveness: 
+            probes:
+              liveness:
                 enabled: false
               readiness:
                 enabled: false
               startup:
-                enabled: false
+                enabled: true
+                custom: true
                 spec:
-                  failureThreshold: 30
-                  periodSeconds: 5
+                  # The app's xvfb-run wrapper can occasionally hang before Node starts.
+                  # Fail the pod so the Job retries instead of blocking future runs.
+                  tcpSocket:
+                    port: 3000
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 60
 
     service:
       app:
