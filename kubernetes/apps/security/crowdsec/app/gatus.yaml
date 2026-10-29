@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crowdsec-gatus-ep
+  labels:
+    gatus.io/enabled: "true"
+data:
+  config.yaml: |
+    endpoints:
+      # LAPI exposes an unauthenticated health endpoint, same one used by its
+      # own readiness/liveness probes.
+      - name: crowdsec-lapi
+        group: internal-backend
+        url: http://crowdsec-service.security.svc.cluster.local:8080/health
+        interval: 1m
+        conditions:
+          - "[STATUS] == 200"
+          - "[BODY].status == up"
+        alerts:
+          - type: discord
+            send-on-resolved: true
+            failure-threshold: 2
+            minimum-reminder-interval: "3h"
+      # AppSec has no dedicated health endpoint, so use the metrics endpoint
+      # that the chart's own probes rely on. The body condition confirms the
+      # AppSec component is actually loaded, not just the process running.
+      - name: crowdsec-appsec
+        group: internal-backend
+        url: http://crowdsec-appsec-service.security.svc.cluster.local:6060/metrics
+        interval: 1m
+        conditions:
+          - "[STATUS] == 200"
+          - "[BODY] == pat(*cs_appsec_*)"
+        alerts:
+          - type: discord
+            send-on-resolved: true
+            failure-threshold: 2
+            minimum-reminder-interval: "3h"
