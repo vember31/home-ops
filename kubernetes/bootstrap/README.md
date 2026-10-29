@@ -42,6 +42,16 @@ blacklist {
 EOF' && sudo systemctl restart multipathd && sudo multipath -F
 ```
 
+### AppArmor Workaround (Ubuntu 26.04 / Kernel 6.17+)
+Temporary workaround for an upstream k3s/containerd AppArmor bug. On kernels with AppArmor profile stacking, the default `cri-containerd.apparmor.d` profile denies signals between processes in the same container. Go workloads (Blocky, CrowdSec) spin in `sched_yield` and never start, and helpers such as `rsync` hang.
+
+The installer exits early on nodes where stacking is not enabled, so it is safe to run everywhere. From a checkout of this repo:
+```
+sudo ./scripts/install-cri-containerd-apparmor-workaround.sh
+```
+
+See the [AppArmor signal stacking runbook](../../docs/runbooks/apparmor-signal-stacking.md) for symptoms, verification, and removal. **Remove this workaround once k3s/containerd ships the upstream fix** ([k3s#13625](https://github.com/k3s-io/k3s/issues/13625), [containerd#12886](https://github.com/containerd/containerd/issues/12886)) — leaving it installed overrides containerd's built-in profile.
+
 ### Set Environment Variables
 Define these before running the remaining commands:
 ```
@@ -164,6 +174,8 @@ Once the sync completes, Flux will pick up the `flux-operator` and `flux-instanc
 
 ## Adding a New Node to an Existing Cluster
 Joining a new node to an already-bootstrapped cluster starts with the **Node Preparation** steps, then the k3s install step matching the node type (**server** or **worker**). Skip Secret Preparation and Install Flux Operator — those are one-time, cluster-wide steps. `K3S_TOKEN` can be read from any existing node at `/var/lib/rancher/k3s/server/token`.
+
+On Ubuntu 26.04 / kernel 6.17+ nodes, run the temporary AppArmor workaround from Node Preparation before starting k3s.
 
 ### Server (control-plane) nodes
 Beyond joining k3s itself, a few places track the list of server node IPs by hand and must be updated whenever a server node is added (or removed):
