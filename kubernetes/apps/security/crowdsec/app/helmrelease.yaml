@@ -50,7 +50,7 @@ spec:
 
     image:
       repository: crowdsecurity/crowdsec
-      tag: v1.8.1
+      tag: v1.8.2
 
     # Detection is handled by the AppSec component fed by the Traefik bouncer
     # plugin. No log acquisition is configured, so the agent is not needed.
