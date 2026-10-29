@@ -132,7 +132,7 @@ spec:
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce
-        size: 64Mi
+        size: 1Gi
         retain: true
         globalMounts: 
           - path: /usr/app/config
