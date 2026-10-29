@@ -128,11 +128,11 @@ spec:
 
       config:
         enabled: true
-        suffix: config
+        suffix: config-v2
         type: persistentVolumeClaim
         storageClass: longhorn
         accessMode: ReadWriteOnce
-        size: 1Gi
+        size: 256Mi
         retain: true
         globalMounts: 
           - path: /usr/app/config
