@@ -487,6 +487,7 @@ Final layout:
 - **Stop before removing the etcd member:** stop/disable K3s on the departing node first, then remove the member from a remaining control plane. Otherwise the node can rejoin etcd.
 - **Agent join via the VIP:** immediately after the control-plane removal, the agent's bootstrap through `https://192.168.10.100:6443` failed with repeated EOF/resets while the Cilium BGP endpoint state was settling. Bootstrapping via `https://192.168.2.11:6443` worked. After Cilium was running on `k3s-worker4` and the `kube-api` EndpointSlice contained only `control1/3/4`, switching the agent back to `https://192.168.10.100:6443` worked and the node stayed `Ready`. If it recurs, join direct first, then switch back to the VIP.
 - **Cilium API-LB selector:** the `kube-api` service selects Cilium pods labeled `cilium-api-lb=true`. The init container applies that label only on nodes with `node-role.kubernetes.io/control-plane=true`. `k3s-worker4` correctly has no such label, so it is not an API endpoint. The BGP advertisement's `kubernetes.io/os: linux` node selector intentionally makes every Linux node advertise the VIP; it does not make workers control planes.
+- **Cilium init container on rebooted workers:** the `label-control-plane` init container originally used the in-cluster ClusterIP (`10.43.0.1:443`) before CNI was available, so a rebooted worker waited about 90 seconds on API timeouts before Cilium started. It now uses `--server=https://${K3S_LB_IP}:6443 --request-timeout=10s` so it fails fast and does not depend on the CNI it is about to install.
 - **VM naming:** `qm set 402 --name k3s-worker4` only changes the Proxmox VM name. The guest hostname is separate.
 
 ### Verification
@@ -527,8 +528,9 @@ Do **not** use `pcie=1` for this iGPU on `pve4`, and do not add display-passthro
 - [x] Remove `control2` from etcd and repurpose VM 402 as `k3s-worker4`.
 - [x] Apply Longhorn node prerequisites fleet-wide (`nfs-common`, `open-iscsi`, `iscsid` enabled, `dm_crypt`, multipath blacklist); Longhorn is enabled on all nodes, including `k3s-gpu-worker`.
 - [x] Remove the stale Longhorn node `k3s-control2` after deleting the expendable `games/epicgames-config-v2` volume.
+- [x] Test VM 405 reboot with the GPU attached (2026-11-04): `pve4` stayed responsive, the iGPU came back as `i915` with `/dev/dri/renderD128` and iHD `vainfo`, and the node returned `Ready`.
 - [ ] Deploy Silo server + transcode worker; register the node in Silo.
-- [ ] Consider testing VM 405 reboot with the GPU attached, once there is a maintenance window.
-- [ ] If the GPU worker VM is ever recreated, update the MAC in `10-ens18.link` / netplan.
 
-The two remaining detached/`unknown` Longhorn volumes (`pvc-ab16c80b-cd4d-40a8-b165-1fb948b89243` and `pvc-bbbe2576-114f-4f5e-b31b-e32fc7a24e34`) are pre-existing; leave them alone unless their data is declared expendable.
+The two remaining detached/`unknown` Longhorn volumes (`pvc-ab16c80b-cd4d-40a8-b165-1fb948b89243` / `media/kometa-config` and `pvc-bbbe2576-114f-4f5e-b31b-e32fc7a24e34` / `home/babybuddy-config`) are pre-existing and still bound to their PVCs; leave them alone unless their data is declared expendable.
+
+**FYI:** if VM 405 is ever recreated, update the MAC in `10-ens18.link` / netplan. There is no action unless a rebuild happens.
