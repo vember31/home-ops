@@ -232,7 +232,9 @@ spec:
                     port: *port
                   periodSeconds: 10
                   failureThreshold: 30
-            securityContext: *containerSecurity
+            securityContext:
+              privileged: true
+              readOnlyRootFilesystem: true
             resources:
               requests:
                 cpu: 100m
@@ -372,7 +374,6 @@ spec:
           transcode:
             app:
               - path: /dev/dri
-                readOnly: true
 
       initdb:
         type: configMap

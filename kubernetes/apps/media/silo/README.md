@@ -103,7 +103,10 @@ The iGPU is passed through to VM 405 and appears on `k3s-gpu-worker` as:
 ```
 
 The transcode pod runs as UID/GID `1000` with supplemental groups `44` and
-`992`. No Intel device plugin or DRA driver is required for this single GPU.
+`992`. No Intel device plugin or DRA driver is required for this single GPU, but
+the container must be privileged so the device cgroup allows opening
+`/dev/dri`. The device is mounted read-write because VAAPI opens the render node
+`O_RDWR`. The image already includes the Intel `iHD` driver.
 
 ## Scratch space
 
