@@ -2,7 +2,7 @@
 The documentation here will guide from preparing a Debian or Ubuntu-based node, to having k3s setup.
 
 ## IP Address Assignment
-Cluster nodes live on the secure VLAN (`192.168.2.0/24`) and are currently numbered sequentially starting at `192.168.2.11` (node 1 = `.11`, node 2 = `.12`, etc.) — the current cluster runs nodes `.11`–`.15`. Every node runs as a k3s **server** (this is an all-control-plane / stacked-etcd HA setup, not a separate control-plane/agent split), so a new node should be assigned the next unused IP in that sequence.
+Cluster nodes live on the secure VLAN (`192.168.2.0/24`) and are currently numbered starting at `192.168.2.11` (historical node 1 = `.11`, node 2 = `.12`, etc.). The current cluster runs control planes at `.11`, `.13`, and `.14`, and workers at `.12` and `.15`, plus `.51`–`.53`. There are three k3s **server** nodes (`k3s-control1`, `k3s-control3`, `k3s-control4`) forming the stacked-etcd control plane, and five **worker/agent** nodes (`k3s-gpu-worker`, `k3s-worker1`–`k3s-worker4`). Assign the next unused IP in the sequence for a new node.
 
 Once you've picked an IP for the new node, provision the VM/host with that address before continuing to Node Preparation below.
 
@@ -25,11 +25,22 @@ sudo swapoff -a && sudo sed -i '/[[:space:]]swap[[:space:]]/s/^/#/' /etc/fstab
 
 Install packages:
 ```
-sudo apt install nfs-common open-iscsi qemu-guest-agent unattended-upgrades
+sudo apt install -y nfs-common open-iscsi multipath-tools cryptsetup dmsetup qemu-guest-agent unattended-upgrades
 ```
 Configure Unattended Upgrades and enable OS package upgrades:
 ```
 sudo dpkg-reconfigure -plow unattended-upgrades && sudo sed -i 's|//\s*"\${distro_id}:\${distro_codename}-updates";|"\${distro_id}:\${distro_codename}-updates";|' /etc/apt/apt.conf.d/50unattended-upgrades
+```
+Enable iSCSI at boot — Longhorn uses iSCSI for volume I/O:
+```
+sudo systemctl enable --now iscsid
+```
+Load `dm_crypt`, which Longhorn expects for its environment check:
+```
+sudo modprobe dm_crypt
+sudo tee /etc/modules-load.d/longhorn.conf >/dev/null <<EOF
+dm_crypt
+EOF
 ```
 
 ### Configure Multipath (Longhorn)
@@ -41,6 +52,7 @@ blacklist {
 }
 EOF' && sudo systemctl restart multipathd && sudo multipath -F
 ```
+Longhorn's `Multipathd` node condition will still report a warning while `multipathd` is running. That is expected with this blacklist configuration; the node remains `Ready` and `Schedulable`.
 
 ### AppArmor Workaround (Ubuntu 26.04 / Kernel 6.17+)
 Temporary workaround for an upstream k3s/containerd AppArmor bug. On kernels with AppArmor profile stacking, the default `cri-containerd.apparmor.d` profile denies signals between processes in the same container. Go workloads (Blocky, CrowdSec) spin in `sched_yield` and never start, and helpers such as `rsync` hang.

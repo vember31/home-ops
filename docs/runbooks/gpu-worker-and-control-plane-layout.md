@@ -1,6 +1,6 @@
 # GPU Worker and Control-Plane Layout Runbook
 
-Context for the iGPU passthrough work, the rebuilt GPU worker, and the planned reduction to three control-plane nodes.
+Context for the iGPU passthrough work, the rebuilt GPU worker, and the completed reduction to three control-plane nodes (with `control2` repurposed as `k3s-worker4`).
 
 **Last updated:** 2026-11-04
 **Author:** GPU/control-plane work was performed interactively (OpenCode session); this doc rebuilds that context.
@@ -19,9 +19,11 @@ Context for the iGPU passthrough work, the rebuilt GPU worker, and the planned r
   **No `pcie=1`.** QEMU attaches it at `bus=pci.0,addr=0x10`.
 - Guest verification: `/dev/dri/renderD128` exists and `vainfo` loads the Intel iHD driver with H.264/HEVC/VP9 encode/decode profiles.
 - The old `k3s-control5` node and its etcd member were removed. CNPG and Longhorn were cleaned up.
-- **Current cluster shape:** 4 control planes + 4 workers.
-- **Desired cluster shape:** **3 control planes** — `k3s-control1`, `k3s-control3`, `k3s-control4` — and **5 workers**. `k3s-control2` should be removed from etcd and repurposed as a worker.
-- Reason: `k3s-control1` and `k3s-control2` are both on Proxmox host `pve`. With 3 controls that include both, losing `pve` would leave only 1/3 control planes and lose quorum. With 3 controls on three different Proxmox hosts (`pve`, `pve2`, `pve3`), losing one host still leaves 2/3 and quorum.
+- Longhorn is enabled on all eight nodes, including `k3s-gpu-worker`; the stale `k3s-control2` Longhorn node was removed.
+- **Current cluster shape:** **3 control planes + 5 workers.**
+- Controls: `k3s-control1` (`pve`), `k3s-control3` (`pve2`), `k3s-control4` (`pve3`).
+- `k3s-control2` was removed from etcd, renamed, and rebuilt in place as worker **`k3s-worker4`** (VM 402 on `pve`, same IP `192.168.2.12`). Both the Proxmox VM name and the guest hostname were changed.
+- Reason: the old layout had `k3s-control1` and `k3s-control2` both on Proxmox host `pve`. With 3 controls that include both, losing `pve` would leave only 1/3 control planes and lose quorum. With 3 controls on three different Proxmox hosts (`pve`, `pve2`, `pve3`), losing one host still leaves 2/3 and quorum.
 
 ---
 
@@ -29,14 +31,14 @@ Context for the iGPU passthrough work, the rebuilt GPU worker, and the planned r
 
 | K3s node | IP | Proxmox host | VMID | Role | Notes |
 |---|---|---:|---:|---|---|
-| `k3s-control1` | 192.168.2.11 | `pve` (192.168.2.3) | 401 | control-plane, etcd | keep as control |
-| `k3s-control2` | 192.168.2.12 | `pve` (192.168.2.3) | 402 | control-plane, etcd | **remove/repurpose** |
-| `k3s-control3` | 192.168.2.13 | `pve2` (192.168.2.10) | 403 | control-plane, etcd | keep as control |
-| `k3s-control4` | 192.168.2.14 | `pve3` (192.168.2.2) | 404 | control-plane, etcd | keep as control |
+| `k3s-control1` | 192.168.2.11 | `pve` (192.168.2.3) | 401 | control-plane, etcd | |
+| `k3s-control3` | 192.168.2.13 | `pve2` (192.168.2.10) | 403 | control-plane, etcd | |
+| `k3s-control4` | 192.168.2.14 | `pve3` (192.168.2.2) | 404 | control-plane, etcd | |
 | `k3s-gpu-worker` | 192.168.2.15 | `pve4` (192.168.2.18) | 405 | worker | Intel iGPU passthrough |
 | `k3s-worker1` | 192.168.2.51 | `pve5` (192.168.2.20) | 100 | worker | |
 | `k3s-worker2` | 192.168.2.52 | `pve6` (192.168.2.21) | 101 | worker | |
 | `k3s-worker3` | 192.168.2.53 | `pve7` (192.168.2.22) | 102 | worker | |
+| `k3s-worker4` | 192.168.2.12 | `pve` (192.168.2.3) | 402 | worker | repurposed from `k3s-control2`; VM/guest renamed |
 
 `pve4` currently runs only VM 405.
 
@@ -382,9 +384,9 @@ Do not delete `unknown` Longhorn volumes just to clean up. They are detached, no
 
 ---
 
-## Planned control-plane reduction: 3 controls + 5 workers
+## Control-plane reduction: 3 controls + 5 workers (completed 2026-11-04)
 
-**Decision:** keep `k3s-control1`, `k3s-control3`, and `k3s-control4` as the three control planes. Remove `k3s-control2` from etcd/control-plane duty and repurpose that VM as a worker.
+**Result:** `k3s-control1`, `k3s-control3`, and `k3s-control4` are the three remaining control planes, one per Proxmox host. `k3s-control2` was removed from etcd and rebuilt in place as worker **`k3s-worker4`** (VM 402 on `pve`, IP `192.168.2.12`).
 
 Why:
 
@@ -395,50 +397,109 @@ Why:
 | 5 controls: 5th on another host | 3/5 left | OK |
 | 3 controls: control1 on `pve`, control3 on `pve2`, control4 on `pve3` | 2/3 left | OK |
 
-Target worker set:
+Final layout:
 
-- `k3s-worker1`
-- `k3s-worker2`
-- `k3s-worker3`
-- `k3s-gpu-worker`
-- the repurposed `control2` VM (or another worker)
+- Controls:
+  - `k3s-control1` → `pve`
+  - `k3s-control3` → `pve2`
+  - `k3s-control4` → `pve3`
+- Workers:
+  - `k3s-gpu-worker` (VM 405, `pve4`)
+  - `k3s-worker1` (VM 100, `pve5`)
+  - `k3s-worker2` (VM 101, `pve6`)
+  - `k3s-worker3` (VM 102, `pve7`)
+  - `k3s-worker4` (VM 402, `pve`; repurposed from `k3s-control2`)
 
-### Recommended sequence
+### What was done
 
-1. Take an etcd snapshot on a remaining control plane.
-2. Remove `k3s-control2`’s etcd member and delete the node object.
-3. Rebuild/repurpose VM 402 on `pve` as a clean worker (same VMID, no new VM), or leave it off until needed.
-4. Join it as a worker; label it appropriately.
-5. Verify three control planes are on three distinct Proxmox hosts:
+1. Took an etcd snapshot on `control1`:
 
-   - `k3s-control1` → `pve`
-   - `k3s-control3` → `pve2`
-   - `k3s-control4` → `pve3`
+   ```bash
+   k3s etcd-snapshot save --name pre-control2-removal-$(date +%Y%m%d-%H%M%S)
+   ```
 
-6. Do not remove `control4` instead of `control2`; that would leave two controls on `pve` and recreate the same host-failure problem.
+2. Confirmed all four etcd members were healthy, then cordoned and drained `k3s-control2`. `kubectl drain` needs `--disable-eviction` here because Longhorn's per-node instance-manager PDBs have `disruptionsAllowed: 0`:
 
-### Commands sketch
+   ```bash
+   kubectl cordon k3s-control2
+   kubectl drain k3s-control2 \
+     --ignore-daemonsets --delete-emptydir-data --force --disable-eviction
+   ```
 
-On a remaining control plane (e.g. `control1`):
+3. Stopped and disabled the K3s server on `control2`, then removed its etcd member from `control1` and deleted the node object:
+
+   ```bash
+   systemctl disable --now k3s   # on control2
+   etcdctl ... member remove <control2-member-id>
+   kubectl delete node k3s-control2
+   ```
+
+4. Renamed the guest and the Proxmox VM:
+
+   ```bash
+   hostnamectl set-hostname k3s-worker4   # on VM 402
+   sed -i 's/127.0.1.1 k3s-control2/127.0.1.1 k3s-worker4/' /etc/hosts
+   qm set 402 --name k3s-worker4          # on pve
+   ```
+
+5. Uninstalled the server role:
+
+   ```bash
+   /usr/local/bin/k3s-uninstall.sh
+   ```
+
+   This removes `/etc/rancher/k3s` and `/var/lib/rancher/k3s`, but **not** `/var/lib/longhorn`.
+
+6. Preserved the old Longhorn data, then gave the new worker a clean disk:
+
+   ```bash
+   mv /var/lib/longhorn /var/lib/longhorn-old-control2-20261104
+   mkdir -p /var/lib/longhorn
+   ```
+
+7. Reinstalled as an agent with the server token:
+
+   ```bash
+   curl -sfL https://get.k3s.io | \
+     env INSTALL_K3S_VERSION=v1.37.1+k3s1 \
+       K3S_URL=https://192.168.10.100:6443 \
+       K3S_TOKEN="$(cat /root/.k3s-join-token)" \
+       INSTALL_K3S_EXEC='agent --node-ip=192.168.2.12' \
+       sh -
+   ```
+
+   The token was copied out of `/etc/rancher/k3s/config.yaml` before the uninstall, then deleted after the join.
+
+8. Restored the node's zone label:
+
+   ```bash
+   kubectl label node k3s-worker4 topology.kubernetes.io/zone=proxmox-shared --overwrite
+   ```
+
+9. Applied the Longhorn node prerequisites to all eight VMs per `kubernetes/bootstrap/README.md`: ensured the Longhorn packages (`nfs-common`, `open-iscsi`, `multipath-tools`, `cryptsetup`, `dmsetup`) were present, enabled `iscsid`, loaded `dm_crypt`, configured the multipath blacklist, and added the QUIC sysctls. The Longhorn managers were restarted to refresh the environment checks.
+
+10. Deleted the stale `k3s-control2` Longhorn node. Its only remaining replica belonged to the expendable `games/epicgames-config-v2` volume, so that PVC/PV and Longhorn volume were deleted first. The `epicgames` HelmRelease was then deleted and recreated by Flux, which reprovisioned the config PVC and recreated the CronJob/Service/Ingress.
+
+### Gotchas
+
+- **Longhorn last replica:** the detached/unknown volume `pvc-44230187-52f7-4640-aab2-f44e3ce8f731` (`games/epicgames-config-v2`) had its only replica on `control2`. It was declared expendable: the old `/var/lib/longhorn-old-control2-20261104` backup was deleted, and the bound PVC/PV and Longhorn volume were removed so the stale node could be deleted. The `epicgames` HelmRelease was then deleted and recreated by Flux, which provisioned a fresh `epicgames-config-v2` volume. The other two pre-existing `unknown` volumes were left untouched. As a general rule, don't delete an `unknown` volume just to clean up unless its data has been confirmed expendable.
+- **Drain vs. Longhorn PDB:** a normal `kubectl drain` stalls on the Longhorn instance-manager PDB. Use `--disable-eviction` (and `--force`) for this node.
+- **Stop before removing the etcd member:** stop/disable K3s on the departing node first, then remove the member from a remaining control plane. Otherwise the node can rejoin etcd.
+- **Agent join via the VIP:** immediately after the control-plane removal, the agent's bootstrap through `https://192.168.10.100:6443` failed with repeated EOF/resets while the Cilium BGP endpoint state was settling. Bootstrapping via `https://192.168.2.11:6443` worked. After Cilium was running on `k3s-worker4` and the `kube-api` EndpointSlice contained only `control1/3/4`, switching the agent back to `https://192.168.10.100:6443` worked and the node stayed `Ready`. If it recurs, join direct first, then switch back to the VIP.
+- **Cilium API-LB selector:** the `kube-api` service selects Cilium pods labeled `cilium-api-lb=true`. The init container applies that label only on nodes with `node-role.kubernetes.io/control-plane=true`. `k3s-worker4` correctly has no such label, so it is not an API endpoint. The BGP advertisement's `kubernetes.io/os: linux` node selector intentionally makes every Linux node advertise the VIP; it does not make workers control planes.
+- **VM naming:** `qm set 402 --name k3s-worker4` only changes the Proxmox VM name. The guest hostname is separate.
+
+### Verification
 
 ```bash
-k3s etcd-snapshot save --name pre-control2-removal-$(date +%Y%m%d-%H%M%S)
-
-ETCDCTL_API=3 etcdctl \
-  --endpoints=https://127.0.0.1:2379 \
-  --cacert=/var/lib/rancher/k3s/server/tls/etcd/server-ca.crt \
-  --cert=/var/lib/rancher/k3s/server/tls/etcd/client.crt \
-  --key=/var/lib/rancher/k3s/server/tls/etcd/client.key \
-  member list -w table
+kubectl get nodes -o wide
+kubectl -n storage get nodes.longhorn.io
+kubectl -n database get clusters.postgresql.cnpg.io postgres-18
 ```
 
-Remove the `k3s-control2` member by ID, then:
+Expected: three controls (`control1`, `control3`, `control4`), five workers (`gpu-worker`, `worker1`–`worker4`), all Ready; CNPG healthy; all Longhorn nodes Ready/Schedulable; Longhorn healthy except the two remaining pre-existing `unknown` volumes. The freshly recreated `epicgames-config-v2` volume is detached/`unknown` until its CronJob first attaches it. The `Multipathd` condition remains a warning by design while `multipathd` is running with the blacklist config.
 
-```bash
-kubectl delete node k3s-control2
-```
-
-Then rebuild/repurpose VM 402. Do this one control-plane change at a time and verify quorum + CNPG + Longhorn after each step.
+The system-upgrade-controller `agent` plan targets nodes without the control-plane label, so it picked up `k3s-worker4` automatically. It was a no-op because the version already matched.
 
 ---
 
@@ -462,9 +523,12 @@ Do **not** use `pcie=1` for this iGPU on `pve4`, and do not add display-passthro
 
 ## Open items
 
-- [ ] Reduce control planes to 3: `control1`, `control3`, `control4`.
-- [ ] Remove/repurpose `control2` as a worker.
-- [ ] Confirm Longhorn does not schedule replicas on `k3s-gpu-worker`.
+- [x] Reduce control planes to 3: `control1`, `control3`, `control4`.
+- [x] Remove `control2` from etcd and repurpose VM 402 as `k3s-worker4`.
+- [x] Apply Longhorn node prerequisites fleet-wide (`nfs-common`, `open-iscsi`, `iscsid` enabled, `dm_crypt`, multipath blacklist); Longhorn is enabled on all nodes, including `k3s-gpu-worker`.
+- [x] Remove the stale Longhorn node `k3s-control2` after deleting the expendable `games/epicgames-config-v2` volume.
 - [ ] Deploy Silo server + transcode worker; register the node in Silo.
 - [ ] Consider testing VM 405 reboot with the GPU attached, once there is a maintenance window.
 - [ ] If the GPU worker VM is ever recreated, update the MAC in `10-ens18.link` / netplan.
+
+The two remaining detached/`unknown` Longhorn volumes (`pvc-ab16c80b-cd4d-40a8-b165-1fb948b89243` and `pvc-bbbe2576-114f-4f5e-b31b-e32fc7a24e34`) are pre-existing; leave them alone unless their data is declared expendable.
