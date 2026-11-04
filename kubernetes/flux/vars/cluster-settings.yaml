@@ -18,14 +18,14 @@ data:
   QBT_IP: "192.168.10.23"
 
   # k3s node IPs (secure VLAN) — add a NODE<n>_IP when a node is added/removed
-  NODE1_IP: "192.168.2.11"
-  NODE2_IP: "192.168.2.12"
-  NODE3_IP: "192.168.2.13"
-  NODE4_IP: "192.168.2.14"
-  NODE5_IP: "192.168.2.15"
-  NODE6_IP: "192.168.2.51"
-  NODE7_IP: "192.168.2.52"
-  NODE8_IP: "192.168.2.53"
+  NODE1_IP: "192.168.2.11" #control plane (pve)
+  NODE2_IP: "192.168.2.12" #worker (pve)
+  NODE3_IP: "192.168.2.13" #control plane (pve2)
+  NODE4_IP: "192.168.2.14" #worker (pve3)
+  NODE5_IP: "192.168.2.15" #gpu transcoding worker (pve4)
+  NODE6_IP: "192.168.2.51" # worker (pve5)
+  NODE7_IP: "192.168.2.52" # worker (pve6)
+  NODE8_IP: "192.168.2.53" # worker (pve7)
 
   # external service IPs
   GATEWAY_IP: "192.168.2.1"
