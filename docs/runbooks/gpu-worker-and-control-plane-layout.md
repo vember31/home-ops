@@ -9,7 +9,7 @@ Context for the iGPU passthrough work, the rebuilt GPU worker, and the completed
 
 ## TL;DR
 
-- The GPU worker is working. It is **VM 405 on `pve4`**, rebuilt clean as **`k3s-gpu-worker`** (q35 + OVMF, 8 vCPU, 16 GiB RAM, 32 GiB disk).
+- The GPU worker is working. It is **VM 405 on `pve4`**, rebuilt clean as **`k3s-gpu-worker`** (q35 + OVMF, 8 vCPU, 16 GiB RAM, 128 GiB disk).
 - The Intel iGPU (`0000:00:02.0`, `8086:46a3`) is passed through with:
 
   ```text
@@ -108,7 +108,7 @@ Proxmox config:
 bios: ovmf
 machine: q35
 efidisk0: local-lvm:vm-405-disk-0,efitype=4m,pre-enrolled-keys=0,size=4M
-scsi0: local-lvm:vm-405-disk-1,size=32G
+scsi0: local-lvm:vm-405-disk-1,size=128G
 ide2: local-lvm:vm-405-cloudinit,media=cdrom
 boot: order=scsi0
 cores: 8
@@ -118,6 +118,20 @@ hostpci0: 0000:00:02.0
 onboot: 1
 net0: virtio,bridge=vmbr0,firewall=1
 ```
+
+The disk was expanded online from 32 GiB to 128 GiB on 2026-11-04, since the
+node also runs normal workloads and Longhorn replicas:
+
+```bash
+qm resize 405 scsi0 128G
+# In the guest:
+echo 1 > /sys/class/block/sda/device/rescan
+growpart /dev/sda 1
+resize2fs /dev/sda1
+```
+
+No reboot was required. The root filesystem grew to 123 GiB usable, and
+Longhorn automatically picked up the new capacity (~108 GiB available).
 
 `qm showcmd 405 --pretty` must show:
 
@@ -542,13 +556,17 @@ The GPU worker is ready to be the Silo transcode node:
 
 - Pin the transcode workload to `k3s-gpu-worker` with `nodeSelector: media/gpu: intel`.
 - Mount `/dev/dri` via `hostPath`.
-- Add supplemental groups for `video` / `render` (commonly `44` and `109`; verify on the node).
+- Add supplemental groups for `video` / `render`. Verified on 2026-11-04: **`44` (video) and `992` (render)**. The earlier `109` guess was wrong for this node.
 - Use `MODE=transcode`.
 - Share Postgres, Redis (`Dragonfly`), and `SECRET_KEY` with the main Silo server.
 - Mount the same media path read-only.
 - Set `SILO_STOP_GRACE_PERIOD=11m` for drain.
-- Register the node in Silo at **Admin → Playback → Nodes** with matching `NODE_NAME` / `NODE_URL`.
+- Register the node in Silo at **Admin → Playback → Nodes** with matching `NODE_NAME` / `NODE_URL`. The prepared manifests use `gpu-worker` and `http://silo-transcode.media.svc.cluster.local:8080`.
 - Keep the main Silo server integrated (or API) so CPU fallback still works if the GPU worker is down.
+
+The manifests are in `kubernetes/apps/media/silo/` (prepared 2026-11-04; not
+committed or deployed yet). The transcode scratch is a 10 GiB `emptyDir` for the
+initial rollout; see the app README for the 4K/disk caveat.
 
 Do **not** use `pcie=1` for this iGPU on `pve4`, and do not add display-passthrough flags (`x-vga`, ROM files, `vga: none`) for a headless VA-API worker.
 

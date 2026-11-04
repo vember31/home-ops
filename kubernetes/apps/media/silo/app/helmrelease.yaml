@@ -1,0 +1,422 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name silo
+  namespace: media
+
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+
+  test:
+    enable: true
+
+  rollback:
+    recreate: true
+    cleanupOnFail: true
+
+  uninstall:
+    keepHistory: false
+
+  maxHistory: 1
+
+  values:
+    configMaps:
+      silo-initdb:
+        forceRename: silo-initdb
+        data:
+          silo.sql: |
+            CREATE EXTENSION IF NOT EXISTS "vector";
+            CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+            CREATE EXTENSION IF NOT EXISTS "citext";
+
+    defaultPodOptions:
+      securityContext: &podSecurityContext
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    controllers:
+      silo:
+        enabled: true
+        type: deployment
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          terminationGracePeriodSeconds: 120
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: media/gpu
+                        operator: DoesNotExist
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18
+            envFrom:
+              - secretRef:
+                  name: silo-secret
+        containers:
+          app:
+            image:
+              repository: ghcr.io/silo-server/silo-server
+              tag: latest@sha256:c7b19fe7db6588d6e63c92d08a140c1566b6f94206a84fae1a14f8bec521bad5
+              pullPolicy: IfNotPresent
+            command:
+              - silo
+            env:
+              TZ: ${TIMEZONE}
+              PORT: &port 8080
+              JF_PORT: &jfPort 8096
+              ABS_PORT: 13378
+              HOME: /tmp
+              SILO_METRICS_LISTEN: :9091
+              SILO_PLUGIN_CACHE_DIR: /config/silo/plugins
+              SILO_TRUSTED_PROXIES: ${POD_CIDR}
+              SILO_SHUTDOWN_DELAY: "0"
+              POSTGRES_TUNE: "off"
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: silo-secret
+                    key: DATABASE_URL
+              REDIS_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: silo-secret
+                    key: REDIS_URL
+              SECRET_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: silo-secret
+                    key: SECRET_KEY
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *port
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 5
+              readiness: &readiness
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/ready
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *port
+                  periodSeconds: 10
+                  failureThreshold: 60
+            securityContext: &containerSecurity
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 6Gi
+
+      transcode:
+        enabled: true
+        type: deployment
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          terminationGracePeriodSeconds: 700
+          nodeSelector:
+            media/gpu: intel
+          securityContext:
+            <<: *podSecurityContext
+            supplementalGroups:
+              - 44
+              - 992
+        containers:
+          app:
+            image:
+              repository: ghcr.io/silo-server/silo-server
+              tag: latest@sha256:c7b19fe7db6588d6e63c92d08a140c1566b6f94206a84fae1a14f8bec521bad5
+              pullPolicy: IfNotPresent
+            command:
+              - silo
+            env:
+              TZ: ${TIMEZONE}
+              MODE: transcode
+              PORT: *port
+              HOME: /tmp
+              SILO_PLUGIN_CACHE_DIR: /config/silo/plugins
+              SILO_STOP_GRACE_PERIOD: 11m
+              SILO_NODE_DRAIN_TIMEOUT: 10m
+              NODE_NAME: gpu-worker
+              NODE_URL: http://silo-transcode.media.svc.cluster.local:8080
+              POSTGRES_TUNE: "off"
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: silo-secret
+                    key: DATABASE_URL
+              REDIS_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: silo-secret
+                    key: REDIS_URL
+              SECRET_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: silo-secret
+                    key: SECRET_KEY
+            probes:
+              liveness: &nodeProbes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *port
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 5
+              readiness: *nodeProbes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *port
+                  periodSeconds: 10
+                  failureThreshold: 30
+            securityContext: *containerSecurity
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 4Gi
+
+    service:
+      app:
+        controller: silo
+        ports:
+          http:
+            port: *port
+          jellyfin:
+            port: *jfPort
+          metrics:
+            port: 9091
+      transcode:
+        controller: transcode
+        ports:
+          http:
+            port: *port
+
+    serviceMonitor:
+      app:
+        serviceName: silo-app
+        endpoints:
+          - port: metrics
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+            relabelings:
+              - sourceLabels:
+                  - __meta_kubernetes_pod_name
+                targetLabel: instance
+      transcode:
+        serviceName: silo-transcode
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+            relabelings:
+              - sourceLabels:
+                  - __meta_kubernetes_pod_name
+                targetLabel: instance
+
+    ingress:
+      app:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          hajimari.io/icon: mdi-filmstrip
+          hajimari.io/info: Media Server
+          hajimari.io/url: https://${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/description: Media Server
+          gethomepage.dev/group: Media
+          gethomepage.dev/icon: https://siloserver.org/brand/silo-wordmark-white.svg
+          gethomepage.dev/name: Silo
+          gethomepage.dev/href: https://${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}
+          gethomepage.dev/siteMonitor: http://silo-app.media.svc.cluster.local:8080/api/v1/health
+        hosts:
+          - host: &host ${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: ${APP}-tls-production
+            hosts:
+              - *host
+      jellyfin:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+        hosts:
+          - host: &jfHost ${GATUS_SUBDOMAIN}-jf.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: jellyfin
+        tls:
+          - secretName: ${APP}-jf-tls-production
+            hosts:
+              - *jfHost
+
+    persistence:
+      config:
+        type: persistentVolumeClaim
+        suffix: config
+        accessMode: ReadWriteOnce
+        size: 20Gi
+        storageClass: longhorn
+        retain: true
+        advancedMounts:
+          silo:
+            app:
+              - path: /config/silo
+
+      transcode-config:
+        type: emptyDir
+        advancedMounts:
+          transcode:
+            app:
+              - path: /config/silo
+
+      tmp:
+        type: emptyDir
+        sizeLimit: 20Gi
+        advancedMounts:
+          silo:
+            app:
+              - path: /tmp
+
+      transcode-tmp:
+        type: emptyDir
+        sizeLimit: 10Gi
+        advancedMounts:
+          transcode:
+            app:
+              - path: /tmp
+
+      dev-dri:
+        type: hostPath
+        hostPath: /dev/dri
+        hostPathType: Directory
+        advancedMounts:
+          transcode:
+            app:
+              - path: /dev/dri
+                readOnly: true
+
+      initdb:
+        type: configMap
+        identifier: silo-initdb
+        advancedMounts:
+          silo:
+            init-db:
+              - path: /initdb
+
+      media:
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv-media
+        advancedMounts:
+          silo:
+            app:
+              - path: /media
+                readOnly: true
+          transcode:
+            app:
+              - path: /media
+                readOnly: true
+
+      media2-movies:
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv2-media-movies
+        advancedMounts:
+          silo:
+            app:
+              - path: /media2/movies
+                readOnly: true
+          transcode:
+            app:
+              - path: /media2/movies
+                readOnly: true
+
+      media2-tv:
+        type: persistentVolumeClaim
+        existingClaim: nfs-omv2-media-tv
+        advancedMounts:
+          silo:
+            app:
+              - path: /media2/tv
+                readOnly: true
+          transcode:
+            app:
+              - path: /media2/tv
+                readOnly: true
