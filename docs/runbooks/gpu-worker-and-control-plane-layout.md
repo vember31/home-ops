@@ -212,6 +212,65 @@ Expected: Intel iHD driver, and H.264/HEVC/VP9 encode/decode profiles.
 
 The dmesg line `Cannot find any crtc or sizes` is normal for a headless secondary GPU.
 
+### Updating the GPU worker
+
+The worker runs **Ubuntu 24.04.5 LTS** with the normal `linux-virtual` meta packages. Guest updates are safe; the Proxmox-side `hostpci0`, q35/OVMF, and `onboot` settings are unaffected.
+
+Kernel updates:
+
+- `linux-virtual` → `linux-image-virtual` → `linux-image-<version>-generic` → `linux-modules-extra-<version>-generic`.
+- i915 lives in `linux-modules-extra`, so a new kernel should pull the matching module package automatically.
+- The current `linux-modules-extra-6.8.0-147-generic` is installed.
+
+Before updating:
+
+- If Silo transcodes are running, cordon/drain the worker or wait for a quiet window:
+
+  ```bash
+  kubectl cordon k3s-gpu-worker
+  kubectl drain k3s-gpu-worker --ignore-daemonsets --delete-emptydir-data
+  ```
+
+- `unattended-upgrades` is enabled and **kured may reboot the node automatically** after a kernel update. Plan around active streams.
+- Optionally take a Proxmox backup first. Do not rely on a long-lived LVM snapshot; `local-lvm` free space is limited.
+
+Update:
+
+```bash
+sudo apt-get update
+sudo apt-get full-upgrade -y
+sudo reboot
+```
+
+After reboot:
+
+```bash
+lspci -nnk -s 06:10.0
+ls -l /dev/dri/renderD128
+ls -l /lib/firmware/i915/adlp_guc_70.bin
+sudo dmesg | grep -iE 'GuC|HuC|i915'
+sudo LIBVA_DRIVER_NAME=iHD vainfo \
+  --display drm --device /dev/dri/renderD128
+```
+
+Then uncordon:
+
+```bash
+kubectl uncordon k3s-gpu-worker
+```
+
+If `/dev/dri` is missing after an update:
+
+```bash
+sudo apt-get install -y linux-modules-extra-$(uname -r)
+sudo curl -fsSL \
+  -o /lib/firmware/i915/adlp_guc_70.bin \
+  https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain/i915/adlp_guc_70.bin
+sudo reboot
+```
+
+Do **not** run `cloud-init clean` or re-enable cloud-init networking; the custom `ens18` netplan/udev setup must persist.
+
 ### K3s worker join
 
 The node is a **worker**, not a control plane:
