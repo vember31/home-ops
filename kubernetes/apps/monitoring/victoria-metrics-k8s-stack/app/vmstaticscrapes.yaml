@@ -12,10 +12,8 @@ spec:
   targetEndpoints:
     - targets:
         - "${NODE1_IP}:10257"
-        - "${NODE2_IP}:10257"
         - "${NODE3_IP}:10257"
         - "${NODE4_IP}:10257"
-        - "${NODE5_IP}:10257"
       scheme: https
       bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
       tlsConfig:
@@ -37,10 +35,8 @@ spec:
   targetEndpoints:
     - targets:
         - "${NODE1_IP}:2381"
-        - "${NODE2_IP}:2381"
         - "${NODE3_IP}:2381"
         - "${NODE4_IP}:2381"
-        - "${NODE5_IP}:2381"
       scheme: http
 ---
 # yaml-language-server: $schema=https://k8s-schemas.home-operations.com/operator.victoriametrics.com/vmstaticscrape_v1beta1.json
@@ -54,10 +50,8 @@ spec:
   targetEndpoints:
     - targets:
         - "${NODE1_IP}:10259"
-        - "${NODE2_IP}:10259"
         - "${NODE3_IP}:10259"
         - "${NODE4_IP}:10259"
-        - "${NODE5_IP}:10259"
       scheme: https
       bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
       tlsConfig:

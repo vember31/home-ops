@@ -229,10 +229,10 @@ curl -s 'http://localhost:9428/select/logsql/query' \
 | Node | IP | Typical workloads |
 |---|---|---|
 | k3s-control1 | 192.168.2.11 | etcd, control plane |
-| k3s-control2 | 192.168.2.12 | etcd, control plane |
+| k3s-worker4 | 192.168.2.12 | workloads (formerly control plane) |
 | k3s-control3 | 192.168.2.13 | etcd, control plane, Longhorn |
 | k3s-control4 | 192.168.2.14 | etcd, Dragonfly-1 |
-| k3s-control5 | 192.168.2.15 | etcd, CNPG operator |
+| k3s-gpu-worker | 192.168.2.15 | workloads, transcoding (formerly control plane) |
 | k3s-worker1 | 192.168.2.51 | workloads |
 | k3s-worker2 | 192.168.2.52 | workloads |
 | k3s-worker3 | 192.168.2.53 | workloads |

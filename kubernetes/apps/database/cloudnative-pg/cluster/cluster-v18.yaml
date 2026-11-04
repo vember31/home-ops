@@ -21,7 +21,7 @@ spec:
                 operator: NotIn
                 values:
                   - k3s-control1
-                  - k3s-control2
+                  - k3s-worker4
 
   storage:
     size: 20Gi
