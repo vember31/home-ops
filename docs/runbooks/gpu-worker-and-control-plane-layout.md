@@ -176,6 +176,31 @@ network: {config: disabled}
 
 Adjust the MAC if VM 405 is ever recreated.
 
+#### Login user (`duke`)
+
+The original cloud-init user was `ubuntu`. On 2026-11-04 the VM was changed to use
+`duke` instead:
+
+- Proxmox `ciuser` is now `duke`, and the cloud-init `sshkeys` field contains only
+  the workstation's `id_ed25519.pub` and `id_rsa.pub`.
+- `duke` was created with UID/GID 1001, home `/home/duke`, shell `/bin/bash`, and
+  the same password hash as `duke` on `k3s-control1`. It is in
+  `sudo,adm,cdrom,dip,plugdev,lxd,video,render`.
+- `ubuntu` remains as UID 1000 because container workloads run as that UID, but
+  login is disabled: its shell is `/usr/sbin/nologin`, its password is locked, it
+  was removed from `sudo`, and its `authorized_keys` and cloud-init sudoers rule
+  were renamed with a `.disabled-*` suffix.
+
+To verify SSH access to all nodes after a rebuild, run:
+
+```bash
+./scripts/fix-node-ssh-keys.sh --dry-run
+./scripts/fix-node-ssh-keys.sh
+```
+
+See [node-ssh-access.md](node-ssh-access.md) for the node/user/VM mapping and
+options.
+
 ### Guest packages / firmware
 
 ```bash
