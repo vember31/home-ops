@@ -55,13 +55,34 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
+          - name: HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
         command:
           - /bin/sh
           - -c
           - |
-            ROLE=$(kubectl --server=https://127.0.0.1:6443 --request-timeout=5s get node $${NODE_NAME} -o jsonpath='{.metadata.labels.node-role\.kubernetes\.io/control-plane}')
+            # The API VIP depends on the endpoint this init container labels,
+            # and `kubectl --server` does not load the in-cluster token/CA.
+            # Talk to the local API directly with explicit credentials.
+            SA_DIR=/var/run/secrets/kubernetes.io/serviceaccount
+            API_SERVER="https://$${HOST_IP}:6443"
+            KUBECTL="kubectl --server=$API_SERVER --certificate-authority=$SA_DIR/ca.crt --token=$(cat $SA_DIR/token) --request-timeout=5s"
+
+            # Workers have no local API server; skip them instead of waiting.
+            if ! nc -z -w 2 "$${HOST_IP}" 6443 >/dev/null 2>&1; then
+              exit 0
+            fi
+
+            ROLE=""
+            for attempt in 1 2 3 4 5; do
+              ROLE=$($KUBECTL get node "$${NODE_NAME}" -o jsonpath='{.metadata.labels.node-role\.kubernetes\.io/control-plane}' 2>/dev/null) && break
+              sleep 2
+            done
+
             if [ "$ROLE" = "true" ]; then
-              kubectl --server=https://127.0.0.1:6443 --request-timeout=5s label pod $${POD_NAME} -n kube-system cilium-api-lb=true --overwrite >/dev/null 2>&1
+              $KUBECTL label pod "$${POD_NAME}" -n kube-system cilium-api-lb=true --overwrite
             fi
 
     # Native routing support
