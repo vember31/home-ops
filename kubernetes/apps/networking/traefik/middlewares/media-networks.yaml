@@ -1,0 +1,17 @@
+---
+# Media apps are safe to expose to guest and IoT clients. Keep this separate
+# from secure-networks so those VLANs cannot reach admin/internal services.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: media-networks
+  namespace: networking
+spec:
+  ipAllowList:
+    sourceRange:
+      - ${SECURE_CIDR}
+      - ${GUEST_CIDR}
+      - ${IOT_CIDR}
+      - ${POD_CIDR}
+      - ${SERVICE_CIDR}
+      - ${VPN_CIDR}

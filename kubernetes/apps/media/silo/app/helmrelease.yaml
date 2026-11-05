@@ -290,7 +290,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-media-with-errors@kubernetescrd
           hajimari.io/icon: mdi-filmstrip
           hajimari.io/info: Media Server
           hajimari.io/url: https://${GATUS_SUBDOMAIN}.local.${SECRET_DOMAIN}
@@ -317,7 +317,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-media-with-errors@kubernetescrd
         hosts:
           - host: &jfHost ${GATUS_SUBDOMAIN}-jf.local.${SECRET_DOMAIN}
             paths:

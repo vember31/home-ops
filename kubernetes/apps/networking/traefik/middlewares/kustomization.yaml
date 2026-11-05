@@ -9,8 +9,10 @@ resources:
   - ./external-direct-with-errors.yaml
   - ./external-with-errors.yaml
   - ./gatus-headers.yaml
+  - ./internal-media-with-errors.yaml
   - ./internal-secure.yaml
   - ./internal-with-errors.yaml
+  - ./media-networks.yaml
   - ./opds-auth.yaml
   - ./secure-networks.yaml
   - ./seerr-headers.yaml
