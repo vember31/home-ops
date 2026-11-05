@@ -71,6 +71,62 @@ init container.
 6. Play something that needs conversion and check **Admin → Activity** for
    `HW VAAPI`. The node’s **Acceleration** block should show **VAAPI** in green.
 
+## Pocket ID single sign-on
+
+Flux creates the Pocket ID side of the integration:
+
+- `PocketIDUserGroup/silo-users` in `security` (members: `dm`, `emm`, `mfm`)
+- `PocketIDOIDCClient/silo` in `media`, which creates the `Silo` client and
+  writes its credentials to the `silo-oidc-credentials` Secret
+
+Silo builds its callback URL from the sign-in plugin's installation ID, which
+is assigned when the plugin is installed. The client therefore registers
+wildcard callback URLs:
+
+```text
+https://silo.local.${SECRET_DOMAIN}/api/v2/auth/oauth/*/callback
+https://silo.local.${SECRET_DOMAIN}/api/v1/auth/oauth/*/callback
+```
+
+Silo has no environment variables for OIDC or plugin settings. The plugin is
+installed and configured in the admin UI, and its settings are stored in Silo's
+database. After the first reconcile:
+
+1. Sign in to `https://silo.local.${SECRET_DOMAIN}` and complete onboarding.
+2. Set **Silo public URL** under **Admin → Server → General** to
+   `https://silo.local.${SECRET_DOMAIN}`. The sign-in page does not show a
+   redirect URI until this is set.
+3. Install **OpenID Connect Sign-in** under
+   **Admin → Integrations → Plugins → Catalog**.
+4. Open **Admin → Sign-in & Security → Sign-in** and configure the provider:
+   - **Provider name:** `Pocket ID`
+   - **Issuer URL:** `https://id.${SECRET_DOMAIN}` (or `issuer_url` from the
+     `silo-oidc-credentials` Secret; it must match exactly, including any
+     trailing slash)
+   - **Client ID / Client secret:** from the same Secret
+   - **Request the groups scope:** on
+   - **Allowed groups:** `silo-users` (Pocket ID already enforces this on the
+     client; leaving it blank is also fine)
+   - **Admin groups:** `admins` if Pocket ID admins should also be Silo admins
+   - **Request offline access:** on, if Silo should re-check access at Pocket ID
+5. Run **Test the connection**, then **Turn on**.
+6. Keep `dm` able to sign in with a Silo password (or another break-glass
+   admin). If the provider is unavailable, use
+   `https://silo.local.${SECRET_DOMAIN}/login?local=1`.
+
+Read the generated client credentials with:
+
+```bash
+kubectl -n media get secret silo-oidc-credentials \
+  -o jsonpath='{.data.client_id}' | base64 -d; echo
+kubectl -n media get secret silo-oidc-credentials \
+  -o jsonpath='{.data.client_secret}' | base64 -d; echo
+```
+
+If the operator ever rotates the client secret, update **Client secret** in
+Silo. The client's `clientSecretOverlap: 168h` keeps the previous secret valid
+for seven days while that change is made.
+
 ## CPU fallback
 
 The `silo` server runs in the default `integrated` mode and has no `/dev/dri`,

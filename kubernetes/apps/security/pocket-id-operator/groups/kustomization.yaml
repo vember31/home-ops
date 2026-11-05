@@ -10,4 +10,5 @@ resources:
   - ./outline-users.yaml
   - ./qui-users.yaml
   - ./radarr-users.yaml
+  - ./silo-users.yaml
   - ./sonarr-users.yaml
