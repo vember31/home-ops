@@ -94,6 +94,44 @@ sonarr:
         auto_redownload_failed: false
         auto_redownload_failed_from_interactive_search: true
 
+    # (experimental since v1.39.0) Manage notification connections
+    notifications:
+      update_password: true
+      delete_unmanaged:
+        enabled: false
+      data:
+        - name: Notifiarr
+          type: Notifiarr
+          events:
+            on_grab: true
+            on_import_complete: true
+            on_episode_file_delete_for_upgrade: true
+            on_manual_interaction_required: true
+          fields:
+            apiKey: !env SONARR_NOTIFIARR_API_KEY
+        - name: Autobrr List Sync
+          type: Webhook
+          events:
+            on_series_add: true
+            on_series_delete: true
+          fields:
+            url: http://autobrr.downloads.svc.cluster.local:7474/api/webhook/lists/trigger/arr
+            method: 1
+            headers:
+              - key: X-API-Token
+                value: !env AUTOBRR_API_KEY
+        - name: Autopulse
+          type: Webhook
+          events:
+            on_download: true
+            on_upgrade: true
+            on_series_delete: true
+            on_episode_file_delete: true
+            on_episode_file_delete_for_upgrade: true
+          fields:
+            url: http://autopulse-app.media.svc.cluster.local:2875/triggers/sonarr
+            method: 1
+
 radarr:
   radarr:
     base_url: http://radarr.downloads.svc.cluster.local:7878
@@ -177,6 +215,42 @@ radarr:
         auto_redownload_failed: false
         auto_redownload_failed_from_interactive_search: true
         check_for_finished_download_interval: 1
+
+    # (experimental since v1.39.0) Manage notification connections
+    notifications:
+      update_password: true
+      delete_unmanaged:
+        enabled: false
+      data:
+        - name: Notifiarr
+          type: Notifiarr
+          events:
+            on_grab: true
+            on_download: true
+            on_movie_file_delete: true
+            on_manual_interaction_required: true
+          fields:
+            aPIKey: !env RADARR_NOTIFIARR_API_KEY
+        - name: Autobrr List Sync
+          type: Webhook
+          events:
+            on_movie_added: true
+            on_movie_delete: true
+          fields:
+            url: http://autobrr.downloads.svc.cluster.local:7474/api/webhook/lists/trigger/arr
+            method: 1
+            headers:
+              - key: X-API-Token
+                value: !env AUTOBRR_API_KEY
+        - name: Autopulse
+          type: Webhook
+          events:
+            on_download: true
+            on_movie_file_delete: true
+            on_movie_file_delete_for_upgrade: true
+          fields:
+            url: http://autopulse-app.media.svc.cluster.local:2875/triggers/radarr
+            method: 1
 
 # experimental support: check https://configarr.de/docs/configuration/experimental-support/#prowlarr-v1
 prowlarr:
@@ -337,3 +411,18 @@ prowlarr:
       update_password: true
       delete_unmanaged:
         enabled: true
+
+    # (experimental since v1.39.0) Manage notification connections
+    notifications:
+      update_password: true
+      delete_unmanaged:
+        enabled: false
+      data:
+        - name: Notifiarr
+          type: Notifiarr
+          events:
+            on_grab: true
+            on_health_issue: true
+            on_health_restored: true
+          fields:
+            aPIKey: !env PROWLARR_NOTIFIARR_API_KEY
