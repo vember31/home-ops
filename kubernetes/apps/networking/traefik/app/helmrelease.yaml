@@ -128,8 +128,8 @@ spec:
     service:
       enabled: true
       single: true
-      type: LoadBalancer
-      spec: 
+      spec:
+        type: LoadBalancer
         loadBalancerIP: "${TRAEFIK_IP}"
         externalTrafficPolicy: Local
         loadBalancerClass: io.cilium/bgp-control-plane 
