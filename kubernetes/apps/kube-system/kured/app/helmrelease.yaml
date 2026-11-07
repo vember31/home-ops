@@ -54,6 +54,7 @@ spec:
       startTime: "4:00"                 # only reboot after this time of day (default "0:00")
       endTime: "7:00"                   # only reboot before this time of day (default "23:59")
       period: "10m"                  # reboot check period (default 1h0m0s)
+      drainTimeout: "10m"           # abort a stalled drain after 10m instead of retrying forever (default 0, infinite)
       forceReboot: false            # force a reboot even if the drain fails or times out (default: false)
       rebootCommand: "/usr/bin/systemctl reboot"  # command to run when a reboot is required by the sentinel
       timeZone: "${TIMEZONE}"                  # time-zone to use (valid zones from "time" golang package)
