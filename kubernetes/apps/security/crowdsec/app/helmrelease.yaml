@@ -129,3 +129,5 @@ spec:
             secretKeyRef:
               name: crowdsec-keys
               key: BOUNCER_KEY_traefik
+        - name: USE_WAL
+          value: "true"
