@@ -82,7 +82,7 @@ spec:
       defaultReplicaCount: "2"
       autoDeletePodWhenVolumeDetachedUnexpectedly: true
       disableSchedulingOnCordonedNode: "true"
-      nodeDrainPolicy: delete-both-statefulset-and-deployment-pod
+      nodeDrainPolicy: allow-if-replica-is-stopped  # allow kured to drain/reboot when the last replica is stopped (in-place maintenance)
       allowCollectingLonghornUsageMetrics: true
       replicaZoneSoftAntiAffinity: "true"
 
