@@ -2,17 +2,19 @@
 
 Context for the UNVR (192.168.2.189) drive incident of October 2026: what happened, what was done, how to monitor it, and how to repair it again if it recurs.
 
-**Last updated:** 2026-10-18
+**Last updated:** 2026-11-08
 **Author:** recovery performed interactively (OpenCode session); this doc rebuilds that context.
 
 ---
 
-## TL;DR — Current Status (2026-10-18)
+## TL;DR — Current Status (2026-11-08)
 
-- **UNVR is healthy and green in the UI.** Both drives pass SMART, RAID1 (`md3`) is clean, `Reallocated_Sector_Ct = 0` on both.
-- Root cause of the incident: **localized event damage** (bad ECC on writes — signature of an unclean shutdown / power event) in a ~250 MB zone on **both** drives at disk LBA ≈ **1,761,873,904 – 1,762,355,688** (~902.1–902.3 GB into each disk). The same-region-on-both-drives pattern rules out two independently dying drives.
-- All hard failures were **healed** (rewritten/remapped); a handful of **retry-marginal** sectors remain on sdb in that zone (`Current_Pending_Sector` wobbles ~12; reads succeed after drive-internal retries). This is cosmetic/functional-noise, not failure.
-- **No replacement needed.** Watch monthly with `scripts/unvr-health-check.sh`. Replacement triggers are in [§6](#6-watch-plan--replacement-triggers).
+- **Array is healthy (`md3 [UU]`), both drives pass SMART, and `Reallocated_Sector_Ct = 0` on both — but sdb had a new out-of-zone error event on 2026-11-08 (see below).**
+- Root cause of the incident: **event damage** (bad ECC on writes — signature of an unclean shutdown / power event), initially localized in a ~250 MB zone on **both** drives at disk LBA ≈ **1,761,873,904 – 1,762,355,688** (~902.1–902.3 GB into each disk). The same-region-on-both-drives pattern rules out two independently dying drives.
+- All historical hard failures were **healed** (rewritten/remapped); a handful of **retry-marginal** sectors remain on sdb in that zone (`Current_Pending_Sector` wobbles ~12; reads succeed after drive-internal retries). The new Nov 8 out-of-zone event below changes the replacement assessment.
+- **2026-11-08:** a deeper `dmesg`/journal audit found **40 historical I/O errors outside the original zone** (8 on sda, 32 on sdb), all from the Oct 17–18 repair pass. A full `pg_amcheck` later that day hit **6 new UNC read errors on sdb** at disk LBA `2,592,117,136/144` (inside the documented `2,592,11x` cluster). md3 corrected them from sda, the DB check passed with no logical corruption, and a direct 10 MB re-read of the cluster was clean. The new event is still a replacement trigger. See [§4.1](#41-additional-out-of-zone-error-clusters-oct-2026).
+- **2026-11-08:** Baby Cam notifications stopped because Protect's PostgreSQL `cameras_pkey` index was corrupted. The index was rebuilt and the scheduler re-armed; notifications are flowing again. See [§4.2](#42-protect-database-index-corruption-nov-2026).
+- **Replacement should now be planned on evidence.** The Nov 8 out-of-zone event meets the runbook's replacement trigger, but the array is still `[UU]`, there is no data loss, and no emergency action is required. Watch monthly with `scripts/unvr-health-check.sh`; replacement triggers are in [§6](#6-watch-plan--replacement-triggers).
 
 ---
 
@@ -96,7 +98,7 @@ mdadm --examine /dev/sda5 | grep "Data Offset"   # -> 262144 sectors
 
 ---
 
-## 4. Current State Snapshot (2026-10-18, after repair)
+## 4. Current State Snapshot (2026-11-08)
 
 | Check | sda | sdb |
 |---|---|---|
@@ -104,13 +106,70 @@ mdadm --examine /dev/sda5 | grep "Data Offset"   # -> 262144 sectors
 | `Current_Pending_Sector` | **0** | ~12 (wobbling; retry-marginal zone sectors) |
 | `Reallocated_Sector_Ct` | **0** | **0** |
 | `UDMA_CRC_Error_Count` | 0 | 0 |
-| Last self-test | Short, passed | Short, passed |
-| Power-on hours | ~18,260 | ~18,260 |
+| Last self-test | Short, passed (2026-11-08) | Short, passed (2026-11-08) |
+| Power-on hours | ~18,783 | ~18,781 |
 
 - Array: `md3 [UU]`, `degraded: 0`, `sync_action: idle`, `mismatch_cnt ≈ 60648` (informational — live-array write races during scrubs; ignore).
 - md badblock lists: **empty** on both legs.
 - Known marginal zone: disk LBA ≈ **1,761,873,904 – 1,762,355,688** (~902.1–902.3 GB offset; 1 MB blocks **860,270–860,545**). Marginal sdb sectors observed: `1761874072`, `1761874376`, `1762331336` — reads need retries but succeed.
-- UI: green (after the "repair storage" action).
+- Additional out-of-zone error clusters: the 40 historical errors from Oct 17 were re-read OK on 2026-11-08, but the full DB scan that day triggered **6 new UNC errors on sdb** in the `2,592,11x` cluster. md3 corrected them from sda. See [§4.1](#41-additional-out-of-zone-error-clusters-oct-2026).
+- Protect DB: `cameras_pkey` rebuilt on 2026-11-08; a full `pg_amcheck --heapallindexed` passed in **1m22s** (no logical DB corruption), despite the sdb media errors above. Critical notification-path indexes are clean. See [§4.2](#42-protect-database-index-corruption-nov-2026).
+- UI: verify the console storage page after the Nov 8 new-error event; `usd` had no warnings in the 24h before the event.
+
+### 4.1 Additional out-of-zone error clusters (Oct 2026)
+
+The original incident was documented as damage confined to the ~250 MB zone above. A full audit of the boot's `dmesg` on 2026-11-08 found **40 historical `print_req_error` entries outside that zone** (8 on sda, 32 on sdb), all from the Oct 17–18 repair/scrub:
+
+| Drive | Outside-zone errors | Approximate disk LBA clusters |
+|---|---:|---|
+| sda | 8 | 1,762,375,760; 1,762,401,472; 1,762,423,568; 1,774,456,760; 1,778,709,080; 2,592,128,528; 3,961,725,248; 4,752,411,008 |
+| sdb | 32 | 1,762,359,792–1,762,420,080; 1,774,457,056–1,774,530,504; 2,592,113,192–2,592,128,944; 4,504,950,912–4,504,951,040; 7,642,284,544–7,646,478,208 |
+
+- Last historical error: **2026-10-18 08:03:18**, sdb sector `1762331336` (inside the known zone).
+- The 40 historical out-of-zone 4K blocks were re-read from both raw disks on 2026-11-08: **all READ OK**.
+- No new `print_req_error` between 2026-10-18 and 2026-11-08 15:57; both drives still show `Reallocated_Sector_Ct = 0`, and the 2026-11-08 short SMART self-tests passed.
+
+**2026-11-08 update — new out-of-zone errors.** A full `pg_amcheck --heapallindexed` run (82s) hit six new UNC read errors on sdb between **15:57:59 and 15:58:30** (three visible in `dmesg`, three more in `journalctl -k`), at disk LBA `2,592,117,136` and `2,592,117,144` — inside the previously documented sdb `2,592,113,192–2,592,128,944` cluster:
+
+- md3 logged `read error corrected` / `redirecting sector ... to other mirror: sda5` for each; `pg_amcheck` still passed with no logical corruption.
+- A direct 10 MB re-read of that cluster on sdb (`iflag=direct`) produced **0 new errors**; the sectors are currently readable.
+- `mdadm --examine-badblocks` remained empty; array `[UU]`; SMART pending still 12, reallocated 0; short self-tests passed.
+- This is a **new error after the Oct 18 cutoff** and therefore meets replacement trigger #2 ([§6](#6-watch-plan--replacement-triggers)). Plan replacement; do not treat the drive as fully healed.
+- Optional temporary heal: rewrite the two 4K blocks from the sda mirror using the single-sector playbook in [§7](#7-appendices) (`L=2592117136` and `L=2592117144`, `X=sdb`, `Y=sda`). This may force the drive to remap them, but it does **not** change the replacement recommendation.
+
+### 4.2 Protect database index corruption (Nov 2026)
+
+**Symptom:** Baby Cam stopped sending notifications while other cameras (Driveway, Front Door) continued normally.
+
+**Diagnosis:**
+- Protect's PostgreSQL DB is `/srv/postgresql/14/protect` (port **5433**, database `unifi-protect`).
+- `errors.log` showed repeated `insert or update on table "events" violates foreign key constraint "events_cameraId_fkey"` for the Baby Cam camera ID.
+- `cameras.lastSeen` was stuck at 2026-11-05 10:22 UTC, and the recording scheduler never toggled the camera out of `"never"` after a Protect restart.
+- The heap row existed, but a primary-key lookup returned 0 rows. `bt_index_check('cameras_pkey', true)` reported:
+  `heap tuple ... from table "cameras" lacks matching index tuple within index "cameras_pkey"`.
+
+**Cause:** corrupted btree primary-key index (`cameras_pkey`) in the Protect DB, consistent with the Oct storage incident. Event inserts failed the FK check, and updates by camera id silently affected 0 rows.
+
+**Fix (2026-11-08):**
+
+```bash
+sudo -u postgres psql -p 5433 -d unifi-protect \
+  -c "REINDEX INDEX CONCURRENTLY public.cameras_pkey;"
+sudo systemctl restart unifi-protect   # re-arm the scheduler
+```
+
+**Verification:**
+
+```bash
+sudo -u postgres psql -p 5433 -d unifi-protect \
+  -c "select bt_index_check('cameras_pkey'::regclass, true);"
+sudo -u postgres psql -p 5433 -d unifi-protect \
+  -c "set enable_seqscan=off; select id,\"name\" from cameras where id='66e77b7f02780d03e70003eb';"
+```
+
+- After the rebuild: `lastSeen` updates every ~10s, the scheduler set Baby Cam to `always` inside its recording window, a motion event saved, and the push notification was sent successfully.
+- No new `events_cameraId_fkey` errors after the repair.
+- Use `scripts/unvr-health-check.sh --db` (or the `pg_amcheck` one-liner in [§7](#7-appendices)) for periodic index checks. The nightly Protect DB backups are **partial** dumps stored on the same array, so they are not a substitute for integrity checks.
 
 ---
 
@@ -121,14 +180,17 @@ Run the health check (see `scripts/unvr-health-check.sh`):
 ```bash
 scripts/unvr-health-check.sh            # fast (~10 s)
 scripts/unvr-health-check.sh --deep     # + sweeps the known damage zone (~1-3 min)
+scripts/unvr-health-check.sh --db       # + pg_amcheck cameras/users/events (~1-3 min)
+scripts/unvr-health-check.sh --all      # fast + deep + db
 ```
 
-Cadence: **monthly**, or after any Protect storage alert.
+Cadence: **monthly**, or after any Protect storage alert. Exit codes: `0` clean, `2` **new** out-of-zone I/O warning, `1` command/DB-check failure.
 
-What the fast check reports: array state, per-drive pending/reallocated/CRC/self-test, md badblock lists, recent kernel I/O errors, recent `usd` warnings.
+What the fast check reports: array state, per-drive pending/reallocated/CRC/self-test, md badblock lists, recent kernel I/O errors (historical out-of-zone counts plus a separate **new since 2026-10-18** count), recent `usd` warnings. It exits `2` only for **new** out-of-zone errors; the documented historical ones are informational.
 
 Caveats:
-- `dmesg` shows errors since last boot only; `journalctl -u usd` covers the longer window.
+- `dmesg` shows errors since last boot and its ring buffer can rotate out older entries. The fast check uses `journalctl -k` for the “new since 2026-10-18” comparison; the cutoff is hardcoded in `scripts/unvr-health-check.sh`. Bump it after a documented repair so historical errors stop paging as new. `journalctl -u usd` covers the longer window.
+- The fast and `--deep` checks do **not** inspect PostgreSQL indexes. Use `--db` (cameras/users/events) or run `pg_amcheck` directly for the full DB. `--db` is read-only but takes `ShareLock`s on the checked tables, so run it during a quiet window. Measured on 2026-11-08: `--db` **36s**; full-DB `pg_amcheck --heapallindexed` **82s**.
 - Extended SMART self-tests **starve under recording load** (offline collection suspends on host I/O) — they can take days and get aborted. Short tests are fine. Prefer `--deep` sweeps over extended tests for surface checks.
 - An `smartctl -t offline` scan also makes slow progress but never logs LBAs to the host.
 
@@ -136,14 +198,16 @@ Caveats:
 
 ## 6. Watch Plan & Replacement Triggers
 
-**Fine to keep running** if: pending stays in the low double digits (or lower), reallocated stays 0, and errors stay inside the known zone.
+**Short-term operation is fine** while pending stays in the low double digits (or lower), reallocated stays 0, and no *additional* errors appear. However, the 2026-11-08 new out-of-zone event already meets trigger #2 below, so replacement should now be planned.
 
 **Plan replacement** when any of these appear:
 1. `Reallocated_Sector_Ct` starts climbing (drive burning spare sectors = real media death).
-2. `print_req_error` entries appear **outside** the known zone LBA range.
+2. **New** `print_req_error` entries appear **outside** the known zone or the documented repaired clusters in [§4.1](#41-additional-out-of-zone-error-clusters-oct-2026).
 3. Pending grows well beyond the zone's population, or a drive drops from the array (`[UU]` → `[U_]`).
 
-When replacing: RAID1 = pull the bad drive, insert new (same size or larger), let Protect/md rebuild. With this volume at 99% and both drives same-batch, expect to eventually replace **both** — but only on evidence, not preemptively.
+The historical out-of-zone errors from Oct 17 are documented in §4.1 and were re-read clean on 2026-11-08. The **2026-11-08 pg_amcheck event is a new out-of-zone error** and meets trigger #2; do not wait for another failure.
+
+When replacing: RAID1 = pull the bad drive, insert new (same size or larger), let Protect/md rebuild. With this volume at 99% and both drives same-batch, expect to eventually replace **both**. The Nov 8 event is sufficient evidence to start planning, even though there is no emergency today.
 
 ---
 
@@ -225,6 +289,11 @@ mkdir -p /root/.ssh && chmod 700 /root/.ssh && echo 'ssh-ed25519 AAAAC3NzaC1lZDI
 ssh unvr 'cat /proc/mdstat'                                   # array + scrub progress
 ssh unvr 'smartctl -a /dev/sdb | grep -E "Pending|Reallocated"'  # drive counters
 ssh unvr 'dmesg -T | grep print_req_error | tail'             # recent I/O errors
+ssh unvr 'journalctl -k --since "2026-10-18 08:04:00" --no-pager | grep print_req_error'  # NEW I/O errors since repair
 ssh unvr 'journalctl -u usd --since "24 hours ago" | grep -i warning'  # usd health warnings
 ssh unvr 'mdadm --examine-badblocks /dev/sda5; mdadm --examine-badblocks /dev/sdb5'
+ssh unvr "sudo -u postgres psql -p 5433 -d unifi-protect -c \"select bt_index_check('cameras_pkey'::regclass, true);\""  # DB index check
+ssh unvr 'sudo -u postgres /usr/lib/postgresql/14/bin/pg_amcheck -p 5433 -d unifi-protect --heapallindexed --table=cameras --table=users --table=events'  # critical DB check
+ssh unvr 'sudo -u postgres /usr/lib/postgresql/14/bin/pg_amcheck -p 5433 -d unifi-protect --heapallindexed'  # full DB (~82s)
+ssh unvr 'grep -a events_cameraId_fkey /srv/unifi-protect/logs/errors.log | tail'  # event FK failures
 ```
