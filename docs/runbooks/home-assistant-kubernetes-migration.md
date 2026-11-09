@@ -72,7 +72,9 @@ Passing those through to a k3s VM would work, but it would tie HA to that node a
 
 The trade-off is one extra network hop. Both the radios and the cluster are on the same wired `192.168.2.0/24` VLAN, so this is a low-latency local link, not Wi-Fi/WAN/VPN. Do **not** use this over Wi-Fi or a VPN.
 
-Fallback if TCP serial proves unreliable: pass the USB devices through to `k3s-control1` (VM 401 on `pve`) and pin the HA pod to that node with `nodeAffinity` plus `hostPath` mounts for `/dev/serial/by-id`. That is lower latency but less flexible.
+Fallback if TCP serial proves unreliable: pass the USB devices through to `k3s-control1` (VM 401 on `pve`) and pin the radio pods to that node with `nodeAffinity` plus `hostPath` mounts for `/dev/serial/by-id`. That is lower latency but less flexible and makes that node the radio single point of failure.
+
+**Why not Zigbee2MQTT for this cutover?** Z2M is a good product, but moving from ZHA changes the integration layer: Z2M creates new MQTT-discovered entities and unique IDs, so entity IDs and device-based automations need remapping. With 1,487 entities and 46 automations, that is a separate project, not part of the HAOS→Kubernetes move. Keep ZHA for v1. If you migrate to Z2M later, it can also connect to `ser2net` via `tcp://192.168.2.3:4001`, so pinning the pod to the USB node is not required.
 
 ### 1.3 Why PostgreSQL and one small PVC
 
@@ -123,6 +125,28 @@ Security: use the existing `networking-external-with-errors` middleware and cons
 - Zigbee network on the ZBT-2 and Z-Wave network on the ZWA-2
 - Automations, scripts, scenes, Keymaster, templates
 - Google Drive backup destination (recheck OAuth after migration)
+
+### 1.6 What migrates from HAOS — and what does not
+
+The migration copies the **entire Home Assistant config directory** from a settings-only backup into the new `/config` PVC. PostgreSQL only replaces the recorder database; it does not change where configuration lives.
+
+| Item | Migrates? | Notes |
+|---|---|---|
+| `configuration.yaml`, `automations.yaml`, `scripts.yaml`, `scenes.yaml` | **Yes** | Copied from the backup |
+| `.storage/` — entity, device, area, floor, label registries | **Yes** | Preserves entity IDs, device IDs, areas, labels |
+| `.storage/` — config entries, auth/users, long-lived tokens, dashboards | **Yes** | Users/tokens remain; rotate sensitive tokens |
+| Dashboards, themes, blueprints, `www/`, HACS `custom_components` | **Yes** | HACS requirements reinstall at startup |
+| `zigbee.db` (ZHA network/device DB) | **Yes** | Coordinator network stays on the ZBT-2 |
+| Integration configs (Hue, Nest, Ecobee, UniFi, Plex, ESPHome, etc.) | **Yes** | Endpoint changes are limited to MQTT/ZHA/Z-Wave/eufy |
+| Physical Zigbee/Z-Wave devices | **Yes** | Same ZBT-2/ZWA-2 + network keys; no re-pairing if you edit the existing integrations in place |
+| Add-ons themselves (Mosquitto, Z-Wave JS, Cloudflared, etc.) | **No** | Replaced by Kubernetes Deployments; Cloudflared is removed |
+| Add-on data (Z-Wave keys/store, eufy `persistent.json`, MQTT retained messages) | **Partial/manual** | Z-Wave keys must be copied; eufy persistent is optional; MQTT retained messages are not copied |
+| Supervisor/OS/add-on update entities and `hassio.*` services | **No** | Supervisor integration is removed; audit automations/dashboards |
+| Recorder history, logbook history, long-term statistics | **No** | Postgres starts fresh; old SQLite DB is archived |
+| Cloud OAuth tokens (Google Drive, Nest, etc.) | **Mostly yes** | Tokens are in `.storage`; some may need reauthorization |
+| Media/share folders | **Optional** | Media is only ~56 KB; copy it if used |
+
+**Device/entity ID caution:** edit the existing ZHA/Z-Wave/MQTT config entries in place (ZHA “Migrate Radio”, Z-Wave JS URL, MQTT broker) rather than deleting and re-adding them. Removing an integration can recreate device-registry entries and break automations that use `device_id`. Entity-ID-based automations usually survive because unique IDs are stable, but verify device-based triggers/conditions after cutover.
 
 ---
 
@@ -284,7 +308,8 @@ Reusing the old HAOS MAC is recommended. It keeps the UDM DHCP reservation and A
 |---|---|---|
 | Secondary network | **Secure LAN `lan` NAD on `ens18`**, keep `.7` | IoT VLAN NAD on `ens18.<vlan>` for direct L2 to `192.168.4.0/24` |
 | MAC address | **Reuse `02:96:57:5c:1a:5e`** via the Multus annotation | Let macvlan pick a random MAC and update the UDM reservation |
-| Radio transport | **ser2net on `pve`** | USB passthrough to `k3s-control1` + nodeAffinity |
+| Zigbee integration | **Keep ZHA; use Migrate Radio to `socket://`** | Zigbee2MQTT (separate entity-remapping project) |
+| Radio transport | **ser2net on `pve`; no pod pinning** | USB passthrough to one k3s node + `nodeAffinity` |
 | Database | **CNPG `postgres-18`, fresh `homeassistant` DB** | Keep SQLite (not chosen) |
 | Recorder history | **Accept a fresh recorder; archive the old SQLite DB** | Separate SQLite→Postgres migration before cutover |
 | Storage | **One 5 GiB Longhorn PVC with `backups`/`media`/`eufy` subPaths** | Separate PVCs (not recommended) |
