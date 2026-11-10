@@ -710,6 +710,8 @@ Store these in GitLab CI/CD variables (or Vaultwarden + ExternalSecret). Do **no
 | `HASS_POSTGRES_USER`, `HASS_POSTGRES_PASS` | HA recorder + `postgres-init` | New role/database for HA |
 | `ZWAVE_*` keys | Z-Wave JS UI | Copy from the add-on options / HA config entry; store in a password manager too |
 
+A fill-in template is at `docs/runbooks/home-assistant-secrets.example.json`. Create one GitLab CI/CD variable named **`homeassistant`** (GitLab variable keys cannot contain `-`) whose value is the JSON object with the placeholders replaced. The cluster's `gitlab-secret-store` is project-scoped, so put it in the same GitLab project as the existing `silo` and `cloudnativepg` variables, with the **All environments** scope. Use `jq -c` to minify the JSON if you want a single-line value.
+
 The Z-Wave S0/S2 keys are the most dangerous thing to lose. If they are wrong, secure devices will not communicate. Keep the old HAOS VM until the Z-Wave network is fully validated.
 
 The repo's External Secrets pattern applies here. A generic shape:
@@ -728,13 +730,13 @@ spec:
     name: <secret-name>
   dataFrom:
     - extract:
-        key: home-assistant
+        key: homeassistant
 ```
 
 Adapt per app:
 
 - `eufy-security-ws`: Secret keys `username` / `password`.
-- `govee2mqtt-secret`: Secret keys `GOVEE_EMAIL`, `GOVEE_PASSWORD`, `GOVEE_API_KEY`, `MQTT_USERNAME`, `MQTT_PASSWORD`.
+- `govee2mqtt-secret`: Secret keys `GOVEE_EMAIL`, `GOVEE_PASSWORD`, `GOVEE_API_KEY`, `MQTT_USERNAME` (literal `govee2mqtt`), and `MQTT_PASSWORD` (map from `MQTT_GOVEE_PASSWORD`; `dataFrom.extract` does not rename keys).
 - `mosquitto-auth`: Secret key `passwd` (the full `mosquitto_passwd` file). Use an explicit `data` entry with `property: MOSQUITTO_PASSWD` if the variable is stored separately.
 - `home-assistant-db`: Secret keys `HASS_DB_URL`, `INIT_POSTGRES_DBNAME`, `INIT_POSTGRES_HOST`, `INIT_POSTGRES_USER`, `INIT_POSTGRES_PASS`, and `INIT_POSTGRES_SUPER_PASS`. The superuser password comes from the existing `cloudnativepg` GitLab key, which is already used by the other CNPG apps.
 
@@ -1543,7 +1545,7 @@ spec:
         INIT_POSTGRES_SUPER_PASS: "{{ .POSTGRES_SUPER_PASS }}"
   dataFrom:
     - extract:
-        key: home-assistant
+        key: homeassistant
     - extract:
         key: cloudnativepg
 ---
@@ -1561,11 +1563,11 @@ spec:
   data:
     - secretKey: username
       remoteRef:
-        key: home-assistant
+        key: homeassistant
         property: EUFY_USERNAME
     - secretKey: password
       remoteRef:
-        key: home-assistant
+        key: homeassistant
         property: EUFY_PASSWORD
 ```
 
