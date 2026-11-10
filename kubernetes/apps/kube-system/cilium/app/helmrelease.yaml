@@ -147,8 +147,9 @@ spec:
       enabled: false
 
     # keep just to cilium 
+    # Cilium must not delete Multus's 00-multus.conf.
     cni:
-      exclusive: true
+      exclusive: false
 
      # envoy / l7 
     envoy:
