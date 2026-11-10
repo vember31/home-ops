@@ -1,7 +1,7 @@
 # Home Assistant: HAOS → Kubernetes Migration Runbook
 
-**Status:** Proposal, not yet executed  
-**Last updated:** 2026-11-08  
+**Status:** Phase 0 complete (Multus enabled and validated); Phase 1 not started  
+**Last updated:** 2026-11-09  
 **Target:** Home Assistant Container `2026.11.x` in the `home` namespace  
 **Database:** CNPG `postgres-18` (`homeassistant` database)  
 **Public DNS:** Traefik Ingress + `external-dns-cloudflare` (`ha.vember31.xyz`)  
@@ -349,12 +349,18 @@ for n in k3s-control1 k3s-control3 k3s-control4 k3s-gpu-worker \
 done
 
 # 5. Confirm CNI paths and existing binaries on one node.
+# NOTE: use -i. Without it, kubectl debug does not attach stdout and the command
+# produces no visible output (the output is still available in the debug pod's logs).
 kubectl debug node/k3s-control1 -it --image=alpine:3.22 --profile=sysadmin -- \
   chroot /host sh -c 'ls -la /etc/cni/net.d /opt/cni/bin'
 
 # 6. Confirm the Proxmox NICs do not have MAC filtering enabled.
 ssh root@192.168.2.3 'qm config 401 | grep ^net0; qm config 402 | grep ^net0'
-# Expected: net0: virtio=...,bridge=vmbr0  (no firewall=1 / macfilter)
+# Observed: net0: virtio=...,bridge=vmbr0,firewall=1 — firewall=1 is present on
+# the k3s VMs, but the host firewall is disabled (`pve-firewall status` shows
+# "disabled/running") and there are no /etc/pve/firewall/<vmid>.fw files, so
+# firewall=1 is inert and no MAC filter applies. Verify both of those before
+# assuming MAC filtering is off.
 ```
 
 **Expected current CNI state:**
@@ -543,15 +549,20 @@ kubectl debug node/k3s-control1 -it --image=alpine:3.22 --profile=sysadmin -- \
 Expected:
 
 ```text
-/etc/cni/net.d/00-multus.conf
+/etc/cni/net.d/00-multus.conflist
 /etc/cni/net.d/05-cilium.conflist
+/etc/cni/net.d/multus.d/multus.kubeconfig
 /opt/cni/bin/cilium-cni
 /opt/cni/bin/loopback
 /opt/cni/bin/macvlan
+/opt/cni/bin/multus
 /opt/cni/bin/sbr
 ```
 
-If `00-multus.conf.cilium_bak` exists, Cilium is still exclusive. Fix the Cilium value and restart/rollout Cilium before continuing.
+Note: chart `0.1.1` writes `00-multus.conflist` (not `00-multus.conf`). The generated
+conflist embeds the Cilium config as its delegate, so `eth0` still uses Cilium.
+
+If `00-multus.conflist.cilium_bak` exists, Cilium is still exclusive. Fix the Cilium value and restart/rollout Cilium before continuing.
 
 ### 5.4 Create the `lan` NetworkAttachmentDefinition
 
@@ -673,7 +684,7 @@ flux reconcile kustomization multus-networks --with-source
 flux reconcile kustomization multus --with-source
 ```
 
-Verify `/etc/cni/net.d/00-multus.conf` is gone on each node. If it is not, remove it manually via `kubectl debug node/...`. Leave Cilium `cni.exclusive: false` until Multus is fully removed; then you can revert it to `true` if desired.
+Verify `/etc/cni/net.d/00-multus.conflist` is gone on each node. If it is not, remove it manually via `kubectl debug node/...`. Leave Cilium `cni.exclusive: false` until Multus is fully removed; then you can revert it to `true` if desired.
 
 Do not remove Multus while the HA pod is using `net1`; stop HA first.
 
