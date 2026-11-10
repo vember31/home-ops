@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/k8s.cni.cncf.io/networkattachmentdefinition_v1.json
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: lan
+  namespace: networking
+spec:
+  config: |-
+    {
+      "cniVersion": "1.1.0",
+      "name": "lan",
+      "plugins": [
+        {
+          "type": "macvlan",
+          "master": "ens18",
+          "mode": "bridge",
+          "capabilities": { "ips": true, "mac": true },
+          "ipam": {
+            "type": "static",
+            "routes": [
+              { "dst": "0.0.0.0/0", "gw": "192.168.2.1" },
+              { "dst": "192.168.3.0/24", "gw": "192.168.2.1" },
+              { "dst": "192.168.4.0/24", "gw": "192.168.2.1" }
+            ]
+          }
+        },
+        { "type": "sbr" }
+      ]
+    }
