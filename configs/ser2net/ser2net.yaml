@@ -1,0 +1,19 @@
+%YAML 1.1
+---
+# ser2net gateway for the Home Assistant radios on pve (192.168.2.3).
+# Install at /etc/ser2net.yaml on pve. See README.md in this directory.
+connection: &zigbee
+  accepter: tcp,4001
+  enable: on
+  options:
+    kickolduser: true
+    max-connections: 1
+  connector: serialdev,/dev/serial/by-id/usb-Nabu_Casa_ZBT-2_DCB4D9113140-if00,460800n81,nobreak,local
+
+connection: &zwave
+  accepter: tcp,4002
+  enable: on
+  options:
+    kickolduser: true
+    max-connections: 1
+  connector: serialdev,/dev/serial/by-id/usb-Nabu_Casa_ZWA-2_1020BA7105E4-if00,115200n81,nobreak,local

@@ -13,14 +13,15 @@
 
 - **Do not use `hostNetwork`.** Give the Home Assistant pod a real Layer 2 presence with **Multus**: `eth0` stays on Cilium for cluster traffic, and `net1` is a macvlan interface on `ens18` that keeps **`192.168.2.7/24`** and the existing HAOS MAC `02:96:57:5c:1a:5e`.
 - Keep **Cilium as the primary CNI**. Multus is only used for the secondary LAN interface. Cilium must be switched to `cni.exclusive: false` before Multus is installed.
-- Run HA as a **single-replica Deployment** with `strategy: Recreate`, **PostgreSQL** in the existing CNPG `postgres-18` cluster, and **one small 5 GiB Longhorn PVC** for `/config`. The PVC is unavoidable because HA writes `.storage` at runtime; the separate backups, media, and eufy PVCs are eliminated by using subdirectories on the same volume.
+- Run HA as a **single-replica Deployment** with `strategy: Recreate`, **PostgreSQL** in the existing CNPG `postgres-18` cluster, and **one small 2 GiB Longhorn PVC** for `/config`. The PVC is unavoidable because HA writes `.storage` at runtime; the separate backups, media, and eufy PVCs are eliminated by using subdirectories on the same volume.
+- **Git-manage the declarative config.** Put `configuration.yaml`, `packages/`, and the YAML-mode automations/scripts/scenes/dashboards in ConfigMaps generated from this repo; keep only runtime state (`.storage`, `zigbee.db`, the Z-Wave node cache/NVM, HACS downloads, backups) on the PVC. `secrets.yaml` comes from External Secrets.
 - Replace the HAOS add-ons with first-class Kubernetes Deployments:
   - **Mosquitto** Deployment (explicit local users; the HAOS HA-auth plugin is not available outside Supervisor).
   - **Z-Wave JS UI** Deployment, connecting to the ZWA-2 through `ser2net` on `pve`.
   - **eufy-security-ws** as a sidecar in the HA pod, preserving `127.0.0.1:3000`; any HA/go2rtc RTSP listener remains on `192.168.2.7:8554`.
   - **Govee2MQTT** Deployment, using the existing explicit `SCAN` IPs and MQTT credentials.
 - Move the Zigbee and Z-Wave radios to a **ser2net gateway on `pve` (192.168.2.3)**. ZHA then uses `socket://192.168.2.3:4001`; Z-Wave JS uses `tcp://192.168.2.3:4002`. This avoids pinning HA to the node with the USB devices.
-- Expose HA with **Traefik + external-dns** (Cloudflare provider) and keep `https://ha.vember31.xyz`. Do **not** run Cloudflared; remove the old HAOS Cloudflared add-on/tunnel and let external-dns own the public DNS record.
+- Expose HA with **Traefik + external-dns** (Cloudflare provider) at **`https://ha.vember31.xyz` only**. There is no `ha.local` ingress and no internal hostname. Do **not** run Cloudflared; remove the old HAOS Cloudflared add-on/tunnel and let external-dns own the public DNS record. The external route uses the repo's `networking-external-with-errors` chain, which includes CrowdSec and the Cloudflare IP allowlist.
 - Keep config backups on the config PVC (`/config/backups`) and upload them to **Google Drive** through the existing HA backup integration. The PostgreSQL recorder DB is covered by the CNPG scheduled backup to MinIO (add an S3/Barman object store if you want off-site DB backups too); the two restore paths are independent.
 - Enable Multus in a **separate change window** before the HA cutover. The HA cutover itself should be a ~60–90 minute maintenance window.
 - Keep HAOS VM 300 stopped but intact for **2–4 weeks** as the rollback path.
@@ -89,14 +90,17 @@ Moving the recorder to the existing CloudNative-PG `postgres-18` cluster has rea
 
 The trade-off is explicit: **Home Assistant does not migrate recorder history or long-term statistics from SQLite to PostgreSQL automatically.** This runbook treats the Postgres recorder as a fresh database. Keep the old `home-assistant_v2.db` and the pre-migration HAOS backup archived if you want the old history for reference. If you need the history in Postgres, plan a separate SQLite→Postgres migration before the cutover; do not make it part of the cutover window.
 
-**Storage:** one PVC is unavoidable because Home Assistant writes `.storage`, the entity/device registry, `zigbee.db`, and HACS state at runtime. A ConfigMap/Secret-only config would be read-only and would break HA. The design uses **one 5 GiB PVC** and puts the other data in subdirectories:
+**Storage:** one PVC is unavoidable because Home Assistant writes `.storage`, the entity/device registry, `zigbee.db`, and HACS state at runtime. A ConfigMap/Secret-only config would be read-only and would break HA. The design uses **one 2 GiB PVC** for runtime state and mounts the declarative YAML over it from ConfigMaps:
 
-- `/config` — HA config, `.storage`, `custom_components`, `www`, `zigbee.db`
+- `/config` — PVC mount; runtime state (`.storage`, `.uuid`, `zigbee.db`, `custom_components`, `www`, logs) plus the directory skeleton
+- `/config/configuration.yaml`, `/config/automations.yaml`, `/config/scripts.yaml`, `/config/scenes.yaml` — read-only ConfigMap subPath mounts
+- `/config/packages` — read-only ConfigMap directory
+- `/config/secrets.yaml` — External Secrets-managed Secret subPath mount
 - `/config/backups` — HA native config backups (small now that history is in Postgres)
 - `/media` — subPath `media` (the old media folder is only ~56 KB)
 - `/data` for the eufy sidecar — subPath `eufy` (a few KB of persistent login state)
 
-This avoids separate config/backups/media/eufy PVCs in favor of one 5 GiB volume, plus the small Mosquitto and Z-Wave store volumes described later.
+This avoids separate config/backups/media/eufy PVCs in favor of one 2 GiB volume, plus the small Mosquitto and Z-Wave store volumes described later. The 2 GiB size is deliberate: without the SQLite recorder the config directory is ~40 MB, so the volume is mostly backup/media headroom. Expand it later only if native backup retention grows.
 
 ### 1.4 Why external-dns + Traefik instead of Cloudflared
 
@@ -110,12 +114,12 @@ The repo already has everything needed to publish `ha.vember31.xyz` without a tu
 The HA setup becomes a normal public Ingress:
 
 - `ha.vember31.xyz` → Cloudflare proxy → `ipv4.${SECRET_DOMAIN}` → Traefik → HA Service.
-- `ha.local.vember31.xyz` stays as the internal ingress for LAN clients.
+- There is **no internal ingress and no `ha.local.vember31.xyz` record**. LAN clients use the public URL, with `http://192.168.2.7:8123` as a direct fallback.
 - No Cloudflared Deployment, no tunnel credentials, and no duplicate-connector problem.
 
 Requirement: inbound 80/443 must reach Traefik from Cloudflare. The repo already exposes other services this way, so the path exists. Remove the old Cloudflared route/CNAME for `ha.vember31.xyz` before applying the external ingress so external-dns is the only owner of that name.
 
-Security: use the existing `networking-external-with-errors` middleware and consider the same Cloudflare Access/CrowdSec protections used by other public services. HA should also have strong authentication and 2FA.
+Security: the external ingress uses the `networking-external-with-errors` chain, which is already CrowdSec → error-pages → Cloudflare IP allowlist. That gives HA the same edge protection as the other public services: only Cloudflare-proxied traffic reaches Traefik, and CrowdSec/appsec is enforced in front of the app. HA still needs strong authentication and 2FA.
 
 ### 1.5 What stays the same
 
@@ -128,19 +132,20 @@ Security: use the existing `networking-external-with-errors` middleware and cons
 
 ### 1.6 What migrates from HAOS — and what does not
 
-The migration copies the **entire Home Assistant config directory** from a settings-only backup into the new `/config` PVC. PostgreSQL only replaces the recorder database; it does not change where configuration lives.
+The migration copies the **entire Home Assistant config directory** from a settings-only backup into the new `/config` PVC, then moves the declarative files into Git-backed ConfigMaps. PostgreSQL only replaces the recorder database; it does not change where configuration lives.
 
 | Item | Migrates? | Notes |
 |---|---|---|
-| `configuration.yaml`, `automations.yaml`, `scripts.yaml`, `scenes.yaml` | **Yes** | Copied from the backup |
-| `.storage/` — entity, device, area, floor, label registries | **Yes** | Preserves entity IDs, device IDs, areas, labels |
-| `.storage/` — config entries, auth/users, long-lived tokens, dashboards | **Yes** | Users/tokens remain; rotate sensitive tokens |
-| Dashboards, themes, blueprints, `www/`, HACS `custom_components` | **Yes** | HACS requirements reinstall at startup |
-| `zigbee.db` (ZHA network/device DB) | **Yes** | Coordinator network stays on the ZBT-2 |
+| `configuration.yaml`, `automations.yaml`, `scripts.yaml`, `scenes.yaml` | **Yes** | Copied from the backup, then committed to `kubernetes/apps/home/home-assistant/app/config/` and mounted read-only from ConfigMaps |
+| `secrets.yaml` | **Yes** | Values move to the `homeassistant` GitLab secret and are rendered by External Secrets; do not commit the file |
+| `.storage/` — entity, device, area, floor, label registries | **Yes** | Runtime state on the PVC; preserves entity IDs, device IDs, areas, labels |
+| `.storage/` — config entries, auth/users, long-lived tokens, dashboards | **Yes** | Runtime state on the PVC; users/tokens remain; rotate sensitive tokens |
+| Dashboards, themes, blueprints, `www/`, HACS `custom_components` | **Yes** | UI dashboards can be exported to YAML for GitOps; HACS requirements reinstall at startup |
+| `zigbee.db` (ZHA network/device DB) | **Yes** | Runtime state on the PVC; coordinator network stays on the ZBT-2 |
 | Integration configs (Hue, Nest, Ecobee, UniFi, Plex, ESPHome, etc.) | **Yes** | Endpoint changes are limited to MQTT/ZHA/Z-Wave/eufy |
 | Physical Zigbee/Z-Wave devices | **Yes** | Same ZBT-2/ZWA-2 + network keys; no re-pairing if you edit the existing integrations in place |
 | Add-ons themselves (Mosquitto, Z-Wave JS, Cloudflared, etc.) | **No** | Replaced by Kubernetes Deployments; Cloudflared is removed |
-| Add-on data (Z-Wave keys/store, eufy `persistent.json`, MQTT retained messages) | **Partial/manual** | Z-Wave keys must be copied; eufy persistent is optional; MQTT retained messages are not copied |
+| Add-on data (Z-Wave keys/store, eufy `persistent.json`, MQTT retained messages) | **Partial/manual** | Z-Wave keys move to External Secrets and a settings template; eufy persistent is optional; MQTT retained messages are not copied |
 | Supervisor/OS/add-on update entities and `hassio.*` services | **No** | Supervisor integration is removed; audit automations/dashboards |
 | Recorder history, logbook history, long-term statistics | **No** | Postgres starts fresh; old SQLite DB is archived |
 | Cloud OAuth tokens (Google Drive, Nest, etc.) | **Mostly yes** | Tokens are in `.storage`; some may need reauthorization |
@@ -164,7 +169,7 @@ The migration copies the **entire Home Assistant config directory** from a setti
 | Supervisor | 2026.10.5 |
 | IP / MAC | `192.168.2.7/24` / `02:96:57:5c:1a:5e` |
 | External URL | `https://ha.vember31.xyz` via Cloudflared add-on (to be removed) |
-| Internal URL | `null` (clients use the external URL) |
+| Internal URL | unset; clients use the public URL |
 | Config dir size | ~737 MB |
 | SQLite DB | ~700 MB + ~5 MB WAL/SHM (archived; not migrated) |
 | Local backups | `/mnt/data/supervisor/backup`, ~4.4 GB |
@@ -250,9 +255,9 @@ If a client hardcodes `192.168.2.7:1883`, it will fail after cutover unless Mosq
 
 ```mermaid
 flowchart LR
-    CD[Cloudflare DNS<br/>ha.vember31.xyz] -->|proxied via ipv4.vember31.xyz| TR[Traefik Ingress]
+    CD[Cloudflare DNS<br/>ha.vember31.xyz] -->|proxied via ipv4.vember31.xyz| TR[Traefik Ingress<br/>CrowdSec + Cloudflare IPs]
     ED[external-dns-cloudflare] -. manages record .-> CD
-    TR -->|ha.vember31.xyz / ha.local.vember31.xyz| SVC[Service home-assistant:8123]
+    TR -->|ha.vember31.xyz| SVC[Service home-assistant:8123]
     SVC --> HA
 
     subgraph POD[Home Assistant Pod]
@@ -278,7 +283,9 @@ flowchart LR
 
 | Component | Namespace | Kind | Notes |
 |---|---|---|---|
-| `home-assistant` | `home` | Deployment + Service + 2 Ingresses | Multus `net1`; eufy sidecar |
+| `home-assistant` | `home` | Deployment + Service + Ingress | Multus `net1`; eufy sidecar; public-only ingress |
+| `home-assistant-config` | `home` | ConfigMap (generated) | `configuration.yaml`, automations/scripts/scenes, packages |
+| `home-assistant-secrets` | `home` | ExternalSecret → Secret | Rendered `secrets.yaml`; values live in GitLab |
 | `postgres-18` | `database` | CNPG Cluster (existing) | Recorder DB `homeassistant`; daily Barman backup |
 | `mosquitto` | `home` | Deployment + Service | 1883 ClusterIP; local users |
 | `zwave-js` | `home` | Deployment + Service | Z-Wave JS UI; ws 3000, UI 8091 |
@@ -312,11 +319,13 @@ Reusing the old HAOS MAC is recommended. It keeps the UDM DHCP reservation and A
 | Radio transport | **ser2net on `pve`; no pod pinning** | USB passthrough to one k3s node + `nodeAffinity` |
 | Database | **CNPG `postgres-18`, fresh `homeassistant` DB** | Keep SQLite (not chosen) |
 | Recorder history | **Accept a fresh recorder; archive the old SQLite DB** | Separate SQLite→Postgres migration before cutover |
-| Storage | **One 5 GiB Longhorn PVC with `backups`/`media`/`eufy` subPaths** | Separate PVCs (not recommended) |
-| External access | **Traefik + external-dns Cloudflare**, keep `ha.vember31.xyz` | Cloudflared tunnel (not chosen) |
+| Storage | **One 2 GiB Longhorn PVC with `backups`/`media`/`eufy` subPaths** | Separate PVCs (not recommended) |
+| External access | **Traefik + external-dns Cloudflare, public-only `ha.vember31.xyz`** | Cloudflared tunnel (not chosen) |
+| Edge protection | **`networking-external-with-errors` (CrowdSec + Cloudflare IP allowlist + error pages)** | Cloudflare Access in front of HA (extra login prompt; not chosen) |
 | eufy-security-ws | **Sidecar in the HA pod** | Separate Deployment with its own Multus LAN IP |
 | Govee2MQTT | **Separate Deployment, explicit `SCAN` IPs** | Add an `iot` NAD and use L2 discovery |
-| HA config source | **PVC seeded from a settings-only backup** | Externalize static YAML into Git later |
+| HA static config | **Git-managed ConfigMaps from this repo** | Keep editing files on the PVC (not chosen) |
+| HA runtime state | **PVC (`.storage`, `zigbee.db`, Z-Wave cache/NVM, HACS, backups)** | Trying to GitOps runtime state (not safe) |
 | Config cloud backup | **HA native backup + Google Drive** | Longhorn/NFS only; add S3/rclone later |
 | MQTT external clients | **Inventory and migrate** | Give Mosquitto a LAN IP/MetalLB if needed |
 
@@ -700,7 +709,7 @@ Store these in GitLab CI/CD variables (or Vaultwarden + ExternalSecret). Do **no
 
 | Variable | Used by | Notes |
 |---|---|---|
-| `HASS_SECRETS_YAML` | HA `secrets.yaml` | Optional; keep on PVC for v1 |
+| `HASS_SECRETS_YAML` | HA `secrets.yaml` | Full `secrets.yaml` content; rendered by ESO and mounted at `/config/secrets.yaml` |
 | `HASS_TOKEN` | Homepage widget | Rotate after cutover |
 | `MQTT_HOMEASSISTANT_PASSWORD` | HA MQTT integration | New local Mosquitto user |
 | `MQTT_GOVEE_PASSWORD` | Govee2MQTT | New local Mosquitto user |
@@ -708,7 +717,7 @@ Store these in GitLab CI/CD variables (or Vaultwarden + ExternalSecret). Do **no
 | `GOVEE_EMAIL`, `GOVEE_PASSWORD`, `GOVEE_API_KEY` | Govee2MQTT | Copy from the add-on options |
 | `EUFY_USERNAME`, `EUFY_PASSWORD` | eufy-security-ws sidecar | Copy from the add-on options |
 | `HASS_POSTGRES_USER`, `HASS_POSTGRES_PASS` | HA recorder + `postgres-init` | New role/database for HA |
-| `ZWAVE_*` keys | Z-Wave JS UI | Copy from the add-on options / HA config entry; store in a password manager too |
+| `ZWAVE_*` keys | Z-Wave JS UI | Copy from the add-on options / HA config entry; mapped into the `zwave-js-keys` Secret and stored in a password manager too |
 
 A fill-in template is at `docs/runbooks/home-assistant-secrets.example.json`. Create one GitLab CI/CD variable named **`homeassistant`** (GitLab variable keys cannot contain `-`) whose value is the JSON object with the placeholders replaced. The cluster's `gitlab-secret-store` is project-scoped, so put it in the same GitLab project as the existing `silo` and `cloudnativepg` variables, with the **All environments** scope. Use `jq -c` to minify the JSON if you want a single-line value.
 
@@ -738,11 +747,165 @@ Adapt per app:
 - `eufy-security-ws`: Secret keys `username` / `password`.
 - `govee2mqtt-secret`: Secret keys `GOVEE_EMAIL`, `GOVEE_PASSWORD`, `GOVEE_API_KEY`, `MQTT_USERNAME` (literal `govee2mqtt`), and `MQTT_PASSWORD` (map from `MQTT_GOVEE_PASSWORD`; `dataFrom.extract` does not rename keys).
 - `mosquitto-auth`: Secret key `passwd` (the full `mosquitto_passwd` file). Use an explicit `data` entry with `property: MOSQUITTO_PASSWD` if the variable is stored separately.
+- `home-assistant-secrets`: Secret key `secrets.yaml` from `HASS_SECRETS_YAML`; mounted at `/config/secrets.yaml`.
+- `zwave-js-keys`: Secret keys for the `ZWAVE_*` placeholders used by the `settings.json` template in §6.5.1.
 - `home-assistant-db`: Secret keys `HASS_DB_URL`, `INIT_POSTGRES_DBNAME`, `INIT_POSTGRES_HOST`, `INIT_POSTGRES_USER`, `INIT_POSTGRES_PASS`, and `INIT_POSTGRES_SUPER_PASS`. The superuser password comes from the existing `cloudnativepg` GitLab key, which is already used by the other CNPG apps.
 
 Do not put these values in `values.yaml`, ConfigMaps, or the Git repository.
 
-### 6.2 Pre-create the HA PVC
+### 6.2 Git-managed Home Assistant configuration
+
+The design separates **declarative config** (Git) from **runtime state** (PVC). Do not try to mount the whole `/config` directory from a ConfigMap: Home Assistant continuously writes `.storage`, `zigbee.db`, `.uuid`, logs, and HACS state, and a read-only mount would break it. Mount the declarative files over the PVC instead.
+
+#### 6.2.1 What is GitOps-managed
+
+| Path / item | Source of truth | Notes |
+|---|---|---|
+| `configuration.yaml` | ConfigMap | HA never writes it; it includes the packages and YAML-mode files |
+| `packages/*.yaml` | ConfigMap | Templates, template sensors, YAML helpers, integrations split by domain |
+| Other top-level YAML (`customize.yaml`, `groups.yaml`, `templates.yaml`, etc.) | ConfigMap | Only if `configuration.yaml` references the file; these are declarative and never rewritten by HA |
+| `automations.yaml`, `scripts.yaml`, `scenes.yaml` | ConfigMap | Safe in YAML mode. The UI editors can no longer save changes; all edits go through Git |
+| `dashboards/*.yaml` | ConfigMap | Requires `lovelace: mode: yaml`; UI dashboard editing is disabled |
+| `blueprints/`, `themes/` | ConfigMap | Only if they are file-based; HACS-managed blueprints/themes are runtime state |
+| `secrets.yaml` | External Secrets → Secret | Values live in the `homeassistant` GitLab secret, never in Git |
+| `.storage/` | PVC only | Entity/device/area registries, config entries, auth/users, long-lived tokens, UI state. HA rewrites these constantly |
+| `zigbee.db` | PVC only | ZHA network/device database; back it up with Longhorn + HA native backups |
+| Z-Wave JS `store/` | PVC + seeded settings | `nodes.json`/NVM are runtime state; `settings.json` can be rendered from a Git template + ESO keys |
+| `custom_components/` (HACS) | PVC or custom image | HACS downloads at runtime; bake pinned components into a thin image for immutability |
+| `www/` | PVC or ConfigMap | Small static assets can be a ConfigMap; large/binary assets stay on the PVC |
+| `backups/`, `media/`, `eufy/` | PVC | Runtime data; backed up by HA + Longhorn |
+
+Rule of thumb: if Home Assistant writes it at runtime, it belongs on the PVC. If a human edits it declaratively, it belongs in Git.
+
+#### 6.2.2 Repository layout
+
+```text
+kubernetes/apps/home/home-assistant/
+├── app/
+│   ├── config/
+│   │   ├── configuration.yaml
+│   │   ├── automations.yaml
+│   │   ├── scripts.yaml
+│   │   ├── scenes.yaml
+│   │   ├── packages/
+│   │   │   ├── climate.yaml
+│   │   │   ├── lighting.yaml
+│   │   │   └── sensors.yaml
+│   │   └── (optional) dashboards/
+│   ├── externalsecret.yaml
+│   ├── helmrelease.yaml
+│   ├── kustomization.yaml
+│   └── pvc.yaml
+└── ks.yaml
+```
+
+#### 6.2.3 ConfigMap generation
+
+```yaml
+---
+# kubernetes/apps/home/home-assistant/app/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./externalsecret.yaml
+  - ./pvc.yaml
+  - ./helmrelease.yaml
+  - ../../../../templates/gatus/external
+configMapGenerator:
+  - name: home-assistant-config
+    files:
+      - configuration.yaml=./config/configuration.yaml
+      - automations.yaml=./config/automations.yaml
+      - scripts.yaml=./config/scripts.yaml
+      - scenes.yaml=./config/scenes.yaml
+  - name: home-assistant-packages
+    files:
+      - ./config/packages/climate.yaml
+      - ./config/packages/lighting.yaml
+      - ./config/packages/sensors.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: enabled
+```
+
+Notes:
+
+- `disableNameSuffixHash: true` matches the rest of the repo. Flux updates the ConfigMap in place; Reloader restarts the HA pod when the content changes.
+- `substitute: enabled` lets Flux replace `${TIMEZONE}`, `${POD_CIDR}`, `${SERVICE_CIDR}`, and `${LB_CIDR}` from `cluster-settings.yaml`. Do not use `${...}` for HA's own templating; use `!secret` or Jinja instead.
+- If `configuration.yaml` includes other top-level YAML files (`customize.yaml`, `groups.yaml`, etc.), add them to `home-assistant-config` and mount each one the same way as `automations.yaml`.
+- A ConfigMap is limited to 1 MiB. The YAML config here is small (well under that); keep `www/` images and HACS code out of it. If packages ever approach the limit, split them into multiple ConfigMaps mounted as separate package directories, or move to a `git-sync` sidecar.
+- Keep one package per domain/function so `git log` and PR review stay readable.
+
+#### 6.2.4 `configuration.yaml`
+
+```yaml
+default_config:
+
+homeassistant:
+  packages: !include_dir_named packages
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - ${POD_CIDR}
+    - ${SERVICE_CIDR}
+    - ${LB_CIDR}
+  ip_ban_enabled: true
+  login_attempts_threshold: 5
+
+recorder:
+  db_url: !env_var HASS_DB_URL
+  purge_keep_days: 10
+  commit_interval: 30
+```
+
+`HASS_DB_URL` comes from the `home-assistant-db` Secret and points at `postgres-18-rw.database.svc.cluster.local:5432/homeassistant`. The `postgres-init` init container creates the role/database; HA creates the recorder schema on first start.
+
+If you convert the UI dashboards to YAML, add the `lovelace:` block here and put the dashboard files under `config/dashboards/`. Do not define `external_url`/`internal_url` in both YAML and the UI; this design sets **External URL** to `https://ha.vember31.xyz` and leaves **Internal URL** empty in Settings → System → Network.
+
+#### 6.2.5 `secrets.yaml` via External Secrets
+
+Put this document in `kubernetes/apps/home/home-assistant/app/externalsecret.yaml`, alongside the database and eufy ExternalSecrets from §6.9. A single file with multiple `---` documents is fine.
+
+```yaml
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: home-assistant-secrets
+  namespace: home
+spec:
+  secretStoreRef:
+    name: gitlab-secret-store
+    kind: ClusterSecretStore
+  refreshInterval: 15m
+  target:
+    name: home-assistant-secrets
+    creationPolicy: Owner
+  data:
+    - secretKey: secrets.yaml
+      remoteRef:
+        key: homeassistant
+        property: HASS_SECRETS_YAML
+```
+
+Store the full `secrets.yaml` content in the `homeassistant` GitLab variable as `HASS_SECRETS_YAML`. The HelmRelease mounts the resulting Secret at `/config/secrets.yaml`. If the current config does not use `!secret`, this mount is optional; keep it anyway so future secrets have one obvious home.
+
+Do **not** commit `secrets.yaml`, `.storage`, `zigbee.db`, Z-Wave keys, or any token. `git grep` should never find the real values.
+
+#### 6.2.6 ZHA, Z-Wave, and HACS limits
+
+- **ZHA:** the radio path (`socket://192.168.2.3:4001`) is chosen once in the ZHA config flow, while the network/device database (`zigbee.db`) and the integration entry in `.storage/core.config_entries` are rewritten by HA at runtime. Do not mount either from Git. Keep them on the PVC, include them in the HA native backup, and let the Longhorn recurring job snapshot the PVC. A Git copy of `zigbee.db` would be a binary blob that changes constantly and contains network keys; it is not a safe source of truth.
+- **Z-Wave JS UI:** `nodes.json`, the NVM backup, and the node cache are runtime state. `settings.json` is the one file worth templating: it holds the serial port, RF region, and S0/S2 keys. See §6.5.1 for the seed pattern. Keys live in External Secrets, not Git.
+- **HACS:** `custom_components/` is downloaded and updated by HACS at runtime. For a fully immutable deployment, build a thin image that pins those components and remove HACS from the runtime; otherwise keep `custom_components/` on the PVC and treat HACS as a package manager. Do not ConfigMap it.
+- **UI-managed helpers:** input helpers created in the UI live in `.storage`. If you want them in Git, move them to YAML packages; do not edit `.storage` by hand.
+
+### 6.3 Pre-create the HA PVC
 
 Create `kubernetes/apps/home/home-assistant/app/pvc.yaml`:
 
@@ -762,13 +925,13 @@ spec:
   storageClassName: longhorn
   resources:
     requests:
-      storage: 5Gi
+      storage: 2Gi
 ```
 
 Notes:
 
-- One PVC is the minimum: HA writes `.storage`, the registries, `zigbee.db`, `custom_components`, and `www` at runtime. A read-only ConfigMap/Secret cannot replace it.
-- With the recorder in PostgreSQL, the config directory is only ~40 MB. The 5 GiB volume leaves room for several compressed config backups and the old media folder.
+- One PVC is the minimum: HA writes `.storage`, the registries, `zigbee.db`, `custom_components`, and `www` at runtime. A read-only ConfigMap/Secret cannot replace it. The declarative YAML in §6.2 is mounted over this PVC.
+- With the recorder in PostgreSQL, the config directory is only ~40 MB. The 2 GiB volume leaves room for several compressed config backups and the old media folder.
 - `/config/backups` is a normal directory on this PVC. HA Container stores native backups there; no separate backups PVC is needed.
 - `/media` is mounted from the `media` subPath of the same PVC (the old media folder is ~56 KB).
 - `/data` for the eufy sidecar is mounted from the `eufy` subPath of the same PVC. It preserves the Eufy persistent login/trusted-device state without a dedicated volume.
@@ -779,7 +942,8 @@ Backup paths after the migration:
 
 | Data | Primary | Secondary |
 |---|---|---|
-| HA config | HA native backup → `/config/backups` → **Google Drive** | Longhorn recurring backup → NFS |
+| HA runtime state (`.storage`, `zigbee.db`, HACS, `www`) | HA native backup → `/config/backups` → **Google Drive** | Longhorn recurring backup → NFS |
+| Declarative HA config | Git (`kubernetes/apps/home/home-assistant/app/config/`) | HA native backup + Git history |
 | Recorder DB | CNPG Barman → MinIO (`postgres-18-backup`) | Add an S3/Barman object store for off-site DB copies |
 | Old SQLite history | Archive the old `home-assistant_v2.db` / HAOS backup on NAS/cloud | — |
 
@@ -787,13 +951,13 @@ Storage summary after the migration:
 
 | Volume | Size | Why |
 |---|---:|---|
-| `home-assistant-config` | 5 GiB | HA config/`.storage`/`zigbee.db` + backups/media/eufy subPaths |
+| `home-assistant-config` | 2 GiB | Runtime state + backups/media/eufy subPaths; declarative YAML comes from ConfigMaps |
 | `mosquitto` data | 512 MiB | Retained MQTT messages/persistence |
 | `zwave-js` store | 512 MiB | Z-Wave JS UI config/network keys |
 
 No other HA PVCs are required. The Longhorn recurring job backs up all three.
 
-### 6.3 Mosquitto
+### 6.4 Mosquitto
 
 Mosquitto runs as a **Kubernetes Deployment** in the `home` namespace. The HAOS add-on is only the source of the old broker config and client credentials; after cutover there is no Mosquitto add-on.
 
@@ -958,7 +1122,7 @@ If an external MQTT client must keep connecting, give Mosquitto a LAN presence:
 
 Do not expose Mosquitto to the internet. Restrict LAN access with firewall rules if possible.
 
-### 6.4 Z-Wave JS UI
+### 6.5 Z-Wave JS UI
 
 Z-Wave JS UI runs as a **Kubernetes Deployment** in the `home` namespace, with its own 512 MiB Longhorn store PVC for the controller config and network keys. The HAOS Z-Wave JS add-on is only the source of the old serial/network settings; after cutover there is no Z-Wave JS add-on.
 
@@ -1070,7 +1234,123 @@ The HA Z-Wave JS integration will use `ws://zwave-js.home.svc.cluster.local:3000
 
 Do not expose the Z-Wave JS UI without authentication. It can control locks; use port-forward or put basic auth in front of it.
 
-### 6.5 Govee2MQTT
+#### 6.5.1 Git-managed Z-Wave settings
+
+The store PVC is still required, but `settings.json` can be rendered from Git so the serial port, RF region, and S0/S2 keys are not hand-edited in the UI:
+
+1. Export the current `settings.json` from the HAOS Z-Wave JS add-on data directory.
+2. Copy it to `kubernetes/apps/home/zwave-js/app/config/settings.json` in this repo.
+3. Replace the S0/S2/LR keys and any MQTT credentials with `${...}` placeholders. Put the real values in the `homeassistant` GitLab secret (for example `ZWAVE_S0_KEY`, `ZWAVE_S2_UNAUTH_KEY`, `ZWAVE_S2_AUTH_KEY`, `ZWAVE_S2_ACCESS_KEY`, `ZWAVE_LR_S2_AUTH_KEY`, `ZWAVE_LR_S2_ACCESS_KEY`).
+4. Generate a ConfigMap from the template and render it with an init container before the app starts.
+
+```yaml
+# kubernetes/apps/home/zwave-js/app/kustomization.yaml
+configMapGenerator:
+  - name: zwave-js-settings
+    files:
+      - settings.json=./config/settings.json
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    # Let the init container's envsubst handle ${ZWAVE_*}. Flux would replace
+    # undefined variables with empty strings and destroy the key placeholders.
+    kustomize.toolkit.fluxcd.io/substitute: disabled
+```
+
+```yaml
+# HelmRelease values (abridged; replace the persistence.store block in §6.5
+# and add the init container plus persistence.settings)
+controllers:
+  zwave-js:
+    initContainers:
+      seed-settings:
+        image:
+          repository: alpine
+          tag: "3.22"
+        command:
+          - sh
+          - -c
+          - |
+            apk add --no-cache gettext
+            envsubst < /settings-template/settings.json > /usr/src/app/store/settings.json
+        envFrom:
+          - secretRef:
+              name: zwave-js-keys
+
+persistence:
+  settings:
+    type: configMap
+    name: zwave-js-settings
+    advancedMounts:
+      zwave-js:
+        seed-settings:
+          - path: /settings-template
+            readOnly: true
+  store:
+    type: persistentVolumeClaim
+    storageClass: longhorn
+    accessMode: ReadWriteOnce
+    size: 512Mi
+    retain: true
+    labels:
+      recurring-job-group.longhorn.io/default: enabled
+    advancedMounts:
+      zwave-js:
+        app:
+          - path: /usr/src/app/store
+        seed-settings:
+          - path: /usr/src/app/store
+```
+
+Create the `zwave-js-keys` Secret as an ExternalSecret in `kubernetes/apps/home/zwave-js/app/externalsecret.yaml`:
+
+```yaml
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: zwave-js-keys
+  namespace: home
+spec:
+  secretStoreRef:
+    name: gitlab-secret-store
+    kind: ClusterSecretStore
+  refreshInterval: 15m
+  target:
+    name: zwave-js-keys
+    creationPolicy: Owner
+  data:
+    - secretKey: ZWAVE_S0_KEY
+      remoteRef:
+        key: homeassistant
+        property: ZWAVE_S0_KEY
+    - secretKey: ZWAVE_S2_UNAUTH_KEY
+      remoteRef:
+        key: homeassistant
+        property: ZWAVE_S2_UNAUTH_KEY
+    - secretKey: ZWAVE_S2_AUTH_KEY
+      remoteRef:
+        key: homeassistant
+        property: ZWAVE_S2_AUTH_KEY
+    - secretKey: ZWAVE_S2_ACCESS_KEY
+      remoteRef:
+        key: homeassistant
+        property: ZWAVE_S2_ACCESS_KEY
+    - secretKey: ZWAVE_LR_S2_AUTH_KEY
+      remoteRef:
+        key: homeassistant
+        property: ZWAVE_LR_S2_AUTH_KEY
+    - secretKey: ZWAVE_LR_S2_ACCESS_KEY
+      remoteRef:
+        key: homeassistant
+        property: ZWAVE_LR_S2_ACCESS_KEY
+```
+
+Add the ExternalSecret to the Z-Wave app kustomization (shown in §6.9.1).
+
+Caveat: rendering on every start makes Git the source of truth for `settings.json`; changes made in the Z-Wave JS UI settings page are overwritten on the next pod restart. That is intentional. `nodes.json`, node interview data, and NVM backups remain on the PVC and are not touched by the init container. If you prefer UI edits to persist, seed only when the file is absent (`[ -f /usr/src/app/store/settings.json ] || envsubst ...`) and treat Git as bootstrap-only.
+
+### 6.6 Govee2MQTT
 
 Create `kubernetes/apps/home/govee2mqtt/app/helmrelease.yaml`:
 
@@ -1148,20 +1428,18 @@ The `govee2mqtt-secret` should contain `GOVEE_EMAIL`, `GOVEE_PASSWORD`, `GOVEE_A
 
 Start with `NO_MULTICAST: "true"` and the explicit `SCAN` IPs, because the pod is not on the IoT VLAN. If discovery still fails, the next step is an `iot` NAD on the actual IoT VLAN (see §4 and §12), not `hostNetwork`.
 
-### 6.6 Public ingress via Traefik + external-dns
+### 6.7 Public ingress via Traefik + external-dns
 
 There is **no Cloudflared Deployment** in this design. `external-dns-cloudflare` and `cloudflare-ddns` already run in the cluster, and the public ingress pattern is already used by other services.
 
 What needs to happen:
 
 1. **Remove the old tunnel route for `ha.vember31.xyz`.** In the Cloudflare Zero Trust dashboard (or the old add-on config), delete the public hostname for `ha.vember31.xyz` from the old tunnel. Keep the tunnel itself for the rollback window, but it must not own the DNS name.
-2. **Apply the external HA ingress.** The HA HelmRelease creates two Ingresses:
-   - `internal` → `ha.local.${SECRET_DOMAIN}` → `traefik.local.${SECRET_DOMAIN}`.
-   - `external` → `ha.vember31.xyz` → `ipv4.${SECRET_DOMAIN}`.
+2. **Apply the external HA ingress.** The HA HelmRelease creates exactly one Ingress: `ha.vember31.xyz` → `ipv4.${SECRET_DOMAIN}`. There is no internal ingress and no `ha.local` hostname.
 3. **Let external-dns create the record.** It will create a Cloudflare-proxied `ha.vember31.xyz` record pointing at `ipv4.${SECRET_DOMAIN}`. `cloudflare-ddns` keeps that A record current.
 4. **Let cert-manager issue the certificate.** The existing `letsencrypt-production` ClusterIssuer uses Cloudflare DNS-01, so it works through the proxy.
 
-The external ingress shape:
+The ingress shape:
 
 ```yaml
 ingress:
@@ -1170,9 +1448,9 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-production
       external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+      external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+      # This chain is CrowdSec -> error-pages -> Cloudflare IP allowlist.
       traefik.ingress.kubernetes.io/router.middlewares: networking-external-with-errors@kubernetescrd
-      # Optional, if you want Cloudflare Access / CrowdSec on HA:
-      # traefik.ingress.kubernetes.io/router.middlewares: networking-cloudflare-ips@kubernetescrd,networking-crowdsec-bouncer@kubernetescrd
     hosts:
       - host: &externalHost ha.${SECRET_DOMAIN} # ha.vember31.xyz
         paths:
@@ -1186,55 +1464,34 @@ ingress:
           - *externalHost
 ```
 
-The internal ingress stays:
-
-```yaml
-ingress:
-  internal:
-    enabled: true
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-production
-      external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-      traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
-    hosts:
-      - host: &internalHost ha.local.${SECRET_DOMAIN}
-        paths:
-          - path: /
-            service:
-              identifier: app
-              port: http
-    tls:
-      - secretName: home-assistant-tls-internal
-        hosts:
-          - *internalHost
-```
-
 Verification after applying:
 
 ```bash
 kubectl -n home get ingress home-assistant -o wide
+kubectl -n home get certificate
 dig +short ha.vember31.xyz
 curl -sS -o /dev/null -w '%{http_code}\n' https://ha.vember31.xyz/manifest.json
-kubectl -n home get certificate
 ```
 
 Notes:
 
-- `external-dns` has `excludeDomains: local.${SECRET_DOMAIN}`, so `ha.local.vember31.xyz` is not published publicly. The internal name is resolved by Blocky/Traefik.
+- Public access only. Do not create a `ha.local.${SECRET_DOMAIN}` ingress, DNS record, or certificate; `external-dns` already excludes `local.${SECRET_DOMAIN}`. LAN clients use `https://ha.vember31.xyz`, with `http://192.168.2.7:8123` as a direct fallback.
+- `networking-external-with-errors` already includes both protections: `crowdsec-bouncer` (with AppSec) and `cloudflare-ips` (Cloudflare proxy ranges plus the repo's secure/VPN/guest CIDRs). Do not add the individual middlewares as well; that duplicates the chain.
+- `external-dns-cloudflare` runs with `--cloudflare-proxied`, and the explicit annotation keeps the intent visible. Cloudflare Access is a separate product and is not enabled; it would add another login prompt and complicate the HA mobile app/WebSocket.
 - The old Cloudflared tunnel can be kept (without the `ha.vember31.xyz` public hostname) for the 2–4 week rollback window. Delete it after the new HA is stable.
-- If you use Cloudflare Access or CrowdSec, apply the same middleware pattern as Vaultwarden; HA is an internet-facing login page and should not be left unprotected beyond its own auth/2FA.
 
-### 6.7 ser2net gateway on `pve`
+### 6.8 ser2net gateway on `pve`
 
-Install and configure `ser2net` on `pve`:
+The canonical config is versioned at `configs/ser2net/ser2net.yaml` in this repo. Install that file rather than hand-editing the host:
 
 ```bash
-ssh root@192.168.2.3
-apt-get update
-apt-get install -y ser2net
+# Install the package, then copy the versioned config from the repo root.
+ssh root@192.168.2.3 'apt-get update && apt-get install -y ser2net'
+scp configs/ser2net/ser2net.yaml root@192.168.2.3:/etc/ser2net.yaml
+ssh root@192.168.2.3 'systemctl enable --now ser2net && systemctl status ser2net --no-pager'
 ```
 
-Edit `/etc/ser2net.yaml`:
+The contents are:
 
 ```yaml
 %YAML 1.1
@@ -1305,7 +1562,7 @@ nc -vz 192.168.2.3 4002
 
 Fallback if ser2net proves unreliable: stop `ser2net`, reattach `usb1`/`usb2` to `k3s-control1` (VM 401 on `pve`) with `qm set 401 -usb1 host=303a:831a -usb2 host=303a:4001`, and pin the HA pod to `k3s-control1` with a `nodeAffinity` and `hostPath` mounts for `/dev/serial/by-id`. This gives lower latency but less scheduling flexibility.
 
-### 6.8 HA HelmRelease and app layout
+### 6.9 HA HelmRelease and app layout
 
 Create `kubernetes/apps/home/home-assistant/app/helmrelease.yaml`:
 
@@ -1350,6 +1607,8 @@ spec:
         strategy: Recreate
         pod:
           annotations:
+            # Restart HA when the Git-managed ConfigMaps/Secret change.
+            reloader.stakater.com/auto: "true"
             # net1 keeps 192.168.2.7 and the old HAOS MAC; eth0 stays Cilium.
             k8s.v1.cni.cncf.io/networks: >-
               [{"name":"lan","namespace":"networking","interface":"net1","ips":["192.168.2.7/24"],"mac":"02:96:57:5c:1a:5e"}]
@@ -1467,31 +1726,14 @@ spec:
           http:
             port: 8123
     ingress:
-      internal:
-        enabled: true
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
-          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
-        hosts:
-          - host: &internalHost ha.local.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - secretName: home-assistant-tls-internal
-            hosts:
-              - *internalHost
       external:
         enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+          # CrowdSec + Cloudflare IP allowlist + error pages.
           traefik.ingress.kubernetes.io/router.middlewares: networking-external-with-errors@kubernetescrd
-          # Optional: same Cloudflare/CrowdSec protection used by Vaultwarden.
-          # traefik.ingress.kubernetes.io/router.middlewares: networking-cloudflare-ips@kubernetescrd,networking-crowdsec-bouncer@kubernetescrd
         hosts:
           - host: &externalHost ha.${SECRET_DOMAIN} # ha.vember31.xyz
             paths:
@@ -1516,9 +1758,44 @@ spec:
             eufy-security-ws:
               - path: /data
                 subPath: eufy
+      config-files:
+        type: configMap
+        name: home-assistant-config
+        advancedMounts:
+          home-assistant:
+            app:
+              - path: /config/configuration.yaml
+                subPath: configuration.yaml
+                readOnly: true
+              - path: /config/automations.yaml
+                subPath: automations.yaml
+                readOnly: true
+              - path: /config/scripts.yaml
+                subPath: scripts.yaml
+                readOnly: true
+              - path: /config/scenes.yaml
+                subPath: scenes.yaml
+                readOnly: true
+      packages:
+        type: configMap
+        name: home-assistant-packages
+        advancedMounts:
+          home-assistant:
+            app:
+              - path: /config/packages
+                readOnly: true
+      secrets:
+        type: secret
+        name: home-assistant-secrets
+        advancedMounts:
+          home-assistant:
+            app:
+              - path: /config/secrets.yaml
+                subPath: secrets.yaml
+                readOnly: true
 ```
 
-Create `kubernetes/apps/home/home-assistant/app/externalsecret.yaml` for the database and eufy sidecar:
+Add the database and eufy sidecar documents to `kubernetes/apps/home/home-assistant/app/externalsecret.yaml` (the same file as the `home-assistant-secrets` ExternalSecret from §6.2.5):
 
 ```yaml
 ---
@@ -1571,7 +1848,7 @@ spec:
         property: EUFY_PASSWORD
 ```
 
-Create `kubernetes/apps/home/home-assistant/app/kustomization.yaml`:
+Create `kubernetes/apps/home/home-assistant/app/kustomization.yaml` (the full version, including the Git-managed config from §6.2.3):
 
 ```yaml
 ---
@@ -1581,8 +1858,23 @@ resources:
   - ./externalsecret.yaml
   - ./pvc.yaml
   - ./helmrelease.yaml
-  - ../../../../templates/gatus/internal
   - ../../../../templates/gatus/external
+configMapGenerator:
+  - name: home-assistant-config
+    files:
+      - configuration.yaml=./config/configuration.yaml
+      - automations.yaml=./config/automations.yaml
+      - scripts.yaml=./config/scripts.yaml
+      - scenes.yaml=./config/scenes.yaml
+  - name: home-assistant-packages
+    files:
+      - ./config/packages/climate.yaml
+      - ./config/packages/lighting.yaml
+      - ./config/packages/sensors.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: enabled
 ```
 
 Create `kubernetes/apps/home/home-assistant/ks.yaml`:
@@ -1626,7 +1918,7 @@ Add `./home-assistant/ks.yaml`, `./mosquitto/ks.yaml`, `./zwave-js/ks.yaml`, and
 
 The `cloudnative-pg-cluster` dependency is required now: the `postgres-init` init container creates the `homeassistant` role/database in `postgres-18` before HA starts.
 
-#### 6.8.1 Supporting app Kustomizations
+#### 6.9.1 Supporting app Kustomizations
 
 Each supporting app follows the repo's normal `ks.yaml` + `app/kustomization.yaml` pattern. Each block below is a separate file; the `---` at the top of each block is optional. The `ks.yaml` files are deliberately small:
 
@@ -1670,6 +1962,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: external-secrets-stores
     - name: longhorn
   path: ./kubernetes/apps/home/zwave-js/app
   prune: true
@@ -1723,7 +2016,16 @@ resources:
 
 # kubernetes/apps/home/zwave-js/app/kustomization.yaml
 resources:
+  - ./externalsecret.yaml
   - ./helmrelease.yaml
+configMapGenerator:
+  - name: zwave-js-settings
+    files:
+      - settings.json=./config/settings.json
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
 
 # kubernetes/apps/home/govee2mqtt/app/kustomization.yaml
 resources:
@@ -1731,13 +2033,13 @@ resources:
   - ./helmrelease.yaml
 ```
 
-### 6.9 Homepage and Gatus
+### 6.10 Homepage and Gatus
 
 Update `kubernetes/apps/default/homepage/app/config/services.yaml`:
 
 ```yaml
     - HomeAssistant:
-        href: https://ha.local.${SECRET_DOMAIN}
+        href: https://ha.${SECRET_DOMAIN}
         icon: home-assistant
         description: Home Assistant
         widget:
@@ -1748,7 +2050,7 @@ Update `kubernetes/apps/default/homepage/app/config/services.yaml`:
 
 Important: the Homepage pod must use the **Service** (`eth0`), not `192.168.2.7`. Cluster pods cannot reliably reach a pod's macvlan address.
 
-The old `homeassistant.local` mDNS name is provided by HAOS/Supervisor. The container will not advertise it. Update bookmarks, the mobile app's internal URL, and any dashboard links to `https://ha.local.${SECRET_DOMAIN}` or `http://192.168.2.7:8123`.
+The old `homeassistant.local` mDNS name is provided by HAOS/Supervisor. The container will not advertise it. Update bookmarks and the mobile app to `https://ha.vember31.xyz`; use `http://192.168.2.7:8123` only as a direct LAN fallback. Do not create or keep a `ha.local` ingress or DNS record.
 
 Add Gatus endpoints:
 
@@ -1764,15 +2066,19 @@ endpoints:
     interval: 5m
 ```
 
-If Gatus uses the repo's templated endpoint mechanism, adapt the template inputs rather than hardcoding.
+If Gatus uses the repo's templated endpoint mechanism, include only `templates/gatus/external`; there is no internal hostname to probe. The cluster-local Service endpoint above still works for an internal health check because it does not depend on DNS or the ingress.
 
-### 6.10 Pre-cutover checklist
+### 6.11 Pre-cutover checklist
 
 - [ ] Multus installed and `00-multus.conf` present on all nodes.
 - [ ] `lan` NAD exists and the `.77` test pod passed (L2, DNS, SBR).
 - [ ] Cilium `cni.exclusive: false` verified on all nodes.
 - [ ] Proxmox NIC MAC filtering is off.
-- [ ] The single `home-assistant-config` PVC is Bound and is 5 GiB.
+- [ ] The single `home-assistant-config` PVC is Bound and is 2 GiB.
+- [ ] `configuration.yaml`, `packages/`, and the YAML-mode `automations.yaml`/`scripts.yaml`/`scenes.yaml` are committed under `kubernetes/apps/home/home-assistant/app/config/`.
+- [ ] `home-assistant-config` and `home-assistant-packages` ConfigMaps exist and have the substituted `${POD_CIDR}`/`${SERVICE_CIDR}`/`${LB_CIDR}` values; `reloader.stakater.com/auto` is set on the HA pod.
+- [ ] The `home-assistant-secrets` ExternalSecret resolves and `secrets.yaml` is present; `git grep` finds no real secret values in the repo.
+- [ ] No `ha.local` ingress, DNS record, or certificate exists or is planned.
 - [ ] HA HelmRelease exists with `replicas: 0`.
 - [ ] CNPG `postgres-18` is healthy; the `home-assistant-db` ExternalSecret resolves; the `postgres-init` init container can reach it.
 - [ ] Mosquitto is running and the HA MQTT user can connect (test with `mosquitto_sub`).
@@ -1873,6 +2179,17 @@ fi
 # If the backup happened to include it, remove it here; keep the old SQLite DB archived elsewhere.
 rm -f /config/home-assistant_v2.db /config/home-assistant_v2.db-wal /config/home-assistant_v2.db-shm
 
+# Export the files that will become Git-managed, then remove the PVC copies so the
+# ConfigMaps are the only source of truth. Do not delete runtime state.
+mkdir -p /seed/config-export/packages
+for f in configuration.yaml automations.yaml scripts.yaml scenes.yaml secrets.yaml; do
+  [ -f "/config/$f" ] && cp -a "/config/$f" /seed/config-export/
+done
+[ -d /config/packages ] && cp -a /config/packages/. /seed/config-export/packages/
+rm -f /config/configuration.yaml /config/automations.yaml /config/scripts.yaml \
+      /config/scenes.yaml /config/secrets.yaml
+rm -rf /config/packages
+
 mkdir -p /config/backups /config/media /config/eufy
 chown -R 0:0 /config
 ls -la /config | head -30
@@ -1880,14 +2197,9 @@ ls -la /config | head -30
 
 If the backup is encrypted, `tar` will fail. Go back and create an unencrypted backup or decrypt it with the saved key.
 
-Exit and delete the seed pod:
+Do not delete `custom_components/`, `www/`, `.storage/`, `zigbee.db`, `backups/`, `media/`, or `eufy/`; those are runtime state and stay on the PVC. If you keep UI-managed automations/dashboards for now, leave those files on the PVC and skip the matching ConfigMap mount until you migrate them to YAML.
 
-```bash
-exit
-kubectl -n home delete pod ha-seed
-```
-
-Optional: preserve the Eufy trusted-device/login state by copying the old add-on's `persistent.json` to the config PVC's eufy subdirectory:
+Optional: preserve the Eufy trusted-device/login state before leaving the seed pod by copying the old add-on's `persistent.json` to the config PVC's eufy subdirectory:
 
 ```text
 HAOS source:
@@ -1896,18 +2208,31 @@ PVC target:
   home-assistant-config:/config/eufy/persistent.json
 ```
 
-You can do this from the seed pod before deleting it (`/config/eufy/persistent.json`), or skip it and approve the new trusted device on first Eufy login.
+Copy it to `/config/eufy/persistent.json` from the seed pod, or skip it and approve the new trusted device on first Eufy login.
 
-### 7.3 Pre-start config edits
+Exit the seed pod shell, copy the exported config to your workstation, and delete the pod:
 
-While the HA deployment is still at `replicas: 0`, edit `/config/configuration.yaml` to add the HTTP proxy trust. The current file is minimal and does **not** define `http:`.
+```bash
+exit
+kubectl -n home cp ha-seed:/seed/config-export ./ha-config-export
+# Move any values from ha-config-export/secrets.yaml into HASS_SECRETS_YAML, then:
+rm -f ./ha-config-export/secrets.yaml
+kubectl -n home delete pod ha-seed
+```
+
+Merge the exported `configuration.yaml`/`packages/` into the target files from §6.2, commit them under `kubernetes/apps/home/home-assistant/app/config/`, and reconcile. Do not commit `secrets.yaml` or any real secret value.
+
+### 7.3 Pre-start config validation
+
+The static config is now Git-managed. Do **not** edit `/config/configuration.yaml` in the pod; it is a read-only ConfigMap mount. Confirm the target `configuration.yaml` from §6.2.4 is committed and reconciled. For reference, the required blocks are:
 
 ```yaml
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 10.42.0.0/16
-    - 10.43.0.0/16
+    - ${POD_CIDR}
+    - ${SERVICE_CIDR}
+    - ${LB_CIDR}
   ip_ban_enabled: true
   login_attempts_threshold: 5
 
@@ -1919,13 +2244,16 @@ recorder:
 
 `HASS_DB_URL` comes from the `home-assistant-db` Secret and points at `postgres-18-rw.database.svc.cluster.local:5432/homeassistant`. The `postgres-init` init container creates the role/database; HA creates the recorder schema on first start.
 
-Use a URL-safe password (or percent-encode special characters) for `HASS_POSTGRES_PASS`, otherwise the `postgresql://` URL will be parsed incorrectly. If your HA version does not accept `!env_var` for `recorder.db_url`, use `!secret ha_db_url` and put the URL in `secrets.yaml` on the config PVC.
+Use a URL-safe password (or percent-encode special characters) for `HASS_POSTGRES_PASS`, otherwise the `postgresql://` URL will be parsed incorrectly. If your HA version does not accept `!env_var` for `recorder.db_url`, use `!secret ha_db_url` and put the URL in the ESO-rendered `secrets.yaml`.
 
-Do not add `external_url`/`internal_url` here if you plan to set them in the UI (Settings → System → Network). Either is fine, but avoid defining them in both places.
+For the public-only design, set **External URL** to `https://ha.vember31.xyz` and leave **Internal URL** empty (or set it to the same public URL) in Settings → System → Network. Do not use `ha.local`.
 
 Other pre-start checks:
 
-- `secrets.yaml` is present and readable.
+- `kubectl -n home get cm home-assistant-config home-assistant-packages` shows the rendered ConfigMaps.
+- `kubectl -n home get cm home-assistant-config -o jsonpath='{.data.configuration\.yaml}' | grep -A4 trusted_proxies` shows the substituted CIDRs (for example `10.42.0.0/16`), not the literal placeholders.
+- `kubectl -n home describe pod -l app.kubernetes.io/name=home-assistant` shows the ConfigMap/Secret volumes once the pod exists.
+- `secrets.yaml` is present and readable from the ESO Secret.
 - `custom_components/` is present (HACS).
 - `www/` is present (cards/themes).
 - `.storage/` is present and owned by root.
@@ -2012,7 +2340,7 @@ Expect errors from integrations that still point at HAOS-only endpoints. Work th
 7. **HTTP / URLs**
    - Settings → System → Network:
      - External URL: `https://ha.vember31.xyz`
-     - Internal URL: `https://ha.local.${SECRET_DOMAIN}` (or `http://192.168.2.7:8123`)
+     - Internal URL: leave empty (falls back to the external URL) or set it to `https://ha.vember31.xyz`. Do **not** use `ha.local`.
    - Enable the `net1` adapter in the Network adapter list (Advanced mode). It should show `192.168.2.7`.
    - If HA shows `eth0` only, or the old `enp0s18` adapter, enable `net1` and disable stale adapters.
 
@@ -2088,11 +2416,11 @@ kubectl -n home get ingress,certificate
 dig +short ha.vember31.xyz
 curl -sS -o /dev/null -w '%{http_code}\n' https://ha.vember31.xyz/manifest.json
 
-# 8. Verify internal.
-curl -sS -o /dev/null -w '%{http_code}\n' https://ha.local.vember31.xyz/manifest.json
+# 8. Verify the direct LAN fallback (no ha.local ingress/DNS).
+curl -sS -o /dev/null -w '%{http_code}\n' http://192.168.2.7:8123/manifest.json
 ```
 
-If the external hostname does not resolve, check the external-dns logs and the Ingress annotations. If the internal hostname does not resolve, check Blocky/Traefik and cert-manager. The direct LAN address `http://192.168.2.7:8123` should work as soon as `net1` is configured, independent of DNS/TLS.
+If the external hostname does not resolve, check the external-dns logs and the Ingress annotations. There is no internal hostname to troubleshoot; the direct LAN address `http://192.168.2.7:8123` should work as soon as `net1` is configured, independent of DNS/TLS.
 
 ---
 
@@ -2110,14 +2438,16 @@ If the external hostname does not resolve, check the external-dns logs and the I
 
 ### 9.2 HA
 
-- [ ] Internal UI: `https://ha.local.vember31.xyz`
-- [ ] External UI: `https://ha.vember31.xyz`
+- [ ] Public UI: `https://ha.vember31.xyz` works from both WAN and LAN.
+- [ ] Direct LAN fallback: `http://192.168.2.7:8123` works.
+- [ ] No `ha.local.vember31.xyz` ingress, DNS record, or certificate exists.
 - [ ] `dig +short ha.vember31.xyz` returns Cloudflare proxy addresses and the certificate is valid.
 - [ ] The `ha.vember31.xyz` record is owned by `external-dns` (check the TXT registry / external-dns logs), not by the old tunnel.
-- [ ] Mobile app connects without changing the server URL (or update it).
+- [ ] The external Ingress uses `networking-external-with-errors@kubernetescrd` (CrowdSec + Cloudflare IP allowlist + error pages).
+- [ ] Mobile app connects to the public URL (or update it).
 - [ ] No `hassio`/Supervisor errors after removal.
 - [ ] No `ModuleNotFoundError` for HACS integrations.
-- [ ] `configuration.yaml` has the `http.trusted_proxies` block and HA logs no untrusted-proxy warnings.
+- [ ] `configuration.yaml` is the ConfigMap-mounted file (not a stale PVC copy) and HA logs no untrusted-proxy warnings.
 
 ### 9.3 Devices / integrations
 
@@ -2136,6 +2466,8 @@ If the external hostname does not resolve, check the external-dns logs and the I
 - [ ] No `home-assistant_v2.db` is being created on the config PVC.
 - [ ] `zigbee.db` is on the config PVC.
 - [ ] Logbook/history UI works with the new recorder data.
+- [ ] Declarative config is Git-managed: a test PR changing `configuration.yaml` or a package reconciles and Reloader restarts HA; the PVC does not contain a second copy of those files.
+- [ ] `git status` is clean after the cutover; any config change made during cutover has been committed or explicitly reverted.
 
 ### 9.5 Backups / recovery
 
@@ -2249,8 +2581,10 @@ Only if Multus itself is causing cluster-wide problems:
 | Cilium upgrade renames `00-multus.conf` | `net1` disappears after upgrade | Verify after every Cilium upgrade; restart Multus DaemonSet; `cni.exclusive: false` must be preserved |
 | Macvlan MAC filtering on Proxmox/switch | `net1` cannot pass traffic | Test `.77` pod before cutover; disable NIC firewall/MAC filter; check switch port security |
 | IP/MAC conflict with HAOS | Duplicate IP, broken network | Stop HAOS before starting the HA pod; never run both; keep rollback ordered |
-| Z-Wave keys wrong/lost | Secure devices stop working | Copy keys from the add-on/config entry before cutover; store in password manager; validate a lock |
+| Z-Wave keys wrong/lost | Secure devices stop working | Copy keys from the add-on/config entry before cutover; store them in the `homeassistant` GitLab secret/External Secrets and a password manager; validate a lock |
 | ZHA migration loses devices | Zigbee automations break | Use Migrate Radio, not a new network; keep the same ZBT-2; keep `zigbee.db`; validate before decommissioning |
+| Config drift between PVC and Git | HA starts with stale/edited YAML, or a UI edit silently fails | Add the `configuration.yaml`/automations/scripts/scenes mounts from §6.2, delete the old PVC copies, and let Reloader restart on ConfigMap changes. Keep only runtime state on the PVC |
+| Z-Wave settings overwritten | UI changes disappear after a pod restart | Expected when `settings.json` is rendered on every start. Use the seed-only-if-missing variant if UI editing must persist |
 | ser2net instability | Zigbee/Z-Wave timeouts | Wired LAN only; `kickolduser`, `max-connections: 1`; test `nc`/logs; fallback USB passthrough |
 | eufy RTSP not reachable | Live view fails | Sidecar shares `net1`; set `rtsp_server_address` to `.7` if needed; check `8554/tcp` from camera VLAN |
 | Govee discovery fails | Govee entities unavailable | Keep explicit `SCAN` IPs; `NO_MULTICAST: true`; if needed add an `iot` NAD on the actual IoT VLAN |
@@ -2260,7 +2594,7 @@ Only if Multus itself is causing cluster-wide problems:
 | Config backup excludes Postgres | A config-only restore leaves history empty | Restore config from HA/Google Drive and the DB from CNPG; document both paths; run a restore drill |
 | HACS dependency install failures | Custom integrations fail | Check logs; bake requirements into a thin image if needed |
 | external-dns / old tunnel record conflict | `ha.vember31.xyz` flaps or points to the wrong HA | Remove the old tunnel public hostname before applying the external ingress; let external-dns own the record |
-| Public ingress exposure | HA login page exposed to the internet | Cloudflare proxy, strong auth/2FA, existing external middleware; consider Cloudflare Access/CrowdSec |
+| Public ingress exposure | HA login page exposed to the internet | Cloudflare proxy, CrowdSec + Cloudflare IP allowlist via `networking-external-with-errors`, strong auth/2FA; Cloudflare Access remains optional |
 | HAOS `hassio`-specific automations/dashboards | Broken actions/entities | Run the `grep` audit in §7.5; remove/update before decommissioning |
 
 ---
@@ -2272,9 +2606,7 @@ Only if Multus itself is causing cluster-wide problems:
 3. **Reuse the old HAOS MAC `02:96:57:5c:1a:5e`?** Recommended; keeps the UDM reservation. The alternative is a random macvlan MAC plus a new DHCP reservation.
 4. **Is `ser2net` on `pve` acceptable, or do you want an isolated LXC/radio gateway?** Either works; the pve host is already a single point of failure for the radios.
 5. **Do you need the old SQLite history in Postgres?** The plan uses a fresh Postgres recorder. If the energy/history continuity matters, schedule a separate SQLite→Postgres migration before cutover; otherwise archive the old DB and accept a fresh recorder.
-6. **Should `ha.vember31.xyz` have Cloudflare Access/CrowdSec in addition to HA auth?** The external ingress uses the repo's external middleware by default; HA is internet-facing, so consider the same protection as Vaultwarden.
-7. **Do you want static HA YAML in Git later?** The current config is mostly UI-managed `.storage`; externalizing `configuration.yaml`/templates into a ConfigMap or a separate config repo is a follow-up, not a cutover requirement.
-8. **Do you want the eufy sidecar or a separate Deployment?** The sidecar preserves `127.0.0.1:3000` and the RTSP address with the least change. A separate Deployment needs its own Multus LAN IP for RTSP.
+6. **Do you want the eufy sidecar or a separate Deployment?** The sidecar preserves `127.0.0.1:3000` and the RTSP address with the least change. A separate Deployment needs its own Multus LAN IP for RTSP.
 
 ---
 
