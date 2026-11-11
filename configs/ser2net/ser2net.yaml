@@ -8,7 +8,7 @@ connection: &zigbee
   options:
     kickolduser: true
     max-connections: 1
-  connector: serialdev,/dev/serial/by-id/usb-Nabu_Casa_ZBT-2_DCB4D9113140-if00,460800n81,nobreak,local
+  connector: serialdev,/dev/serial/by-id/usb-Nabu_Casa_ZBT-2_DCB4D9113140-if00,460800n81,rtscts,nobreak,local
 
 connection: &zwave
   accepter: tcp,4002

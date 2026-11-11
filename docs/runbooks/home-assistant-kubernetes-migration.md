@@ -1,7 +1,7 @@
 # Home Assistant: HAOS → Kubernetes Migration Runbook
 
 **Status:** Phase 0 complete (Multus enabled and validated); Phase 1 not started  
-**Last updated:** 2026-11-10  
+**Last updated:** 2026-11-11 (reviewed against the live HAOS instance; changes are marked *Review 2026-11-11*)  
 **Secrets audit:** HAOS `secrets.yaml` is the default unused stub; no `!secret` references exist, so it is not migrated or mounted.  
 **Target:** Home Assistant Container `2026.11.x` in the `home` namespace  
 **Database:** CNPG `postgres-18` (`homeassistant` database)  
@@ -20,7 +20,7 @@
   - **Mosquitto** Deployment (explicit local users; the HAOS HA-auth plugin is not available outside Supervisor).
   - **Z-Wave JS UI** Deployment, connecting to the ZWA-2 through `ser2net` on `pve`.
   - **eufy-security-ws** as a sidecar in the HA pod, preserving `127.0.0.1:3000`; any HA/go2rtc RTSP listener remains on `192.168.2.7:8554`.
-  - **Govee2MQTT** Deployment, using the existing explicit `SCAN` IPs and MQTT credentials.
+  - **Govee2MQTT** Deployment with its own `net1` IP (`192.168.2.8`) for the Govee LAN API, the existing explicit scan IPs, and MQTT credentials (§6.6).
 - Move the Zigbee and Z-Wave radios to a **ser2net gateway on `pve` (192.168.2.3)**. ZHA then uses `socket://192.168.2.3:4001`; Z-Wave JS uses `tcp://192.168.2.3:4002`. This avoids pinning HA to the node with the USB devices.
 - Expose HA with **Traefik + external-dns** (Cloudflare provider) at **`https://ha.vember31.xyz` only**. There is no `ha.local` ingress and no internal hostname. Do **not** run Cloudflared; remove the old HAOS Cloudflared add-on/tunnel and let external-dns own the public DNS record. The external route uses the repo's `networking-external-with-errors` chain, which includes CrowdSec and the Cloudflare IP allowlist.
 - Keep config backups on the config PVC (`/config/backups`) and upload them to **Google Drive** through the existing HA backup integration. The PostgreSQL recorder DB is covered by the CNPG scheduled backup to MinIO (add an S3/Barman object store if you want off-site DB backups too); the two restore paths are independent.
@@ -60,7 +60,8 @@ This also lets you reuse the existing HAOS IP and MAC. That is valuable: the UDM
 - The HA pod cannot reach its **own node's** IP over `net1`; use `eth0` for anything node-local.
 - Proxmox/switch MAC filtering must be off. The k3s VM NICs currently have no `firewall=1` on `net0`, so this should work, but test before cutover.
 - Home Assistant must explicitly enable the `net1` adapter in **Settings → System → Network** (Advanced mode). Otherwise HA may still use `eth0` for discovery.
-- Cilium must have `cni.exclusive: false`, or it will rename `00-multus.conf` to `00-multus.conf.cilium_bak` and Multus will silently stop working.
+- *Review 2026-11-11:* the main default route stays on `eth0`, and `sbr` only affects packets whose **source** is `192.168.2.7`. Connections HA itself initiates to other subnets (for example Cast, Roomba, TP-Link and Android TV devices on `192.168.4.0/24`) normally leave through `eth0` and are SNATed to the **node** IP by Cilium. UDM firewall rules keyed on `192.168.2.7` will not match those flows. Test with `ip route get 192.168.4.x` (§5.5) and either allow the node range or add the VLAN routes to the main table (`lan-routed` NAD, §5.4).
+- Cilium must have `cni.exclusive: false`, or it will rename `00-multus.conflist` to `00-multus.conflist.cilium_bak` and Multus will silently stop working.
 
 ### 1.2 Why TCP serial instead of USB passthrough
 
@@ -118,7 +119,7 @@ The repo already has everything needed to publish `ha.vember31.xyz` without a tu
 The HA setup becomes a normal public Ingress:
 
 - `ha.vember31.xyz` → Cloudflare proxy → `ipv4.${SECRET_DOMAIN}` → Traefik → HA Service.
-- There is **no internal ingress and no `ha.local.vember31.xyz` record**. LAN clients use the public URL, with `http://192.168.2.7:8123` as a direct fallback.
+- There is **no internal ingress and no `ha.local.vember31.xyz` record**. LAN clients use the same hostname, resolved to the Traefik LoadBalancer IP by a local DNS override (split DNS, §6.7.1) so LAN traffic never leaves the building. `http://192.168.2.7:8123` is the direct fallback.
 - No Cloudflared Deployment, no tunnel credentials, and no duplicate-connector problem.
 
 Requirement: inbound 80/443 must reach Traefik from Cloudflare. The repo already exposes other services this way, so the path exists. Remove the old Cloudflared route/CNAME for `ha.vember31.xyz` before applying the external ingress so external-dns is the only owner of that name.
@@ -150,7 +151,7 @@ The migration copies the **entire Home Assistant config directory** from a setti
 | Integration configs (Hue, Nest, Ecobee, UniFi, Plex, ESPHome, etc.) | **Yes** | Endpoint changes are limited to MQTT/ZHA/Z-Wave/eufy |
 | Physical Zigbee/Z-Wave devices | **Yes** | Same ZBT-2/ZWA-2 + network keys; no re-pairing if you edit the existing integrations in place |
 | Add-ons themselves (Mosquitto, Z-Wave JS, Cloudflared, etc.) | **No** | Replaced by Kubernetes Deployments; Cloudflared is removed |
-| Add-on data (Z-Wave keys/store, eufy `persistent.json`, MQTT retained messages) | **Partial/manual** | Z-Wave keys move to External Secrets; copy the add-on store (`nodes.json`/NVM) to the Z-Wave PVC (§7.2.1); eufy persistent is optional; MQTT retained messages are not copied |
+| Add-on data (Z-Wave keys/store, eufy `persistent.json`, MQTT retained messages) | **Partial/manual** | Z-Wave keys move to External Secrets; the official `core_zwave_js` add-on has no Z-Wave JS UI-style store to copy, so Z-Wave JS UI re-interviews the nodes on first start (§7.2.1); eufy persistent is optional; MQTT retained messages are not copied |
 | Supervisor/OS/add-on update entities and `hassio.*` services | **No** | Supervisor integration is removed; audit automations/dashboards |
 | Recorder history, logbook history, long-term statistics | **No** | Postgres starts fresh; old SQLite DB is archived |
 | Cloud OAuth tokens (Google Drive, Nest, etc.) | **Mostly yes** | Tokens are in `.storage`; some may need reauthorization |
@@ -203,7 +204,7 @@ The migration copies the **entire Home Assistant config directory** from a setti
 | eufy-security-ws | 3.1.0 | Host network; HA integration points at `127.0.0.1:3000` |
 | Mosquitto broker | 7.1.3 | No local logins; uses HA auth plugin |
 | Govee to MQTT Bridge | 2026.03.25-ab9deb66 | Host network; `scan: 192.168.4.35,192.168.4.135` |
-| Z-Wave JS | 1.10.0 | ZWA-2 serial path; network/S2 keys in options |
+| Z-Wave JS | 1.10.0 | **Official `core_zwave_js` add-on** (zwave-js-server 3.11.0, driver 15.31.2), *not* Z-Wave JS UI. ZWA-2 serial path; S0/S2/LR keys in options (`s0_legacy_key`, `s2_*_key`, `lr_s2_*_key`, plus a legacy `network_key`); `rf_region: Automatic`, `soft_reset: Automatic`. Its node cache is in the add-on's private `/data/cache`, not `/addon_configs` |
 
 ### 2.4 Radios and serial paths
 
@@ -228,6 +229,8 @@ From `.storage/core.config_entries`:
 | `recorder` | SQLite default (`home-assistant_v2.db`) | PostgreSQL via `recorder.db_url`; history is fresh |
 | `backup` / `google_drive` | Present | Keep; config-only backups to Google Drive; recheck OAuth |
 
+*Review 2026-11-11:* HA has **two** MQTT config entries: "Mosquitto Mqtt Broker" (loaded; owns 3 devices and 36 entities) and a stale "MQTT" entry (`not_loaded`; owns 0 devices and 0 entities). Delete the stale one in the UI on HAOS **before** taking the final backup, and edit only the loaded one during cutover (§7.5).
+
 ### 2.6 MQTT clients observed
 
 The Mosquitto log shows the HA connection plus one external client from `192.168.2.188` (Intel MAC, likely a workstation/panel). The add-on currently authenticates clients through the Home Assistant auth plugin. Before cutover, identify every non-local MQTT client and decide:
@@ -236,6 +239,8 @@ The Mosquitto log shows the HA connection plus one external client from `192.168
 - Decommission it.
 
 If a client hardcodes `192.168.2.7:1883`, it will fail after cutover unless Mosquitto is given a LAN presence (Multus or MetalLB) or the client is updated.
+
+*Review 2026-11-11:* the Mosquitto add-on has no local logins (`logins: []`, `auth_api: true`), and the only human HA users are Duke and Emma, so any external client authenticates with one of those accounts. `192.168.2.188` did not appear in the current log window and has no UniFi client record; it is treated as an accepted casualty. If something breaks after cutover, add a Mosquitto user and a LAN IP then.
 
 ### 2.7 Cluster / CNI
 
@@ -293,7 +298,7 @@ flowchart LR
 | `postgres-18` | `database` | CNPG Cluster (existing) | Recorder DB `homeassistant`; daily Barman backup |
 | `mosquitto` | `home` | Deployment + Service | 1883 ClusterIP; local users |
 | `zwave-js` | `home` | Deployment + Service | Z-Wave JS UI; ws 3000, UI 8091 |
-| `govee2mqtt` | `home` | Deployment + Service | 8056 optional UI |
+| `govee2mqtt` | `home` | Deployment + Service | 8056 optional UI; own `net1` IP `192.168.2.8` via the `lan-routed` NAD (§6.6) |
 | `external-dns-cloudflare` | `networking` | Deployment (existing) | Owns `ha.vember31.xyz` |
 | `cloudflare-ddns` | `networking` | Deployment (existing) | Maintains `ipv4.${SECRET_DOMAIN}` |
 | `multus` | `kube-system` | DaemonSet | Chart `0.1.1`, CNI plugins `1.9.1` |
@@ -306,6 +311,8 @@ flowchart LR
 |---|---|---|
 | `192.168.2.7` | HA pod `net1` | Reuses the old HAOS IP/MAC; HAOS must be stopped |
 | `192.168.2.77` | Temporary Multus test pod | Free address outside DHCP pool; delete after test |
+| `192.168.2.78` | Temporary `lan-routed` test pod | Free address outside DHCP pool; delete after test (§5.5) |
+| `192.168.2.8` | `govee2mqtt` pod `net1` | Verify it is outside the DHCP pool and unused; needs a UDM rule IoT → `.8` UDP 4002 (§6.6) |
 | `192.168.2.3` | `pve` ser2net | 4001/4002, restricted to the cluster/LAN |
 | `192.168.2.188` | Unknown MQTT client | Identify before rotating broker credentials |
 
@@ -327,7 +334,7 @@ Reusing the old HAOS MAC is recommended. It keeps the UDM DHCP reservation and A
 | External access | **Traefik + external-dns Cloudflare, public-only `ha.vember31.xyz`** | Cloudflared tunnel (not chosen) |
 | Edge protection | **`networking-external-with-errors` (CrowdSec + Cloudflare IP allowlist + error pages)** | Cloudflare Access in front of HA (extra login prompt; not chosen) |
 | eufy-security-ws | **Sidecar in the HA pod** | Separate Deployment with its own Multus LAN IP |
-| Govee2MQTT | **Separate Deployment, explicit `SCAN` IPs** | Add an `iot` NAD and use L2 discovery |
+| Govee2MQTT | **Separate Deployment with its own `lan-routed` `net1` IP (`192.168.2.8`), explicit `GOVEE_LAN_SCAN` IPs, and a UDM rule IoT → `.8` UDP 4002** | Second sidecar in the HA pod (shares `.7`, no firewall change, couples lifecycles) or an `iot` NAD |
 | HA static config | **Hybrid: `configuration.yaml` + `packages/` in Git; UI-writable automations/scripts/scenes/dashboards on the PVC** | All YAML in Git (disables the UI editors) |
 | HA runtime state | **PVC (`.storage`, `zigbee.db`, Z-Wave cache/NVM, HACS, backups)** | Trying to GitOps runtime state (not safe) |
 | Config cloud backup | **HA native backup + Google Drive** | Longhorn/NFS only; add S3/rclone later |
@@ -391,7 +398,7 @@ If there are stale `*.cilium_bak` files or old CNI configs, clean them up **befo
 Edit `kubernetes/apps/kube-system/cilium/app/helmrelease.yaml`:
 
 ```yaml
-    # Cilium must not delete Multus's 00-multus.conf.
+    # Cilium must not delete Multus's 00-multus.conflist.
     cni:
       exclusive: false
 ```
@@ -414,7 +421,7 @@ for n in k3s-control1 k3s-control3 k3s-control4 k3s-gpu-worker \
 done
 ```
 
-Expected: only `05-cilium.conflist`. No `00-multus.conf` yet. No `.cilium_bak` files.
+Expected: only `05-cilium.conflist`. No `00-multus.conflist` yet. No `.cilium_bak` files.
 
 ### 5.3 Install the Multus chart and CNI plugins
 
@@ -622,6 +629,38 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./lan.yaml
+  - ./lan-routed.yaml
+```
+
+Create `kubernetes/apps/networking/multus/networks/lan-routed.yaml`. This variant has **no `sbr`** and **no default route**, so its `192.168.4.0/24` route stays in the pod's *main* routing table and traffic to the IoT VLAN is sourced from the `net1` IP instead of being SNATed through `eth0`. It is used by Govee2MQTT (§6.6) and is the fallback if the `lan` NAD's `sbr` turns out to move the VLAN routes out of the main table (§5.5):
+
+```yaml
+---
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: lan-routed
+  namespace: networking
+spec:
+  config: |-
+    {
+      "cniVersion": "1.1.0",
+      "name": "lan-routed",
+      "plugins": [
+        {
+          "type": "macvlan",
+          "master": "ens18",
+          "mode": "bridge",
+          "capabilities": { "ips": true, "mac": true },
+          "ipam": {
+            "type": "static",
+            "routes": [
+              { "dst": "192.168.4.0/24", "gw": "192.168.2.1" }
+            ]
+          }
+        }
+      ]
+    }
 ```
 
 Notes:
@@ -663,6 +702,10 @@ kubectl -n networking exec multus-lan-test -- ip rule
 kubectl -n networking exec multus-lan-test -- ping -c1 192.168.2.1
 kubectl -n networking exec multus-lan-test -- dig +short kubernetes.default.svc.cluster.local
 kubectl -n networking exec multus-lan-test -- curl -sS -m 5 -o /dev/null -w '%{http_code}\n' http://192.168.2.1
+
+# Review 2026-11-11: which interface/source does traffic to the IoT VLAN use?
+kubectl -n networking exec multus-lan-test -- ip route get 192.168.4.35
+kubectl -n networking exec multus-lan-test -- ip route show table main
 ```
 
 Expected:
@@ -673,6 +716,7 @@ Expected:
 - `ip route show table 100` has the `192.168.2.0/24` connected route, the VLAN routes, and a default via `192.168.2.1`.
 - DNS resolves the Kubernetes service (proves the main default/route to CoreDNS still works).
 - Ping to the UDM gateway works.
+- *Review 2026-11-11:* `ip route get 192.168.4.35` shows which interface and source IP HA-initiated IoT traffic will use. If it says `dev eth0` (SNAT to a node IP), UDM rules keyed on `192.168.2.7` will not match HA → IoT flows; either allow the node range or give the pod the `lan-routed` NAD (§5.4). Repeat the same test with a second pod using `lan-routed` at `192.168.2.78` and confirm `ip route get 192.168.4.35` shows `dev net1 src 192.168.2.78` (this also validates the Govee path).
 
 If ping fails, check:
 
@@ -748,7 +792,7 @@ spec:
 Adapt per app:
 
 - `eufy-security-ws`: Secret keys `username` / `password`.
-- `govee2mqtt-secret`: Secret keys `GOVEE_EMAIL`, `GOVEE_PASSWORD`, `GOVEE_API_KEY`, `MQTT_USERNAME` (literal `govee2mqtt`), and `MQTT_PASSWORD` (map from `MQTT_GOVEE_PASSWORD`; `dataFrom.extract` does not rename keys).
+- `govee2mqtt-secret`: Secret keys `GOVEE_EMAIL`, `GOVEE_PASSWORD`, `GOVEE_API_KEY`, `GOVEE_MQTT_USER` (literal `govee2mqtt`), and `GOVEE_MQTT_PASSWORD` (map from `MQTT_GOVEE_PASSWORD`; `dataFrom.extract` does not rename keys). Review 2026-11-11: the container reads the `GOVEE_`-prefixed names, not the add-on option names.
 - `mosquitto-auth`: Secret key `passwd` (the full `mosquitto_passwd` file). Use an explicit `data` entry with `property: MOSQUITTO_PASSWD` if the variable is stored separately.
 - `zwave-js-external-settings`: Secret containing `external-settings.json` rendered from the six `ZWAVE_KEY_*` values; mounted into Z-Wave JS UI and referenced by `ZWAVE_EXTERNAL_SETTINGS` (§6.5.1).
 - `home-assistant-db`: Secret keys `HASS_DB_URL`, `INIT_POSTGRES_DBNAME`, `INIT_POSTGRES_HOST`, `INIT_POSTGRES_USER`, `INIT_POSTGRES_PASS`, and `INIT_POSTGRES_SUPER_PASS`. The superuser password comes from the existing `cloudnativepg` GitLab key, which is already used by the other CNPG apps.
@@ -877,11 +921,13 @@ recorder:
 
 `HASS_DB_URL` comes from the `home-assistant-db` Secret and points at `postgres-18-rw.database.svc.cluster.local:5432/homeassistant`. The `postgres-init` init container creates the role/database; HA creates the recorder schema on first start.
 
+*Review 2026-11-11, `trusted_proxies`:* the three CIDRs above trust every pod, not just Traefik. Also, with Cloudflare in front, HA sees the Cloudflare edge IP as the client unless Traefik restores the real client IP (for example `CF-Connecting-IP`) or the Cloudflare ranges are in `trusted_proxies`. With `ip_ban_enabled` and `login_attempts_threshold: 5`, five bad logins would then ban an edge IP for everyone using that edge. Verify how the `networking-external-with-errors` chain handles the client IP, and leave `ip_ban_enabled` off until you have. LAN clients are unaffected once split DNS is in place (§6.7.1) because they reach Traefik with their real source IP.
+
 Packages are merged with `automations.yaml`/`scripts.yaml`/`scenes.yaml`, so you can put a Git-reviewed automation in `packages/automations/` without disabling the UI editor. The UI editor only writes `automations.yaml`; package entries are effectively read-only in the UI. Avoid duplicate automation IDs or script keys between the two locations.
 
 Do not add a `lovelace:` block unless you want YAML dashboards. The default is storage mode, which keeps the dashboard editor working. If you later want one dashboard in Git, use `lovelace: mode: storage` plus a `dashboards:` entry with `mode: yaml` and mount only that file.
 
-Do not define `external_url`/`internal_url` in both YAML and the UI; this design sets **External URL** to `https://ha.vember31.xyz` and leaves **Internal URL** empty in Settings → System → Network.
+Do not define `external_url`/`internal_url` in both YAML and the UI; this design sets **External URL** to `https://ha.vember31.xyz` and sets **Internal URL** explicitly in Settings → System → Network (§7.5 step 7). Do not leave Internal URL empty: HA auto-detects it from the default-route adapter, which in the pod is the `eth0` pod IP.
 
 #### 6.2.5 `secrets.yaml` — not needed for this migration
 
@@ -1160,7 +1206,7 @@ Do not expose Mosquitto to the internet. Restrict LAN access with firewall rules
 
 ### 6.5 Z-Wave JS UI
 
-Z-Wave JS UI runs as a **Kubernetes Deployment** in the `home` namespace, with its own 512 MiB Longhorn store PVC for the controller config, node cache, and NVM backups. The HAOS Z-Wave JS add-on is the source of the old store directory; after cutover there is no Z-Wave JS add-on. The S0/S2 keys and serial port are injected from External Secrets/Helm values, not hand-edited in the UI.
+Z-Wave JS UI runs as a **Kubernetes Deployment** in the `home` namespace, with its own 512 MiB Longhorn store PVC for the controller config, node cache, and NVM backups. The HAOS Z-Wave JS add-on is the **official `core_zwave_js` add-on** (zwave-js-server), not Z-Wave JS UI, so there is no store directory to migrate: Z-Wave JS UI starts with an empty store and re-interviews the nodes (§7.2.1). After cutover there is no Z-Wave JS add-on. The S0/S2 keys and serial port are injected from External Secrets/Helm values, not hand-edited in the UI.
 
 Create `kubernetes/apps/home/zwave-js/app/pvc.yaml`:
 
@@ -1222,7 +1268,7 @@ spec:
     controllers:
       zwave-js:
         type: deployment
-        replicas: 0 # set to 1 after the store seed in §7.2.1 / at cutover
+        replicas: 0 # set to 1 at cutover (§8); there is no store to seed (§7.2.1)
         strategy: Recreate
         containers:
           app:
@@ -1283,19 +1329,22 @@ spec:
           - path: /usr/src/app/store
 ```
 
-The serial port and security keys are already supplied by `ZWAVE_PORT`/`ZWAVE_EXTERNAL_SETTINGS`, so do not re-enter them per pod. After the store seed (§7.2.1), start the app and verify:
+The serial port and security keys are already supplied by `ZWAVE_PORT`/`ZWAVE_EXTERNAL_SETTINGS`, so do not re-enter them per pod. At cutover (§8), start the app and verify:
 
 ```bash
 kubectl -n home port-forward svc/zwave-js 8091:8091
 # Open http://localhost:8091
 # Settings -> Z-Wave should show the serial port and keys as externally managed.
-# Confirm the controller and nodes appear; set RF region once if the copied
-# settings.json did not already have it. UI changes persist on the PVC.
+# Confirm the controller and nodes appear. There is no copied settings.json, so set
+# the RF region once to USA (Long Range); the controller currently reports region 9.
+# UI changes persist on the PVC.
 ```
 
 The HA Z-Wave JS integration will use `ws://zwave-js.home.svc.cluster.local:3000`.
 
-Because the whole add-on store is copied, the old Z-Wave JS UI MQTT settings come with it. If MQTT was enabled in the add-on, either disable it (HA uses the Z-Wave JS WebSocket server, not the MQTT gateway) or point it at `mosquitto.home.svc.cluster.local:1883` with the `homeassistant` MQTT credentials. Do not leave it pointing at `core-mosquitto`.
+A fresh Z-Wave JS UI store has the MQTT gateway disabled; leave it that way (HA uses the Z-Wave JS WebSocket server on 3000, not the MQTT gateway).
+
+*Review 2026-11-11, soft reset over ser2net:* the ZWA-2 is an 800-series controller, and Z-Wave JS UI's docs say 700/800-series controllers are *always* soft-reset (the "disable soft reset" setting only affects 500-series and older). A soft reset makes a USB controller re-enumerate, which can drop the ser2net connection. After the radios are on `pve` (cutover T+15), trigger an operation that soft-resets the controller (for example setting the RF region) and confirm Z-Wave JS UI reconnects on its own.
 
 Do not expose the Z-Wave JS UI without authentication. It can control locks; use port-forward or put basic auth in front of it.
 
@@ -1381,7 +1430,7 @@ The values are 32-hex keys, so direct interpolation inside the JSON quotes is sa
 
 Add the ExternalSecret to the Z-Wave app kustomization (shown in §6.9.1). The HelmRelease mounts it at `/config/external-settings.json`.
 
-The store itself is copied from the HAOS add-on in §7.2.1. Do not commit `settings.json`, `nodes.json`, NVM backups, or the keys to Git.
+The store starts empty (§7.2.1). Copy the six keys from the HAOS add-on options (`s0_legacy_key`, `s2_unauthenticated_key`, `s2_authenticated_key`, `s2_access_control_key`, `lr_s2_authenticated_key`, `lr_s2_access_control_key`) into the `ZWAVE_KEY_*` properties. The add-on also has a legacy `network_key`; confirm it equals `s0_legacy_key` before discarding it. Do not commit `settings.json`, `nodes.json`, NVM backups, or the keys to Git.
 
 ### 6.6 Govee2MQTT
 
@@ -1425,6 +1474,12 @@ spec:
       govee2mqtt:
         type: deployment
         replicas: 1
+        pod:
+          annotations:
+            # Review 2026-11-11: own net1 IP for the Govee LAN API (devices reply to UDP 4002 on the
+            # source IP they see); lan-routed keeps 192.168.4.0/24 in the main table, no sbr.
+            k8s.v1.cni.cncf.io/networks: >-
+              [{"name":"lan-routed","namespace":"networking","interface":"net1","ips":["192.168.2.8/24"],"mac":"02:96:57:5c:1a:08"}]
         containers:
           app:
             image:
@@ -1432,11 +1487,11 @@ spec:
               tag: "2026.03.25-ab9deb66" # pin the current stable tag
             env:
               TZ: ${TIMEZONE}
-              TEMPERATURE_SCALE: F
-              SCAN: "192.168.4.35,192.168.4.135"
-              MQTT_HOST: mosquitto.home.svc.cluster.local
-              MQTT_PORT: "1883"
-              NO_MULTICAST: "true"
+              GOVEE_TEMPERATURE_SCALE: F
+              GOVEE_LAN_SCAN: "192.168.4.35,192.168.4.135"
+              GOVEE_LAN_NO_MULTICAST: "true"
+              GOVEE_MQTT_HOST: mosquitto.home.svc.cluster.local
+              GOVEE_MQTT_PORT: "1883"
             envFrom:
               - secretRef:
                   name: govee2mqtt-secret
@@ -1457,9 +1512,16 @@ spec:
             port: 8056
 ```
 
-The `govee2mqtt-secret` should contain `GOVEE_EMAIL`, `GOVEE_PASSWORD`, `GOVEE_API_KEY`, `MQTT_USERNAME`, and `MQTT_PASSWORD`.
+The `govee2mqtt-secret` should contain `GOVEE_EMAIL`, `GOVEE_PASSWORD`, `GOVEE_API_KEY`, `GOVEE_MQTT_USER`, and `GOVEE_MQTT_PASSWORD`.
 
-Start with `NO_MULTICAST: "true"` and the explicit `SCAN` IPs, because the pod is not on the IoT VLAN. If discovery still fails, the next step is an `iot` NAD on the actual IoT VLAN (see §4 and §12), not `hostNetwork`.
+*Review 2026-11-11:* the env var names above are the container's (`GOVEE_*`, per upstream `docs/CONFIG.md` and `docs/DOCKER.md`). The HAOS add-on's option names (`scan`, `temperature_scale`, ...) are not valid container env vars; with the old names the pod would look for a broker on localhost.
+
+LAN mode requirements (upstream `docs/LAN.md`): Govee2MQTT must bind UDP `4002`, UDP `4001` and `4003` must be reachable on each device, and the device replies to port `4002` on the source IP it saw. That is why this pod gets its own `net1` IP and why it must not be SNATed through `eth0`:
+
+- Pod: `net1` on the `lan-routed` NAD at `192.168.2.8` (verify it is outside the DHCP pool). Multicast does not cross VLANs, so keep `GOVEE_LAN_NO_MULTICAST: "true"` and the explicit `GOVEE_LAN_SCAN` IPs (the two device IPs, ideally with DHCP reservations).
+- UDM: the current add-on works because a rule already allows IoT → `192.168.2.7` UDP 4002 (confirm which rule it is). A new IP needs an equivalent rule, IoT (`192.168.4.35`, `192.168.4.135`) → `192.168.2.8` UDP 4002. The reply is a new flow to a stateful firewall because the reply port differs from the request port.
+- Test before cutover: `ip route get 192.168.4.35` inside the pod must show `dev net1 src 192.168.2.8`, and Govee entities must report `local` control, not cloud-only.
+- Fallback with no firewall change: run `govee2mqtt` as a second sidecar in the HA pod so it shares `192.168.2.7` (this couples its lifecycle to HA). Next step after that is an `iot` NAD on the actual IoT VLAN (see §4 and §12), not `hostNetwork`.
 
 ### 6.7 Public ingress via Traefik + external-dns
 
@@ -1467,7 +1529,7 @@ There is **no Cloudflared Deployment** in this design. `external-dns-cloudflare`
 
 What needs to happen:
 
-1. **Remove the old tunnel route for `ha.vember31.xyz`.** In the Cloudflare Zero Trust dashboard (or the old add-on config), delete the public hostname for `ha.vember31.xyz` from the old tunnel. Keep the tunnel itself for the rollback window, but it must not own the DNS name.
+1. **Remove the old tunnel route for `ha.vember31.xyz`.** In the Cloudflare Zero Trust dashboard (or the old add-on config), delete the public hostname for `ha.vember31.xyz` from the old tunnel. Keep the tunnel itself for the rollback window, but it must not own the DNS name. Deleting the public hostname usually leaves its proxied CNAME (`<tunnel-id>.cfargotunnel.com`) in the zone; **delete that DNS record too**, because external-dns will not overwrite a record it does not own (no matching TXT ownership record).
 2. **Apply the external HA ingress.** The HA HelmRelease creates exactly one Ingress: `ha.vember31.xyz` → `ipv4.${SECRET_DOMAIN}`. There is no internal ingress and no `ha.local` hostname.
 3. **Let external-dns create the record.** It will create a Cloudflare-proxied `ha.vember31.xyz` record pointing at `ipv4.${SECRET_DOMAIN}`. `cloudflare-ddns` keeps that A record current.
 4. **Let cert-manager issue the certificate.** The existing `letsencrypt-production` ClusterIssuer uses Cloudflare DNS-01, so it works through the proxy.
@@ -1508,10 +1570,22 @@ curl -sS -o /dev/null -w '%{http_code}\n' https://ha.vember31.xyz/manifest.json
 
 Notes:
 
-- Public access only. Do not create a `ha.local.${SECRET_DOMAIN}` ingress, DNS record, or certificate; `external-dns` already excludes `local.${SECRET_DOMAIN}`. LAN clients use `https://ha.vember31.xyz`, with `http://192.168.2.7:8123` as a direct fallback.
+- Public access only. Do not create a `ha.local.${SECRET_DOMAIN}` ingress, DNS record, or certificate; `external-dns` already excludes `local.${SECRET_DOMAIN}`. LAN clients use `https://ha.vember31.xyz` (resolved to Traefik by the local DNS override, §6.7.1), with `http://192.168.2.7:8123` as a direct fallback.
 - `networking-external-with-errors` already includes both protections: `crowdsec-bouncer` (with AppSec) and `cloudflare-ips` (Cloudflare proxy ranges plus the repo's secure/VPN/guest CIDRs). Do not add the individual middlewares as well; that duplicates the chain.
 - `external-dns-cloudflare` runs with `--cloudflare-proxied`, and the explicit annotation keeps the intent visible. Cloudflare Access is a separate product and is not enabled; it would add another login prompt and complicate the HA mobile app/WebSocket.
 - The old Cloudflared tunnel can be kept (without the `ha.vember31.xyz` public hostname) for the 2–4 week rollback window. Delete it after the new HA is stable.
+
+#### 6.7.1 Local DNS override (split DNS)
+
+*Review 2026-11-11:* LAN clients should resolve `ha.vember31.xyz` to the Traefik LoadBalancer IP (`192.168.10.20`) instead of going out to Cloudflare and back. This keeps one hostname for internal and external use and removes the internet dependency for LAN access.
+
+- **Create it in the local DNS** (UDM or whatever resolver your clients use): `ha.vember31.xyz` → `192.168.10.20`, on every resolver that clients of HA use. If devices on other VLANs (IoT, guest) use the hostname, make sure their resolver has the override too.
+- **Timing:** create it at cutover T+47 (§8), *after* HA is serving through Traefik. Until then the old tunnel and HAOS still serve the name; an early override would send LAN clients to Traefik with nothing behind it.
+- **Rollback:** remove the override *first* in any rollback (§11), otherwise LAN clients keep resolving to Traefik while HA is scaled to zero.
+- **Allowlist:** LAN clients reach Traefik with their real source IP, so the `cloudflare-ips` part of `networking-external-with-errors` must include every client CIDR that should reach HA. The chain is documented as including the secure/VPN/guest CIDRs; verify that, and add the IoT CIDR only if a device there uses the hostname.
+- **Verify:** `dig +short ha.vember31.xyz` from a LAN client returns `192.168.10.20`; from a phone on cellular it returns Cloudflare addresses. `curl -sS -o /dev/null -w '%{http_code}\n' https://ha.vember31.xyz/manifest.json` returns 200 from both.
+- **Certificates** are unaffected: cert-manager uses DNS-01 against Cloudflare, so the same certificate is served to LAN and WAN clients.
+- Internal URL still needs setting explicitly (§7.5 step 7).
 
 ### 6.8 ser2net gateway on `pve`
 
@@ -1535,7 +1609,7 @@ connection: &zigbee
   options:
     kickolduser: true
     max-connections: 1
-  connector: serialdev,/dev/serial/by-id/usb-Nabu_Casa_ZBT-2_DCB4D9113140-if00,460800n81,nobreak,local
+  connector: serialdev,/dev/serial/by-id/usb-Nabu_Casa_ZBT-2_DCB4D9113140-if00,460800n81,rtscts,nobreak,local
 
 connection: &zwave
   accepter: tcp,4002
@@ -1554,7 +1628,7 @@ ls -l /dev/serial/by-id/
 
 If the host path differs, use the path that matches the serial number. Do not use `/dev/ttyACM0`; it can change.
 
-If the ZBT-2 does not come up at 460800, try adding `rtscts` to the connector options (`460800n81,rtscts,nobreak,local`) or verify the device with a direct USB connection first. The ZBT-2 uses 460800 baud and hardware flow control; the ZWA-2 uses 115200 baud.
+The ZBT-2 uses 460800 baud and hardware flow control (the live ZHA config entry reports `flow_control: hardware`), so the connector sets `rtscts` from the start; `socket://` ignores baud and flow control on the HA side, so the physical-side settings live here. If the link is unstable or does not come up, test without `rtscts`, or verify the device with a direct USB connection first. The ZWA-2 uses 115200 baud. Keep `configs/ser2net/ser2net.yaml` identical to the block above.
 
 Enable and start:
 
@@ -1666,7 +1740,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-assistant/home-assistant
-              tag: "2026.11.0"
+              tag: "2026.11.0" # matches HAOS today; 2026.11.1 is available and can be applied after cutover is stable
               pullPolicy: IfNotPresent
             env:
               TZ: ${TIMEZONE}
@@ -2005,6 +2079,7 @@ spec:
   dependsOn:
     - name: external-secrets-stores
     - name: mosquitto
+    - name: multus-networks
   path: ./kubernetes/apps/home/govee2mqtt/app
   prune: true
   sourceRef:
@@ -2077,8 +2152,8 @@ If Gatus uses the repo's templated endpoint mechanism, include only `templates/g
 
 ### 6.11 Pre-cutover checklist
 
-- [ ] Multus installed and `00-multus.conf` present on all nodes.
-- [ ] `lan` NAD exists and the `.77` test pod passed (L2, DNS, SBR).
+- [ ] Multus installed and `00-multus.conflist` present on all nodes.
+- [ ] `lan` and `lan-routed` NADs exist; the `.77` test pod passed (L2, DNS, SBR) and `ip route get 192.168.4.35` was checked on both NADs (§5.5).
 - [ ] Cilium `cni.exclusive: false` verified on all nodes.
 - [ ] Proxmox NIC MAC filtering is off.
 - [ ] The single `home-assistant-config` PVC is Bound and is 2 GiB; the `zwave-js-store` PVC is Bound and is 512 MiB.
@@ -2086,13 +2161,15 @@ If Gatus uses the repo's templated endpoint mechanism, include only `templates/g
 - [ ] `home-assistant-config` and `home-assistant-packages` ConfigMaps exist and have the substituted `${POD_CIDR}`/`${SERVICE_CIDR}`/`${LB_CIDR}` values; `reloader.stakater.com/auto` is set on the HA pod.
 - [ ] No `home-assistant-secrets` ExternalSecret or `/config/secrets.yaml` mount exists; the current HAOS config has no `!secret` references (§6.2.5). `git grep` finds no real secret values in the repo.
 - [ ] The `zwave-js-external-settings` ExternalSecret resolves and contains a valid `external-settings.json`; all six `ZWAVE_KEY_*` properties exist.
-- [ ] The HAOS Z-Wave JS add-on store (`/addon_configs/core_zwave_js`) is copied to the `zwave-js-store` PVC (§7.2.1), or you accept re-interviewing the network.
+- [ ] All six Z-Wave keys are in the `homeassistant` secret and match the add-on options; you accept that Z-Wave JS UI re-interviews the nodes (the official add-on has no store to copy, §7.2.1).
 - [ ] No `ha.local` ingress, DNS record, or certificate exists or is planned.
-- [ ] HA and Z-Wave HelmReleases exist with `replicas: 0` until the PVC seeds are complete.
+- [ ] HA and Z-Wave HelmReleases exist with `replicas: 0` until cutover (the HA config PVC seed is re-run in the cutover window, §7.2).
 - [ ] CNPG `postgres-18` is healthy; the `home-assistant-db` ExternalSecret resolves; the `postgres-init` init container can reach it.
 - [ ] Mosquitto is running and the HA MQTT user can connect (test with `mosquitto_sub`).
-- [ ] After the store seed, Z-Wave JS UI starts with `replicas: 1` and opens `tcp://192.168.2.3:4002` once USB is detached and `ser2net` is running.
-- [ ] Govee2MQTT is running and connected to Mosquitto (can be validated after the broker is up).
+- [ ] At cutover, Z-Wave JS UI starts with `replicas: 1` and opens `tcp://192.168.2.3:4002` once USB is detached and `ser2net` is running.
+- [ ] Govee2MQTT is running with `net1` at `192.168.2.8`, connected to Mosquitto, the UDM rule IoT → `.8` UDP 4002 exists, and Govee devices report local control (can be validated after the broker is up).
+- [ ] The stale `not_loaded` MQTT config entry is deleted on HAOS (it owns no devices/entities); a baseline of currently not-loaded entries is recorded (§9.3).
+- [ ] Local DNS override for `ha.vember31.xyz` is prepared but **not yet active** (§6.7.1); the old tunnel CNAME deletion is planned for the cutover step.
 - [ ] The old Cloudflared public hostname for `ha.vember31.xyz` is removed from the tunnel; the tunnel itself is kept for rollback.
 - [ ] The external HA ingress is staged (or enabled at cutover) and `external-dns-cloudflare` is healthy; `dig +short ha.vember31.xyz` will be checked after apply.
 - [ ] `ser2net` is installed on `pve`; config ready but not started until USB detach.
@@ -2128,6 +2205,8 @@ flux reconcile kustomization home-assistant --with-source
 kubectl -n home get pvc
 # Wait for home-assistant-config to be Bound.
 ```
+
+*Review 2026-11-11:* treat the first run of this section as a rehearsal. `.storage` changes constantly on a live HAOS, so **re-take the backup (§7.1) in the cutover window (§8, T-0) and re-run this seed from it**. Do not start HA (§7.4) while HAOS is running: the pod would claim `192.168.2.7` with the HAOS MAC, and two instances would run the same cloud integrations and automations.
 
 Create a temporary seed pod:
 
@@ -2179,10 +2258,11 @@ tar -xzf /tmp/backup/homeassistant.tar.gz -C /config
 
 # If the config tar extracted under /config/data, move it up:
 if [ -d /config/data ] && [ ! -f /config/configuration.yaml ]; then
-  shopt -s dotglob
-  mv /config/data/* /config/
-  rmdir /config/data
+  # busybox ash (alpine) has no `shopt`; `cp -a dir/. dest/` copies dotfiles (.storage, .uuid, ...).
+  cp -a /config/data/. /config/
+  rm -rf /config/data
 fi
+ls -A /config | head -30   # expect .storage and .uuid to be present
 
 # Do NOT keep home_assistant_v2.db in the HA config PVC. The recorder will be created fresh in Postgres.
 # If the backup happened to include it, remove it here; keep the old SQLite DB archived elsewhere.
@@ -2229,81 +2309,20 @@ kubectl -n home delete pod ha-seed
 
 Merge the exported `configuration.yaml`/`packages/` into the target files from §6.2, commit them under `kubernetes/apps/home/home-assistant/app/config/`, and reconcile. There is no `secrets.yaml` in the export; do not add one. Do not commit `.storage`, `automations.yaml`, `scripts.yaml`, `scenes.yaml`, or any real secret value.
 
-### 7.2.1 Seed the Z-Wave store (cutover window)
+### 7.2.1 Z-Wave store (nothing to seed)
 
-The Z-Wave JS add-on's data directory is **not** in the HA backup (add-ons are excluded). Copy it from HAOS into the `zwave-js-store` PVC so the controller's node information, `settings.json`, and NVM backups survive.
+*Review 2026-11-11:* the HAOS add-on is the **official `core_zwave_js` add-on** (zwave-js-server 3.11.0), not Z-Wave JS UI. `settings.json`, `nodes.json`, NVM backups and `backups/` are Z-Wave JS UI files and do not exist under `/addon_configs/core_zwave_js`; the official add-on keeps its node cache in its private `/data/cache`. There is nothing to copy into the `zwave-js-store` PVC, and the Z-Wave network itself (home ID, nodes, security keys) lives on the ZWA-2 controller.
 
-**Timing:** do this in the cutover window, immediately before shutting down HAOS. If you seeded the PVC earlier for a dry run, re-copy at T+0 so `nodes.json` is current.
+What to do instead:
 
-1. Stop the Z-Wave JS add-on in HAOS (Settings → Add-ons → Z-Wave JS → Stop). This flushes `nodes.json` and releases the controller.
-2. Archive the add-on store from the Terminal & SSH add-on:
+1. **Keys:** the six keys (`s0_legacy_key`, `s2_unauthenticated_key`, `s2_authenticated_key`, `s2_access_control_key`, `lr_s2_authenticated_key`, `lr_s2_access_control_key`) are in the add-on options (Settings → Add-ons → Z-Wave JS → Configuration). Put them in the `homeassistant` GitLab variable (§6.1) and in a password manager. The add-on also has a legacy `network_key`; confirm it equals `s0_legacy_key`.
+2. **Cutover:** stop the Z-Wave JS add-on at T-10 so the controller is released (nothing is archived), then start Z-Wave JS UI with `replicas: 1` after ser2net is up (§8). It starts with an empty store, connects to `tcp://192.168.2.3:4002`, and **re-interviews the nodes**. Battery devices and locks may need to be woken individually.
+3. **RF region:** set it to USA (Long Range) once in Z-Wave JS UI (the controller currently reports region 9).
+4. **Optional cache copy (unverified):** the zwave-js node cache format is shared, so `cache/<homeId>.jsonl` from a partial backup of the add-on (`/data/cache`) may be copied into the Z-Wave JS UI `store/cache` to skip some interviews. It is not needed.
+5. **NVM backup:** once the network is validated, take a controller NVM backup from Z-Wave JS UI and store it off-cluster; this replaces the "NVM images" the old plan assumed were in the add-on store.
+6. **Soft reset:** test a controller soft reset over ser2net before declaring success (§6.5).
 
-   ```sh
-   cd /addon_configs
-   tar -czf /config/zwave-store.tgz core_zwave_js
-   ls -lh /config/zwave-store.tgz
-   ```
-
-   Download it through the Samba `config` share, or `scp root@<haos>:/config/zwave-store.tgz .`.
-
-   The add-on maps `/addon_configs/core_zwave_js` to `/config` inside its container (`map: app_config:rw`). It contains `settings.json`, `nodes.json`, `cache/`, `config/`, and `backups/` with the NVM images.
-
-3. Confirm the Z-Wave app is scaled to 0 and the PVC is Bound:
-
-   ```bash
-   kubectl -n home scale deploy/zwave-js --replicas=0 2>/dev/null || true
-   kubectl -n home get pvc zwave-js-store
-   ```
-
-   If Flux has not created the Deployment yet, skip the scale command; the HelmRelease starts at `replicas: 0`.
-
-4. Create a temporary seed pod:
-
-   ```yaml
-   ---
-   apiVersion: v1
-   kind: Pod
-   metadata:
-     name: zwave-seed
-     namespace: home
-   spec:
-     restartPolicy: Never
-     containers:
-       - name: seed
-         image: alpine:3.22
-         command: ["sh", "-c", "sleep 3600"]
-         volumeMounts:
-           - name: store
-             mountPath: /store
-           - name: seed
-             mountPath: /seed
-     volumes:
-       - name: store
-         persistentVolumeClaim:
-           claimName: zwave-js-store
-       - name: seed
-         emptyDir: {}
-   ```
-
-   ```bash
-   kubectl -n home apply -f zwave-seed.yaml
-   kubectl -n home wait --for=condition=Ready pod/zwave-seed --timeout=2m
-   kubectl -n home cp ./zwave-store.tgz zwave-seed:/seed/zwave-store.tgz
-   kubectl -n home exec -it zwave-seed -- sh -c '
-     tar -xzf /seed/zwave-store.tgz -C /store --strip-components=1 &&
-     chown -R 0:0 /store &&
-     ls -la /store | head -30'
-   ```
-
-5. Confirm `settings.json`, `nodes.json`, `cache/`, `config/`, and `backups/` exist under `/store`, then delete the seed pod:
-
-   ```bash
-   kubectl -n home delete pod zwave-seed
-   ```
-
-6. Set `replicas: 1` in the Z-Wave HelmRelease at cutover (T+10). `ZWAVE_PORT` and `ZWAVE_EXTERNAL_SETTINGS` override the copied serial port and security keys; the rest of `settings.json` stays UI-managed on the PVC.
-
-Do not commit the archive or its contents to Git. If the archive is lost, Z-Wave JS can re-interview the network, but locks and battery devices may need to be woken individually, and the NVM backup history is gone.
+Do not commit keys, `settings.json`, `nodes.json`, or NVM backups to Git.
 
 ### 7.3 Pre-start config validation
 
@@ -2329,7 +2348,7 @@ recorder:
 
 Use a URL-safe password (or percent-encode special characters) for `HASS_POSTGRES_PASS`, otherwise the `postgresql://` URL will be parsed incorrectly. The target HA 2026.11 accepts `!env_var` for `recorder.db_url`; do **not** use a `!secret ha_db_url` fallback because this migration does not mount `secrets.yaml` (§6.2.5).
 
-For the public-only design, set **External URL** to `https://ha.vember31.xyz` and leave **Internal URL** empty (or set it to the same public URL) in Settings → System → Network. Do not use `ha.local`.
+For the public-only design, set **External URL** to `https://ha.vember31.xyz` and set **Internal URL** explicitly (§7.5 step 7); do not leave it empty. Do not use `ha.local`.
 
 Other pre-start checks:
 
@@ -2348,6 +2367,8 @@ Other pre-start checks:
 - The `home-assistant-db` Secret exists and `HASS_DB_URL` resolves.
 
 ### 7.4 First start
+
+*Review 2026-11-11:* run §7.4 and §7.5 **only inside the cutover window**, after HAOS is stopped and the radios are on ser2net (§8, T+20 onward). The pod claims `192.168.2.7` and the HAOS MAC.
 
 Set `replicas: 1` in the HA HelmRelease and reconcile:
 
@@ -2386,6 +2407,7 @@ Expect errors from integrations that still point at HAOS-only endpoints. Work th
    - Fix any automations/dashboards that reference them.
 
 2. **MQTT**
+   - Delete the stale `not_loaded` MQTT entry first if you have not already (it owns no devices or entities). Edit only the loaded "Mosquitto Mqtt Broker" entry.
    - Settings → Devices & Services → **MQTT** → Configure.
    - Broker: `mosquitto.home.svc.cluster.local`
    - Port: `1883`
@@ -2411,6 +2433,7 @@ Expect errors from integrations that still point at HAOS-only endpoints. Work th
 5. **eufy-security-ws**
    - The sidecar shares the pod network, so the existing `127.0.0.1:3000` config should work.
    - If the integration does not reconnect, reload it.
+   - *Review 2026-11-11:* the sidecar env var names in §6.9 (`POLLING_INTERVAL_MINUTES`, `EVENT_DURATION_SECONDS`, ...) are not verified against the image docs. Compare them with the add-on's current options (`country`, `port`, `polling_interval`, `accept_invitations`, `event_duration`, `ipv4first`, `stations`). The upstream `bropat/eufy-security-ws` README also carries a deprecation notice (development moved to `mega-yfue/eufy-sdk`), so plan for a future replacement.
    - If local station discovery is unreliable (the sidecar's broadcast may leave via `eth0`), set `STATION_IP_ADDRESSES` in the sidecar (`serial1:ip1;serial2:ip2`) or rely on Eufy cloud discovery.
    - If cameras need to reach an RTSP listener, set `rtsp_server_address` to `192.168.2.7` (the `net1` address) and confirm the listener port (usually `8554/tcp`) is reachable from the camera VLAN.
 
@@ -2425,9 +2448,9 @@ Expect errors from integrations that still point at HAOS-only endpoints. Work th
 7. **HTTP / URLs**
    - Settings → System → Network:
      - External URL: `https://ha.vember31.xyz`
-     - Internal URL: leave empty (falls back to the external URL) or set it to `https://ha.vember31.xyz`. Do **not** use `ha.local`.
+     - Internal URL: **set it explicitly; do not leave it empty.** With it empty, HA auto-detects the internal URL from the default-route adapter. On HAOS today that is `http://192.168.2.7:8123`; in the pod it would be the `eth0` pod IP (`http://10.42.x.x:8123`), which Cast devices and the companion app cannot reach. Recommended: `http://192.168.2.7:8123` (independent of Traefik, DNS and the allowlist, and works for Cast on any VLAN that can reach `.7`). With split DNS (§6.7.1), `https://ha.vember31.xyz` also works internally but depends on Traefik and the allowlist. Do **not** use `ha.local`.
    - Enable the `net1` adapter in the Network adapter list (Advanced mode). It should show `192.168.2.7`.
-   - If HA shows `eth0` only, or the old `enp0s18` adapter, enable `net1` and disable stale adapters.
+   - If HA shows `eth0` only, or the old `enp0s18` adapter, enable `net1` and disable stale adapters. Consider also disabling `eth0` in the adapter list so discovery and source-IP detection use the LAN interface (the HTTP server still listens on all interfaces, so Traefik → pod keeps working).
 
 8. **HACS / custom integrations**
    - Check the logs for `ModuleNotFoundError`.
@@ -2449,20 +2472,21 @@ Expect errors from integrations that still point at HAOS-only endpoints. Work th
 
 | Time | Action | Check |
 |---|---|---|
-| T-10 | Stop the Z-Wave JS add-on; archive `/addon_configs/core_zwave_js` and download it | Add-on stopped; `zwave-store.tgz` downloaded |
-| T-0 | Announce maintenance; confirm a fresh backup exists | Backup file on disk + Google Drive |
+| T-10 | Stop the Z-Wave JS add-on (releases the controller; nothing is archived, §7.2.1) | Add-on stopped |
+| T-0 | Announce maintenance; take the **final** settings-only backup (§7.1) and download it | Backup file downloaded + Google Drive |
 | T+0 | Shut down HAOS VM 300 | `qm status 300` shows `stopped` |
 | T+5 | Detach USB devices from VM 300 | `qm config 300` has no `usb*`; `lsusb` on `pve` shows both radios |
 | T+5 | Start `ser2net` on `pve` | `ss -tlnp` shows 4001/4002; `nc -vz 192.168.2.3 4001/4002` works |
-| T+8 | Seed `zwave-js-store` from `zwave-store.tgz` (§7.2.1) | `/store` has `settings.json`, `nodes.json`, `backups/` |
+| T+8 | Re-seed `home-assistant-config` from the T-0 backup (§7.2); no Z-Wave store to seed | `/config` has `.storage`, `.uuid`, `zigbee.db` |
 | T+10 | Set Z-Wave `replicas: 1`; start Mosquitto and Govee2MQTT | Pods Ready; Mosquitto logs no auth errors |
-| T+15 | Verify Z-Wave port/keys are externally managed and nodes appear | Controller and nodes visible; keys marked external |
+| T+15 | Verify Z-Wave port/keys are externally managed, set RF region, nodes re-interview; test a soft reset over ser2net | Controller and nodes visible; keys marked external; reconnect after soft reset |
 | T+20 | Set HA `replicas: 1` and reconcile | Pod Ready; `net1` has `192.168.2.7` |
 | T+25 | Enable `net1` in HA Network settings | Adapter list shows `net1` / `192.168.2.7` |
 | T+30 | Migrate ZHA to `socket://192.168.2.3:4001` | Zigbee devices respond |
 | T+35 | Fix Z-Wave JS URL and verify devices | Locks and mains devices respond |
 | T+40 | Fix MQTT broker and verify Govee/Sonoff/etc. | Entities update |
-| T+45 | Enable external ingress (if staged off); verify external-dns record + cert-manager certificate | `dig +short ha.vember31.xyz`; `https://ha.vember31.xyz/manifest.json` returns 200 |
+| T+45 | Delete the old tunnel public hostname **and its CNAME** (§6.7); enable external ingress (if staged off); verify external-dns record + cert-manager certificate | `dig +short ha.vember31.xyz`; `https://ha.vember31.xyz/manifest.json` returns 200 |
+| T+47 | Add the local DNS override `ha.vember31.xyz` → `192.168.10.20` (§6.7.1) | From a LAN client `dig +short` returns the LB IP and `/manifest.json` returns 200 |
 | T+50 | Update Homepage/Gatus; rotate Homepage token | Widgets and status checks green |
 | T+60 | Run the validation checklist | See §9 |
 | T+90 | Declare success or roll back | See §11 |
@@ -2486,8 +2510,8 @@ ssh root@192.168.2.3 '
 nc -vz 192.168.2.3 4001
 nc -vz 192.168.2.3 4002
 
-# 4. Seed the Z-Wave store if not already done (§7.2.1), set
-#    controllers.zwave-js.replicas: 1 in Git, then bring up supporting services.
+# 4. Set controllers.zwave-js.replicas: 1 in Git (there is no Z-Wave store to seed, §7.2.1),
+#    then bring up supporting services.
 flux reconcile kustomization zwave-js --with-source
 kubectl -n home get pods -w
 
@@ -2528,6 +2552,8 @@ If the external hostname does not resolve, check the external-dns logs and the I
 ### 9.2 HA
 
 - [ ] Public UI: `https://ha.vember31.xyz` works from both WAN and LAN.
+- [ ] Split DNS: `dig +short ha.vember31.xyz` from a LAN client returns the Traefik LB IP; from cellular it returns Cloudflare addresses.
+- [ ] Settings → System → Network shows the explicit Internal URL (not an `http://10.42.x.x` auto-detected value); `network/url` agrees.
 - [ ] Direct LAN fallback: `http://192.168.2.7:8123` works.
 - [ ] No `ha.local.vember31.xyz` ingress, DNS record, or certificate exists.
 - [ ] `dig +short ha.vember31.xyz` returns Cloudflare proxy addresses and the certificate is valid.
@@ -2546,6 +2572,9 @@ If the external hostname does not resolve, check the external-dns logs and the I
 - [ ] eufy: cameras/events work; live view works if used.
 - [ ] UniFi Protect, Hue, Ecobee, Nest, Plex, Cast, ESPHome, LocalTuya, Sonoff, Roborock/Roomba.
 - [ ] Cloud integrations that use outbound HTTPS still work (Nest, Ecobee, weather, Google Drive).
+- [ ] Compare against the pre-migration baseline (2026-11-11): already not loaded before the move were `androidtv_remote` "Bedroom TV" (`setup_retry`, `192.168.4.235:6466` unreachable), `homekit_controller` "Main Floor (Thermostat)", a duplicate `unifiprotect`, and the stale `mqtt` entry; `smartlife`, `tuya` and the Family Room `androidtv_remote` are user-disabled. Anything else not loaded is a regression.
+- [ ] Discovery/broadcast integrations on the IoT VLAN (Cast, TP-Link, Roomba, Android TV, ESPHome, Plex) work; if one fails, check `ip route get` for its subnet (§5.5) and the UDM rules.
+- [ ] Govee entities report local (LAN) control.
 
 ### 9.4 Automations and history
 
@@ -2586,7 +2615,7 @@ If the external hostname does not resolve, check the external-dns logs and the I
 - [ ] Drain a node that is **not** running HA; HA stays up.
 - [ ] Drain the node running HA; HA reschedules and `net1` comes back with `.7` on the new node.
 - [ ] Cilium pod restart on a node; Multus `net1` still works for new pods.
-- [ ] k3s upgrade path: after a k3s/Cilium upgrade, verify `00-multus.conf` is still present and not renamed to `.cilium_bak`.
+- [ ] k3s upgrade path: after a k3s/Cilium upgrade, verify `00-multus.conflist` is still present and not renamed to `.cilium_bak`.
 - [ ] HA pod restart: the Postgres recorder reconnects; no SQLite file is created.
 
 ---
@@ -2644,7 +2673,7 @@ ssh root@192.168.2.3 'qm start 300'
 
 The HAOS VM comes back with its pre-cutover config. Any changes made in the new HA since cutover (automations, integrations, dashboards) are **not** in HAOS and will be lost unless exported. Export anything important from the new HA UI first.
 
-For DNS rollback, disable/remove the external HA ingress first so external-dns releases `ha.vember31.xyz`, then re-add the `ha.vember31.xyz` public hostname to the old Cloudflared tunnel in Cloudflare. The HAOS Cloudflared add-on reconnects and the old CNAME works again. If you leave the external ingress in place, external-dns and the old tunnel will fight over the same DNS name.
+For DNS rollback, first remove the local DNS override (§6.7.1) so LAN clients stop resolving to Traefik, then disable/remove the external HA ingress so external-dns releases `ha.vember31.xyz`, then re-add the `ha.vember31.xyz` public hostname to the old Cloudflared tunnel in Cloudflare. The HAOS Cloudflared add-on reconnects and the old CNAME works again. If you leave the external ingress in place, external-dns and the old tunnel will fight over the same DNS name.
 
 **Never run the HA pod and HAOS VM at the same time with the same MAC/IP.** They will conflict on `192.168.2.7`.
 
@@ -2654,12 +2683,13 @@ Only if Multus itself is causing cluster-wide problems:
 
 1. Stop/scale down any pods using `net1` (HA, test pods).
 2. Remove `multus` and `multus-networks` from Git; reconcile.
-3. Verify `/etc/cni/net.d/00-multus.conf` is gone on every node.
+3. Verify `/etc/cni/net.d/00-multus.conflist` is gone on every node.
 4. Leave Cilium `cni.exclusive: false` until Multus is fully removed; then optionally set it back to `true`.
 5. Restart any pods that failed to start during the CNI transition.
 
 ### 11.3 External DNS rollback
 
+- Remove the local DNS override for `ha.vember31.xyz` first (§6.7.1).
 - Set `ingress.external.enabled: false` in Git (or delete the external Ingress) and reconcile. Wait for external-dns to remove the `ha.vember31.xyz` record it owns.
 - Re-add the `ha.vember31.xyz` public hostname to the old Cloudflared tunnel in the Cloudflare dashboard.
 - Start HAOS; the old Cloudflared add-on reconnects and serves the name again.
@@ -2671,18 +2701,18 @@ Only if Multus itself is causing cluster-wide problems:
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| Multus/Cilium incompatibility | New pods fail to start on a node | Canary one node first; `cni.exclusive: false`; verify `00-multus.conf`; keep Cilium rollback ready |
-| Cilium upgrade renames `00-multus.conf` | `net1` disappears after upgrade | Verify after every Cilium upgrade; restart Multus DaemonSet; `cni.exclusive: false` must be preserved |
+| Multus/Cilium incompatibility | New pods fail to start on a node | Canary one node first; `cni.exclusive: false`; verify `00-multus.conflist`; keep Cilium rollback ready |
+| Cilium upgrade renames `00-multus.conflist` | `net1` disappears after upgrade | Verify after every Cilium upgrade; restart Multus DaemonSet; `cni.exclusive: false` must be preserved |
 | Macvlan MAC filtering on Proxmox/switch | `net1` cannot pass traffic | Test `.77` pod before cutover; disable NIC firewall/MAC filter; check switch port security |
 | IP/MAC conflict with HAOS | Duplicate IP, broken network | Stop HAOS before starting the HA pod; never run both; keep rollback ordered |
 | Z-Wave keys wrong/lost | Secure devices stop working | Copy keys from the add-on/config entry before cutover; store them in the `homeassistant` GitLab secret/External Secrets and a password manager; validate a lock |
 | ZHA migration loses devices | Zigbee automations break | Use Migrate Radio, not a new network; keep the same ZBT-2; keep `zigbee.db`; validate before decommissioning |
 | Config drift between PVC and Git | HA starts with stale/edited YAML, or a UI edit silently fails | Only `configuration.yaml` and `packages/` are mounted; `secrets.yaml` is not used (§6.2.5). Leave `automations.yaml`/`scripts.yaml`/`scenes.yaml` on the PVC, promote individual automations deliberately, and delete the UI copy when you do |
-| Z-Wave store stale or missing | Nodes need re-interviewing; locks/battery devices may need to be woken individually | Stop the add-on before archiving `/addon_configs/core_zwave_js`; copy it at T+0; keep the archive; verify `nodes.json` on the PVC (§7.2.1) |
+| No Z-Wave store to migrate (official add-on) | Nodes are re-interviewed; locks/battery devices may need to be woken individually | Keys are in the `homeassistant` secret and a password manager; take an NVM backup from Z-Wave JS UI after validation (§7.2.1) |
 | Z-Wave settings overwritten | UI changes disappear after a pod restart | Only the serial port and S0/S2 keys are externally managed. RF region, MQTT, and other UI settings stay in `settings.json` on the PVC |
 | ser2net instability | Zigbee/Z-Wave timeouts | Wired LAN only; `kickolduser`, `max-connections: 1`; test `nc`/logs; fallback USB passthrough |
 | eufy RTSP not reachable | Live view fails | Sidecar shares `net1`; set `rtsp_server_address` to `.7` if needed; check `8554/tcp` from camera VLAN |
-| Govee discovery fails | Govee entities unavailable | Keep explicit `SCAN` IPs; `NO_MULTICAST: true`; if needed add an `iot` NAD on the actual IoT VLAN |
+| Govee LAN mode fails | Govee entities fall back to cloud-only or go unavailable | Own `net1` IP on `lan-routed` (no SNAT), `GOVEE_LAN_SCAN` IPs, `GOVEE_LAN_NO_MULTICAST: true`, UDM rule IoT → `.8` UDP 4002; fallback: sidecar in the HA pod (shares `.7`) |
 | External MQTT client breaks | Unknown device/automation stops | Identify `192.168.2.188`; give Mosquitto a LAN IP or update the client |
 | Postgres unavailable | Recorder pauses; history gap | CNPG has 3 instances and daily Barman backups; HA keeps running with recorder retries; restore DB if needed |
 | Old SQLite history not migrated | Energy/history continuity lost | Archive the SQLite DB; accept fresh recorder or run a separate SQLite→Postgres migration before cutover |
@@ -2690,14 +2720,18 @@ Only if Multus itself is causing cluster-wide problems:
 | HACS dependency install failures | Custom integrations fail | Check logs; bake requirements into a thin image if needed |
 | external-dns / old tunnel record conflict | `ha.vember31.xyz` flaps or points to the wrong HA | Remove the old tunnel public hostname before applying the external ingress; let external-dns own the record |
 | Public ingress exposure | HA login page exposed to the internet | Cloudflare proxy, CrowdSec + Cloudflare IP allowlist via `networking-external-with-errors`, strong auth/2FA; Cloudflare Access remains optional |
-| HAOS `hassio`-specific automations/dashboards | Broken actions/entities | Run the `grep` audit in §7.5; remove/update before decommissioning |
+| HAOS `hassio`-specific automations/dashboards | Broken actions/entities | Audited 2026-11-11: no automation, script, scene or dashboard references `hassio.*`, add-on update entities, or hardcoded `192.168.x.x`/`homeassistant.local`. Re-run the `grep` audit in §7.5 anyway |
+| HA-initiated IoT traffic leaves via `eth0` with node-IP SNAT | UDM rules keyed on `192.168.2.7` do not match HA → Cast/Roomba/TP-Link/Android TV flows | `ip route get 192.168.4.x` in the test pod (§5.5); allow the node range or add VLAN routes in the main table (`lan-routed`, §5.4) |
+| Internal URL left empty | Auto-detected as the `eth0` pod IP; Cast TTS/media and the companion app fail on the LAN | Set Internal URL explicitly (§7.5 step 7) |
+| Split-DNS override created too early or left in after rollback | LAN clients reach Traefik while HA is not serving there | Add it at T+47; remove it first in any rollback (§6.7.1, §11) |
+| HA sees a Cloudflare edge IP as the client | `ip_ban_enabled` can ban an edge IP for everyone | Verify real-client-IP handling in the Traefik chain; add Cloudflare ranges to `trusted_proxies` or restore the client IP; leave `ip_ban_enabled` off until verified (§6.2.4) |
 
 ---
 
 ## 13. Open questions
 
 1. **Do you want direct L2 to the IoT VLAN (`192.168.4.0/24`), or is the secure LAN `.7` enough?** The recommended v1 keeps HA on the secure LAN, matching the current HAOS. If Govee/mDNS discovery needs IoT L2, add an `iot` NAD on `ens18.<vlan>` later.
-2. **Is `192.168.2.188` an important MQTT client?** If yes, decide between a Multus LAN IP for Mosquitto and updating the client.
+2. **Is `192.168.2.188` an important MQTT client?** *Resolved 2026-11-11:* unidentified, not in UniFi, not in the current Mosquitto log; accepted as a casualty. If something breaks, add a Mosquitto user and a LAN IP then.
 3. **Reuse the old HAOS MAC `02:96:57:5c:1a:5e`?** Recommended; keeps the UDM reservation. The alternative is a random macvlan MAC plus a new DHCP reservation.
 4. **Is `ser2net` on `pve` acceptable, or do you want an isolated LXC/radio gateway?** Either works; the pve host is already a single point of failure for the radios.
 5. **Do you need the old SQLite history in Postgres?** The plan uses a fresh Postgres recorder. If the energy/history continuity matters, schedule a separate SQLite→Postgres migration before cutover; otherwise archive the old DB and accept a fresh recorder.
@@ -2714,8 +2748,8 @@ Only if Multus itself is causing cluster-wide problems:
 | Cloudflared | None | Remove the tunnel route; public ingress via Traefik + external-dns |
 | eufy-security-ws | Sidecar in HA pod | Keeps `127.0.0.1:3000`; RTSP via HA/go2rtc on `net1` `.7:8554` if used |
 | Mosquitto broker | `mosquitto` Deployment | Local users replace HA auth plugin; update HA MQTT config |
-| Govee to MQTT Bridge | `govee2mqtt` Deployment | Explicit MQTT creds; keep `SCAN` IPs; try `NO_MULTICAST` |
-| Z-Wave JS | `zwave-js` Deployment (Z-Wave JS UI) | TCP serial `tcp://192.168.2.3:4002`; copy network/S2 keys |
+| Govee to MQTT Bridge | `govee2mqtt` Deployment | `GOVEE_*` env names; own `net1` IP (`lan-routed`) for LAN mode; `GOVEE_LAN_SCAN` IPs; `GOVEE_LAN_NO_MULTICAST` |
+| Z-Wave JS (official add-on) | `zwave-js` Deployment (Z-Wave JS UI) | TCP serial `tcp://192.168.2.3:4002`; copy the S0/S2/LR keys; empty store, nodes re-interview |
 | ZHA (core, not add-on) | HA core | TCP serial `socket://192.168.2.3:4001`; 460800 on ZBT-2 |
 | HACS | HA `custom_components` | Preserved in `/config`; requirements reinstall at startup |
 
@@ -2727,7 +2761,7 @@ Only if Multus itself is causing cluster-wide problems:
 
 ```bash
 kubectl debug node/k3s-control1 -it --image=alpine:3.22 --profile=sysadmin -- \
-  chroot /host sh -c 'ls -la /etc/cni/net.d /opt/cni/bin; cat /etc/cni/net.d/00-multus.conf 2>/dev/null'
+  chroot /host sh -c 'ls -la /etc/cni/net.d /opt/cni/bin; cat /etc/cni/net.d/00-multus.conflist 2>/dev/null'
 ```
 
 ### Check Multus/Cilium state
