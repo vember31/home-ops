@@ -2,6 +2,7 @@
 
 **Status:** Phase 0 complete (Multus enabled and validated); Phase 1 not started  
 **Last updated:** 2026-11-10  
+**Secrets audit:** HAOS `secrets.yaml` is the default unused stub; no `!secret` references exist, so it is not migrated or mounted.  
 **Target:** Home Assistant Container `2026.11.x` in the `home` namespace  
 **Database:** CNPG `postgres-18` (`homeassistant` database)  
 **Public DNS:** Traefik Ingress + `external-dns-cloudflare` (`ha.vember31.xyz`)  
@@ -14,7 +15,7 @@
 - **Do not use `hostNetwork`.** Give the Home Assistant pod a real Layer 2 presence with **Multus**: `eth0` stays on Cilium for cluster traffic, and `net1` is a macvlan interface on `ens18` that keeps **`192.168.2.7/24`** and the existing HAOS MAC `02:96:57:5c:1a:5e`.
 - Keep **Cilium as the primary CNI**. Multus is only used for the secondary LAN interface. Cilium must be switched to `cni.exclusive: false` before Multus is installed.
 - Run HA as a **single-replica Deployment** with `strategy: Recreate`, **PostgreSQL** in the existing CNPG `postgres-18` cluster, and **one small 2 GiB Longhorn PVC** for `/config`. The PVC is unavoidable because HA writes `.storage` at runtime; the separate backups, media, and eufy PVCs are eliminated by using subdirectories on the same volume.
-- **Git-manage the declarative config, leave the UI-managed files on the PVC.** Put `configuration.yaml` and `packages/` in ConfigMaps generated from this repo. Keep `automations.yaml`, `scripts.yaml`, `scenes.yaml`, and the dashboards on the PVC so the automation, script, scene, and dashboard editors keep working; promote individual automations to `packages/` when you want them reviewed in Git. Keep runtime state (`.storage`, `zigbee.db`, the Z-Wave node cache/NVM, HACS downloads, backups) on the PVC. `secrets.yaml` comes from External Secrets.
+- **Git-manage the declarative config, leave the UI-managed files on the PVC.** Put `configuration.yaml` and `packages/` in ConfigMaps generated from this repo. Keep `automations.yaml`, `scripts.yaml`, `scenes.yaml`, and the dashboards on the PVC so the automation, script, scene, and dashboard editors keep working; promote individual automations to `packages/` when you want them reviewed in Git. Keep runtime state (`.storage`, `zigbee.db`, the Z-Wave node cache/NVM, HACS downloads, backups) on the PVC. This HAOS instance has **no `!secret` references**, so `secrets.yaml` is not mounted and `HASS_SECRETS_YAML` is not needed (§6.2.5).
 - Replace the HAOS add-ons with first-class Kubernetes Deployments:
   - **Mosquitto** Deployment (explicit local users; the HAOS HA-auth plugin is not available outside Supervisor).
   - **Z-Wave JS UI** Deployment, connecting to the ZWA-2 through `ser2net` on `pve`.
@@ -97,7 +98,7 @@ The trade-off is explicit: **Home Assistant does not migrate recorder history or
 - `/config` — PVC mount; runtime state (`.storage`, `.uuid`, `zigbee.db`, `custom_components`, `www`, logs) plus the directory skeleton
 - `/config/configuration.yaml` — read-only ConfigMap subPath mount
 - `/config/packages` — read-only ConfigMap directory
-- `/config/secrets.yaml` — External Secrets-managed Secret subPath mount
+- `/config/secrets.yaml` — **not mounted**; the current HAOS config has no `!secret` references and only the default unused stub (§6.2.5)
 - `/config/automations.yaml`, `/config/scripts.yaml`, `/config/scenes.yaml`, dashboards in `.storage` — writable files on the PVC, managed by the HA UI editors
 - `/config/backups` — HA native config backups (small now that history is in Postgres)
 - `/media` — subPath `media` (the old media folder is only ~56 KB)
@@ -135,13 +136,13 @@ Security: the external ingress uses the `networking-external-with-errors` chain,
 
 ### 1.6 What migrates from HAOS — and what does not
 
-The migration copies the **entire Home Assistant config directory** from a settings-only backup into the new `/config` PVC, then moves the declarative files (`configuration.yaml`, `packages/`, `secrets.yaml`) into Git/ESO and leaves the UI-writable files on the PVC. PostgreSQL only replaces the recorder database; it does not change where configuration lives.
+The migration copies the **entire Home Assistant config directory** from a settings-only backup into the new `/config` PVC, then moves the declarative files (`configuration.yaml` and `packages/`) into Git and leaves the UI-writable files on the PVC. `secrets.yaml` is **not** migrated: the live HAOS config has no `!secret` references, and the file is only the default unused stub (§6.2.5). PostgreSQL only replaces the recorder database; it does not change where configuration lives.
 
 | Item | Migrates? | Notes |
 |---|---|---|
 | `configuration.yaml`, `packages/` | **Yes** | Copied from the backup, committed under `kubernetes/apps/home/home-assistant/app/config/`, and mounted read-only from ConfigMaps |
 | `automations.yaml`, `scripts.yaml`, `scenes.yaml` | **Yes** | Stay on the PVC and remain editable in the UI; promote individual automations to `packages/` for Git review |
-| `secrets.yaml` | **Yes** | Values move to the `homeassistant` GitLab secret as `HASS_SECRETS_YAML` and are rendered by External Secrets; do not commit the file |
+| `secrets.yaml` | **No** | Current HAOS file is the default unused stub (`some_password`) with no `!secret` references anywhere. Do not migrate it, create an ExternalSecret for it, or mount it (§6.2.5) |
 | `.storage/` — entity, device, area, floor, label registries | **Yes** | Runtime state on the PVC; preserves entity IDs, device IDs, areas, labels |
 | `.storage/` — config entries, auth/users, long-lived tokens, dashboards | **Yes** | Runtime state on the PVC; users/tokens remain; rotate sensitive tokens |
 | Dashboards, themes, blueprints, `www/`, HACS `custom_components` | **Yes** | Dashboards stay in `.storage` and remain UI-editable (optional per-dashboard YAML later); HACS requirements reinstall at startup |
@@ -289,7 +290,6 @@ flowchart LR
 |---|---|---|---|
 | `home-assistant` | `home` | Deployment + Service + Ingress | Multus `net1`; eufy sidecar; public-only ingress |
 | `home-assistant-config` | `home` | ConfigMap (generated) | `configuration.yaml`; packages are in `home-assistant-packages`. UI-managed automations/scripts/scenes stay on the PVC |
-| `home-assistant-secrets` | `home` | ExternalSecret → Secret | Rendered `secrets.yaml`; values live in GitLab |
 | `postgres-18` | `database` | CNPG Cluster (existing) | Recorder DB `homeassistant`; daily Barman backup |
 | `mosquitto` | `home` | Deployment + Service | 1883 ClusterIP; local users |
 | `zwave-js` | `home` | Deployment + Service | Z-Wave JS UI; ws 3000, UI 8091 |
@@ -713,7 +713,6 @@ Store these in GitLab CI/CD variables (or Vaultwarden + ExternalSecret). Do **no
 
 | Variable | Used by | Notes |
 |---|---|---|
-| `HASS_SECRETS_YAML` | HA `secrets.yaml` | Full `secrets.yaml` content; rendered by ESO and mounted at `/config/secrets.yaml` |
 | `HASS_TOKEN` | Homepage widget | Rotate after cutover |
 | `MQTT_HOMEASSISTANT_PASSWORD` | HA MQTT integration | New local Mosquitto user |
 | `MQTT_GOVEE_PASSWORD` | Govee2MQTT | New local Mosquitto user |
@@ -723,7 +722,7 @@ Store these in GitLab CI/CD variables (or Vaultwarden + ExternalSecret). Do **no
 | `HASS_POSTGRES_USER`, `HASS_POSTGRES_PASS` | HA recorder + `postgres-init` | New role/database for HA |
 | `ZWAVE_KEY_*` keys | Z-Wave JS UI | Copy from the add-on options / HA config entry; rendered into the `zwave-js-external-settings` Secret and stored in a password manager too |
 
-A fill-in template is at `docs/runbooks/home-assistant-secrets.example.json`. Create one GitLab CI/CD variable named **`homeassistant`** (GitLab variable keys cannot contain `-`) whose value is the JSON object with the placeholders replaced. The cluster's `gitlab-secret-store` is project-scoped, so put it in the same GitLab project as the existing `silo` and `cloudnativepg` variables, with the **All environments** scope. Use `jq -c` to minify the JSON if you want a single-line value.
+A fill-in template is at `docs/runbooks/home-assistant-secrets.example.json`. Create one GitLab CI/CD variable named **`homeassistant`** (GitLab variable keys cannot contain `-`) whose value is the JSON object with the placeholders replaced. **`HASS_SECRETS_YAML` is not needed for this migration**; leave that entry out (or ignore it). The cluster's `gitlab-secret-store` is project-scoped, so put it in the same GitLab project as the existing `silo` and `cloudnativepg` variables, with the **All environments** scope. Use `jq -c` to minify the JSON if you want a single-line value.
 
 The Z-Wave S0/S2 keys are the most dangerous thing to lose. If they are wrong, secure devices will not communicate. Keep the old HAOS VM until the Z-Wave network is fully validated.
 
@@ -751,7 +750,6 @@ Adapt per app:
 - `eufy-security-ws`: Secret keys `username` / `password`.
 - `govee2mqtt-secret`: Secret keys `GOVEE_EMAIL`, `GOVEE_PASSWORD`, `GOVEE_API_KEY`, `MQTT_USERNAME` (literal `govee2mqtt`), and `MQTT_PASSWORD` (map from `MQTT_GOVEE_PASSWORD`; `dataFrom.extract` does not rename keys).
 - `mosquitto-auth`: Secret key `passwd` (the full `mosquitto_passwd` file). Use an explicit `data` entry with `property: MOSQUITTO_PASSWD` if the variable is stored separately.
-- `home-assistant-secrets`: Secret key `secrets.yaml` from `HASS_SECRETS_YAML`; mounted at `/config/secrets.yaml`.
 - `zwave-js-external-settings`: Secret containing `external-settings.json` rendered from the six `ZWAVE_KEY_*` values; mounted into Z-Wave JS UI and referenced by `ZWAVE_EXTERNAL_SETTINGS` (§6.5.1).
 - `home-assistant-db`: Secret keys `HASS_DB_URL`, `INIT_POSTGRES_DBNAME`, `INIT_POSTGRES_HOST`, `INIT_POSTGRES_USER`, `INIT_POSTGRES_PASS`, and `INIT_POSTGRES_SUPER_PASS`. The superuser password comes from the existing `cloudnativepg` GitLab key, which is already used by the other CNPG apps.
 
@@ -765,7 +763,7 @@ The boundary is:
 
 - **Git/ConfigMap:** `configuration.yaml`, `packages/`, and other YAML that HA only reads.
 - **PVC:** anything the UI editors write (`automations.yaml`, `scripts.yaml`, `scenes.yaml`, dashboards in `.storage`) and anything HA rewrites at runtime (`.storage`, `zigbee.db`, the Z-Wave store, HACS, backups).
-- **External Secrets:** `secrets.yaml`, database credentials, MQTT passwords, Z-Wave keys.
+- **External Secrets:** database credentials, MQTT passwords, Z-Wave keys. There is no `secrets.yaml` Secret in this migration; the current config has no `!secret` references (§6.2.5).
 
 This keeps the automation, script, scene, and dashboard editors working. Promote an individual automation to a package when you want it reviewed in Git; the rest stay UI-managed.
 
@@ -779,7 +777,7 @@ This keeps the automation, script, scene, and dashboard editors working. Promote
 | `automations.yaml`, `scripts.yaml`, `scenes.yaml` | **PVC** | The UI editors write these files. Keep them out of ConfigMaps; see §6.2.4 |
 | Dashboards | **PVC (`.storage`)** | Default storage mode keeps the dashboard editor working. Add a per-dashboard YAML file only when you want that dashboard reviewed in Git |
 | `blueprints/`, `themes/` | PVC | HACS-managed blueprints/themes are runtime state; file-based ones can be a ConfigMap |
-| `secrets.yaml` | External Secrets → Secret | Values live in the `homeassistant` GitLab secret as `HASS_SECRETS_YAML`, never in Git |
+| `secrets.yaml` | **Not used** | The live HAOS file is the default unused stub with no `!secret` references. Do not create an ExternalSecret or mount it (§6.2.5) |
 | `.storage/` | PVC only | Entity/device/area registries, config entries, auth/users, long-lived tokens, UI state. HA rewrites these constantly |
 | `zigbee.db` | PVC only | ZHA network/device database; back it up with Longhorn + HA native backups |
 | Z-Wave JS `store/` | PVC only | `nodes.json`, NVM backups, and `settings.json` are runtime state. Keys and the serial port are injected by `ZWAVE_EXTERNAL_SETTINGS`/`ZWAVE_PORT` (§6.5.1) |
@@ -885,46 +883,27 @@ Do not add a `lovelace:` block unless you want YAML dashboards. The default is s
 
 Do not define `external_url`/`internal_url` in both YAML and the UI; this design sets **External URL** to `https://ha.vember31.xyz` and leaves **Internal URL** empty in Settings → System → Network.
 
-#### 6.2.5 `secrets.yaml` via External Secrets
+#### 6.2.5 `secrets.yaml` — not needed for this migration
 
-`secrets.yaml` is Home Assistant's store for `!secret` values. It is a YAML mapping, for example:
+`secrets.yaml` is Home Assistant's store for `!secret` values and is only read when YAML uses `!secret <name>`. Home Assistant does not load it otherwise.
 
-```yaml
-latitude: 41.8781
-longitude: -87.6298
-some_api_key: "...."
-```
+**The live HAOS config does not use it.** Audited 2026-11-10:
 
-It is only needed if your YAML uses `!secret <name>`. The file is read-only at runtime; HA never writes it. In this design it is rendered by External Secrets from the `HASS_SECRETS_YAML` property of the `homeassistant` GitLab variable and mounted at `/config/secrets.yaml`.
+- `/config/secrets.yaml` exists, but it is the default 161-byte stub from 2023 with one unused key, `some_password`.
+- There are **no `!secret` references** anywhere in the config backup, including `custom_components/`, `blueprints/`, and `.storage`.
+- `configuration.yaml` uses `!include` only, not `!secret`.
 
-**Do I need to migrate it?** Check the HAOS config:
+For this migration:
 
-```bash
-# On HAOS, from the Terminal & SSH add-on or an SSH session:
-grep -RIn --include='*.yaml' '!secret' /config | sort
-cat /config/secrets.yaml
-```
+- Do **not** add `HASS_SECRETS_YAML` to the `homeassistant` GitLab variable.
+- Do **not** create a `home-assistant-secrets` ExternalSecret.
+- Do **not** mount `/config/secrets.yaml` in the HelmRelease.
+- Do not copy the placeholder `some_password`; the real credentials live in UI config entries and `.storage`.
 
-- If the grep finds `!secret` references, copy the **entire** existing `secrets.yaml` into `HASS_SECRETS_YAML`. Every referenced key must exist in the rendered file, or HA will fail to load that YAML block.
-- If there are no `!secret` references and no `secrets.yaml`, set `HASS_SECRETS_YAML` to a minimal valid YAML document, for example `# no !secret values yet\n`. The ExternalSecret then creates the Secret and the mount is ready for future secrets.
-- If you prefer not to mount the file at all, remove the `home-assistant-secrets` ExternalSecret and the `secrets` mount from the HelmRelease until you need it. Do not leave an ExternalSecret that references a missing property.
-
-The GitLab variable is a JSON object; `HASS_SECRETS_YAML` is a **string containing the whole YAML file**. Keep the newlines. For example:
-
-```json
-{
-  "HASS_SECRETS_YAML": "latitude: 41.8781\nlongitude: -87.6298\nsome_api_key: \"...\"\n"
-}
-```
-
-Do not commit `secrets.yaml` to Git. The values belong in the `homeassistant` GitLab variable (or Vaultwarden + ExternalSecret).
-
-To build the escaped JSON string from an existing file, run `jq -Rs . /path/to/secrets.yaml` and paste the output as the `HASS_SECRETS_YAML` value in the `homeassistant` variable.
-
-Put this document in `kubernetes/apps/home/home-assistant/app/externalsecret.yaml`, alongside the database and eufy ExternalSecrets from §6.9. A single file with multiple `---` documents is fine.
+The pre-cutover checklist in §6.11 verifies that no `secrets.yaml` mount exists. If you later introduce YAML that uses `!secret`, add the ExternalSecret and mount then:
 
 ```yaml
----
+# Optional future use only; not part of this migration.
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
@@ -945,13 +924,9 @@ spec:
         property: HASS_SECRETS_YAML
 ```
 
-Validation:
+Then mount that Secret at `/config/secrets.yaml` and validate it:
 
 ```bash
-# The ExternalSecret is synced.
-kubectl -n home get externalsecret home-assistant-secrets
-
-# The rendered file is valid YAML. This prints only the keys, not the values.
 kubectl -n home get secret home-assistant-secrets -o jsonpath='{.data.secrets\.yaml}' \
   | base64 -d \
   | python3 -c 'import sys,yaml; print(sorted((yaml.safe_load(sys.stdin) or {}).keys()))'
@@ -1833,18 +1808,10 @@ spec:
             app:
               - path: /config/packages
                 readOnly: true
-      secrets:
-        type: secret
-        name: home-assistant-secrets
-        advancedMounts:
-          home-assistant:
-            app:
-              - path: /config/secrets.yaml
-                subPath: secrets.yaml
-                readOnly: true
+      # No secrets.yaml mount: the current HAOS config has no !secret references (§6.2.5).
 ```
 
-Add the database and eufy sidecar documents to `kubernetes/apps/home/home-assistant/app/externalsecret.yaml` (the same file as the `home-assistant-secrets` ExternalSecret from §6.2.5):
+Add the database and eufy sidecar documents to `kubernetes/apps/home/home-assistant/app/externalsecret.yaml`:
 
 ```yaml
 ---
@@ -2117,8 +2084,7 @@ If Gatus uses the repo's templated endpoint mechanism, include only `templates/g
 - [ ] The single `home-assistant-config` PVC is Bound and is 2 GiB; the `zwave-js-store` PVC is Bound and is 512 MiB.
 - [ ] `configuration.yaml` and `packages/` are committed under `kubernetes/apps/home/home-assistant/app/config/`. `automations.yaml`, `scripts.yaml`, and `scenes.yaml` are **not** in Git; they stay on the PVC for the UI editors.
 - [ ] `home-assistant-config` and `home-assistant-packages` ConfigMaps exist and have the substituted `${POD_CIDR}`/`${SERVICE_CIDR}`/`${LB_CIDR}` values; `reloader.stakater.com/auto` is set on the HA pod.
-- [ ] The `home-assistant-secrets` ExternalSecret resolves and `secrets.yaml` is present; `git grep` finds no real secret values in the repo.
-- [ ] `HASS_SECRETS_YAML` exists in the GitLab `homeassistant` variable (or the `home-assistant-secrets` ExternalSecret/mount has been removed), and its YAML parses.
+- [ ] No `home-assistant-secrets` ExternalSecret or `/config/secrets.yaml` mount exists; the current HAOS config has no `!secret` references (§6.2.5). `git grep` finds no real secret values in the repo.
 - [ ] The `zwave-js-external-settings` ExternalSecret resolves and contains a valid `external-settings.json`; all six `ZWAVE_KEY_*` properties exist.
 - [ ] The HAOS Z-Wave JS add-on store (`/addon_configs/core_zwave_js`) is copied to the `zwave-js-store` PVC (§7.2.1), or you accept re-interviewing the network.
 - [ ] No `ha.local` ingress, DNS record, or certificate exists or is planned.
@@ -2225,10 +2191,11 @@ rm -f /config/home-assistant_v2.db /config/home-assistant_v2.db-wal /config/home
 # Export the files that will become Git-managed, then remove the PVC copies so the
 # ConfigMaps are the only source of truth. Leave UI-managed files on the PVC.
 mkdir -p /seed/config-export/packages
-for f in configuration.yaml secrets.yaml; do
+for f in configuration.yaml; do
   [ -f "/config/$f" ] && cp -a "/config/$f" /seed/config-export/
 done
 [ -d /config/packages ] && cp -a /config/packages/. /seed/config-export/packages/
+# secrets.yaml is the default unused stub; do not export or mount it (§6.2.5).
 rm -f /config/configuration.yaml /config/secrets.yaml
 rm -rf /config/packages
 
@@ -2257,12 +2224,10 @@ Exit the seed pod shell, copy the exported config to your workstation, and delet
 ```bash
 exit
 kubectl -n home cp ha-seed:/seed/config-export ./ha-config-export
-# Move any values from ha-config-export/secrets.yaml into HASS_SECRETS_YAML, then:
-rm -f ./ha-config-export/secrets.yaml
 kubectl -n home delete pod ha-seed
 ```
 
-Merge the exported `configuration.yaml`/`packages/` into the target files from §6.2, commit them under `kubernetes/apps/home/home-assistant/app/config/`, and reconcile. Do not commit `secrets.yaml`, `automations.yaml`, `scripts.yaml`, `scenes.yaml`, or any real secret value.
+Merge the exported `configuration.yaml`/`packages/` into the target files from §6.2, commit them under `kubernetes/apps/home/home-assistant/app/config/`, and reconcile. There is no `secrets.yaml` in the export; do not add one. Do not commit `.storage`, `automations.yaml`, `scripts.yaml`, `scenes.yaml`, or any real secret value.
 
 ### 7.2.1 Seed the Z-Wave store (cutover window)
 
@@ -2362,7 +2327,7 @@ recorder:
 
 `HASS_DB_URL` comes from the `home-assistant-db` Secret and points at `postgres-18-rw.database.svc.cluster.local:5432/homeassistant`. The `postgres-init` init container creates the role/database; HA creates the recorder schema on first start.
 
-Use a URL-safe password (or percent-encode special characters) for `HASS_POSTGRES_PASS`, otherwise the `postgresql://` URL will be parsed incorrectly. If your HA version does not accept `!env_var` for `recorder.db_url`, use `!secret ha_db_url` and put the URL in the ESO-rendered `secrets.yaml`.
+Use a URL-safe password (or percent-encode special characters) for `HASS_POSTGRES_PASS`, otherwise the `postgresql://` URL will be parsed incorrectly. The target HA 2026.11 accepts `!env_var` for `recorder.db_url`; do **not** use a `!secret ha_db_url` fallback because this migration does not mount `secrets.yaml` (§6.2.5).
 
 For the public-only design, set **External URL** to `https://ha.vember31.xyz` and leave **Internal URL** empty (or set it to the same public URL) in Settings → System → Network. Do not use `ha.local`.
 
@@ -2373,7 +2338,7 @@ Other pre-start checks:
 - `kubectl -n home get externalsecret zwave-js-external-settings` is `SecretSynced`; the rendered `external-settings.json` parses as JSON.
 - `kubectl -n home exec deploy/zwave-js -- ls /usr/src/app/store` shows the seeded `settings.json`, `nodes.json`, and `backups/` (after §7.2.1 and once the pod starts).
 - `automations.yaml`, `scripts.yaml`, and `scenes.yaml` are writable files on `/config` (not ConfigMap subPath mounts). If they are missing, HA creates them on first start.
-- `secrets.yaml` is present and readable from the ESO Secret.
+- `/config/secrets.yaml` is **not** a Secret/ConfigMap mount; the current HAOS config has no `!secret` references (§6.2.5).
 - `custom_components/` is present (HACS).
 - `www/` is present (cards/themes).
 - `.storage/` is present and owned by root.
@@ -2593,7 +2558,7 @@ If the external hostname does not resolve, check the external-dns logs and the I
 - [ ] UI automation editor works: create, edit, then delete a throwaway automation; the change is written to `/config/automations.yaml` and survives a pod restart.
 - [ ] Script and scene editors work the same way (`/config/scripts.yaml`, `/config/scenes.yaml`).
 - [ ] A Git-managed automation in `packages/automations/` appears in the UI and runs; the UI shows package entries as read-only.
-- [ ] `automations.yaml`, `scripts.yaml`, and `scenes.yaml` are not ConfigMap mounts; `kubectl -n home get deploy home-assistant -o yaml` shows only `configuration.yaml`, `packages`, and `secrets.yaml` from ConfigMaps/Secrets.
+- [ ] `automations.yaml`, `scripts.yaml`, and `scenes.yaml` are not ConfigMap mounts; `kubectl -n home get deploy home-assistant -o yaml` shows only `configuration.yaml` and `packages` from ConfigMaps, and no `secrets.yaml` mount.
 - [ ] Declarative config is Git-managed: a test PR changing `configuration.yaml` or a package reconciles and Reloader restarts HA.
 - [ ] Z-Wave store survives a pod restart: `nodes.json`/NVM backups remain on `zwave-js-store`, and the controller comes back without re-interviewing.
 - [ ] `git status` is clean after the cutover; any config change made during cutover has been committed or explicitly reverted. UI-managed automation/script/scene changes are intentionally not in Git.
@@ -2712,7 +2677,7 @@ Only if Multus itself is causing cluster-wide problems:
 | IP/MAC conflict with HAOS | Duplicate IP, broken network | Stop HAOS before starting the HA pod; never run both; keep rollback ordered |
 | Z-Wave keys wrong/lost | Secure devices stop working | Copy keys from the add-on/config entry before cutover; store them in the `homeassistant` GitLab secret/External Secrets and a password manager; validate a lock |
 | ZHA migration loses devices | Zigbee automations break | Use Migrate Radio, not a new network; keep the same ZBT-2; keep `zigbee.db`; validate before decommissioning |
-| Config drift between PVC and Git | HA starts with stale/edited YAML, or a UI edit silently fails | Only `configuration.yaml`, `packages/`, and `secrets.yaml` are mounted. Leave `automations.yaml`/`scripts.yaml`/`scenes.yaml` on the PVC, promote individual automations deliberately, and delete the UI copy when you do |
+| Config drift between PVC and Git | HA starts with stale/edited YAML, or a UI edit silently fails | Only `configuration.yaml` and `packages/` are mounted; `secrets.yaml` is not used (§6.2.5). Leave `automations.yaml`/`scripts.yaml`/`scenes.yaml` on the PVC, promote individual automations deliberately, and delete the UI copy when you do |
 | Z-Wave store stale or missing | Nodes need re-interviewing; locks/battery devices may need to be woken individually | Stop the add-on before archiving `/addon_configs/core_zwave_js`; copy it at T+0; keep the archive; verify `nodes.json` on the PVC (§7.2.1) |
 | Z-Wave settings overwritten | UI changes disappear after a pod restart | Only the serial port and S0/S2 keys are externally managed. RF region, MQTT, and other UI settings stay in `settings.json` on the PVC |
 | ser2net instability | Zigbee/Z-Wave timeouts | Wired LAN only; `kickolduser`, `max-connections: 1`; test `nc`/logs; fallback USB passthrough |
