@@ -17,6 +17,20 @@ EOF
 sudo sysctl --system
 ```
 
+### Configure inotify limits
+The kernel default of 128 inotify instances per UID is too low for a node running many root-owned containers. CrowdSec's LAPI uses fsnotify, and because containers running as root share the host root UID's budget, pod churn can exhaust it. When that happens the LAPI exits with `couldn't initialize inotify: too many open files`, and the Traefik bouncer fails closed after three missed stream updates, returning 403 for every public service:
+```
+sudo tee /etc/sysctl.d/99-inotify.conf >/dev/null <<EOF
+fs.inotify.max_user_instances=1024
+fs.inotify.max_user_watches=524288
+EOF
+sudo sysctl --system
+```
+Verify the values took effect:
+```
+sysctl fs.inotify.max_user_instances fs.inotify.max_user_watches
+```
+
 ### Disable Swap
 Kubernetes requires swap to be disabled — the kubelet will refuse to start if swap is enabled, because swap undermines the predictability of pod memory guarantees. Disable it immediately and in `/etc/fstab` so it doesn't come back on reboot:
 ```
