@@ -11,7 +11,7 @@ spec:
       logLevel: WARN
       crowdsecMode: stream
       streamStartupBlock: false
-      updateMaxFailure: 3
+      updateMaxFailure: -1
       remediationStatusCode: 403
       crowdsecLapiHost: crowdsec-service.security.svc.cluster.local:8080
       crowdsecLapiKeyFile: /etc/traefik/crowdsec/crowdsec-bouncer-key
