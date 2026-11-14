@@ -193,11 +193,4 @@ spec:
         globalMounts:
           - path: /media2/tv
 
-      media2-movies:
-        enabled: true
-        type: persistentVolumeClaim
-        existingClaim: nfs-omv2-movies
-        globalMounts:
-          - path: /media2/movies
-
       

@@ -189,13 +189,6 @@ spec:
           - path: /media/
 
       # old hard drive in old server
-      media2-tv:
-        enabled: true
-        type: persistentVolumeClaim
-        existingClaim: nfs-omv2-tv
-        globalMounts:
-          - path: /media2/tv
-
       media2-movies:
         enabled: true
         type: persistentVolumeClaim
