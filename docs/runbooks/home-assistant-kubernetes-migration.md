@@ -1,12 +1,55 @@
 # Home Assistant: HAOS → Kubernetes Migration Runbook
 
-**Status:** Phase 0 complete (Multus enabled and validated); Phase 1 not started  
-**Last updated:** 2026-11-11 (reviewed against the live HAOS instance; changes are marked *Review 2026-11-11*)  
+**Status:** Phase 0 complete (Multus enabled and validated); Phase 1 complete (all apps staged, HA/Z-Wave at `replicas: 0`); Phase 2/3 cutover pending  
+**Last updated:** 2026-11-15 (Phase 1 staging and seed rehearsal)  
 **Secrets audit:** HAOS `secrets.yaml` is the default unused stub; no `!secret` references exist, so it is not migrated or mounted.  
 **Target:** Home Assistant Container `2026.11.x` in the `home` namespace  
 **Database:** CNPG `postgres-18` (`homeassistant` database)  
 **Public DNS:** Traefik Ingress + `external-dns-cloudflare` (`ha.vember31.xyz`)  
 **Networking prerequisite:** Multus CNI from `oci://ghcr.io/home-operations/charts/multus` (uses `ghcr.io/home-operations/cni-plugins`)
+
+---
+
+## Migration progress (2026-11-15)
+
+Phase 1 is staged and Flux-managed. HAOS is still authoritative; the HA and Z-Wave
+Deployments are at `replicas: 0` and the external ingress is disabled.
+
+Verified before cutover:
+
+- Multus is 8/8; Cilium has `cni-exclusive: false`; all eight nodes have
+  `00-multus.conflist` and `05-cilium.conflist`, with no `.cilium_bak`.
+- `lan` passed the `.77` test (L2, DNS, SBR); `ip route get 192.168.4.35` uses
+  `eth0`, so HA-initiated IoT traffic is SNATed to the node IP. `lan-routed`
+  passed the `.78` test and routes IoT via `net1` with source `192.168.2.78`;
+  this is the Govee path.
+- `ser2net` 4.6.4 is installed on `pve` with `configs/ser2net/ser2net.yaml`, but
+  the service is disabled until the radios are detached from VM 300.
+- The `homeassistant` GitLab variable already contains all required values; the
+  five ExternalSecrets sync. The six Z-Wave keys match the live HAOS config
+  entry, and the legacy `network_key` equals `s0_legacy_key`.
+- CNPG `postgres-18` is healthy; the `homeassistant` role/database were created
+  and a direct `postgresql://` connection as the `homeassistant` user succeeded.
+- Mosquitto is running and validates the HA user, the Govee user, and anonymous
+  denial. Govee2MQTT is running at `net1` `192.168.2.8` and connected to
+  Mosquitto; its LAN probe did not get a reply from the two known devices yet
+  (UDM rule/device LAN API still to confirm).
+- HA and Z-Wave HelmReleases are healthy at `replicas: 0`; both PVCs are Bound.
+  The HA config was exported from HAOS, committed, and the 26 MiB config-only
+  tar was uploaded through a temporary Multus seed pod at `192.168.2.79` and
+  extracted into the PVC. No SQLite DB is on the PVC.
+- The Homepage service entry now points at the in-cluster Service; it is not yet
+  reachable because HA is at zero replicas.
+
+Remaining for the cutover window:
+
+- Final HAOS backup/config tar, stop HAOS, detach USB, start `ser2net`, seed the
+  PVC from the final snapshot.
+- Set Z-Wave and HA to `replicas: 1`; complete the ZHA/Z-Wave/MQTT/eufy/URL
+  UI steps in §7.5.
+- Delete the old Cloudflare `ha.vember31.xyz` CNAME, enable the external ingress,
+  add the Blocky (and AdGuard) split-DNS override, and add the external Gatus
+  endpoint.
 
 ---
 
