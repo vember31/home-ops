@@ -162,9 +162,8 @@ spec:
             port: 8123
     ingress:
       external:
-        # Keep the old Cloudflared tunnel serving ha.vember31.xyz until cutover.
-        # Set enabled: true in the cutover commit (runbook §8).
-        enabled: false
+        # external-dns owns ha.vember31.xyz now that the old tunnel CNAME is gone.
+        enabled: true
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt-production
           external-dns.kubernetes.io/target: "ipv4.${SECRET_DOMAIN}"
