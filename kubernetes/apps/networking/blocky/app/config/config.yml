@@ -117,6 +117,7 @@ customDNS:
     pve7.${SECRET_DOMAIN}: ${PVE_7}
     vault.${SECRET_DOMAIN}: ${TRAEFIK_IP}
     jellyfin.${SECRET_DOMAIN}: ${TRAEFIK_IP}
+    ha.${SECRET_DOMAIN}: ${TRAEFIK_IP}
 
 connectIPVersion: v4
 
