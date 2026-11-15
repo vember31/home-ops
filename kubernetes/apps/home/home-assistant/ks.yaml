@@ -29,6 +29,5 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      GATUS_SUBDOMAIN: home-assistant
-      GATUS_NAMESPACE: home
-      GATUS_PORT: "8123"
+      GATUS_SUBDOMAIN: ha
+      GATUS_PATH: /manifest.json
