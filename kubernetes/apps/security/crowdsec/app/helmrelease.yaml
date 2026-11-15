@@ -45,6 +45,42 @@ spec:
 
   maxHistory: 1
 
+  # The chart hardcodes `cscli lapi register` in the appsec init container.
+  # After a node reboot the init container re-runs while the credentials in
+  # the emptyDir still exist, so registration returns 403 "user already
+  # exist" and the pod never starts. Skip registration if credentials are
+  # already present; only register on the first start of the pod.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: crowdsec-appsec
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: crowdsec-appsec
+              spec:
+                template:
+                  spec:
+                    initContainers:
+                      - name: wait-for-lapi-and-register
+                        command:
+                          - sh
+                          - -c
+                          - |-
+                            if [ -s /tmp_config/local_api_credentials.yaml ]; then
+                              echo "Existing LAPI credentials found; skipping registration"
+                              exit 0
+                            fi
+                            until nc "$LAPI_HOST" "$LAPI_PORT" -z; do
+                              echo "waiting for lapi to start"
+                              sleep 5
+                            done
+                            ln -s /staging/etc/crowdsec /etc/crowdsec
+                            cscli lapi register --machine "$USERNAME" -u "$LAPI_URL" --token "$REGISTRATION_TOKEN" && cp /etc/crowdsec/local_api_credentials.yaml /tmp_config/local_api_credentials.yaml
+
   values:
     # yaml-language-server: $schema=https://raw.githubusercontent.com/crowdsecurity/helm-charts/main/charts/crowdsec/values.schema.json
 
