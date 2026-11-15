@@ -50,7 +50,7 @@ spec:
           app:
             image:
               repository: ghcr.io/wez/govee2mqtt
-              tag: "2026.03.25-ab9deb66"
+              tag: "2026.03.25-ab9deb66@sha256:a9d9fe330574d16be5a68175f2572615f9e55385695ab40652cc388076a07643"
               pullPolicy: IfNotPresent
             env:
               TZ: ${TIMEZONE}

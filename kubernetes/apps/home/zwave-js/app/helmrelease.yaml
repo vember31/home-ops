@@ -44,7 +44,7 @@ spec:
           app:
             image:
               repository: zwavejs/zwave-js-ui
-              tag: "11.26.2"
+              tag: "11.26.2@sha256:00360afd0b0e833d6166d4127f4ef41d2b24c75f2b2172d32dd4e9d26d613778"
               pullPolicy: IfNotPresent
             env:
               TZ: ${TIMEZONE}

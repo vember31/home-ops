@@ -54,7 +54,7 @@ spec:
           init-db:
             image:
               repository: ghcr.io/home-operations/postgres-init
-              tag: "18"
+              tag: "18@sha256:6d4cfa4b8d343eb6fa0de8dd9ec416a2007f346bb631fc8e246e1f39eee6c4aa"
             envFrom:
               - secretRef:
                   name: home-assistant-db
@@ -68,7 +68,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-assistant/home-assistant
-              tag: "2026.11.1"
+              tag: "2026.11.1@sha256:6785d1eca68747a524c156faae1b139ed415c07357386ae6fe17291986e59e82"
               pullPolicy: IfNotPresent
             env:
               TZ: ${TIMEZONE}
@@ -111,7 +111,7 @@ spec:
           eufy-security-ws:
             image:
               repository: bropat/eufy-security-ws
-              tag: "3.1.0"
+              tag: "3.1.0@sha256:d41169205f4e20e1e7e173283aaf8bb2d68e2abecb42bc1500a5fac5bb7a8750"
               pullPolicy: IfNotPresent
             env:
               USERNAME:
