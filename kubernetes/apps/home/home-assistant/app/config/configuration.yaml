@@ -1,0 +1,64 @@
+---
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+sensor:
+
+template:
+- sensor:
+  - default_entity_id: sensor.washing_machine_door_lock
+    name: Washer Door Lock
+    state: '{{ state_attr(''sensor.washing_machine'',''door_lock'') }}'
+
+- sensor:
+  - default_entity_id: sensor.washing_machine_time_display
+    name: Washer Time Display
+    state: "{% if is_state('sensor.washing_machine_run_state', '-') %} {% elif is_state('sensor.washing_machine_run_state',
+      'unavailable') %} {% elif is_state('sensor.washing_machine_run_state', 'Standby')
+      %}\n  -:--\n{% else %}\n  {{ state_attr(\"sensor.washing_machine\",\"remain_time\").split(\":\")[:-1]
+      | join(':') }}   \n{% endif %}"
+
+- sensor:
+  - default_entity_id: sensor.dryer_time_display
+    name: Dryer Time Display
+    state: "{% if is_state('sensor.dryer_run_state', '-') %} {% elif is_state('sensor.dryer_run_state',
+      'unavailable') %} {% elif is_state('sensor.dryer_run_state', 'Standby') %}\n
+      \ -:--\n{% else %}\n  {{ state_attr(\"sensor.dryer\",\"remain_time\").split(\":\")[:-1]
+      | join(':') }}\n{% endif %}"
+
+- sensor:
+  - default_entity_id: sensor.blank
+    name: Blank Sensor
+    state: ''
+
+# UI-managed files stay on the PVC and are written by the HA editors.
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+homeassistant:
+  packages: !include_dir_named packages
+
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - ${POD_CIDR}
+    - ${SERVICE_CIDR}
+    - ${LB_CIDR}
+  # Keep login banning off until Cloudflare -> Traefik real-client-IP handling is
+  # verified; otherwise a single bad actor can ban a shared edge IP (runbook §6.2.4).
+  ip_ban_enabled: false
+  login_attempts_threshold: 5
+
+recorder:
+  db_url: !env_var HASS_DB_URL
+  purge_keep_days: 10
+  commit_interval: 30

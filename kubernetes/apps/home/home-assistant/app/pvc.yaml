@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/core/persistentvolumeclaim_v1.json
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: home-assistant-config
+  namespace: home
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+  labels:
+    recurring-job-group.longhorn.io/default: enabled
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 2Gi

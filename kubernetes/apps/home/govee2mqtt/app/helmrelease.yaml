@@ -1,0 +1,79 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name govee2mqtt
+  namespace: home
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      remediateLastFailure: true
+      strategy: rollback
+      retries: 3
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  maxHistory: 1
+  values:
+    controllers:
+      govee2mqtt:
+        type: deployment
+        replicas: 1
+        # A rolling update would briefly run two pods with the same static net1 IP.
+        strategy: Recreate
+        pod:
+          annotations:
+            # Own net1 IP for the Govee LAN API (devices reply to UDP 4002 on the
+            # source IP they see); lan-routed keeps 192.168.4.0/24 in the main table.
+            k8s.v1.cni.cncf.io/networks: >-
+              [{"name":"lan-routed","namespace":"networking","interface":"net1","ips":["192.168.2.8/24"],"mac":"02:96:57:5c:1a:08"}]
+        containers:
+          app:
+            image:
+              repository: ghcr.io/wez/govee2mqtt
+              tag: "2026.03.25-ab9deb66"
+              pullPolicy: IfNotPresent
+            env:
+              TZ: ${TIMEZONE}
+              GOVEE_TEMPERATURE_SCALE: F
+              GOVEE_LAN_SCAN: "192.168.4.35,192.168.4.135"
+              GOVEE_LAN_NO_MULTICAST: "true"
+              GOVEE_MQTT_HOST: mosquitto.home.svc.cluster.local
+              GOVEE_MQTT_PORT: "1883"
+            envFrom:
+              - secretRef:
+                  name: govee2mqtt-secret
+            ports:
+              - name: http
+                containerPort: 8056
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+    service:
+      app:
+        controller: govee2mqtt
+        ports:
+          http:
+            port: 8056

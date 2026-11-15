@@ -1,0 +1,4 @@
+---
+# Placeholder package so `!include_dir_named packages` always has a directory.
+# Add Git-managed packages here as they are promoted from the UI (runbook §6.2).
+{}

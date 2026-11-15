@@ -15,12 +15,12 @@
 
 - Home:
     - HomeAssistant:
-        href: http://homeassistant.local:8123
+        href: https://ha.${SECRET_DOMAIN}
         icon: home-assistant
         description: Home Assistant
         widget:
             type: homeassistant
-            url: http://192.168.2.7:8123
+            url: http://home-assistant.home.svc.cluster.local:8123
             key: {{HOMEPAGE_VAR_HASS_TOKEN}}
 
 - Infrastructure:

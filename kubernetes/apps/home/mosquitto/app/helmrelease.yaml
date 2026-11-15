@@ -1,0 +1,108 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name mosquitto
+  namespace: home
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      remediateLastFailure: true
+      strategy: rollback
+      retries: 3
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  maxHistory: 1
+  values:
+    controllers:
+      mosquitto:
+        type: deployment
+        replicas: 1
+        strategy: Recreate
+        pod:
+          annotations:
+            reloader.stakater.com/auto: "true"
+          securityContext:
+            fsGroup: 1883
+        containers:
+          app:
+            image:
+              repository: eclipse-mosquitto
+              tag: "2.0.22"
+              pullPolicy: IfNotPresent
+            ports:
+              - name: mqtt
+                containerPort: 1883
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 1883
+                  initialDelaySeconds: 5
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+    service:
+      app:
+        controller: mosquitto
+        ports:
+          mqtt:
+            port: 1883
+    persistence:
+      config:
+        type: configMap
+        name: mosquitto-config
+        advancedMounts:
+          mosquitto:
+            app:
+              - path: /mosquitto/config/mosquitto.conf
+                subPath: mosquitto.conf
+      auth:
+        type: secret
+        name: mosquitto-auth
+        advancedMounts:
+          mosquitto:
+            app:
+              - path: /mosquitto/config/passwd
+                subPath: passwd
+      data:
+        type: persistentVolumeClaim
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 512Mi
+        retain: true
+        labels:
+          recurring-job-group.longhorn.io/default: enabled
+        advancedMounts:
+          mosquitto:
+            app:
+              - path: /mosquitto/data

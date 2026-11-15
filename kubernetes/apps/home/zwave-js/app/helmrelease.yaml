@@ -1,0 +1,99 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/refs/heads/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name zwave-js
+  namespace: home
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      remediateLastFailure: true
+      strategy: rollback
+      retries: 3
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  maxHistory: 1
+  values:
+    controllers:
+      zwave-js:
+        type: deployment
+        # Start at cutover after ser2net is up and the USB devices are detached.
+        replicas: 0
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: zwavejs/zwave-js-ui
+              tag: "11.26.2"
+              pullPolicy: IfNotPresent
+            env:
+              TZ: ${TIMEZONE}
+              # Setting ZWAVE_PORT also enables Z-Wave.
+              ZWAVE_PORT: tcp://192.168.2.3:4002
+              ZWAVE_EXTERNAL_SETTINGS: /config/external-settings.json
+            ports:
+              - name: ws
+                containerPort: 3000
+              - name: http
+                containerPort: 8091
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 3000
+                  initialDelaySeconds: 10
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    service:
+      app:
+        controller: zwave-js
+        ports:
+          ws:
+            port: 3000
+          http:
+            port: 8091
+    persistence:
+      external-settings:
+        type: secret
+        name: zwave-js-external-settings
+        advancedMounts:
+          zwave-js:
+            app:
+              - path: /config/external-settings.json
+                subPath: external-settings.json
+                readOnly: true
+      store:
+        type: persistentVolumeClaim
+        existingClaim: zwave-js-store
+        globalMounts:
+          - path: /usr/src/app/store

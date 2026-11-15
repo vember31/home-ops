@@ -7,4 +7,8 @@ resources:
   - ./namespace.yaml
   
   # Post Flux-Kustomizations
+  - ./govee2mqtt/ks.yaml
+  - ./home-assistant/ks.yaml
+  - ./mosquitto/ks.yaml
   - ./outline/ks.yaml
+  - ./zwave-js/ks.yaml
