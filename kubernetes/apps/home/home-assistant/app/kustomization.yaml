@@ -13,7 +13,7 @@ configMapGenerator:
       - configuration.yaml=./config/configuration.yaml
   - name: home-assistant-packages
     files:
-      - README.yaml=./config/packages/README.yaml
+      - readme.yaml=./config/packages/readme.yaml
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
