@@ -1,7 +1,7 @@
 # Home Assistant: HAOS → Kubernetes Migration Runbook
 
-**Status:** Phase 0 complete (Multus enabled and validated); Phase 1 complete (all apps staged, HA/Z-Wave at `replicas: 0`); Phase 2/3 cutover pending  
-**Last updated:** 2026-11-15 (Phase 1 staging and seed rehearsal)  
+**Status:** Phases 0–3 complete (cutover 2026-11-15); Phase 4 validation in progress; Phase 5 decommission pending  
+**Last updated:** 2026-11-15 (cutover completed; HA 2026.11 HTTP config store note)  
 **Secrets audit:** HAOS `secrets.yaml` is the default unused stub; no `!secret` references exist, so it is not migrated or mounted.  
 **Target:** Home Assistant Container `2026.11.x` in the `home` namespace  
 **Database:** CNPG `postgres-18` (`homeassistant` database)  
@@ -10,46 +10,77 @@
 
 ---
 
-## Migration progress (2026-11-15)
+## Cutover result (2026-11-15)
 
-Phase 1 is staged and Flux-managed. HAOS is still authoritative; the HA and Z-Wave
-Deployments are at `replicas: 0` and the external ingress is disabled.
+HAOS was stopped and the cutover completed. HAOS VM 300 is stopped with
+`onboot: 0` and kept intact for rollback; its USB radios are detached. `ser2net`
+4.6.4 is active on `pve` and the cluster can reach 4001/4002.
 
-Verified before cutover:
+Current state:
 
-- Multus is 8/8; Cilium has `cni-exclusive: false`; all eight nodes have
-  `00-multus.conflist` and `05-cilium.conflist`, with no `.cilium_bak`.
-- `lan` passed the `.77` test (L2, DNS, SBR); `ip route get 192.168.4.35` uses
-  `eth0`, so HA-initiated IoT traffic is SNATed to the node IP. `lan-routed`
-  passed the `.78` test and routes IoT via `net1` with source `192.168.2.78`;
-  this is the Govee path.
-- `ser2net` 4.6.4 is installed on `pve` with `configs/ser2net/ser2net.yaml`, but
-  the service is disabled until the radios are detached from VM 300.
-- The `homeassistant` GitLab variable already contains all required values; the
-  five ExternalSecrets sync. The six Z-Wave keys match the live HAOS config
-  entry, and the legacy `network_key` equals `s0_legacy_key`.
-- CNPG `postgres-18` is healthy; the `homeassistant` role/database were created
-  and a direct `postgresql://` connection as the `homeassistant` user succeeded.
-- Mosquitto is running and validates the HA user, the Govee user, and anonymous
-  denial. Govee2MQTT is running at `net1` `192.168.2.8` and connected to
-  Mosquitto; its LAN probe did not get a reply from the two known devices yet
-  (UDM rule/device LAN API still to confirm).
-- HA and Z-Wave HelmReleases are healthy at `replicas: 0`; both PVCs are Bound.
-  The HA config was exported from HAOS, committed, and the 26 MiB config-only
-  tar was uploaded through a temporary Multus seed pod at `192.168.2.79` and
-  extracted into the PVC. No SQLite DB is on the PVC.
-- The Homepage service entry now points at the in-cluster Service; it is not yet
-  reachable because HA is at zero replicas.
+- HA Core 2026.11.1 runs in the `home` namespace as a 2/2 pod: `eth0` on Cilium
+  and `net1` at `192.168.2.7/24` with MAC `02:96:57:5c:1a:5e`. HA uses the
+  Cilium default route and the LAN leg is enabled in HA's network settings.
+- The recorder uses CNPG `postgres-18`; the `homeassistant` database has recorder
+  tables and no `home-assistant_v2.db` exists on the PVC.
+- MQTT points at `mosquitto.home.svc.cluster.local`; ZHA uses
+  `socket://192.168.2.3:4001`; Z-Wave JS uses
+  `ws://zwave-js.home.svc.cluster.local:3000` with `use_addon: false`; eufy uses
+  the sidecar at `127.0.0.1:3000`. Supervisor was removed, and Keymaster, Backup,
+  and Google Drive are loaded.
+- The pre-migration integration baseline is unchanged: the only not-loaded or
+  retrying entries are the same ones recorded before the cutover (Family Room
+  TV, Main Floor thermostat, duplicate UniFi Protect, Bedroom TV, and the two
+  user-disabled Tuya/SmartLife entries).
+- `https://ha.vember31.xyz` is served by Traefik with an external-dns CNAME and
+  a valid cert-manager certificate. Blocky and AdGuard both resolve the name to
+  `192.168.10.20`; `http://192.168.2.7:8123` remains the direct LAN fallback.
+  Homepage reaches the Service over `eth0`, and the external Gatus check is
+  green.
+- A manual 3.6 MiB config-only backup uploaded to both the local backup agent and
+  Google Drive. A manual CNPG/Barman backup (`postgres-18-ha-cutover`,
+  `20261115T175953`) completed after the `homeassistant` database was created.
 
-Remaining for the cutover window:
+### HA 2026.11 HTTP config store
 
-- Final HAOS backup/config tar, stop HAOS, detach USB, start `ser2net`, seed the
-  PVC from the final snapshot.
-- Set Z-Wave and HA to `replicas: 1`; complete the ZHA/Z-Wave/MQTT/eufy/URL
-  UI steps in §7.5.
-- Delete the old Cloudflare `ha.vember31.xyz` CNAME, enable the external ingress,
-  add the Blocky (and AdGuard) split-DNS override, and add the external Gatus
-  endpoint.
+HA 2026.11 moved the HTTP server configuration (`use_x_forwarded_for`,
+`trusted_proxies`, `ip_ban_enabled`, port, CORS, SSL profile) into
+`.storage/http`. YAML `http:` is migrated once and then ignored; leaving it in
+`configuration.yaml` raises the `http.yaml_still_present_after_migration` repair
+issue. The cutover set the supported store with the `http/config` /
+`http/config/configure` / `http/config/promote` WebSocket commands:
+
+```text
+trusted_proxies: 172.30.33.0/24, 10.42.0.0/16, 10.43.0.0/16, 192.168.10.0/24
+ip_ban_enabled: false
+```
+
+The `.storage/http` file is runtime state on the PVC, not Git-managed. Reapply
+those values after any PVC restore. `ip_ban_enabled` stays off until Traefik's
+Cloudflare real-client-IP handling is verified.
+
+Remaining cleanup / validation:
+
+- Remove the old Cloudflared public hostname for `ha.vember31.xyz` from the
+  Cloudflare Zero Trust dashboard. The DNS CNAME was already deleted and
+  external-dns owns the name now; the API token used here does not have Zero
+  Trust tunnel permissions, so the tunnel route itself still needs manual
+  removal.
+- Govee2MQTT is connected to MQTT with `net1` at `192.168.2.8`, but its LAN
+  probe still does not receive replies from the two known devices. Confirm the
+  Govee LAN API and add the UDM rule IoT → `192.168.2.8` UDP 4002 if local
+  control is wanted; cloud control currently works.
+- ESPHome `konnected-9451dc95ebac` at `192.168.4.28:6053` is unreachable from
+  both the HA `lan` path and the `lan-routed` Govee path, which points at the
+  device being offline rather than the SNAT path. Check the device; other IoT
+  devices tested from `lan` are reachable.
+- Z-Wave node 4 completed its interview; battery nodes (for example node 5) need
+  to be woken. Test a lock and a mains-powered device, then set the RF region in
+  Z-Wave JS UI if it does not already report USA (Long Range).
+- The first Longhorn recurring backup for the new PVCs runs on the next daily
+  schedule (10:07 UTC); verify it lands on the NFS target.
+- Still to run: a node-drain/reschedule test, a restore drill, and the Phase 5
+  decommission after 2–4 weeks of stable operation.
 
 ---
 
@@ -947,14 +978,9 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
-http:
-  use_x_forwarded_for: true
-  trusted_proxies:
-    - ${POD_CIDR}
-    - ${SERVICE_CIDR}
-    - ${LB_CIDR}
-  ip_ban_enabled: true
-  login_attempts_threshold: 5
+# HA 2026.11: HTTP server settings live in .storage/http. Do not add an `http:`
+# block; it is migrated once and then ignored, and leaving it raises a repair
+# issue. Apply trusted_proxies/ip_ban through the http/config WebSocket API.
 
 recorder:
   db_url: !env_var HASS_DB_URL
@@ -964,7 +990,7 @@ recorder:
 
 `HASS_DB_URL` comes from the `home-assistant-db` Secret and points at `postgres-18-rw.database.svc.cluster.local:5432/homeassistant`. The `postgres-init` init container creates the role/database; HA creates the recorder schema on first start.
 
-*Review 2026-11-11, `trusted_proxies`:* the three CIDRs above trust every pod, not just Traefik. Also, with Cloudflare in front, HA sees the Cloudflare edge IP as the client unless Traefik restores the real client IP (for example `CF-Connecting-IP`) or the Cloudflare ranges are in `trusted_proxies`. With `ip_ban_enabled` and `login_attempts_threshold: 5`, five bad logins would then ban an edge IP for everyone using that edge. Verify how the `networking-external-with-errors` chain handles the client IP, and leave `ip_ban_enabled` off until you have. LAN clients are unaffected once split DNS is in place (§6.7.1) because they reach Traefik with their real source IP.
+*Review 2026-11-15, HTTP config store:* HA 2026.11 stores the HTTP server config in `.storage/http` and ignores YAML `http:` after the one-time migration. Set `trusted_proxies` to the pod/service/LB CIDRs (the cutover used `172.30.33.0/24`, `10.42.0.0/16`, `10.43.0.0/16`, and `192.168.10.0/24`) and keep `ip_ban_enabled` off until Cloudflare real-client-IP handling is verified. Use the `http/config` WebSocket command to inspect it, `http/config/configure` to stage a change, and `http/config/promote` after verifying HA is healthy. The store is runtime state on the PVC, so reapply it after a PVC restore. LAN clients are unaffected by the Cloudflare edge-IP issue once split DNS is in place (§6.7.1).
 
 Packages are merged with `automations.yaml`/`scripts.yaml`/`scenes.yaml`, so you can put a Git-reviewed automation in `packages/automations/` without disabling the UI editor. The UI editor only writes `automations.yaml`; package entries are effectively read-only in the UI. Avoid duplicate automation IDs or script keys between the two locations.
 
@@ -2372,20 +2398,15 @@ Do not commit keys, `settings.json`, `nodes.json`, or NVM backups to Git.
 The static config is now Git-managed. Do **not** edit `/config/configuration.yaml` in the pod; it is a read-only ConfigMap mount. Confirm the target `configuration.yaml` from §6.2.4 is committed and reconciled. For reference, the required blocks are:
 
 ```yaml
-http:
-  use_x_forwarded_for: true
-  trusted_proxies:
-    - ${POD_CIDR}
-    - ${SERVICE_CIDR}
-    - ${LB_CIDR}
-  ip_ban_enabled: true
-  login_attempts_threshold: 5
-
 recorder:
   db_url: !env_var HASS_DB_URL
   purge_keep_days: 10
   commit_interval: 30
 ```
+
+The HTTP server config is **not** in YAML in HA 2026.11. It lives in
+`.storage/http`; use the `http/config` WebSocket API and promote the pending
+config after verifying HA is healthy (see §6.2.4 and the cutover result above).
 
 `HASS_DB_URL` comes from the `home-assistant-db` Secret and points at `postgres-18-rw.database.svc.cluster.local:5432/homeassistant`. The `postgres-init` init container creates the role/database; HA creates the recorder schema on first start.
 
@@ -2494,6 +2515,7 @@ Expect errors from integrations that still point at HAOS-only endpoints. Work th
      - Internal URL: **set it explicitly; do not leave it empty.** With it empty, HA auto-detects the internal URL from the default-route adapter. On HAOS today that is `http://192.168.2.7:8123`; in the pod it would be the `eth0` pod IP (`http://10.42.x.x:8123`), which Cast devices and the companion app cannot reach. Recommended: `http://192.168.2.7:8123` (independent of Traefik, DNS and the allowlist, and works for Cast on any VLAN that can reach `.7`). With split DNS (§6.7.1), `https://ha.vember31.xyz` also works internally but depends on Traefik and the allowlist. Do **not** use `ha.local`.
    - Enable the `net1` adapter in the Network adapter list (Advanced mode). It should show `192.168.2.7`.
    - If HA shows `eth0` only, or the old `enp0s18` adapter, enable `net1` and disable stale adapters. Consider also disabling `eth0` in the adapter list so discovery and source-IP detection use the LAN interface (the HTTP server still listens on all interfaces, so Traefik → pod keeps working).
+   - HA 2026.11: verify the HTTP server config with the `http/config` WebSocket command. It should show the trusted proxies (`10.42.0.0/16`, `10.43.0.0/16`, `192.168.10.0/24`, or your equivalents) and `ip_ban_enabled: false`. Do not put this in YAML; see §6.2.4.
 
 8. **HACS / custom integrations**
    - Check the logs for `ModuleNotFoundError`.
