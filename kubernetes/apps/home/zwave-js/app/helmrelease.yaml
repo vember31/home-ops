@@ -82,6 +82,31 @@ spec:
             port: 3000
           http:
             port: 8091
+    ingress:
+      app:
+        enabled: true
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: traefik.local.${SECRET_DOMAIN}
+          traefik.ingress.kubernetes.io/router.middlewares: networking-internal-with-errors@kubernetescrd
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/name: Z-Wave JS UI
+          gethomepage.dev/description: Z-Wave Network Management
+          gethomepage.dev/group: Home
+          gethomepage.dev/icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/z-wave.svg
+          gethomepage.dev/href: https://zwave.local.${SECRET_DOMAIN}
+          gethomepage.dev/siteMonitor: http://zwave-js.home.svc.cluster.local:8091
+        hosts:
+          - host: &host zwave.local.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: zwave-js-tls-production
+            hosts:
+              - *host
     persistence:
       external-settings:
         type: secret
