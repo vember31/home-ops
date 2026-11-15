@@ -47,16 +47,11 @@ scene: !include scenes.yaml
 homeassistant:
   packages: !include_dir_named packages
 
-http:
-  use_x_forwarded_for: true
-  trusted_proxies:
-    - ${POD_CIDR}
-    - ${SERVICE_CIDR}
-    - ${LB_CIDR}
-  # Keep login banning off until Cloudflare -> Traefik real-client-IP handling is
-  # verified; otherwise a single bad actor can ban a shared edge IP (runbook §6.2.4).
-  ip_ban_enabled: false
-  login_attempts_threshold: 5
+# HA 2026.11 moved the HTTP server config (trusted_proxies, ip_ban, server
+# settings) into .storage/http. YAML `http:` is migrated once and then ignored;
+# leave it out to avoid the `yaml_still_present_after_migration` repair issue.
+# The cutover sets the supported store via the `http/config/configure` and
+# `http/config/promote` WebSocket commands.
 
 recorder:
   db_url: !env_var HASS_DB_URL
