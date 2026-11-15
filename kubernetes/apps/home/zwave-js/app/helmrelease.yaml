@@ -38,7 +38,7 @@ spec:
       zwave-js:
         type: deployment
         # Start at cutover after ser2net is up and the USB devices are detached.
-        replicas: 0
+        replicas: 1
         strategy: Recreate
         containers:
           app:
