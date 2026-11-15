@@ -37,8 +37,8 @@ spec:
     controllers:
       home-assistant:
         type: deployment
-        # Staged at 0 until the cutover (runbook §8).
-        replicas: 0
+        # Started at cutover after the PVC is seeded and HAOS VM 300 is stopped.
+        replicas: 1
         strategy: Recreate
         pod:
           annotations:
