@@ -55,11 +55,5 @@
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k3s)(?<build>\\d+)$",
       "matchPackageNames": ["/k3s/"]
     },
-    {
-      "description": "Hold Silo updates until the 1.0 transcode-node migration is completed (nodes need SILO_CORE_URL and SILO_NODE_KEY)",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["ghcr.io/silo-server/silo-server"],
-      "enabled": false
-    },
   ]
 }

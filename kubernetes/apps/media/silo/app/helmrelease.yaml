@@ -66,6 +66,7 @@ spec:
         enabled: true
         type: deployment
         replicas: 1
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         pod:
@@ -89,7 +90,7 @@ spec:
           app:
             image:
               repository: ghcr.io/silo-server/silo-server
-              tag: latest@sha256:02e755b4c7b98c20f2aa494e6c9cd9e73a2c8544a3f9d5a78dbe9a5cad2e3677
+              tag: latest@sha256:14b707dd749e5eaf926c2fd91c9e221e71de53af12346f93bb98cfc3433eb49a
               pullPolicy: IfNotPresent
             command:
               - silo
@@ -166,6 +167,7 @@ spec:
         enabled: true
         type: deployment
         replicas: 1
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         pod:
@@ -181,7 +183,7 @@ spec:
           app:
             image:
               repository: ghcr.io/silo-server/silo-server
-              tag: latest@sha256:02e755b4c7b98c20f2aa494e6c9cd9e73a2c8544a3f9d5a78dbe9a5cad2e3677
+              tag: latest@sha256:14b707dd749e5eaf926c2fd91c9e221e71de53af12346f93bb98cfc3433eb49a
               pullPolicy: IfNotPresent
             command:
               - silo
@@ -190,27 +192,14 @@ spec:
               MODE: transcode
               PORT: *port
               HOME: /tmp
-              SILO_PLUGIN_CACHE_DIR: /config/silo/plugins
+              SILO_CORE_URL: http://silo-app.media.svc.cluster.local:8080
+              SILO_NODE_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: silo-transcode-node-key
+                    key: SILO_NODE_KEY
               SILO_STOP_GRACE_PERIOD: 11m
               SILO_NODE_DRAIN_TIMEOUT: 10m
-              NODE_NAME: gpu-worker
-              NODE_URL: http://silo-transcode.media.svc.cluster.local:8080
-              POSTGRES_TUNE: "off"
-              DATABASE_URL:
-                valueFrom:
-                  secretKeyRef:
-                    name: silo-secret
-                    key: DATABASE_URL
-              REDIS_URL:
-                valueFrom:
-                  secretKeyRef:
-                    name: silo-secret
-                    key: REDIS_URL
-              SECRET_KEY:
-                valueFrom:
-                  secretKeyRef:
-                    name: silo-secret
-                    key: SECRET_KEY
             probes:
               liveness: &nodeProbes
                 enabled: true
