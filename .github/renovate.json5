@@ -22,8 +22,12 @@
     'github>vember31/home-ops//.github/renovate/semanticCommits.json5',
   ],
   ignoreTests: true,
-  dependencyDashboardTitle: 'Renovate Dashboard 🤖',
-  dependencyDashboardLabels: ['📋 renovate/dashboard'],
+  dependencyDashboard: {
+    title: 'Renovate Dashboard 🤖',
+    labels: [
+      '📋 renovate/dashboard',
+    ],
+  },
   prBodyColumns: [
     'Package',
     'Type',
@@ -39,7 +43,9 @@
   ],
   rebaseWhen: 'conflicted',
   vulnerabilityAlerts: {
-    addLabels: ['🔒 renovate/security'],
+    addLabels: [
+      '🔒 renovate/security',
+    ],
   },
   assigneesFromCodeOwners: true,
   reviewersFromCodeOwners: true,
