@@ -90,7 +90,7 @@ spec:
           app:
             image:
               repository: ghcr.io/silo-server/silo-server
-              tag: latest@sha256:99692f3863fb7a0f8c42e4d256565628dc17aecd1d0eab1a5f9629096e1f06ce
+              tag: latest@sha256:fdab027fb84aaa8355557cc50fdcb194f07fba9953a8f37889b1b3acfdb968d9
               pullPolicy: IfNotPresent
             command:
               - silo
@@ -183,7 +183,7 @@ spec:
           app:
             image:
               repository: ghcr.io/silo-server/silo-server
-              tag: latest@sha256:99692f3863fb7a0f8c42e4d256565628dc17aecd1d0eab1a5f9629096e1f06ce
+              tag: latest@sha256:fdab027fb84aaa8355557cc50fdcb194f07fba9953a8f37889b1b3acfdb968d9
               pullPolicy: IfNotPresent
             command:
               - silo
