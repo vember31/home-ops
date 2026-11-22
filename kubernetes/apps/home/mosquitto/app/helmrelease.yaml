@@ -44,6 +44,22 @@ spec:
             reloader.stakater.com/auto: "true"
           securityContext:
             fsGroup: 1883
+        initContainers:
+          init-auth:
+            image:
+              repository: eclipse-mosquitto
+              tag: "2.0.22@sha256:81a6193ae693942a3231cd3ac52875b02b7e3a19da671b2fb4b55cc874c5b279"
+              pullPolicy: IfNotPresent
+            command:
+              - /bin/sh
+              - -c
+              - |
+                cp /auth-secret/passwd /auth/passwd
+                chown 1883:1883 /auth/passwd
+                chmod 0600 /auth/passwd
+            securityContext:
+              runAsUser: 0
+              runAsGroup: 0
         containers:
           app:
             image:
@@ -89,8 +105,18 @@ spec:
       auth:
         type: secret
         name: mosquitto-auth
+        defaultMode: 0440
         advancedMounts:
           mosquitto:
+            init-auth:
+              - path: /auth-secret
+                readOnly: true
+      auth-copy:
+        type: emptyDir
+        advancedMounts:
+          mosquitto:
+            init-auth:
+              - path: /auth
             app:
               - path: /mosquitto/config/passwd
                 subPath: passwd
