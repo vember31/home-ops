@@ -13,7 +13,7 @@ spec:
   # renovate: depName="Kubernetes / Views / Namespaces"
   grafanaCom:
     id: 15758
-    revision: 46
+    revision: 47
   datasources:
     - inputName: DS_PROMETHEUS
       datasourceName: VictoriaMetrics
