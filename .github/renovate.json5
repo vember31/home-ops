@@ -22,6 +22,7 @@
     'github>vember31/home-ops//.github/renovate/semanticCommits.json5',
   ],
   ignoreTests: true,
+  platformAutomerge: true,
   dependencyDashboard: {
     title: 'Renovate Dashboard 🤖',
     labels: [

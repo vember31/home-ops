@@ -8,6 +8,7 @@
       "automergeType": "pr",
       "matchUpdateTypes": ["digest"],
       "matchPackageNames": ["/hotio/","/bazarr/","/sonarr/","/radarr/","/qbittorrent/","/prowlarr/","/autopulse/","/maintainerr/","ghcr.io/silo-server/silo-server"],
+      "prPriority": -1,
       "addLabels": ["🤖 renovate/automerge"]
     },
     {
@@ -16,7 +17,6 @@
       "matchUpdateTypes": ["patch", "minor","major","digest"], 
       "automerge": true,
       "automergeType": "pr",
-      "rangeStrategy": "replace",
       "addLabels": ["🤖 renovate/automerge"]
     }
   ]
