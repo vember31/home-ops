@@ -74,44 +74,12 @@ kubectl -n storage get volumes.longhorn.io "$VOL" -o jsonpath='{.status.actualSi
   awk '{ printf "%.1f MiB\n", $1 / 1048576 }'
 ```
 
-## Optional: automated trim
+## Automated trim
 
-To make this automatic without resizing the PVC, add a small CronJob that mounts the PVC, runs `fstrim`, and exits. Schedule it in the gap between app runs (for example `05:00` UTC), and keep `SYS_ADMIN` on this short-lived pod rather than on the internet-facing app container.
+`app/trim-cronjob.yaml` runs `epicgames-trim` daily at 05:00 UTC. It mounts the PVC, runs `fstrim`, and exits. `SYS_ADMIN` stays on this short-lived pod rather than on the internet-facing app container.
 
-```yaml
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: epicgames-trim
-  namespace: games
-spec:
-  schedule: "0 5 * * *"
-  timeZone: Etc/UTC
-  concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 1
-  failedJobsHistoryLimit: 1
-  jobTemplate:
-    spec:
-      backoffLimit: 0
-      activeDeadlineSeconds: 1800
-      template:
-        spec:
-          restartPolicy: Never
-          automountServiceAccountToken: false
-          containers:
-            - name: trim
-              image: ghcr.io/claabs/epicgames-freegames-node:latest
-              command: ["sh", "-c", "fstrim -v /usr/app/config"]
-              securityContext:
-                capabilities:
-                  add: ["SYS_ADMIN"]
-              volumeMounts:
-                - name: config
-                  mountPath: /usr/app/config
-          volumes:
-            - name: config
-              persistentVolumeClaim:
-                claimName: epicgames-config-v2
-```
+05:00 UTC is between the 04:15 and 10:15 UTC app runs (the app schedule is 04:15/10:15/16:15/22:15 America/Chicago), so it stays inside the gap after DST changes too. If a run needs a manual device login it can hold the volume past 05:00 UTC; the trim job then fails for the day (`backoffLimit: 0`) and retries the next day without disturbing the running app.
 
-Alternatively, `persistence.config.size` in the HelmRelease can be increased (Longhorn supports online expansion) if maintaining the trim job is not desirable.
+Aligning the Longhorn `filesystem-trim` RecurringJob with the app's run window does not work: the Longhorn job only trims volumes that are already attached, and the app holds this volume for only ~20 seconds per run. In Longhorn 1.13 the job cannot attach detached volumes for trim, so the dedicated CronJob is what makes this deterministic.
+
+Alternatively, `persistence.config.size` in the HelmRelease can be increased (Longhorn supports online expansion) for more headroom.

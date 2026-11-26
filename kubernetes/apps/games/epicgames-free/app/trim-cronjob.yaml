@@ -1,0 +1,43 @@
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/batch/cronjob_v1.json
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: epicgames-trim
+  namespace: games
+spec:
+  # 05:00 UTC is between the 04:15 and 10:15 UTC epicgames runs. The app's
+  # schedule is 04:15/10:15/16:15/22:15 America/Chicago, so this stays inside
+  # the gap after DST changes too.
+  schedule: "0 5 * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 600
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 1800
+      template:
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          containers:
+            - name: trim
+              image: docker.io/library/busybox:1.38
+              imagePullPolicy: IfNotPresent
+              command: ["sh", "-c", "fstrim -v /usr/app/config"]
+              securityContext:
+                capabilities:
+                  add: ["SYS_ADMIN"]
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 16Mi
+              volumeMounts:
+                - name: config
+                  mountPath: /usr/app/config
+          volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: epicgames-config-v2
