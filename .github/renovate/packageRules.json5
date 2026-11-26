@@ -23,7 +23,7 @@
       "description": "version with a v, then semver and then compatibility",
       "matchDatasources": ["docker"],
       "versioning": "regex:^v(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(-hf(?P<build>\\d+))?$",
-      "matchPackageNames": ["/requestrr/","/imagemaid/","/qbit_manage/","/zap2xml/","/qui/","/seerr/"]
+      "matchPackageNames": ["/requestrr/","/imagemaid/","/qbit_manage/","/zap2xml/","ghcr.io/autobrr/qui","/seerr/"]
     },
     {
       "description": "jellyfin: exclude date-like tags (major capped at 3 digits); the official image uses 2-part tags like 12.1, so patch is optional",
