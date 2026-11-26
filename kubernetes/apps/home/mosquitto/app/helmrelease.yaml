@@ -54,9 +54,12 @@ spec:
               - /bin/sh
               - -c
               - |
-                cp /auth-secret/passwd /auth/passwd
-                chown 1883:1883 /auth/passwd
-                chmod 0600 /auth/passwd
+                cp /auth-secret/passwd /config/passwd
+                chown 1883:1883 /config/passwd
+                chmod 0600 /config/passwd
+                cp /config-src/mosquitto.conf /config/mosquitto.conf
+                chown 1883:1883 /config/mosquitto.conf
+                chmod 0644 /config/mosquitto.conf
             securityContext:
               runAsUser: 0
               runAsGroup: 0
@@ -99,9 +102,9 @@ spec:
         name: mosquitto-config
         advancedMounts:
           mosquitto:
-            app:
-              - path: /mosquitto/config/mosquitto.conf
-                subPath: mosquitto.conf
+            init-auth:
+              - path: /config-src
+                readOnly: true
       auth:
         type: secret
         name: mosquitto-auth
@@ -116,10 +119,9 @@ spec:
         advancedMounts:
           mosquitto:
             init-auth:
-              - path: /auth
+              - path: /config
             app:
-              - path: /mosquitto/config/passwd
-                subPath: passwd
+              - path: /mosquitto/config
       data:
         type: persistentVolumeClaim
         storageClass: longhorn
