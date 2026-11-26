@@ -20,6 +20,7 @@ spec:
       retries: 3
   upgrade:
     cleanupOnFail: true
+    timeout: 10m
     remediation:
       remediateLastFailure: true
       strategy: rollback
